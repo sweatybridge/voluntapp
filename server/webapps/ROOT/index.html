@@ -54,18 +54,39 @@
       // DOCUMENT READY
       $(function() {
         // Bind forms to ajax
-        $("form").submit(function(e) {
+        $("#login_form").submit(function(e) {
           e.preventDefault();
-          
           var form = $(this);
           
-          $.post(form.attr("action"),
-            {payload: JSON.stringify(getFormObj(form))},
-            ajaxRedirect, "json");
-          
+          $.ajax(form.attr("action"), {
+            data: {payload: JSON.stringify(getFormObj(form))},
+            dataType: "json",
+            method: "POST",
+            statusCode: {
+              200: function(data) { window.location.replace("main.html"); },
+              400: function(data) { $("#login_errors").text(data.responseJSON.message); }
+            }
+          });
         });
+        
+        $("#register_form").submit(function(e) {
+          e.preventDefault();
+          var form = $(this);
+          
+          $.ajax(form.attr("action"), {
+            data: {payload: JSON.stringify(getFormObj(form))},
+            dataType: "json",
+            method: "POST",
+            statusCode: {
+              200: function(data) { window.location.replace("main.html"); },
+              400: function(data) { $("#register_errors").text(data.responseJSON.message); }
+            }
+          });
+        });
+        
       }); // End of document ready
       
+      // Convert input fields into an javascript object
       function getFormObj(form) {
           var formObj = {};
           var inputs = form.serializeArray();
@@ -77,6 +98,7 @@
       
       // Return from form ajax submissions
       function ajaxRedirect(data, textStatus, jqXHR)  {
+        console.log("HI");
         alert(textStatus);
         if (textStatus === "success") {
           window.location.replace("main.html");
