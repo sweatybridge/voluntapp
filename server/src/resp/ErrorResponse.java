@@ -1,3 +1,5 @@
+package resp;
+
 public class ErrorResponse extends Response {
 
   private String message;
