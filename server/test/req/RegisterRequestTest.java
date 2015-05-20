@@ -1,15 +1,15 @@
-package servlet;
+package req;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import req.LoginRequest;
+import req.RegisterRequest;
 
-public class LoginRequestTest {
+public class RegisterRequestTest {
 
   @Test
   public void testIsValid() {
-    LoginRequest user = new LoginRequest();
+    RegisterRequest user = new RegisterRequest();
     assertFalse(user.isValid());
   }
 
