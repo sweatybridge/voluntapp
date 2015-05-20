@@ -50,32 +50,29 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     
-    <script src="https://malsup.github.com/min/jquery.form.min.js"></script>
     <script>
       // DOCUMENT READY
       $(function() {
         // Bind forms to ajax
-        $("#login_form").ajaxForm({
-          target: '#login_errors',
-          dataType: 'json',
-          success: ajaxRedirect
-        });
-        
-        $("#register_form").ajaxForm({
-          target: '#register_errors',
-          dataType: 'json',
-          success: ajaxRedirect
+        $("form").submit(function(e) {
+          e.preventDefault();
+          
+          var form = $(this);
+          
+          $.post(form.attr("action"),
+            JSON.stringify(form.serializeArray()),
+            ajaxRedirect);
+          
         });
       }); // End of document ready
       
       // Return from form ajax submissions
-      function ajaxRedirect(responseText, statusText, xhr, $form)  {
+      function ajaxRedirect(data, textStatus, jqXHR)  {
         // if the ajaxForm method was passed an Options Object with the dataType 
         // property set to 'json' then the first argument to the success callback 
         // is the json data object returned by the server 
      
-        alert('status: ' + statusText + '\n\nresponseText: \n' + responseText + 
-            '\n\nThe output div should have already been updated with the responseText.');
+        alert('data: ' + data + '\n\textStatus: \n' + textStatus);
         window.location.replace("main.html");
       }
       
