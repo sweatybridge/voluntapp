@@ -1,6 +1,9 @@
+package servlet;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
+
+import req.RegisterRequest;
 
 public class RegisterRequestTest {
 

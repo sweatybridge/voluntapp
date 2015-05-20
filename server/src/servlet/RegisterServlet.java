@@ -1,3 +1,5 @@
+package servlet;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -7,7 +9,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import req.RegisterRequest;
+import resp.ErrorResponse;
+import resp.LoginResponse;
+
 import com.google.gson.Gson;
+
+import db.DBInterface;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
@@ -16,6 +24,12 @@ public class RegisterServlet extends HttpServlet {
   private DBInterface db = new DBInterface();
 
   // TODO change to POST
+  @Override
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
+    doPost(request, response);
+  }
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -37,12 +51,12 @@ public class RegisterServlet extends HttpServlet {
     }
 
     // TODO: Write to database
-    boolean success = db.insertUser(user.getEmail(), user.getPassword(), user.getFirstName(),
-        user.getLastName());
+    boolean success =
+        db.insertUser(user.getEmail(), user.getPassword(), user.getFirstName(),
+            user.getLastName());
     if (!success) {
       response.setStatus(400);
-      out.print(gson.toJson(new ErrorResponse(
-          "Database insertion failed.")));
+      out.print(gson.toJson(new ErrorResponse("Database insertion failed.")));
       return;
     }
 

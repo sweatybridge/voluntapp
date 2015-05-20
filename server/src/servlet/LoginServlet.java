@@ -1,3 +1,5 @@
+package servlet;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -7,7 +9,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import req.LoginRequest;
+import resp.ErrorResponse;
+import resp.LoginResponse;
+
 import com.google.gson.Gson;
+
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -29,8 +36,7 @@ public class LoginServlet extends HttpServlet {
 
     // Validate registration
     if (!user.isValid()) {
-      out.print(gson.toJson(new ErrorResponse(
-          "Invalid login information.")));
+      out.print(gson.toJson(new ErrorResponse("Invalid login information.")));
       return;
     }
 

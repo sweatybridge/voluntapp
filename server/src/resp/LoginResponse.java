@@ -1,3 +1,4 @@
+package resp;
 public class LoginResponse extends Response {
 
   private String sessionId;
