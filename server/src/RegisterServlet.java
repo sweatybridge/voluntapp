@@ -30,6 +30,7 @@ public class RegisterServlet extends HttpServlet {
 
     // Validate registration
     if (!user.isValid()) {
+      response.setStatus(400);
       out.print(gson.toJson(new ErrorResponse(
           "Invalid registration information.")));
       return;
@@ -39,6 +40,7 @@ public class RegisterServlet extends HttpServlet {
     boolean success = db.insertUser(user.getEmail(), user.getPassword(), user.getFirstName(),
         user.getLastName());
     if (!success) {
+      response.setStatus(400);
       out.print(gson.toJson(new ErrorResponse(
           "Database insertion failed.")));
       return;
