@@ -13,10 +13,11 @@ import com.google.gson.Gson;
 public class RegisterServlet extends HttpServlet {
 
   private Gson gson = new Gson();
+  private DBInterface db = new DBInterface();
 
   // TODO change to POST
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
     // Setup response
@@ -24,8 +25,8 @@ public class RegisterServlet extends HttpServlet {
     PrintWriter out = response.getWriter();
 
     // Get user registration information
-    String data = request.getParameter("data");
-    RegisterRequest user = gson.fromJson(data, RegisterRequest.class);
+    String payload = request.getParameter("payload");
+    RegisterRequest user = gson.fromJson(payload, RegisterRequest.class);
 
     // Validate registration
     if (!user.isValid()) {
@@ -35,6 +36,13 @@ public class RegisterServlet extends HttpServlet {
     }
 
     // TODO: Write to database
+    boolean success = db.insertUser(user.getEmail(), user.getPassword(), user.getFirstName(),
+        user.getLastName());
+    if (!success) {
+      out.print(gson.toJson(new ErrorResponse(
+          "Database insertion failed.")));
+      return;
+    }
 
     // Return success status
     out.print(gson.toJson(new LoginResponse("test session id")));
