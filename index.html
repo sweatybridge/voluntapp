@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <meta charset="UTF-8">
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="css/common.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  </head>
+
+  <body>
+    <form class="form-centre" role="form" id="loginform" action="/login" method="post" autocomplete="on">
+      <h2 class="form-heading">Please login</h2>
+      <input type="text" name="email" class="form-control" placeholder="Email" required autofocus>
+      <input type="password" name="password" class="form-control" placeholder="Password" required>
+      <input class="btn btn-primary" type="submit" value="Login">
+      <p class="form-error"></p>
+    </form>
+    <div class="centre">
+    <p>Don't have an account?</p>
+    <a class="btn btn-default" href="register.html">Register now</a>
+    </div>
+  </body>
+</html>
