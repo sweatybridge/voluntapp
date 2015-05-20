@@ -61,7 +61,7 @@
           
           $.post(form.attr("action"),
             {payload: JSON.stringify(getFormObj(form))},
-            ajaxRedirect);
+            ajaxRedirect, "json");
           
         });
       }); // End of document ready
@@ -77,12 +77,12 @@
       
       // Return from form ajax submissions
       function ajaxRedirect(data, textStatus, jqXHR)  {
-        // if the ajaxForm method was passed an Options Object with the dataType 
-        // property set to 'json' then the first argument to the success callback 
-        // is the json data object returned by the server 
-     
-        alert('data: ' + data + '\n\textStatus: \n' + textStatus);
-        window.location.replace("main.html");
+        alert(textStatus);
+        if (textStatus === "success") {
+          window.location.replace("main.html");
+        } else {
+          alert(data.message);
+        }
       }
       
       // Register form validation function, called onsubmit
