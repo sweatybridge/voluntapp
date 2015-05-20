@@ -56,36 +56,16 @@
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
-          var form = $(this);
-          
-          $.ajax(form.attr("action"), {
-            data: {payload: JSON.stringify(getFormObj(form))},
-            dataType: "json",
-            method: "POST",
-            statusCode: {
-              200: function(data) { window.location.replace("main.html"); },
-              400: function(data) { $("#login_errors").text(data.responseJSON.message); }
-            }
-          });
+          submitAjaxForm($(this), $("#login_errors"));
         });
         
         $("#register_form").submit(function(e) {
           e.preventDefault();
-          if (!validateRegister($(this))) {
+          var form = $(this);
+          if (validateRegister(form)) {
             return
           }
-          
-          var form = $(this);
-          
-          $.ajax(form.attr("action"), {
-            data: {payload: JSON.stringify(getFormObj(form))},
-            dataType: "json",
-            method: "POST",
-            statusCode: {
-              200: function(data) { window.location.replace("main.html"); },
-              400: function(data) { $("#register_errors").text(data.responseJSON.message); }
-            }
-          });
+          submitAjaxForm(form, $("#register_errors"));
         });
         
       }); // End of document ready
@@ -100,6 +80,19 @@
           return formObj;
       }
       
+      // Submit ajax form with different error field
+      function submitAjaxForm(form, errorDiv) {
+        $.ajax(form.attr("action"), {
+          data: {payload: JSON.stringify(getFormObj(form))},
+          dataType: "json",
+          method: form.attr("method"),
+          statusCode: {
+            200: function(data) { window.location.replace("main.html"); },
+            400: function(data) { errorDiv.text(data.responseJSON.message); }
+          }
+        });
+      }
+      
       // Register form validation function, called onsubmit
       function validateRegister($form) {
         var form = $form[0];
@@ -109,20 +102,17 @@
         if (pass_val.length < 6) {
           //form["password"].setCustomValidity("At least 6 characters long");
           $("#register_errors").text("Password must be at least 6 characters long");
-          return false;
-        } /*else {
-          form["password"].setCustomValidity("");
-        }*/
+          return true;
+        }
         
         // Check confirmation
         var conf_pass_val = form["conf_password"].value;
         if (pass_val !== conf_pass_val) {
           //form["conf_password"].setCustomValidity("Passwords must match");
           $("#register_errors").text("Password must match");
-          return false;
-        }/* else {
-          form["conf_password"].setCustomValidity("");
-        }*/
+          return true;
+        }
+        return false;
       }
     </script>
   </body>
