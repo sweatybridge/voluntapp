@@ -21,6 +21,9 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import db.UserInsert;
 
+/**
+ * Handles API requests to user resources.
+ */
 @WebServlet
 public class UserServlet extends HttpServlet {
 
@@ -30,12 +33,20 @@ public class UserServlet extends HttpServlet {
   private final Gson gson;
   private final DBInterface db;
 
+  /**
+   * Constructs a user servlet with injected dependencies.
+   * 
+   * @param gson json serialiser
+   * @param db database interface
+   */
   public UserServlet(Gson gson, DBInterface db) {
     this.gson = gson;
     this.db = db;
   }
 
-  // Retrieves current user details
+  /**
+   * Retrieve details of the current user.
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -48,7 +59,9 @@ public class UserServlet extends HttpServlet {
     response.getWriter().print("user info.");
   }
 
-  // Delete the user from database
+  /**
+   * Delete current user from the database.
+   */
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -67,7 +80,9 @@ public class UserServlet extends HttpServlet {
     response.getWriter().print(gson.toJson(apiResponse));
   }
 
-  // Register the user
+  /**
+   * Register a new user with supplied information.
+   */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
@@ -91,8 +106,8 @@ public class UserServlet extends HttpServlet {
 
     // Write to database
     boolean success =
-        db.insert(new UserInsert(user.getEmail(), user.getPassword(), user.getFirstName(),
-            user.getLastName()));
+        db.insert(new UserInsert(user.getEmail(), user.getPassword(), user
+            .getFirstName(), user.getLastName()));
     if (!success) {
       response.setStatus(400);
       apiResponse =
@@ -109,7 +124,9 @@ public class UserServlet extends HttpServlet {
     response.getWriter().print(gson.toJson(apiResponse));
   }
 
-  // Logs in the user
+  /**
+   * Logs in the user with email and password.
+   */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {

@@ -10,30 +10,33 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 
+/**
+ * Sets up JSON content type and UTF-8 char encoding for all API responses.
+ * doFilter will be invoked on every incoming request.
+ */
 @WebFilter("/*")
 public class JsonFilter implements Filter {
 
   @Override
   public void destroy() {
-    // TODO Auto-generated method stub
-
+    /* Required by filter interface */
   }
 
   @Override
   public void doFilter(ServletRequest req, ServletResponse resp,
       FilterChain chain) throws IOException, ServletException {
 
-    // Sets up the content type and char encoding for all API
+    // Sets up content type and char encoding
     resp.setContentType("application/json");
     resp.setCharacterEncoding("utf-8");
 
+    // Propagates request to the next filter
     chain.doFilter(req, resp);
   }
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
-    // TODO Auto-generated method stub
-
+    /* Required by filter interface */
   }
 
 }
