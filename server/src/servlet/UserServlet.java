@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URLDecoder;
 
 import javax.servlet.ServletException;
@@ -14,21 +13,26 @@ import req.LoginRequest;
 import req.RegisterRequest;
 import resp.ErrorResponse;
 import resp.LoginResponse;
+import resp.Response;
 import resp.SuccessResponse;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
 
-@WebServlet("/user")
+@WebServlet
 public class UserServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
   // private static final Logger logger = Logger.getLogger("UserServlet");
 
-  // TODO: share these objects with singleton pattern
-  private Gson gson = new Gson();
-  private DBInterface db = new DBInterface();
+  private final Gson gson;
+  private final DBInterface db;
+
+  public UserServlet(Gson gson, DBInterface db) {
+    this.gson = gson;
+    this.db = db;
+  }
 
   // Retrieves current user details
   @Override
@@ -36,13 +40,11 @@ public class UserServlet extends HttpServlet {
       throws IOException, ServletException {
 
     // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
 
     // TODO get current user id from auth token
     // TODO retrieve user info from database
 
-    out.print("user info.");
+    response.getWriter().print("user info.");
   }
 
   // Delete the user from database
@@ -51,14 +53,17 @@ public class UserServlet extends HttpServlet {
       throws IOException, ServletException {
 
     // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
+    Response apiResponse = null;
 
     // TODO get current user id from auth token
     // TODO delete from user table
 
-    out.print(gson.toJson(new SuccessResponse(
-        "Successfully deleted user from database.")));
+    if (apiResponse == null) {
+      apiResponse =
+          new SuccessResponse("Successfully deleted user from database.");
+    }
+
+    response.getWriter().print(gson.toJson(apiResponse));
   }
 
   // Register the user
@@ -67,8 +72,7 @@ public class UserServlet extends HttpServlet {
       throws IOException, ServletException {
 
     // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
+    Response apiResponse = null;
 
     // Get user registration information
     String body = request.getReader().readLine().substring("payload=".length());
@@ -79,9 +83,9 @@ public class UserServlet extends HttpServlet {
     // Validate registration
     if (!user.isValid()) {
       response.setStatus(400);
-      out.print(gson.toJson(new ErrorResponse(
-          "You have entered invalid registration information.")));
-      return;
+      apiResponse =
+          new ErrorResponse(
+              "You have entered invalid registration information.");
     }
 
     // Write to database
@@ -90,15 +94,18 @@ public class UserServlet extends HttpServlet {
             user.getLastName());
     if (!success) {
       response.setStatus(400);
-      out.print(gson.toJson(new ErrorResponse(
-          "The email you entered is already in use.")));
-      return;
+      apiResponse =
+          new ErrorResponse("The email you entered is already in use.");
     }
 
     // TODO: create new session
 
     // Return success status
-    out.print(gson.toJson(new LoginResponse("test session id")));
+    if (apiResponse == null) {
+      apiResponse = new LoginResponse("test session id");
+    }
+
+    response.getWriter().print(gson.toJson(apiResponse));
   }
 
   // Logs in the user
@@ -107,8 +114,7 @@ public class UserServlet extends HttpServlet {
       throws IOException, ServletException {
 
     // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
+    Response apiResponse = null;
 
     // Get user registration information
     String data = request.getParameter("payload");
@@ -116,14 +122,17 @@ public class UserServlet extends HttpServlet {
 
     // Validate registration
     if (!user.isValid()) {
-      out.print(gson.toJson(new ErrorResponse(
-          "You have entered invalid login information.")));
-      return;
+      apiResponse =
+          new ErrorResponse("You have entered invalid login information.");
     }
 
     // TODO: Read from database
 
+    if (apiResponse == null) {
+      apiResponse = new LoginResponse("test session id");
+    }
+
     // Return success status
-    out.print(gson.toJson(new LoginResponse("test session id")));
+    response.getWriter().print(gson.toJson(apiResponse));
   }
 }
