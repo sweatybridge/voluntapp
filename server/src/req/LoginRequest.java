@@ -11,4 +11,12 @@ public class LoginRequest {
     return (email != null && EmailValidator.getInstance().isValid(email))
         && (password != null && password.length() >= 6);
   }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
 }
