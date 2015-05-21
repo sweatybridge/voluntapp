@@ -1,7 +1,7 @@
 package servlet;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +23,7 @@ import resp.LoginResponse;
 import com.google.gson.Gson;
 
 import db.DBInterface;
+import db.SQLInsert;
 
 public class UserServletTest {
 
@@ -69,8 +70,7 @@ public class UserServletTest {
       fail("Not yet implemented");
     }
 
-    when(db.insertUser(anyString(), anyString(), anyString(), anyString()))
-        .thenReturn(true);
+    when(db.insert(any(SQLInsert.class))).thenReturn(true);
 
     try {
       servlet.doPut(req, resp);
