@@ -1,0 +1,30 @@
+.th_weekday {
+  width: 14%;
+}
+
+.th_weekend {
+  width: 14%;
+}
+
+.event {
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+  padding: 8px;
+  margin: 5px;
+  background-color: #66FF66;
+}
+
+.event .e_title {
+  font-size: 1.4em;
+}
+
+.event .e_desc {
+  display: none;
+}
+
+.event button {
+  position: relative;
+  bottom: 10px;
+}
+
