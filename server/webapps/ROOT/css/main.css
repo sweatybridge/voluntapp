@@ -2,6 +2,10 @@
   margin-right: 40px;
 }
 
+.row .col-hidden {
+  display: none;
+}
+
 .th_weekday {
   width: 14%;
 }
