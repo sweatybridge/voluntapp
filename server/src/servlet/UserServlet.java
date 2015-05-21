@@ -26,6 +26,7 @@ public class UserServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   // private static final Logger logger = Logger.getLogger("UserServlet");
 
+  // TODO: share these objects with singleton pattern
   private Gson gson = new Gson();
   private DBInterface db = new DBInterface();
 
