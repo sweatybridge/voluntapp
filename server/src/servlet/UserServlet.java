@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +21,9 @@ import db.DBInterface;
 
 @WebServlet("/user")
 public class UserServlet extends HttpServlet {
+
+  private static final long serialVersionUID = 1L;
+  // private static final Logger logger = Logger.getLogger("UserServlet");
 
   private Gson gson = new Gson();
   private DBInterface db = new DBInterface();
@@ -48,7 +52,9 @@ public class UserServlet extends HttpServlet {
     PrintWriter out = response.getWriter();
 
     // Get user registration information
-    String payload = request.getParameter("payload");
+    String body = request.getReader().readLine().substring("payload=".length());
+    String payload = URLDecoder.decode(body, "UTF-8");
+
     RegisterRequest user = gson.fromJson(payload, RegisterRequest.class);
 
     // Validate registration
@@ -71,6 +77,7 @@ public class UserServlet extends HttpServlet {
 
     // TODO: create new session
 
+
     // Return success status
     out.print(gson.toJson(new LoginResponse("test session id")));
   }
@@ -85,7 +92,7 @@ public class UserServlet extends HttpServlet {
     PrintWriter out = response.getWriter();
 
     // Get user registration information
-    String data = request.getParameter("data");
+    String data = request.getParameter("payload");
     LoginRequest user = gson.fromJson(data, LoginRequest.class);
 
     // Validate registration
