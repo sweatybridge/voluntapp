@@ -17,6 +17,7 @@ import resp.LoginResponse;
 import com.google.gson.Gson;
 
 import db.DBInterface;
+import db.UserInsert;
 
 @WebServlet("/user")
 public class UserServlet extends HttpServlet {
@@ -61,8 +62,8 @@ public class UserServlet extends HttpServlet {
 
     // Write to database
     boolean success =
-        db.insertUser(user.getEmail(), user.getPassword(), user.getFirstName(),
-            user.getLastName());
+        db.insert(new UserInsert(user.getEmail(), user.getPassword(), user.getFirstName(),
+            user.getLastName()));
     if (!success) {
       response.setStatus(400);
       out.print(gson.toJson(new ErrorResponse("Database insertion failed.")));

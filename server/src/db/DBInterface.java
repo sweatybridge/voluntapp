@@ -1,5 +1,6 @@
 package db;
 
+
 import java.sql.*;
 
 
@@ -18,7 +19,7 @@ public class DBInterface {
 		}
 	}
 	
-	public boolean insertUser(String email, String password, String firstName, String lastName) {
+	public boolean insert(SQLInsert insertion) {
 		Statement stmt;
 		try {
 			stmt = conn.createStatement();
@@ -28,8 +29,7 @@ public class DBInterface {
 		}
 		
 		try {
-			boolean rs = stmt.execute("INSERT INTO public.\"USERS\" VALUES(DEFAULT, '" + email + "','" 
-			               + password + "','" + firstName + "','" + lastName + "', DEFAULT);");
+			boolean rs = stmt.execute(insertion.getSQLInsert());
 			System.out.println(stmt.getResultSet());
 			
 		} catch (SQLException e) {
@@ -49,5 +49,25 @@ public class DBInterface {
 		}
 		return true;
 	}
-
+	
+	/* Execute SQL query. */
+	public boolean query(SQLQuery query) {
+	  Statement stmt;
+	  try {
+	    stmt = conn.createStatement();
+	  } catch (SQLException e) {
+	    System.err.println("Error creating statement: " + e.getMessage());
+	    return false;
+	  }
+	  
+	  try {
+	    ResultSet result = stmt.executeQuery(query.getSQLQuery());
+	    query.setResult(result);
+	    return true;
+	  } catch (SQLException e) {
+	    System.err.println("Error in executing SQL SELECT query: " + 
+	      e.getMessage());
+	    return false;
+	  }
+	}
 }
