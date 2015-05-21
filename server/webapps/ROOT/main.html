@@ -41,13 +41,58 @@
     
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-2">
           <p class="lead">Welcome, {{firstName}}</p>
           <p>You haven't logged in since <strong>{{lastSeen}}</strong></p>
           <input type="text" ng-model="firstName">
+          
+          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingOne">
+                <h4 class="panel-title">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    My calendars
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                <div class="panel-body">
+                  It seems like you haven't joined to or created any calendars...
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingTwo">
+                <h4 class="panel-title">
+                  <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    My profile
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div class="panel-body">
+                  TODO: add in profile form for password update etc.
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingThree">
+                <h4 class="panel-title">
+                  <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    Settings
+                  </a>
+                </h4>
+              </div>
+              <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div class="panel-body">
+                  ??
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div class="col-sm-9">
+        <div class="col-sm-8">
           <h1 class="page-header">My events</h1>
           <table id="t_calendar" class="table">
             <colgroup>
@@ -88,8 +133,26 @@
             </tr>
           </table>
         </div>
-      </div>
-    </div>
+        
+        <div class="col-sm-2">
+          <div role="tabpanel">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs nav-justified" role="tablist">
+              <li role="presentation" class="active"><a href="#c_event" aria-controls="event" role="tab" data-toggle="tab">Event</a></li>
+              <li role="presentation"><a href="#c_calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="c_event">Create event</div>
+              <div role="tabpanel" class="tab-pane" id="c_calendar">Create calendar</div>
+            </div>
+
+          </div>
+        </div>
+        
+      </div> <!-- End of row -->
+    </div> <!-- End of container -->
   
   <script>
     $(function() {
