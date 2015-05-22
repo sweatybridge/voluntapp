@@ -55,7 +55,7 @@ public class UserServlet extends HttpServlet {
     // TODO get current user id from auth token
     // TODO retrieve user info from database
 
-    response.getWriter().print("user info."); //$NON-NLS-1$
+    response.getWriter().print("user info.");
   }
 
   /**
@@ -69,7 +69,7 @@ public class UserServlet extends HttpServlet {
     // TODO delete from user table
 
     Response resp =
-        new SuccessResponse(Messages.getString("UserServlet.deleteSuccess")); //$NON-NLS-1$
+        new SuccessResponse("Successfully deleted user from database.");
 
     response.getWriter().print(gson.toJson(resp));
   }
@@ -81,8 +81,8 @@ public class UserServlet extends HttpServlet {
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Parse user register request
-    String body = request.getReader().readLine().substring("payload=".length()); //$NON-NLS-1$
-    String payload = URLDecoder.decode(body, "UTF-8"); //$NON-NLS-1$
+    String body = request.getReader().readLine().substring("payload=".length());
+    String payload = URLDecoder.decode(body, "UTF-8");
     RegisterRequest req = gson.fromJson(payload, RegisterRequest.class);
 
     // Handle request in a RESTful manner
@@ -102,7 +102,7 @@ public class UserServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Parse user login request
-    String data = request.getParameter("payload"); //$NON-NLS-1$
+    String data = request.getParameter("payload");
     LoginRequest req = gson.fromJson(data, LoginRequest.class);
 
     // Handle request in a RESTful manner
@@ -119,7 +119,7 @@ public class UserServlet extends HttpServlet {
     // Validate registration
     if (!req.isValid()) {
       return new ErrorResponse(
-          Messages.getString("UserServlet.registerInvalid")); //$NON-NLS-1$
+          "You have entered invalid registration information.");
     }
 
     // Write to database
@@ -127,24 +127,24 @@ public class UserServlet extends HttpServlet {
         db.insert(new UserInsert(req.getEmail(), req.getPassword(), req
             .getFirstName(), req.getLastName()));
     if (!success) {
-      return new ErrorResponse(Messages.getString("UserServlet.registerInUse")); //$NON-NLS-1$
+      return new ErrorResponse("The email you entered is already in use.");
     }
 
     // TODO: create new session
 
     // Successfully registered
-    return new LoginResponse("test session id"); //$NON-NLS-1$
+    return new LoginResponse("test session id");
   }
 
   private Response handle(LoginRequest req) {
     // Validate login
     if (!req.isValid()) {
-      return new ErrorResponse(Messages.getString("UserServlet.loginInvalid")); //$NON-NLS-1$
+      return new ErrorResponse("You have entered invalid login information.");
     }
 
     // TODO: Read from database
 
     // Successfully logged in
-    return new LoginResponse("test session id"); //$NON-NLS-1$
+    return new LoginResponse("test session id");
   }
 }
