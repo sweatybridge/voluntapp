@@ -13,13 +13,13 @@ import org.mockito.MockitoAnnotations;
 import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
+import req.RegisterRequest;
 import req.UserRequest;
 import resp.UserResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 public class DBInterfaceTest {
 
@@ -44,7 +44,7 @@ public class DBInterfaceTest {
   public final static String PASSWORD_COLUMN = "PASSWORD";
   public final static String ID_COLUMN = "ID";
 
-  // Test Query Strings
+  // Test data for Verify User Tests
   public final static String TEST_VERIFY_USER_1_EMAIL = "goodbye@gmail.com";
   public final static String TEST_VERIFY_USER_1_PASSWORD = "helllo";
   public final static int TEST_VERIFY_USER_1_ID = 17;
@@ -52,6 +52,18 @@ public class DBInterfaceTest {
       .format(
           "SELECT \"ID\" , \"PASSWORD\" FROM public.\"USERS\" WHERE \"EMAIL\"='%s';",
           TEST_VERIFY_USER_1_EMAIL);
+
+  // Test data for Add User tests
+  public final static String TEST_ADD_USER_1_EMAIL = "thisisdave@therock.co";
+  public final static String TEST_ADD_USER_1_PASSWORD = "nicepasswordboyz";
+  public final static String TEST_ADD_USER_1_FIRSTNAME = "Not";
+  public final static String TEST_ADD_USER_1_LASTNAME = "Dave";
+  public final static int TEST_ADD_USER_1_ID = 87;
+  public final static String TEST_ADD_USER_1_QUERY = String
+      .format(
+          "INSERT INTO public.\"USERS\" VALUES(DEFAULT, '%s','%s','%s','%s', DEFAULT);",
+          TEST_ADD_USER_1_EMAIL, TEST_ADD_USER_1_PASSWORD,
+          TEST_ADD_USER_1_FIRSTNAME, TEST_ADD_USER_1_LASTNAME);
 
   @Test
   public void doesVerifyUserObtainCorrectData() {
@@ -126,7 +138,7 @@ public class DBInterfaceTest {
     } catch (SQLException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
-    
+
     UserRequest uq = new UserRequest(TEST_VERIFY_USER_1_EMAIL,
         TEST_VERIFY_USER_1_PASSWORD);
     try {
@@ -146,7 +158,7 @@ public class DBInterfaceTest {
     }
     when(stmt.executeQuery(TEST_VERIFY_USER_1_QUERY)).thenThrow(
         new SQLException());
-    
+
     UserRequest uq = new UserRequest(TEST_VERIFY_USER_1_EMAIL,
         TEST_VERIFY_USER_1_PASSWORD);
     try {
@@ -154,6 +166,54 @@ public class DBInterfaceTest {
     } catch (UserNotFoundException | InconsistentDataException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
+  }
+
+  @Test
+  public void doesAddUserCorrectlyApplyTheQueryToTheDatabase() {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.getGeneratedKeys()).thenReturn(rs);
+      when(rs.next()).thenReturn(true);
+      when(rs.getInt(ID_COLUMN)).thenReturn(TEST_ADD_USER_1_ID);
+    } catch (SQLException e) {
+      fail("Unexpected exception: " + e.getMessage());
+    }
+
+    try {
+      assertEquals(db.addUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
+          TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
+          TEST_ADD_USER_1_LASTNAME)), TEST_ADD_USER_1_ID);
+      verify(stmt, times(1)).executeUpdate(TEST_ADD_USER_1_QUERY,
+          Statement.RETURN_GENERATED_KEYS);
+    } catch (SQLException e) {
+      fail("Unexpected exception: " + e.getMessage());
+    }
+  }
+
+  @Test(expected = SQLException.class)
+  public void doesAddUserThrowSQLExceptionWhenCreateStatemenrFails()
+      throws SQLException {
+    when(conn.createStatement()).thenThrow(new SQLException());
+    db.addUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
+        TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
+        TEST_ADD_USER_1_LASTNAME));
+  }
+  
+  @Test(expected = SQLException.class)
+  public void doesAddUserThrowSQLExceptionWhenQueryFails() throws SQLException {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.getGeneratedKeys()).thenReturn(rs);
+      when(rs.next()).thenReturn(false);
+    } catch (SQLException e) {
+      fail("Unexpected exception: " + e.getMessage());
+    }
+    assertEquals(db.addUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
+        TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
+        TEST_ADD_USER_1_LASTNAME)), TEST_ADD_USER_1_ID);
+    verify(stmt, times(1)).executeUpdate(TEST_ADD_USER_1_QUERY,
+        Statement.RETURN_GENERATED_KEYS);
+ 
   }
 
 }
