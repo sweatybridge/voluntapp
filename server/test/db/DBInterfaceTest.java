@@ -14,6 +14,7 @@ import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
 import req.RegisterRequest;
+import req.SessionRequest;
 import req.UserRequest;
 import resp.UserResponse;
 
@@ -64,6 +65,13 @@ public class DBInterfaceTest {
           "INSERT INTO public.\"USERS\" VALUES(DEFAULT, '%s','%s','%s','%s', DEFAULT);",
           TEST_ADD_USER_1_EMAIL, TEST_ADD_USER_1_PASSWORD,
           TEST_ADD_USER_1_FIRSTNAME, TEST_ADD_USER_1_LASTNAME);
+
+  // Test data for Add Session tests
+  public final static String TEST_ADD_SESSION_1_SID = "he234few3c2355cs23jcp0";
+  public final static int TEST_ADD_SESSION_1_ID = 67;
+  public final static String TEST_ADD_SESSION_1_QUERY = String.format(
+      "INSERT INTO \"SESSIONS\" VALUES ('%s', %s, DEFAULT);",
+      TEST_ADD_SESSION_1_SID, TEST_ADD_SESSION_1_ID);
 
   @Test
   public void doesVerifyUserObtainCorrectData() {
@@ -198,7 +206,7 @@ public class DBInterfaceTest {
         TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
         TEST_ADD_USER_1_LASTNAME));
   }
-  
+
   @Test(expected = SQLException.class)
   public void doesAddUserThrowSQLExceptionWhenQueryFails() throws SQLException {
     try {
@@ -213,7 +221,45 @@ public class DBInterfaceTest {
         TEST_ADD_USER_1_LASTNAME)), TEST_ADD_USER_1_ID);
     verify(stmt, times(1)).executeUpdate(TEST_ADD_USER_1_QUERY,
         Statement.RETURN_GENERATED_KEYS);
- 
+
   }
 
+  @Test
+  public void doesAddSessionCorrectlyApplyTheQueryToTheDatabase() {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.execute(TEST_ADD_SESSION_1_QUERY)).thenReturn(true);
+    } catch (SQLException e) {
+      fail("Unexpected expection: " + e.getMessage());
+    }
+    try {
+      assertEquals(db.addSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
+          TEST_ADD_SESSION_1_SID)), true);
+      verify(stmt, times(1)).execute(TEST_ADD_SESSION_1_QUERY);
+    } catch (SQLException e) {
+      fail("Unexpected expection: " + e.getMessage());
+    }
+  }
+
+  @Test(expected = SQLException.class)
+  public void doesAddSessionCorrectlyThrowSQLExceptionWhenCreateStatmentFails()
+      throws SQLException {
+    when(conn.createStatement()).thenThrow(new SQLException());
+    db.addSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
+        TEST_ADD_SESSION_1_SID));
+  }
+
+  @Test(expected = SQLException.class)
+  public void doesAddSessionCorrectlyThrowSQLExceptionWhenQueryFails()
+      throws SQLException {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+    } catch (SQLException e) {
+      fail("Unexpected expection: " + e.getMessage());
+    }
+    when(stmt.execute(TEST_ADD_SESSION_1_QUERY)).thenThrow(new SQLException());
+    db.addSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
+        TEST_ADD_SESSION_1_SID));
+    verify(stmt, times(1)).execute(TEST_ADD_SESSION_1_QUERY);
+  }
 }
