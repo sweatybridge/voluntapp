@@ -9,7 +9,7 @@ import com.google.gson.Gson;
 
 public class RegisterRequestTest {
 
-  private Gson gson = new Gson();
+  private final Gson gson = new Gson();
 
   @Test
   public void validationSucceedsWithConfPasswordField() {
