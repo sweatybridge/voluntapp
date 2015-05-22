@@ -43,7 +43,7 @@ public class SessionManager {
 	}
 	
 	
-	/* Start a session and returns a Session object with the session information */
+	/* Start a session and returns a session id */
 	
 	public String startSession(int userId) throws SQLException {
 		
@@ -56,6 +56,10 @@ public class SessionManager {
       }
       // Should never get here without throwing an exception
       return null;
+	}
+	
+	public boolean checkSession(String sessionId, int userId) throws SQLException, UserNotFoundException {
+		return db.getUserIdFromSession(sessionId) == userId;
 	}
 	
 }

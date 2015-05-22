@@ -47,6 +47,12 @@ public class DBInterface {
 		return insert(si);
 	}
 	
+	public int getUserIdFromSession(String sid) throws SQLException, UserNotFoundException {
+		SessionQuery sq = new SessionQuery(sid);
+		query(sq);
+		return sq.getUserID();
+	}
+	
 	/* Insert data into the database. */
   private boolean insert(SQLInsert insertion) throws SQLException {
 		Statement stmt;

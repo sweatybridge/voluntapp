@@ -16,6 +16,18 @@ public class UserResponse extends Response {
    * No-arg constructor for compatibility with gson serialiser.
    */
   public UserResponse() {}
+  
+  public String getEmail() {
+	  return email;
+  }
+  
+  public String getPassword() {
+	  return password;
+  }
+  
+  public int getUserId() {
+	  return userId;
+  }
 
   /**
    * Construct a successful user response with the given email, password and userId.

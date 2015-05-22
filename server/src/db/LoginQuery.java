@@ -20,7 +20,7 @@ public class LoginQuery implements SQLQuery {
 
   @Override
   public String getSQLQuery() {
-    return "SELECT \"ID\" , \"PASSWORD\" FROM \"USERS\" WHERE \"EMAIL\" =" + 
+    return "SELECT \"ID\" , \"PASSWORD\" FROM public.\"USERS\" WHERE \"EMAIL\" =" + 
       "'" + email + "'" + ";";
   }
   
