@@ -1,4 +1,4 @@
-PACKAGES = db req resp servlet listener filter
+PACKAGES = db req resp servlet listener filter exception sql
 
 CONTEXT = ./webapps/ROOT
 BIN = $(CONTEXT)/WEB-INF/classes/

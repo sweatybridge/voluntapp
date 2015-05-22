@@ -39,12 +39,10 @@ public class UserServletTest {
 
   private static final Gson gson = new Gson();
 
-
-  private static final int TEST_USER_ID = 3;
-
   /**
    * Test data to verify request objects.
    */
+  private static final int TEST_USER_ID = 3;
   private static final String TEST_EMAIL = "han_qiao@msn.com";
   private static final String TEST_PASSWORD = "123123";
   private static final String TEST_FIRST_NAME = "Qiao";
@@ -250,7 +248,7 @@ public class UserServletTest {
 
     verify(resp).setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     verify(respBody).print(
-        gson.toJson(new ErrorResponse("You have entered the wrong password.")));
+        gson.toJson(new ErrorResponse("You have entered a wrong password.")));
   }
 
   @Test

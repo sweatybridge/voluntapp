@@ -169,7 +169,7 @@ public class UserServlet extends HttpServlet {
 
       // TODO: Check that password matches the hashed value
       if (!req.getPassword().equals(user.getHashedPassword())) {
-        return new ErrorResponse("You have entered the wrong password.");
+        return new ErrorResponse("You have entered a wrong password.");
       }
 
       // Start a new session to support multi-client login
@@ -178,7 +178,7 @@ public class UserServlet extends HttpServlet {
       // Successfully logged in
       return new LoginResponse(token);
     } catch (SQLException | UserNotFoundException e) {
-      return new ErrorResponse("You have entered the wrong password.");
+      return new ErrorResponse("You have entered a wrong password.");
     }
   }
 }
