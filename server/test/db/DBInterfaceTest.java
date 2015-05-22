@@ -16,7 +16,14 @@ public class DBInterfaceTest {
       assertEquals(query.getPassword(), "HELLO");
       assertTrue(query.getID() == 3);
     } catch (UserNotFoundException e) {
-      fail("Not yet implemented");
     }
   }
+  
+  @Test
+  public void insertAddsDataToTheSpecifiedTable() {
+    SessionInsert s = new SessionInsert("123", 2);
+    DBInterface db = new DBInterface();
+    db.insert(s);
+  }
+
 }

@@ -110,7 +110,7 @@ public class DBInterface {
 		return null;
 	}
 	
-	
+	/* Insert data into the database. */
   public boolean insert(SQLInsert insertion) {
 		Statement stmt;
 		try {
@@ -126,20 +126,7 @@ public class DBInterface {
 		} catch (SQLException e) {
 			System.err.println("Error in executing SQL INSERT query: " + e.getMessage());
 			return false;
-		}
-		
-		return true;
-	}
-	
-	/* Closes the database connection, if there is an error just return
-	 * false */
-	
-	public boolean destory() {
-		try {
-			conn.close();
-		} catch (SQLException e) {
-			return false;
-		}
+		}	
 		return true;
 	}
 	
@@ -163,4 +150,15 @@ public class DBInterface {
 	    return false;
 	  }
 	}
+	
+	/* Closes the database connection, if there is an error just return
+   * false */
+  public boolean destory() {
+    try {
+      conn.close();
+    } catch (SQLException e) {
+      return false;
+    }
+    return true;
+  }
 }
