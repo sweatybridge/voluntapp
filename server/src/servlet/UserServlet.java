@@ -3,6 +3,7 @@ package servlet;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,17 +11,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import req.LoginRequest;
 import req.RegisterRequest;
+import req.UserRequest;
 import resp.ErrorResponse;
 import resp.LoginResponse;
 import resp.Response;
 import resp.SuccessResponse;
-import sql.UserInsert;
+import resp.UserResponse;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
+import db.SessionManager;
+import exception.UserNotFoundException;
 
 /**
  * Handles API requests to user resources.
@@ -33,6 +36,7 @@ public class UserServlet extends HttpServlet {
 
   private final Gson gson;
   private final DBInterface db;
+  private final SessionManager sm;
 
   /**
    * Constructs a user servlet with injected dependencies.
@@ -43,6 +47,7 @@ public class UserServlet extends HttpServlet {
   public UserServlet(Gson gson, DBInterface db) {
     this.gson = gson;
     this.db = db;
+    this.sm = new SessionManager(db);
   }
 
   /**
@@ -81,9 +86,15 @@ public class UserServlet extends HttpServlet {
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Parse user register request
-    String body = request.getReader().readLine().substring("payload=".length());
-    String payload = URLDecoder.decode(body, "UTF-8");
-    RegisterRequest req = gson.fromJson(payload, RegisterRequest.class);
+    RegisterRequest req;
+    try {
+      String body =
+          request.getReader().readLine().substring("payload=".length());
+      String payload = URLDecoder.decode(body, "UTF-8");
+      req = gson.fromJson(payload, RegisterRequest.class);
+    } catch (IOException | RuntimeException e) {
+      req = RegisterRequest.INVALID;
+    }
 
     // Handle request in a RESTful manner
     Response resp = handle(req);
@@ -103,7 +114,12 @@ public class UserServlet extends HttpServlet {
       throws IOException, ServletException {
     // Parse user login request
     String data = request.getParameter("payload");
-    LoginRequest req = gson.fromJson(data, LoginRequest.class);
+    UserRequest req;
+    try {
+      req = gson.fromJson(data, UserRequest.class);
+    } catch (RuntimeException e) {
+      req = UserRequest.INVALID;
+    }
 
     // Handle request in a RESTful manner
     Response resp = handle(req);
@@ -116,6 +132,10 @@ public class UserServlet extends HttpServlet {
   }
 
   private Response handle(RegisterRequest req) {
+    if (req == RegisterRequest.INVALID) {
+      return new ErrorResponse("Error parsing request payload.");
+    }
+
     // Validate registration
     if (!req.isValid()) {
       return new ErrorResponse(
@@ -123,28 +143,42 @@ public class UserServlet extends HttpServlet {
     }
 
     // Write to database
-    boolean success =
-        db.insert(new UserInsert(req.getEmail(), req.getPassword(), req
-            .getFirstName(), req.getLastName()));
-    if (!success) {
+    try {
+      int userId = db.addUser(req);
+      String token = sm.startSession(userId);
+
+      // Successfully registered
+      return new LoginResponse(token);
+    } catch (SQLException e) {
       return new ErrorResponse("The email you entered is already in use.");
     }
-
-    // TODO: create new session
-
-    // Successfully registered
-    return new LoginResponse("test session id");
   }
 
-  private Response handle(LoginRequest req) {
+  private Response handle(UserRequest req) {
+    if (req == UserRequest.INVALID) {
+      return new ErrorResponse("Error parsing request payload.");
+    }
+
     // Validate login
     if (!req.isValid()) {
       return new ErrorResponse("You have entered invalid login information.");
     }
 
-    // TODO: Read from database
+    try {
+      UserResponse user = db.verifyUser(req);
 
-    // Successfully logged in
-    return new LoginResponse("test session id");
+      // TODO: Check that password matches the hashed value
+      if (!req.getPassword().equals(user.getHashedPassword())) {
+        return new ErrorResponse("You have entered a wrong password.");
+      }
+
+      // Start a new session to support multi-client login
+      String token = sm.startSession(user.getUserId());
+
+      // Successfully logged in
+      return new LoginResponse(token);
+    } catch (SQLException | UserNotFoundException e) {
+      return new ErrorResponse("You have entered a wrong password.");
+    }
   }
 }

@@ -8,13 +8,23 @@ import org.apache.commons.validator.routines.EmailValidator;
  */
 public class RegisterRequest implements Request {
 
+  /**
+   * Invalid register request object to replace null checks.
+   */
+  public static final RegisterRequest INVALID = new RegisterRequest();
+
   private String email;
   private String password;
   private String firstName;
   private String lastName;
-  
+
+  /**
+   * No-arg constructor for compatibility with gson serialiser.
+   */
   public RegisterRequest() {}
-  public RegisterRequest(String email, String password, String firstName, String lastName) {
+
+  public RegisterRequest(String email, String password, String firstName,
+      String lastName) {
     this.email = email;
     this.password = password;
     this.firstName = firstName;

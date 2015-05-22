@@ -9,36 +9,37 @@ public class UserResponse extends Response {
    * Details returned to the client after successful login.
    */
   private String email;
-  private String password;
+  private transient String hashedPassword;
   private int userId;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
   public UserResponse() {}
-  
-  public String getEmail() {
-	  return email;
-  }
-  
-  public String getPassword() {
-	  return password;
-  }
-  
-  public int getUserId() {
-	  return userId;
-  }
 
   /**
-   * Construct a successful user response with the given email, password and userId.
+   * Construct a successful user response with the given email, hashed password
+   * and userId.
    * 
    * @param email Email of the user response
-   * @param password Password found in the database
+   * @param hashedPassword Password found in the database
    * @param userId The ID of the user requests
    */
-  public UserResponse(String email, String password, int userId) {
+  public UserResponse(String email, String hashedPassword, int userId) {
     this.email = email;
-    this.password = password;
+    this.hashedPassword = hashedPassword;
     this.userId = userId;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getHashedPassword() {
+    return hashedPassword;
+  }
+
+  public int getUserId() {
+    return userId;
   }
 }
