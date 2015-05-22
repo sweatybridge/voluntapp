@@ -5,7 +5,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 /**
  * Deserialized JSON object of an API request to login a user.
  */
-public class LoginRequest implements Request {
+public class UserRequest implements Request {
 
   /**
    * Invalid login request object to replace null checks.

@@ -25,46 +25,26 @@ public class LoginQuery implements SQLQuery {
   }
   
   @Override
-  public void setResult(ResultSet result) {
+  public void setResult(ResultSet result, int rowsAffected) throws UserNotFoundException {
     this.queryResult = result;
     try {
       found = queryResult.next();
+      if (!found) {
+    	  throw new UserNotFoundException(userNotFoundMessage);
+      }
     } catch (SQLException e) {
       System.err.println(getErrorMessage(e));
     }
   }
 
   /* Return user's password. */
-  public String getPassword() throws UserNotFoundException {
-    /* If user not found in the data base, throw an exception. */
-    if (found == false) {
-      throw new UserNotFoundException(userNotFoundMessage);
-    }
-    /* Retrieve user's password. */
-    String password = null;    
-    try {
-     password = queryResult.getString(PASSWORD_COLUMN);
-     //assert (queryResult.next() == false);
-    } catch (SQLException e) {
-      System.err.println(getErrorMessage(e));
-    }
-    return password;
+  public String getPassword() throws SQLException {
+    return queryResult.getString(PASSWORD_COLUMN);
   }
   
   /* Return user's ID. */
-  public Integer getID() throws UserNotFoundException {
-    /* If user not found in the data base, throw an exception. */
-    if (found == false) {
-      throw new UserNotFoundException(userNotFoundMessage);
-    }
-    /* Retrieve user's ID. */
-    Integer ID = null;
-    try {
-      ID = queryResult.getInt(ID_COLUMN);
-    } catch (SQLException e) {
-      System.err.println(getErrorMessage(e));
-    }
-    return ID;
+  public Integer getID() throws SQLException {
+	return queryResult.getInt(ID_COLUMN);
   }
   
   /* Standard error message returned on SQL exception. */
