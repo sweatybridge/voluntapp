@@ -1,14 +1,10 @@
 package db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.sql.SQLException;
 
 import org.junit.Test;
 
-import req.SessionRequest;
+import req.RegisterRequest;
 import req.UserRequest;
 import resp.UserResponse;
 
@@ -16,6 +12,7 @@ public class DBInterfaceTest {
 
 	
   DBInterface db = new DBInterface();
+  SessionManager sm = new SessionManager(db);
   
   @Test
   public void test() throws SQLException, UserNotFoundException {
@@ -24,9 +21,13 @@ public class DBInterfaceTest {
   }
   
   @Test
-  public void test1() throws SQLException {
-	  DBInterface db = new DBInterface();
-	  System.out.println(db.addSession(new SessionRequest(4, "")));
+  public void test1() throws SQLException, UserNotFoundException {
+	  System.out.println(sm.checkSession("12345", 7));
+  }
+  
+  @Test
+  public void test2() throws SQLException, UserNotFoundException, InconsistentDataException {
+	  System.out.println(db.updateUserInfo(1, new RegisterRequest("User 2", null,null, "User 3")));
   }
 
 }
