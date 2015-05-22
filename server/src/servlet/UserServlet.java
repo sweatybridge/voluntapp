@@ -81,9 +81,15 @@ public class UserServlet extends HttpServlet {
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Parse user register request
-    String body = request.getReader().readLine().substring("payload=".length());
-    String payload = URLDecoder.decode(body, "UTF-8");
-    RegisterRequest req = gson.fromJson(payload, RegisterRequest.class);
+    RegisterRequest req;
+    try {
+      String body =
+          request.getReader().readLine().substring("payload=".length());
+      String payload = URLDecoder.decode(body, "UTF-8");
+      req = gson.fromJson(payload, RegisterRequest.class);
+    } catch (IOException | RuntimeException e) {
+      req = RegisterRequest.INVALID;
+    }
 
     // Handle request in a RESTful manner
     Response resp = handle(req);
@@ -103,7 +109,12 @@ public class UserServlet extends HttpServlet {
       throws IOException, ServletException {
     // Parse user login request
     String data = request.getParameter("payload");
-    LoginRequest req = gson.fromJson(data, LoginRequest.class);
+    LoginRequest req;
+    try {
+      req = gson.fromJson(data, LoginRequest.class);
+    } catch (RuntimeException e) {
+      req = LoginRequest.INVALID;
+    }
 
     // Handle request in a RESTful manner
     Response resp = handle(req);
@@ -116,6 +127,10 @@ public class UserServlet extends HttpServlet {
   }
 
   private Response handle(RegisterRequest req) {
+    if (req == RegisterRequest.INVALID) {
+      return new ErrorResponse("Error parsing request payload.");
+    }
+
     // Validate registration
     if (!req.isValid()) {
       return new ErrorResponse(
@@ -137,6 +152,10 @@ public class UserServlet extends HttpServlet {
   }
 
   private Response handle(LoginRequest req) {
+    if (req == LoginRequest.INVALID) {
+      return new ErrorResponse("Error parsing request payload.");
+    }
+
     // Validate login
     if (!req.isValid()) {
       return new ErrorResponse("You have entered invalid login information.");

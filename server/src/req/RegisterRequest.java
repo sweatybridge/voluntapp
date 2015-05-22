@@ -8,6 +8,11 @@ import org.apache.commons.validator.routines.EmailValidator;
  */
 public class RegisterRequest implements Request {
 
+  /**
+   * Invalid register request object to replace null checks.
+   */
+  public static final RegisterRequest INVALID = new RegisterRequest();
+
   private String email;
   private String password;
   private String firstName;

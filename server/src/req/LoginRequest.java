@@ -7,6 +7,11 @@ import org.apache.commons.validator.routines.EmailValidator;
  */
 public class LoginRequest implements Request {
 
+  /**
+   * Invalid login request object to replace null checks.
+   */
+  public static final LoginRequest INVALID = new LoginRequest();
+
   private String email;
   private String password;
 
