@@ -3,6 +3,7 @@ package db;
 
 import java.sql.*;
 
+import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.UserResponse;
@@ -45,6 +46,17 @@ public class DBInterface {
 	public boolean addSession(SessionRequest sq) throws SQLException {
 		SessionInsert si = new SessionInsert(sq.getSessionId(),sq.getUserId());
 		return insert(si);
+	}
+	
+	public boolean updateUserInfo(int userId, RegisterRequest rr) throws SQLException, UserNotFoundException, InconsistentDataException {
+		UserUpdate uu = new UserUpdate(userId, rr.getEmail(), rr.getFirstName(), rr.getLastName(), rr.getPassword());
+		int rows = update(uu);
+		if (rows > 1) {
+			throw new InconsistentDataException("Update user info modified more than 1 row!");
+		} else if (rows == 0) {
+			throw new UserNotFoundException("Update did not find any matching userId");
+		}
+		return update(uu) == 1;
 	}
 	
 	public int getUserIdFromSession(String sid) throws SQLException, UserNotFoundException {
