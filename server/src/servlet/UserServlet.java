@@ -57,11 +57,12 @@ public class UserServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
+    // Parse authorization header
+    String auth = request.getHeader("Authorization");
 
-    // TODO get current user id from auth token
-    // TODO retrieve user info from database
+    Response resp = handle(auth);
 
-    response.getWriter().print("user info.");
+    response.getWriter().print(gson.toJson(resp));
   }
 
   /**
@@ -180,6 +181,19 @@ public class UserServlet extends HttpServlet {
       return new LoginResponse(token);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       return new ErrorResponse("You have entered a wrong password.");
+    }
+  }
+
+  private Response handle(String auth) {
+    try {
+      // TODO: improve security against brute force attack
+      int userId = db.getUserIdFromSession(auth);
+
+      return db.verifyUser(new UserRequest(userId));
+    } catch (SQLException e) {
+      return new ErrorResponse("Invalid authorization token.");
+    } catch (UserNotFoundException | InconsistentDataException e) {
+      return new ErrorResponse("User does not exist in database.");
     }
   }
 }

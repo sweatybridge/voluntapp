@@ -10,6 +10,8 @@ public class UserResponse extends Response {
    */
   private String email;
   private transient String hashedPassword;
+  private String firstName;
+  private String lastName;
   private int userId;
 
   /**
@@ -25,10 +27,13 @@ public class UserResponse extends Response {
    * @param hashedPassword Password found in the database
    * @param userId The ID of the user requests
    */
-  public UserResponse(String email, String hashedPassword, int userId) {
+  public UserResponse(String email, String hashedPassword, int userId,
+      String firstName, String lastName) {
     this.email = email;
     this.hashedPassword = hashedPassword;
     this.userId = userId;
+    this.firstName = firstName;
+    this.lastName = lastName;
   }
 
   public String getEmail() {

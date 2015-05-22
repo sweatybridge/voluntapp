@@ -12,6 +12,14 @@ public class UserRequest implements Request {
    */
   public static final UserRequest INVALID = new UserRequest();
 
+  /**
+   * Fields excluded from serialisation and deserialisation.
+   */
+  private transient int userId = -1;
+
+  /**
+   * Login details sent by the client.
+   */
   private String email;
   private String password;
 
@@ -20,6 +28,21 @@ public class UserRequest implements Request {
    */
   public UserRequest() {}
 
+  /**
+   * Constructor used to make internal database queries.
+   * 
+   * @param userId
+   */
+  public UserRequest(int userId) {
+    this.userId = userId;
+  }
+
+  /**
+   * Constructor used for tests.
+   * 
+   * @param email
+   * @param password
+   */
   public UserRequest(String email, String password) {
     this.email = email;
     this.password = password;
@@ -37,5 +60,9 @@ public class UserRequest implements Request {
 
   public String getPassword() {
     return password;
+  }
+
+  public int getUserId() {
+    return userId;
   }
 }

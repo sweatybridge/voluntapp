@@ -42,8 +42,11 @@ public class DBInterfaceTest {
   }
 
   // Database Columns
+  public final static String EMAIL_COLUMN = "EMAIL";
   public final static String PASSWORD_COLUMN = "PASSWORD";
   public final static String ID_COLUMN = "ID";
+  public final static String FIRST_NAME_COLUMN = "FIRSTNAME";
+  public final static String LAST_NAME_COLUMN = "LASTNAME";
 
   // Test data for Verify User Tests
   public final static String TEST_VERIFY_USER_1_EMAIL = "goodbye@gmail.com";
@@ -82,6 +85,7 @@ public class DBInterfaceTest {
       when(rs.getInt(ID_COLUMN)).thenReturn(TEST_VERIFY_USER_1_ID);
       when(rs.getString(PASSWORD_COLUMN)).thenReturn(
           TEST_VERIFY_USER_1_PASSWORD);
+      when(rs.getString(EMAIL_COLUMN)).thenReturn(TEST_VERIFY_USER_1_EMAIL);
     } catch (SQLException e) {
       fail("Something failed: " + e.getMessage());
     }

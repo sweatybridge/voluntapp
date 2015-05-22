@@ -13,6 +13,9 @@ public class RegisterRequest implements Request {
    */
   public static final RegisterRequest INVALID = new RegisterRequest();
 
+  /**
+   * Registration details sent by the client.
+   */
   private String email;
   private String password;
   private String firstName;

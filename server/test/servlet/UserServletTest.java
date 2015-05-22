@@ -201,7 +201,8 @@ public class UserServletTest {
     when(req.getParameter("payload")).thenReturn(payload);
     try {
       when(db.verifyUser(any(UserRequest.class))).thenReturn(
-          new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID));
+          new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
+              TEST_FIRST_NAME, TEST_LAST_NAME));
       when(db.addSession(any(SessionRequest.class))).thenReturn(true);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
       fail("Not yet implemented");

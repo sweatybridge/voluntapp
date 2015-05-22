@@ -22,11 +22,7 @@ import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
 /**
-<<<<<<< HEAD
  * Class to manage the back-end to the database, deals with any and all queries.
-=======
- * Class to manage the backend to the database, deals with any and all queries.
->>>>>>> 5ad36e0deb4adcb7b45b598c265dc129d26f6607
  * 
  * @author bs2113
  * 
@@ -54,8 +50,9 @@ public class DBInterface {
    */
   public DBInterface() {
     try {
-      conn = DriverManager.getConnection(DBInterface.DATABASE_NAME,
-          DBInterface.DATABASE_USER, DBInterface.DATABASE_PASS);
+      conn =
+          DriverManager.getConnection(DBInterface.DATABASE_NAME,
+              DBInterface.DATABASE_USER, DBInterface.DATABASE_PASS);
     } catch (SQLException e) {
       System.exit(0);
     }
@@ -84,22 +81,28 @@ public class DBInterface {
    * 
    * @param uq User request containing the information to look up the user.
    * @return A UserResponse with the email,password and ID of the user.
-   * @throws SQLException
-   *           There was an error in the database.
-   * @throws UserNotFoundException
-   *           Thrown if the users data was not in the database.
-   * @throws InconsistentDataException
-   *           Thrown when the database is shown to be in a bad inconsistent
-   *           state.
+   * @throws SQLException There was an error in the database.
+   * @throws UserNotFoundException Thrown if the users data was not in the
+   *         database.
+   * @throws InconsistentDataException Thrown when the database is shown to be
+   *         in a bad inconsistent state.
    */
   public UserResponse verifyUser(UserRequest uq) throws SQLException,
       UserNotFoundException, InconsistentDataException {
 
-    // Get the password in and put it in the pass variable
-    LoginQuery query = new LoginQuery(uq.getEmail());
+    LoginQuery query;
+    if (uq.getUserId() == -1) {
+      // Get the password in and put it in the pass variable
+      query = new LoginQuery(uq.getEmail());
+    } else {
+      query = new LoginQuery(uq.getUserId());
+    }
+
     query(query);
     query.checkValid();
-    return new UserResponse(uq.getEmail(), query.getPassword(), query.getID());
+
+    return new UserResponse(query.getEmail(), query.getPassword(),
+        query.getID(), query.getFirstName(), query.getLastName());
   }
 
   /**
