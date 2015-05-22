@@ -76,7 +76,7 @@ public class DBInterfaceTest {
       return;
     }
     assertEquals(TEST_VERIFY_USER_1_EMAIL, ur.getEmail());
-    assertEquals(TEST_VERIFY_USER_1_PASSWORD, ur.getPassword());
+    assertEquals(TEST_VERIFY_USER_1_PASSWORD, ur.getHashedPassword());
     assertEquals(TEST_VERIFY_USER_1_ID, ur.getUserId());
   }
 

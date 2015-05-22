@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 
 import db.DBInterface;
 import db.SessionManager;
+import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
 /**
@@ -177,7 +178,7 @@ public class UserServlet extends HttpServlet {
 
       // Successfully logged in
       return new LoginResponse(token);
-    } catch (SQLException | UserNotFoundException e) {
+    } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       return new ErrorResponse("You have entered a wrong password.");
     }
   }
