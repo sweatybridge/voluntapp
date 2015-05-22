@@ -13,6 +13,7 @@ public class SessionManager {
 	
 	public SessionManager(DBInterface db) {
 		this.db = db;
+		this.sessionGenerater = new SessionIdGenerater();
 	}
 
 	public final class SessionIdGenerater {

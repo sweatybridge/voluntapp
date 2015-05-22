@@ -3,6 +3,7 @@ package db;
 
 import java.sql.*;
 
+import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.UserResponse;
@@ -28,6 +29,22 @@ public class DBInterface {
 		
 	}
 	
+	public int addUser(RegisterRequest rq) throws SQLException {
+      
+      // Get the password in and put it in the pass variable
+      UserInsert ui = new UserInsert(rq.getEmail(), rq.getPassword(), 
+          rq.getFirstName(), rq.getLastName());
+
+      Statement stmt;
+      stmt = conn.createStatement();
+      stmt.executeUpdate(ui.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+      ResultSet rs = stmt.getGeneratedKeys();
+      if (!rs.next()) {
+        throw new SQLException();
+      }
+	
+      return rs.getInt("ID");
+  }
 	
 	/* Check to make sure that the user exists and the password is correct 
 	 * returns -1 when the password is wrong or the users id when it is correct or -2
@@ -48,7 +65,7 @@ public class DBInterface {
 	}
 	
 	/* Insert data into the database. */
-  private boolean insert(SQLInsert insertion) throws SQLException {
+    private boolean insert(SQLInsert insertion) throws SQLException {
 		Statement stmt;
 		stmt = conn.createStatement();
 		boolean rs = stmt.execute(insertion.getSQLInsert());

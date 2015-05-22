@@ -10,7 +10,7 @@ public class UserRequest implements Request {
   /**
    * Invalid login request object to replace null checks.
    */
-  public static final LoginRequest INVALID = new LoginRequest();
+  public static final UserRequest INVALID = new UserRequest();
 
   private String email;
   private String password;
