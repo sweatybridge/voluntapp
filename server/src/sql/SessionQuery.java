@@ -1,4 +1,4 @@
-package db;
+package sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,8 +22,7 @@ public class SessionQuery implements SQLQuery {
   }
 
   @Override
-  public void setResult(ResultSet result, int rowsAffected)
-      throws UserNotFoundException {
+  public void setResult(ResultSet result) {
     this.result = result;
     try {
       result.next();

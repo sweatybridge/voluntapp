@@ -15,6 +15,16 @@ public class UserRequest implements Request {
   private String email;
   private String password;
 
+  /**
+   * No-arg constructor for compatibility with gson serialiser.
+   */
+  public UserRequest() {}
+
+  public UserRequest(String email, String password) {
+    this.email = email;
+    this.password = password;
+  }
+
   @Override
   public boolean isValid() {
     return (email != null && EmailValidator.getInstance().isValid(email))

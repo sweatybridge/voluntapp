@@ -1,7 +1,6 @@
-package db;
+package sql;
 
-
-public class SessionInsert implements SQLInsert {
+public class SessionInsert implements SQLUpdate {
   
   private String sid;
   private Integer user;
@@ -12,9 +11,13 @@ public class SessionInsert implements SQLInsert {
   }
 
   @Override
-  public String getSQLInsert() {
-    // INSERT INTO "SESSIONS" VALUES ('1', 1, '1999-01-08 04:05:06');
+  public String getSQLUpdate() {
     return "INSERT INTO \"SESSIONS\" VALUES ('" + sid + "', " + user + 
         ", DEFAULT);";
+  }
+
+  @Override
+  public void checkResult(int rowsAffected) {
+    // TODO Auto-generated method stub    
   }
 }

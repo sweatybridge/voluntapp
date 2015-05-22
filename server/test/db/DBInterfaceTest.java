@@ -1,50 +1,44 @@
 package db;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.junit.Test;
 
+import exception.UserNotFoundException;
+
+import req.UserRequest;
+import resp.UserResponse;
+
 public class DBInterfaceTest {
-  @Test
-  public void queryFunctionMakesQueryToTheDataBaseUsingTheSpecifiedObject() {
-    LoginQuery query = new LoginQuery("Hello");
-    DBInterface db = new DBInterface();
-    try {
-      db.query(query);
-      assertEquals(query.getPassword(), "HELLO");
-      assertTrue(query.getID() == 3);
-    } catch (Exception e) {
-      fail("ERROR");
-    }
-  }
+
+  DBInterface db;
+  SessionManager sm; 
   
-  @Test
-  public void insertAddsDataToTheSpecifiedTable() {
-    SessionInsert s = new SessionInsert("12345", 2);
-    DBInterface db = new DBInterface();
+  public DBInterfaceTest() {
+    Connection conn;
     try {
-      db.insert(s);
+      conn = DriverManager.getConnection(DBInterface.DATABASE_NAME, DBInterface.DATABASE_USER,
+          DBInterface.DATABASE_PASS);
     } catch (SQLException e) {
-      fail("ERROR");
+      System.exit(0);
+      return;
     }
-  }
-  
-  @Test
-  public void sessionQueryQuerriesTheUserID() {
-    DBInterface db = new DBInterface();
-    SessionQuery s = new SessionQuery("123");
-    Integer user = null;
-    try {
-      db.query(s);
-      user = s.getUserID();
-    } catch (Exception e) {
-      fail("Should not have thrown an exception!");
-    }
-    assertTrue(user == 2);
+    db = new DBInterface(conn);
+    sm = new SessionManager(db);
   }
 
+  @Test
+  public void test() throws SQLException, UserNotFoundException {
+    UserResponse ur = db.verifyUser(new UserRequest("bob@thebuilder.com",
+        "HELLAKEDWQ"));
+    System.out.println(ur.getEmail() + "\n" + ur.getPassword() + "\n"
+        + ur.getUserId());
+  }
+
+  @Test
+  public void test1() throws SQLException {
+    sm.closeSession("1");
+  }
 }

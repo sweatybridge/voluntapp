@@ -33,7 +33,7 @@ import resp.UserResponse;
 import com.google.gson.Gson;
 
 import db.DBInterface;
-import db.UserNotFoundException;
+import exception.UserNotFoundException;
 
 public class UserServletTest {
 

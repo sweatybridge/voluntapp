@@ -23,7 +23,7 @@ import com.google.gson.Gson;
 
 import db.DBInterface;
 import db.SessionManager;
-import db.UserNotFoundException;
+import exception.UserNotFoundException;
 
 /**
  * Handles API requests to user resources.

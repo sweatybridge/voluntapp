@@ -31,6 +31,10 @@ public class UserResponse extends Response {
     this.userId = userId;
   }
 
+  public String getEmail() {
+    return email;
+  }
+
   public String getHashedPassword() {
     return hashedPassword;
   }
