@@ -26,7 +26,6 @@ public class DBInterfaceTest {
   @Test
   public void test1() throws SQLException {
 	  DBInterface db = new DBInterface();
-	  System.out.println(db.addSession(new SessionRequest(4, "")));
+	  System.out.println(db.addSession(new SessionRequest(6, "")));
   }
-
 }

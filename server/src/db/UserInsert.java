@@ -1,6 +1,6 @@
 package db;
 
-public class UserInsert implements SQLInsert {
+public class UserInsert implements SQLUpdate {
   
   private String email; 
   private String password; 
@@ -15,9 +15,15 @@ public class UserInsert implements SQLInsert {
   }
   
   @Override
-  public String getSQLInsert() {
+  public String getSQLUpdate() {
     return "INSERT INTO public.\"USERS\" VALUES(DEFAULT, '" + email + "','" 
         + password + "','" + firstName + "','" + lastName + "', DEFAULT);";
+  }
+
+  @Override
+  public void checkResult(int rowsAffected) {
+    // TODO Auto-generated method stub
+    
   }
 
 }
