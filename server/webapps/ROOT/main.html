@@ -93,10 +93,14 @@
         </div>
         
         <div id="d_main_col" class="col-sm-8">
-          <button id="b_hide_left" class="btn btn-primary">Left sidebar</button>
-          <button id="b_hide_right" class="btn btn-primary pull-right">Right sidebar</button>
-          <h1>My events</h1>
-          <button id="b_hide_weekend" class="btn btn-primary pull-right">Weekend</button>
+          <span class="lead">My events for <strong>&lt;&lt;Jan 1</strong> - <strong>Jan 8&gt;&gt;</strong></span>
+          <button id="b_refresh" type="button" class="btn btn-success">Refresh</button>
+          <span>Display: </span>
+          <div class="btn-group" role="group" aria-label="...">
+          <button id="b_hide_left" type="button" class="btn btn-primary active" data-toggle="button">Left sidebar</button>
+          <button id="b_hide_weekend" type="button" class="btn btn-primary active" data-toggle="button">Weekend</button>
+          <button id="b_hide_right" type="button" class="btn btn-primary active" data-toggle="button">Right sidebar</button>
+          </div>
           <table id="t_calendar" class="table">
             <tr>
               <th class="th_weekday">Monday</th>
