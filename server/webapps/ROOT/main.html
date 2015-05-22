@@ -141,7 +141,7 @@
             <!-- Tab panes -->
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane fade in active" id="crt_event">
-                <form class="form-centre" role="form" id="register_form" action="event" method="put" autocomplete="on">
+                <form class="form-centre" role="form" id="register_form" action="event" method="put" autocomplete="off">
                   <input type="text" name="title" class="form-control" placeholder="Title" autofocus required>
                   <input type="time" name="startTime" class="form-control" placeholder="Start time" required>
                   <input type="time" name="endTime" class="form-control" placeholder="End time" required>
@@ -149,7 +149,7 @@
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
                   <input type="number" name="size" class="form-control" min="0" value="0" placeholder="Size" required>
                   <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
-                  <input class="btn btn-primary" type="submit" value="Register"></div>
+                  <input class="btn btn-primary" type="submit" value="Register">
                   <p class="form-error" id="event_create_errors"></p>
                 </form>
               </div>
@@ -163,10 +163,6 @@
     </div> <!-- End of container -->
   
   <script>
-    // Global variables
-    var isLeftCollapsed = false;
-    var isRightCollapsed = false;
-    
     // DOCUMENT READY
     $(function() {
       // Bind weekend collapse
