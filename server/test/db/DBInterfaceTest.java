@@ -13,25 +13,7 @@ import req.UserRequest;
 import resp.UserResponse;
 
 public class DBInterfaceTest {
-  /*@Test
-  public void queryFunctionMakesQueryToTheDataBaseUsingTheSpecifiedObject() {
-    LoginQuery query = new LoginQuery("Hello");
-    DBInterface db = new DBInterface();
-    db.query(query);
-    try {
-      assertEquals(query.getPassword(), "HELLO");
-      assertTrue(query.getID() == 3);
-    } catch (UserNotFoundException e) {
-    }
-  }
-  
-  @Test
-  public void insertAddsDataToTheSpecifiedTable() {
-    SessionInsert s = new SessionInsert("123", 2);
-    DBInterface db = new DBInterface();
-    db.insert(s);
-  }*/
-	
+
 	
   DBInterface db = new DBInterface();
   
@@ -44,7 +26,7 @@ public class DBInterfaceTest {
   @Test
   public void test1() throws SQLException {
 	  DBInterface db = new DBInterface();
-	  System.out.println(db.addSession(new SessionRequest(1, "Hellloo")));
+	  System.out.println(db.addSession(new SessionRequest(4, "")));
   }
 
 }
