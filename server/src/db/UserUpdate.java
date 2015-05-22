@@ -1,6 +1,6 @@
 package db;
 
-public class UserUpdate implements SQLInsert {
+public class UserUpdate implements SQLUpdate {
 	
 	public int userId;
 	public String email;
@@ -17,12 +17,17 @@ public class UserUpdate implements SQLInsert {
 	}
 
 	@Override
-	public String getSQLInsert() {
+	public String getSQLUpdate() {
 		String formatString = ((email==null)?"":"\"EMAIL\"='"+email+"',") +
 			       ((firstName==null)?"":"\"FIRST_NAME\"='"+firstName+"',") +
 			       ((lastName==null)?"":"\"LAST_NAME\"='"+lastName+"',") +
 			       ((password==null)?"":"\"PASSWORD\"='"+password+"',");
 		return String.format("UPDATE public.\"USERS\" SET %s WHERE \"ID\"=%d", 
 			   formatString.substring(0, formatString.length()-1),userId);
+	}
+
+	@Override
+	public void checkResult(int rowsAffected) {
+		return;
 	}
 }

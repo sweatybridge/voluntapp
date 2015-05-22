@@ -22,8 +22,7 @@ public class SessionQuery implements SQLQuery {
   }
 
   @Override
-  public void setResult(ResultSet result, int rowsAffected)
-      throws UserNotFoundException {
+  public void setResult(ResultSet result) throws UserNotFoundException {
     this.result = result;
     try {
       result.next();

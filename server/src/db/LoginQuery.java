@@ -25,7 +25,7 @@ public class LoginQuery implements SQLQuery {
   }
   
   @Override
-  public void setResult(ResultSet result, int rowsAffected) throws UserNotFoundException {
+  public void setResult(ResultSet result) throws UserNotFoundException {
     this.queryResult = result;
     try {
       found = queryResult.next();

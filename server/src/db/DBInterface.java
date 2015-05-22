@@ -66,18 +66,19 @@ public class DBInterface {
 	}
 	
 	/* Insert data into the database. */
-  private boolean insert(SQLInsert insertion) throws SQLException {
+  private boolean insert(SQLUpdate insertion) throws SQLException {
 		Statement stmt;
 		stmt = conn.createStatement();
-		boolean rs = stmt.execute(insertion.getSQLInsert());
+		boolean rs = stmt.execute(insertion.getSQLUpdate());
 		return rs;
 	}
 	
 	/* Executes an SQL Update */
-	private int update(SQLInsert query) throws SQLException, UserNotFoundException {
+	private int update(SQLUpdate query) throws SQLException, UserNotFoundException {
 		Statement stmt;
 		stmt = conn.createStatement();
-		int result = stmt.executeUpdate(query.getSQLInsert());
+		int result = stmt.executeUpdate(query.getSQLUpdate());
+		query.checkResult(result);
 		return result;
 	}
 	
@@ -86,7 +87,7 @@ public class DBInterface {
 	  Statement stmt;
 	  stmt = conn.createStatement();
 	  ResultSet result = stmt.executeQuery(query.getSQLQuery());
-	  query.setResult(result, 0);
+	  query.setResult(result);
 	  return true;
 	}
 	
