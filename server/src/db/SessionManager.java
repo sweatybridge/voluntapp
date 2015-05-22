@@ -2,10 +2,18 @@ package db;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.sql.SQLException;
+
+import req.SessionRequest;
 
 public class SessionManager {
 	
 	private SessionIdGenerater sessionGenerater;
+	private DBInterface db;
+	
+	public SessionManager(DBInterface db) {
+		this.db = db;
+	}
 
 	public final class SessionIdGenerater {
 		private SecureRandom random = new SecureRandom();
@@ -37,14 +45,17 @@ public class SessionManager {
 	
 	/* Start a session and returns a Session object with the session information */
 	
-	public int startSession(int userId) {
+	public String startSession(int userId) throws SQLException {
 		
-		// Create a session table entry for the new session
-        String newId = getNewSessionId();
-		return userId;
+	  // Create a session table entry for the new session
+      String newId = getNewSessionId();
 		
-		// Create and return the correct Session object
-        
+	  // Create and return the correct Session object
+      if(db.addSession(new SessionRequest(userId, newId))) {
+        return newId;
+      }
+      // Should never get here without throwing an exception
+      return null;
 	}
 	
 }

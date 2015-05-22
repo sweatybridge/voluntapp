@@ -3,6 +3,7 @@ package db;
 
 import java.sql.*;
 
+import req.SessionRequest;
 import req.UserRequest;
 import resp.UserResponse;
 
@@ -28,13 +29,10 @@ public class DBInterface {
 	}
 	
 	
-	/* TODO: Create a log for the database error */
-	
 	/* Check to make sure that the user exists and the password is correct 
 	 * returns -1 when the password is wrong or the users id when it is correct or -2
 	 * when a database error has occurred.
 	 * Also throws a UserNotFoundException if the user was not in the database */
-
 	public UserResponse verifyUser(UserRequest uq) throws SQLException, UserNotFoundException {
 		
 		// Get the password in and put it in the pass variable
@@ -42,6 +40,11 @@ public class DBInterface {
 	    query(query);
 
 		return new UserResponse(uq.getEmail(), query.getPassword(), query.getID());	
+	}
+	
+	public boolean addSession(SessionRequest sq) throws SQLException {
+		SessionInsert si = new SessionInsert(sq.getSessionId(),sq.getUserId());
+		return insert(si);
 	}
 	
 	/* Insert data into the database. */
