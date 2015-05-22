@@ -21,7 +21,7 @@ public class DBInterfaceTest {
   
   @Test
   public void insertAddsDataToTheSpecifiedTable() {
-    SessionInsert s = new SessionInsert("123", 2);
+    SessionInsert s = new SessionInsert("12345", 2);
     DBInterface db = new DBInterface();
     db.insert(s);
   }
