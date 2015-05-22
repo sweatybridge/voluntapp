@@ -18,8 +18,7 @@ import sql.SessionQuery;
 import sql.UserUpdate;
 
 /**
- * Class to manage the back-end to the database, deals with 
- * any and all queries.
+ * Class to manage the back-end to the database, deals with any and all queries.
  * 
  * @author bs2113
  * 
@@ -41,14 +40,14 @@ public class DBInterface {
   public DBInterface(Connection conn) {
     this.conn = conn;
   }
-  
+
   /**
    * Basic constructor, defaults to our database.
    */
   public DBInterface() {
     try {
-      conn = DriverManager.getConnection(DBInterface.DATABASE_NAME, DBInterface.DATABASE_USER,
-          DBInterface.DATABASE_PASS);
+      conn = DriverManager.getConnection(DBInterface.DATABASE_NAME,
+          DBInterface.DATABASE_USER, DBInterface.DATABASE_PASS);
     } catch (SQLException e) {
       System.exit(0);
     }
@@ -64,9 +63,12 @@ public class DBInterface {
    *           There was an error in the database.
    * @throws UserNotFoundException
    *           Thrown if the users data was not in the database.
+   * @throws InconsistentDataException
+   *           Thrown when the database is shown to be in a bad inconsistent
+   *           state.
    */
   public UserResponse verifyUser(UserRequest uq) throws SQLException,
-      UserNotFoundException {
+      UserNotFoundException, InconsistentDataException {
 
     // Get the password in and put it in the pass variable
     LoginQuery query = new LoginQuery(uq.getEmail());

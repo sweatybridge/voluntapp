@@ -3,6 +3,7 @@ package sql;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
 public class LoginQuery implements SQLQuery {
@@ -22,7 +23,7 @@ public class LoginQuery implements SQLQuery {
 
   @Override
   public String getSQLQuery() {
-    return "SELECT \"ID\" , \"PASSWORD\" FROM public.\"USERS\" WHERE \"EMAIL\" =" + 
+    return "SELECT \"ID\" , \"PASSWORD\" FROM public.\"USERS\" WHERE \"EMAIL\"=" + 
       "'" + email + "'" + ";";
   }
   
@@ -36,9 +37,12 @@ public class LoginQuery implements SQLQuery {
     }
   }
   
-  public void checkValid() throws UserNotFoundException {
+  public void checkValid() throws UserNotFoundException, InconsistentDataException, SQLException {
     if(found == false) {
       throw new UserNotFoundException("The users information could not be found");
+    }
+    if(queryResult.next() == true) {
+      throw new InconsistentDataException("The database is dead HALP!");
     }
   }
 

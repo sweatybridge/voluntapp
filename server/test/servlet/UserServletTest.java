@@ -18,12 +18,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import resp.LoginResponse;
-
 import com.google.gson.Gson;
 
 import db.DBInterface;
-import db.SQLInsert;
 
 public class UserServletTest {
 
