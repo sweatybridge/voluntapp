@@ -141,19 +141,41 @@
             <!-- Tab panes -->
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane fade in active" id="crt_event">
-                <form class="form-centre" role="form" id="register_form" action="event" method="put" autocomplete="off">
-                  <input type="text" name="title" class="form-control" placeholder="Title" autofocus required>
+                <form class="form-centre" role="form" id="event_form" action="event" method="put" autocomplete="off">
+                  <select class="form-control" name="calendar">
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                    <option value="opel">Opel</option>
+                    <option value="audi">Audi</option>
+                  </select>
+                  <input type="text" name="title" class="form-control" placeholder="Title" required>
                   <input type="time" name="startTime" class="form-control" placeholder="Start time" required>
                   <input type="time" name="endTime" class="form-control" placeholder="End time" required>
                   <input type="date" name="date" class="form-control" placeholder="Date" required>
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
                   <input type="number" name="size" class="form-control" min="0" value="0" placeholder="Size" required>
                   <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
-                  <input class="btn btn-primary" type="submit" value="Register">
+                  <input class="btn btn-primary" type="submit" value="Create Event">
                   <p class="form-error" id="event_create_errors"></p>
                 </form>
               </div>
-              <div role="tabpanel" class="tab-pane fade" id="crt_calendar">Create calendar</div>
+              <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
+                <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
+                <form class="form-centre" role="form" id="calendar_join_form" action="calendar" method="post" autocomplete="off">
+                  <input type="text" name="token" class="form-control" placeholder="Token" autofocus required>
+                  <input class="btn btn-primary" type="submit" value="Join">
+                  <p class="form-error" id="calendar_join_errors"></p>
+                </form>
+                <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
+                <form class="form-centre" role="form" id="calendar_create_form" action="calendar" method="put" autocomplete="off">
+                  <input type="text" name="title" class="form-control" placeholder="Title" required>
+                  <div class="checkbox">
+                    <label><input type="checkbox" name="allowJoin" value="true">Allow Joining</label>
+                  </div>
+                  <input class="btn btn-primary" type="submit" value="Create">
+                  <p class="form-error" id="calendar_create_errors"></p>
+                </form>
+              </div>
             </div>
 
           </div>
