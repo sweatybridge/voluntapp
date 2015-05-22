@@ -16,11 +16,11 @@ import resp.ErrorResponse;
 import resp.LoginResponse;
 import resp.Response;
 import resp.SuccessResponse;
+import sql.UserInsert;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
-import db.UserInsert;
 
 /**
  * Handles API requests to user resources.

@@ -1,8 +1,8 @@
-package db;
+package sql;
 
 import java.sql.ResultSet;
 
 public interface SQLQuery {
   public String getSQLQuery();
-  public void setResult(ResultSet result) throws UserNotFoundException;
+  public void setResult(ResultSet result);
 }

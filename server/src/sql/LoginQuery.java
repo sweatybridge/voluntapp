@@ -1,7 +1,9 @@
-package db;
+package sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import exception.UserNotFoundException;
 
 public class LoginQuery implements SQLQuery {
   
@@ -25,15 +27,18 @@ public class LoginQuery implements SQLQuery {
   }
   
   @Override
-  public void setResult(ResultSet result) throws UserNotFoundException {
+  public void setResult(ResultSet result) {
     this.queryResult = result;
     try {
       found = queryResult.next();
-      if (!found) {
-    	  throw new UserNotFoundException(userNotFoundMessage);
-      }
     } catch (SQLException e) {
       System.err.println(getErrorMessage(e));
+    }
+  }
+  
+  public void checkValid() throws UserNotFoundException {
+    if(found == false) {
+      throw new UserNotFoundException("The users information could not be found");
     }
   }
 

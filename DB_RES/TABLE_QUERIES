@@ -29,3 +29,19 @@ CREATE TABLE public."SESSIONS"
   "SID" character(20) NOT NULL PRIMARY KEY,
   "USER" int NULL NULL REFERENCES public."USERS"("ID")
 )
+
+/*  Calender table query */
+
+CREATE TABLE public."CALENDER"
+(
+   "ID" serial NOT NULL PRIMARY KEY, 
+   "NAME" character varying(50) NOT NULL,
+   "CREATOR" int REFERENCES public."USERS"("ID"), 
+   "CREATED" timestamp without time zone NOT NULL, 
+   "JOIN_ENABLED" boolean NOT NULL DEFAULT true, 
+   "JOIN_CODE" character(6)
+) 
+WITH (
+  OIDS = FALSE
+)
+;

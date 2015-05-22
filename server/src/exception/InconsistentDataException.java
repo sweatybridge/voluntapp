@@ -1,4 +1,4 @@
-package db;
+package exception;
 
 public class InconsistentDataException extends Exception {
 	

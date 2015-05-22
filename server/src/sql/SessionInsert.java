@@ -1,4 +1,4 @@
-package db;
+package sql;
 
 public class SessionInsert implements SQLUpdate {
   
