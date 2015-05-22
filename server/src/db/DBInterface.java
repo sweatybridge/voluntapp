@@ -1,14 +1,9 @@
 package db;
 
 
-import java.math.BigInteger;
 import java.sql.*;
-import java.security.SecureRandom;
 
 import req.UserRequest;
-import req.Request;
-import req.UserRequest;
-import resp.UserResponse;
 import resp.UserResponse;
 
 
@@ -40,7 +35,7 @@ public class DBInterface {
 	 * when a database error has occurred.
 	 * Also throws a UserNotFoundException if the user was not in the database */
 
-	private UserResponse verifyUser(UserRequest uq) throws SQLException, UserNotFoundException {
+	public UserResponse verifyUser(UserRequest uq) throws SQLException, UserNotFoundException {
 		
 		// Get the password in and put it in the pass variable
 	    LoginQuery query = new LoginQuery(uq.getEmail());
@@ -49,38 +44,12 @@ public class DBInterface {
 		return new UserResponse(uq.getEmail(), query.getPassword(), query.getID());	
 	}
 	
-	
-	
-  public boolean insert(SQLInsert insertion) {
+	/* Insert data into the database. */
+  private boolean insert(SQLInsert insertion) throws SQLException {
 		Statement stmt;
-		try {
-			stmt = conn.createStatement();
-		} catch (SQLException e) {
-			return false;
-		}
-		
-		try {
-			boolean rs = stmt.execute(insertion.getSQLInsert());
-			System.out.println(stmt.getResultSet());
-			
-		} catch (SQLException e) {
-			System.err.println("Error in executing SQL INSERT query: " + e.getMessage());
-			return false;
-		}
-		
-		return true;
-	}
-	
-	/* Closes the database connection, if there is an error just return
-	 * false */
-	
-	public boolean destory() {
-		try {
-			conn.close();
-		} catch (SQLException e) {
-			return false;
-		}
-		return true;
+		stmt = conn.createStatement();
+		boolean rs = stmt.execute(insertion.getSQLInsert());
+		return rs;
 	}
 	
 	/* Executes an SQL Update */
@@ -100,4 +69,15 @@ public class DBInterface {
 	  query.setResult(result, 0);
 	  return true;
 	}
+	
+	/* Closes the database connection, if there is an error just return
+   * false */
+  public boolean destory() {
+    try {
+      conn.close();
+    } catch (SQLException e) {
+      return false;
+    }
+    return true;
+  }
 }
