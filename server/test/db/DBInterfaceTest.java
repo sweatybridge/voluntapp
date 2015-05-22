@@ -2,6 +2,7 @@ package db;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -24,4 +25,5 @@ public class DBInterfaceTest {
     DBInterface db = new DBInterface();
     db.insert(s);
   }
+
 }

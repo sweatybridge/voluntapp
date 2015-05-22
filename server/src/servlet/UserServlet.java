@@ -1,7 +1,7 @@
 package servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 
 import javax.servlet.ServletException;
@@ -14,6 +14,7 @@ import req.LoginRequest;
 import req.RegisterRequest;
 import resp.ErrorResponse;
 import resp.LoginResponse;
+import resp.Response;
 import resp.SuccessResponse;
 
 import com.google.gson.Gson;
@@ -21,110 +22,129 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import db.UserInsert;
 
-@WebServlet("/user")
+/**
+ * Handles API requests to user resources.
+ */
+@WebServlet
 public class UserServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
   // private static final Logger logger = Logger.getLogger("UserServlet");
 
-  // TODO: share these objects with singleton pattern
-  private Gson gson = new Gson();
-  private DBInterface db = new DBInterface();
+  private final Gson gson;
+  private final DBInterface db;
 
-  // Retrieves current user details
+  /**
+   * Constructs a user servlet with injected dependencies.
+   * 
+   * @param gson json serialiser
+   * @param db database interface
+   */
+  public UserServlet(Gson gson, DBInterface db) {
+    this.gson = gson;
+    this.db = db;
+  }
+
+  /**
+   * Retrieve details of the current user.
+   */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
-    // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
-
     // TODO get current user id from auth token
     // TODO retrieve user info from database
 
-    out.print("user info.");
+    response.getWriter().print("user info."); //$NON-NLS-1$
   }
 
-  // Delete the user from database
+  /**
+   * Delete current user from the database.
+   */
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
-    // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
-
     // TODO get current user id from auth token
     // TODO delete from user table
 
-    out.print(gson.toJson(new SuccessResponse(
-        "Successfully deleted user from database.")));
+    Response resp =
+        new SuccessResponse(Messages.getString("UserServlet.deleteSuccess")); //$NON-NLS-1$
+
+    response.getWriter().print(gson.toJson(resp));
   }
 
-  // Register the user
+  /**
+   * Register a new user with supplied information.
+   */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
+    // Parse user register request
+    String body = request.getReader().readLine().substring("payload=".length()); //$NON-NLS-1$
+    String payload = URLDecoder.decode(body, "UTF-8"); //$NON-NLS-1$
+    RegisterRequest req = gson.fromJson(payload, RegisterRequest.class);
 
-    // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
+    // Handle request in a RESTful manner
+    Response resp = handle(req);
+    if (resp instanceof ErrorResponse) {
+      response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+    }
 
-    // Get user registration information
-    String body = request.getReader().readLine().substring("payload=".length());
-    String payload = URLDecoder.decode(body, "UTF-8");
+    // Write response to output
+    response.getWriter().print(gson.toJson(resp));
+  }
 
-    RegisterRequest user = gson.fromJson(payload, RegisterRequest.class);
+  /**
+   * Logs in the user with email and password.
+   */
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
+    // Parse user login request
+    String data = request.getParameter("payload"); //$NON-NLS-1$
+    LoginRequest req = gson.fromJson(data, LoginRequest.class);
 
+    // Handle request in a RESTful manner
+    Response resp = handle(req);
+    if (resp instanceof ErrorResponse) {
+      response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+    }
+
+    // Write response to output
+    response.getWriter().print(gson.toJson(resp));
+  }
+
+  private Response handle(RegisterRequest req) {
     // Validate registration
-    if (!user.isValid()) {
-      response.setStatus(400);
-      out.print(gson.toJson(new ErrorResponse(
-          "You have entered invalid registration information.")));
-      return;
+    if (!req.isValid()) {
+      return new ErrorResponse(
+          Messages.getString("UserServlet.registerInvalid")); //$NON-NLS-1$
     }
 
     // Write to database
     boolean success =
-        db.insert(new UserInsert(user.getEmail(), user.getPassword(), user.getFirstName(),
-            user.getLastName()));
+        db.insert(new UserInsert(req.getEmail(), req.getPassword(), req
+            .getFirstName(), req.getLastName()));
     if (!success) {
-      response.setStatus(400);
-      out.print(gson.toJson(new ErrorResponse(
-          "The email you entered is already in use.")));
-      return;
+      return new ErrorResponse(Messages.getString("UserServlet.registerInUse")); //$NON-NLS-1$
     }
 
     // TODO: create new session
 
-    // Return success status
-    out.print(gson.toJson(new LoginResponse("test session id")));
+    // Successfully registered
+    return new LoginResponse("test session id"); //$NON-NLS-1$
   }
 
-  // Logs in the user
-  @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
-
-    // Setup response
-    response.setContentType("application/json");
-    PrintWriter out = response.getWriter();
-
-    // Get user registration information
-    String data = request.getParameter("payload");
-    LoginRequest user = gson.fromJson(data, LoginRequest.class);
-
-    // Validate registration
-    if (!user.isValid()) {
-      out.print(gson.toJson(new ErrorResponse(
-          "You have entered invalid login information.")));
-      return;
+  private Response handle(LoginRequest req) {
+    // Validate login
+    if (!req.isValid()) {
+      return new ErrorResponse(Messages.getString("UserServlet.loginInvalid")); //$NON-NLS-1$
     }
 
     // TODO: Read from database
 
-    // Return success status
-    out.print(gson.toJson(new LoginResponse("test session id")));
+    // Successfully logged in
+    return new LoginResponse("test session id"); //$NON-NLS-1$
   }
 }

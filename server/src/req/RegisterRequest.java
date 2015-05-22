@@ -3,13 +3,17 @@ package req;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 
-public class RegisterRequest {
+/**
+ * Deserialized JSON object of an API request to register new user.
+ */
+public class RegisterRequest implements Request {
 
   private String email;
   private String password;
   private String firstName;
   private String lastName;
 
+  @Override
   public boolean isValid() {
     return (email != null && EmailValidator.getInstance().isValid(email))
         && (password != null && password.length() >= 6)

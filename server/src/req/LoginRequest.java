@@ -2,11 +2,15 @@ package req;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
-public class LoginRequest {
+/**
+ * Deserialized JSON object of an API request to login a user.
+ */
+public class LoginRequest implements Request {
 
   private String email;
   private String password;
 
+  @Override
   public boolean isValid() {
     return (email != null && EmailValidator.getInstance().isValid(email))
         && (password != null && password.length() >= 6);
