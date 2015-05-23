@@ -149,7 +149,7 @@ public class UserServlet extends HttpServlet {
 
     // Write to database
     try {
-      int userId = db.addUser(req);
+      int userId = db.putUser(req);
       String token = sm.startSession(userId);
 
       // Successfully registered
@@ -170,7 +170,7 @@ public class UserServlet extends HttpServlet {
     }
 
     try {
-      UserResponse user = db.verifyUser(req);
+      UserResponse user = db.getUser(req);
 
       // TODO: Check that password matches the hashed value
       if (!req.getPassword().equals(user.getHashedPassword())) {
@@ -192,7 +192,7 @@ public class UserServlet extends HttpServlet {
       // TODO: improve security against brute force attack
       int userId = db.getUserIdFromSession(auth);
 
-      return db.verifyUser(new UserRequest(userId));
+      return db.getUser(new UserRequest(userId));
     } catch (SQLException e) {
       return new ErrorResponse("Invalid authorization token.");
     } catch (UserNotFoundException | InconsistentDataException e) {

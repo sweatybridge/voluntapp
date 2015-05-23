@@ -18,7 +18,6 @@ public class LoginQuery implements SQLQuery {
   private int userId;
   private ResultSet queryResult;
   private boolean found = false;
-  private final String userNotFoundMessage;
 
   public LoginQuery(int userId) {
     this(null);
@@ -28,17 +27,13 @@ public class LoginQuery implements SQLQuery {
   public LoginQuery(String email) {
     this.email = email;
     queryResult = null;
-    userNotFoundMessage = "User with email " + email + " was not found.";
   }
 
   @Override
   public String getSQLQuery() {
-    if (email == null) {
-      return "SELECT * FROM public.\"USERS\" WHERE \"ID\"=" + "'" + userId
-          + "'" + ";";
-    }
-    return "SELECT * FROM public.\"USERS\" WHERE \"EMAIL\"=" + "'" + email
-        + "'" + ";";
+    return String.format("SELECT * FROM public.\"USERS\" WHERE \"%s\"='%s';",
+        (email == null) ? ID_COLUMN : EMAIL_COLUMN, (email == null) ? userId
+            : email);
   }
 
   @Override

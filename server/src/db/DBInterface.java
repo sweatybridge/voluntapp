@@ -58,7 +58,7 @@ public class DBInterface {
     }
   }
 
-  public int addUser(RegisterRequest rq) throws SQLException {
+  public int putUser(RegisterRequest rq) throws SQLException {
 
     // Get the password in and put it in the pass variable
     UserInsert ui =
@@ -87,7 +87,7 @@ public class DBInterface {
    * @throws InconsistentDataException Thrown when the database is shown to be
    *         in a bad inconsistent state.
    */
-  public UserResponse verifyUser(UserRequest uq) throws SQLException,
+  public UserResponse getUser(UserRequest uq) throws SQLException,
       UserNotFoundException, InconsistentDataException {
 
     LoginQuery query;
@@ -114,7 +114,7 @@ public class DBInterface {
    * @throws SQLException Thrown when there is a problem with the database
    *         interaction.
    */
-  public boolean addSession(SessionRequest sq) throws SQLException {
+  public boolean putSession(SessionRequest sq) throws SQLException {
     SessionInsert si = new SessionInsert(sq.getSessionId(), sq.getUserId());
     return insert(si);
   }
@@ -134,7 +134,7 @@ public class DBInterface {
    * @throws UserNotFoundException Thrown when the user could not be found in
    *         the database.
    */
-  public boolean updateUserInfo(int userId, RegisterRequest rr)
+  public boolean updateUser(int userId, RegisterRequest rr)
       throws SQLException, InconsistentDataException, UserNotFoundException {
     UserUpdate uu =
         new UserUpdate(userId, rr.getEmail(), rr.getFirstName(),
@@ -148,7 +148,7 @@ public class DBInterface {
       throw new UserNotFoundException(
           "The user could not be updated, as they don't exist");
     }
-    return update(uu) == 1;
+    return rows == 1;
   }
 
   /**
@@ -198,7 +198,7 @@ public class DBInterface {
 
   /**
    * Function to run the SQLUpdate on the database, used for update/delete
-   * operations.
+   * operations. Returns 1 if the query is skipped due to it having no effect.
    * 
    * @param query The query to be executed.
    * @return How many rows were affected by the update.
@@ -208,9 +208,14 @@ public class DBInterface {
   private int update(SQLUpdate query) throws SQLException {
     Statement stmt;
     stmt = conn.createStatement();
-    int result = stmt.executeUpdate(query.getSQLUpdate());
-    query.checkResult(result);
-    return result;
+    String q = query.getSQLUpdate();
+    if (q != null) {
+      int result = stmt.executeUpdate(q);
+      query.checkResult(result);
+      return result;
+    }
+    // The query is pointless, return 1 to signal success
+    return 1;
   }
 
   /**

@@ -47,6 +47,11 @@ public class UserRequest implements Request {
     this.email = email;
     this.password = password;
   }
+  
+  public UserRequest(int id, String email, String password) {
+    this(email,password);
+    this.userId = id;
+  }
 
   @Override
   public boolean isValid() {

@@ -90,7 +90,7 @@ public class SessionManager {
       String newId = getNewSessionId();
 		
 	  // Create and return the correct Session object
-      if(db.addSession(new SessionRequest(userId, newId))) {
+      if(db.putSession(new SessionRequest(userId, newId))) {
         return newId;
       }
       // Should never get here without throwing an exception
