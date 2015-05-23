@@ -1,6 +1,5 @@
 package resp;
 
-import java.sql.Array;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;

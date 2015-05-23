@@ -208,6 +208,20 @@
       $(".event button").click(function() {
         $(this).next(".e_desc").toggle(500);
       });
+
+      $("#btn_logout").click(function() {
+        $.ajax({
+          type: "POST",
+          url: "/logout",
+          data: JSON.stringify({userId: "cookie"}),
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data){window.replace("/");},
+          failure: function(errMsg) {
+              alert(errMsg);
+          }
+        });
+      })
     }); // End of document ready
     
     // Update main column class whether sizebars are hidden or not

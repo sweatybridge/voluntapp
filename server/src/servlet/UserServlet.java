@@ -140,10 +140,10 @@ public class UserServlet extends HttpServlet {
       }
       */
       SessionResponse session = (SessionResponse) resp;
-      request.getSession().setAttribute("token", session.getSessionId());
-      // Cookie cookie = new Cookie("token", session.getSessionId());
-      // cookie.setHttpOnly(true);
-      // response.addCookie(cookie);
+      // request.getSession().setAttribute("token", session.getSessionId());
+      Cookie cookie = new Cookie("token", session.getSessionId());
+      cookie.setHttpOnly(true);
+      response.addCookie(cookie);
     }
 
     // Write response to output

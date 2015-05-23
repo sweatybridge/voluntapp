@@ -88,8 +88,7 @@
           method: form.attr("method"),
           statusCode: {
             200: function(data) {
-              //alert('success');
-              window.location.replace("main.html"); 
+              window.location.replace("/"); 
             },
             400: function(data) { errorDiv.text(data.responseJSON.message); }
           }

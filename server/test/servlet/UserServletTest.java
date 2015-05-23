@@ -34,6 +34,7 @@ import com.google.gson.Gson;
 
 import db.DBInterface;
 import exception.InconsistentDataException;
+import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
 public class UserServletTest {
@@ -92,13 +93,13 @@ public class UserServletTest {
       when(db.getSession(token)).thenReturn(
           new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
       when(db.getUser(any(UserRequest.class))).thenReturn(expected);
-    } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
+    } catch (SQLException | UserNotFoundException | InconsistentDataException | SessionNotFoundException e1) {
       fail("Not yet implemented");
     }
 
     try {
       servlet.doGet(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -122,13 +123,13 @@ public class UserServletTest {
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
       when(db.getSession(token)).thenThrow(new SQLException());
-    } catch (SQLException e) {
+    } catch (SQLException | SessionNotFoundException e) {
       fail("Not yet implemented");
     }
 
     try {
       servlet.doGet(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -157,7 +158,7 @@ public class UserServletTest {
     // Perform actual servlet operation
     try {
       servlet.doPut(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -205,7 +206,7 @@ public class UserServletTest {
     // Perform actual servlet operation
     try {
       servlet.doPut(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -229,7 +230,7 @@ public class UserServletTest {
     // Perform actual servlet operation
     try {
       servlet.doPut(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -263,7 +264,7 @@ public class UserServletTest {
     // Perform actual servlet operation
     try {
       servlet.doPost(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -296,7 +297,7 @@ public class UserServletTest {
     // Perform actual servlet operation
     try {
       servlet.doPost(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
@@ -315,7 +316,7 @@ public class UserServletTest {
     // Perform actual servlet operation
     try {
       servlet.doPost(req, resp);
-    } catch (IOException | ServletException e) {
+    } catch (IOException e) {
       fail("Not yet implemented");
     }
 
