@@ -219,7 +219,7 @@ public class DBInterface {
       throw new UserNotFoundException(
           "The user could not be updated, as they don't exist");
     }
-    return update(uu) == 1;
+    return rows == 1;
   }
 
   /**
@@ -254,7 +254,7 @@ public class DBInterface {
 
   /**
    * Function to run the SQLUpdate on the database, used for update/delete
-   * operations.
+   * operations. Returns 1 if the query is skipped due to it having no effect.
    * 
    * @param query The query to be executed.
    * @return How many rows were affected by the update.
@@ -264,9 +264,14 @@ public class DBInterface {
   private int update(SQLUpdate query) throws SQLException {
     Statement stmt;
     stmt = conn.createStatement();
-    int result = stmt.executeUpdate(query.getSQLUpdate());
-    query.checkResult(result);
-    return result;
+    String q = query.getSQLUpdate();
+    if (q != null) {
+      int result = stmt.executeUpdate(q);
+      query.checkResult(result);
+      return result;
+    }
+    // The query is pointless, return 1 to signal success
+    return 1;
   }
 
   /**

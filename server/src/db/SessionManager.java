@@ -121,5 +121,4 @@ public class SessionManager {
   public boolean closeSession(String sessionId) throws SQLException {
     return db.deleteSession(sessionId);
   }
-
 }
