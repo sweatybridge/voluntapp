@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import req.RegisterRequest;
 import req.UserRequest;
 import resp.ErrorResponse;
-import resp.LoginResponse;
 import resp.Response;
+import resp.SessionResponse;
 import resp.SuccessResponse;
 import resp.UserResponse;
 
@@ -149,11 +149,11 @@ public class UserServlet extends HttpServlet {
 
     // Write to database
     try {
-      int userId = db.addUser(req);
+      int userId = db.putUser(req);
       String token = sm.startSession(userId);
 
       // Successfully registered
-      return new LoginResponse(token);
+      return new SessionResponse(token);
     } catch (SQLException e) {
       return new ErrorResponse("The email you entered is already in use.");
     }
@@ -170,7 +170,7 @@ public class UserServlet extends HttpServlet {
     }
 
     try {
-      UserResponse user = db.verifyUser(req);
+      UserResponse user = db.getUser(req);
 
       // TODO: Check that password matches the hashed value
       if (!req.getPassword().equals(user.getHashedPassword())) {
@@ -181,7 +181,7 @@ public class UserServlet extends HttpServlet {
       String token = sm.startSession(user.getUserId());
 
       // Successfully logged in
-      return new LoginResponse(token);
+      return new SessionResponse(token);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       return new ErrorResponse("You have entered a wrong password.");
     }
@@ -190,9 +190,9 @@ public class UserServlet extends HttpServlet {
   private Response handle(String auth) {
     try {
       // TODO: improve security against brute force attack
-      int userId = db.getUserIdFromSession(auth);
+      SessionResponse session = db.getSession(auth);
 
-      return db.verifyUser(new UserRequest(userId));
+      return db.getUser(new UserRequest(session.getUserId()));
     } catch (SQLException e) {
       return new ErrorResponse("Invalid authorization token.");
     } catch (UserNotFoundException | InconsistentDataException e) {

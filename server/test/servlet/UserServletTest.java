@@ -27,7 +27,7 @@ import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.ErrorResponse;
-import resp.LoginResponse;
+import resp.SessionResponse;
 import resp.UserResponse;
 
 import com.google.gson.Gson;
@@ -48,6 +48,8 @@ public class UserServletTest {
   private static final String TEST_PASSWORD = "123123";
   private static final String TEST_FIRST_NAME = "Qiao";
   private static final String TEST_LAST_NAME = "Han";
+
+  private static final String TEST_SESSION_ID = "123456";
 
   @Mock
   private DBInterface db;
@@ -80,15 +82,16 @@ public class UserServletTest {
 
   @Test
   public void doGetReturnsUserDetails() {
-    String token = "123456";
+    String token = TEST_SESSION_ID;
     UserResponse expected =
         new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
             TEST_FIRST_NAME, TEST_LAST_NAME);
 
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
-      when(db.getUserIdFromSession(token)).thenReturn(TEST_USER_ID);
-      when(db.verifyUser(any(UserRequest.class))).thenReturn(expected);
+      when(db.getSession(token)).thenReturn(
+          new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
+      when(db.getUser(any(UserRequest.class))).thenReturn(expected);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
       fail("Not yet implemented");
     }
@@ -102,7 +105,7 @@ public class UserServletTest {
     ArgumentCaptor<UserRequest> arg =
         ArgumentCaptor.forClass(UserRequest.class);
     try {
-      verify(db).verifyUser(arg.capture());
+      verify(db).getUser(arg.capture());
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       fail("Not yet implemented");
     }
@@ -113,12 +116,12 @@ public class UserServletTest {
 
   @Test
   public void doGetFailsWhenTokenIsInvalid() {
-    String token = "123456";
+    String token = "invalid";
     ErrorResponse expected = new ErrorResponse("Invalid authorization token.");
 
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
-      when(db.getUserIdFromSession(token)).thenThrow(new SQLException());
+      when(db.getSession(token)).thenThrow(new SQLException());
     } catch (SQLException e) {
       fail("Not yet implemented");
     }
@@ -145,8 +148,8 @@ public class UserServletTest {
     // Sets up mock objects
     try {
       when(reqBody.readLine()).thenReturn(payload);
-      when(db.addUser(any(RegisterRequest.class))).thenReturn(TEST_USER_ID);
-      when(db.addSession(any(SessionRequest.class))).thenReturn(true);
+      when(db.putUser(any(RegisterRequest.class))).thenReturn(TEST_USER_ID);
+      when(db.putSession(any(SessionRequest.class))).thenReturn(true);
     } catch (IOException | SQLException e1) {
       fail("Not yet implemented");
     }
@@ -162,7 +165,7 @@ public class UserServletTest {
     ArgumentCaptor<RegisterRequest> arg0 =
         ArgumentCaptor.forClass(RegisterRequest.class);
     try {
-      verify(db).addUser(arg0.capture());
+      verify(db).putUser(arg0.capture());
     } catch (SQLException e) {
       fail("Not yet implemented");
     }
@@ -176,13 +179,13 @@ public class UserServletTest {
     ArgumentCaptor<SessionRequest> arg1 =
         ArgumentCaptor.forClass(SessionRequest.class);
     try {
-      verify(db).addSession(arg1.capture());
+      verify(db).putSession(arg1.capture());
     } catch (SQLException e) {
       fail("Not yet implemented");
     }
 
     verify(respBody).print(
-        gson.toJson(new LoginResponse(arg1.getValue().getSessionId())));
+        gson.toJson(new SessionResponse(arg1.getValue().getSessionId())));
   }
 
   @Test
@@ -193,7 +196,7 @@ public class UserServletTest {
     // Sets up mock objects
     try {
       when(reqBody.readLine()).thenReturn(payload);
-      when(db.addUser(any(RegisterRequest.class)))
+      when(db.putUser(any(RegisterRequest.class)))
           .thenThrow(new SQLException());
     } catch (IOException | SQLException e) {
       fail("Not yet implemented");
@@ -232,7 +235,7 @@ public class UserServletTest {
 
     // Check that no data is inserted into database
     try {
-      verify(db, never()).verifyUser(any(UserRequest.class));
+      verify(db, never()).getUser(any(UserRequest.class));
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       fail("Not yet implemented");
     }
@@ -249,10 +252,10 @@ public class UserServletTest {
     // Sets up mock objects
     when(req.getParameter("payload")).thenReturn(payload);
     try {
-      when(db.verifyUser(any(UserRequest.class))).thenReturn(
+      when(db.getUser(any(UserRequest.class))).thenReturn(
           new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
               TEST_FIRST_NAME, TEST_LAST_NAME));
-      when(db.addSession(any(SessionRequest.class))).thenReturn(true);
+      when(db.putSession(any(SessionRequest.class))).thenReturn(true);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
       fail("Not yet implemented");
     }
@@ -268,13 +271,13 @@ public class UserServletTest {
     ArgumentCaptor<SessionRequest> arg =
         ArgumentCaptor.forClass(SessionRequest.class);
     try {
-      verify(db).addSession(arg.capture());
+      verify(db).putSession(arg.capture());
     } catch (SQLException e) {
       fail("Not yet implemented");
     }
 
     verify(respBody).print(
-        gson.toJson(new LoginResponse(arg.getValue().getSessionId())));
+        gson.toJson(new SessionResponse(arg.getValue().getSessionId())));
   }
 
   @Test
@@ -284,7 +287,7 @@ public class UserServletTest {
     // Sets up mock objects
     when(req.getParameter("payload")).thenReturn(payload);
     try {
-      when(db.verifyUser(any(UserRequest.class))).thenThrow(
+      when(db.getUser(any(UserRequest.class))).thenThrow(
           new UserNotFoundException(""));
     } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
       fail("Not yet implemented");
@@ -318,7 +321,7 @@ public class UserServletTest {
 
     // Check that no data is inserted into database
     try {
-      verify(db, never()).verifyUser(any(UserRequest.class));
+      verify(db, never()).getUser(any(UserRequest.class));
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       fail("Not yet implemented");
     }

@@ -94,7 +94,7 @@ public class DBInterfaceTest {
         TEST_VERIFY_USER_1_PASSWORD);
     UserResponse ur;
     try {
-      ur = db.verifyUser(uq);
+      ur = db.getUser(uq);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       fail("Something failed: " + e.getMessage());
       return;
@@ -118,7 +118,7 @@ public class DBInterfaceTest {
     UserRequest uq = new UserRequest(TEST_VERIFY_USER_1_EMAIL,
         TEST_VERIFY_USER_1_PASSWORD);
     try {
-      db.verifyUser(uq);
+      db.getUser(uq);
     } catch (SQLException | InconsistentDataException e) {
       fail("Something failed: " + e.getMessage());
     }
@@ -133,7 +133,7 @@ public class DBInterfaceTest {
     UserRequest uq = new UserRequest(TEST_VERIFY_USER_1_EMAIL,
         TEST_VERIFY_USER_1_PASSWORD);
     try {
-      db.verifyUser(uq);
+      db.getUser(uq);
     } catch (UserNotFoundException | InconsistentDataException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
@@ -154,7 +154,7 @@ public class DBInterfaceTest {
     UserRequest uq = new UserRequest(TEST_VERIFY_USER_1_EMAIL,
         TEST_VERIFY_USER_1_PASSWORD);
     try {
-      db.verifyUser(uq);
+      db.getUser(uq);
     } catch (SQLException | UserNotFoundException e) {
       fail("Something failed: " + e.getMessage());
     }
@@ -174,7 +174,7 @@ public class DBInterfaceTest {
     UserRequest uq = new UserRequest(TEST_VERIFY_USER_1_EMAIL,
         TEST_VERIFY_USER_1_PASSWORD);
     try {
-      db.verifyUser(uq);
+      db.getUser(uq);
     } catch (UserNotFoundException | InconsistentDataException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
@@ -192,7 +192,7 @@ public class DBInterfaceTest {
     }
 
     try {
-      assertEquals(db.addUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
+      assertEquals(db.putUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
           TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
           TEST_ADD_USER_1_LASTNAME)), TEST_ADD_USER_1_ID);
       verify(stmt, times(1)).executeUpdate(TEST_ADD_USER_1_QUERY,
@@ -206,7 +206,7 @@ public class DBInterfaceTest {
   public void doesAddUserThrowSQLExceptionWhenCreateStatemenrFails()
       throws SQLException {
     when(conn.createStatement()).thenThrow(new SQLException());
-    db.addUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
+    db.putUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
         TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
         TEST_ADD_USER_1_LASTNAME));
   }
@@ -220,7 +220,7 @@ public class DBInterfaceTest {
     } catch (SQLException e) {
       fail("Unexpected exception: " + e.getMessage());
     }
-    assertEquals(db.addUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
+    assertEquals(db.putUser(new RegisterRequest(TEST_ADD_USER_1_EMAIL,
         TEST_ADD_USER_1_PASSWORD, TEST_ADD_USER_1_FIRSTNAME,
         TEST_ADD_USER_1_LASTNAME)), TEST_ADD_USER_1_ID);
     verify(stmt, times(1)).executeUpdate(TEST_ADD_USER_1_QUERY,
@@ -237,7 +237,7 @@ public class DBInterfaceTest {
       fail("Unexpected expection: " + e.getMessage());
     }
     try {
-      assertEquals(db.addSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
+      assertEquals(db.putSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
           TEST_ADD_SESSION_1_SID)), true);
       verify(stmt, times(1)).execute(TEST_ADD_SESSION_1_QUERY);
     } catch (SQLException e) {
@@ -249,7 +249,7 @@ public class DBInterfaceTest {
   public void doesAddSessionCorrectlyThrowSQLExceptionWhenCreateStatmentFails()
       throws SQLException {
     when(conn.createStatement()).thenThrow(new SQLException());
-    db.addSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
+    db.putSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
         TEST_ADD_SESSION_1_SID));
   }
 
@@ -262,7 +262,7 @@ public class DBInterfaceTest {
       fail("Unexpected expection: " + e.getMessage());
     }
     when(stmt.execute(TEST_ADD_SESSION_1_QUERY)).thenThrow(new SQLException());
-    db.addSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
+    db.putSession(new SessionRequest(TEST_ADD_SESSION_1_ID,
         TEST_ADD_SESSION_1_SID));
     verify(stmt, times(1)).execute(TEST_ADD_SESSION_1_QUERY);
   }
