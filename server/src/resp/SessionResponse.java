@@ -68,7 +68,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
   @Override
   public String getSQLQuery() {
     StringBuilder builder = new StringBuilder();
-    builder.append("SELECT \"USER\" FROM \"SESSIONS\" WHERE " + "\"SID\"='")
+    builder.append("SELECT * FROM \"SESSIONS\" WHERE " + "\"SID\"='")
         .append(sessionId).append("';");
     return builder.toString();
   }

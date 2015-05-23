@@ -27,6 +27,6 @@ WITH x AS (
   VALUES (DEFAULT, 'Test Event5', 'Text Desc5', 'Test Locatio5n', now(), now(), DEFAULT, DEFAULT, 0, true)
   RETURNING "EID"
   )
-INSERT INTO public."CALENDAR_EVENT"
+INSERT INTO public."CALENDER_EVENT"
 SELECT 1,"EID" 
 FROM x; 

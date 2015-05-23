@@ -23,6 +23,7 @@ public class EventRequest implements Request {
   private String location;
   private String time; // HH:MM
   private String date; // YY-MM-DD
+  private String duration;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -30,12 +31,14 @@ public class EventRequest implements Request {
   public EventRequest() {}
 
   public EventRequest(String title, String description, String location,
-      String time, String date) {
+      String time, String date, String duration, int calendarId) {
     this.title = title;
     this.description = description;
     this.location = location;
     this.time = time;
     this.date = date;
+    this.duration = duration;
+    this.calendarId = calendarId;
   }
 
   @Override
@@ -69,5 +72,9 @@ public class EventRequest implements Request {
 
   public String getDate() {
     return date;
+  }
+  
+  public String getDuration() {
+    return duration;
   }
 }

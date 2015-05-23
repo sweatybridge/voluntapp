@@ -48,24 +48,6 @@ WITH (
 
 /* Event table */
 
-CREATE TABLE public."EVENTS"
-(
-   "EID" serial PRIMARY KEY, 
-   "TITLE" character varying(100) NOT NULL, 
-   "DESCRIPTION" character varying(255) NOT NULL, 
-   "LOCATION" character varying(255) NOT NULL, 
-   "DATE" date NOT NULL, 
-   "TIME" time with time zone,
-   "DURATION" interval,
-   "ATTENDEES" int[],
-   "MAX_ATTENDEES" int,
-   "ACTIVE" boolean NOT NULL
-) 
-WITH (
-  OIDS = FALSE
-)
-;
-
 
 
 

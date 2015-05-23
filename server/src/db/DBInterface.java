@@ -181,10 +181,19 @@ public class DBInterface {
    * @param er
    *          EventRequest object submitted by client
    * @return event ID
+   * @throws SQLException
    */
-  public int putEvent(EventRequest er) {
-    // TODO: implement this
-    return -1;
+  public int putEvent(EventRequest ereq) throws SQLException {
+    EventResponse eresp = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
+        ereq.getTime(), ereq.getCalendarId(), ereq.getDuration());
+    Statement stmt = conn.createStatement();
+    stmt.executeUpdate(eresp.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+    ResultSet rs = stmt.getGeneratedKeys();
+    if (!rs.next()) {
+      throw new SQLException();
+    }
+    return rs.getInt(EventResponse.EID_COLUMN);
   }
 
   /**
