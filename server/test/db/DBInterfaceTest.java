@@ -292,8 +292,8 @@ public class DBInterfaceTest {
       fail("Unexpected expection: " + e.getMessage());
     }
     try {
-      assertEquals(db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
-          TEST_PUT_SESSION_1_SID)), true);
+      assertEquals(true, db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
+          TEST_PUT_SESSION_1_SID)));
       verify(stmt, times(1)).execute(TEST_PUT_SESSION_1_QUERY);
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
