@@ -89,12 +89,8 @@ public class UserServletTest {
 
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
-<<<<<<< HEAD
-      when(db.getUserIdFromSession(token)).thenReturn(TEST_USER_ID);
-=======
       when(db.getSession(token)).thenReturn(
           new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
->>>>>>> 5d20804b919a6212da51fd2be310f4f334f3babc
       when(db.getUser(any(UserRequest.class))).thenReturn(expected);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
       fail("Not yet implemented");

@@ -192,11 +192,7 @@ public class UserServlet extends HttpServlet {
       // TODO: improve security against brute force attack
       SessionResponse session = db.getSession(auth);
 
-<<<<<<< HEAD
-      return db.getUser(new UserRequest(userId));
-=======
       return db.getUser(new UserRequest(session.getUserId()));
->>>>>>> 5d20804b919a6212da51fd2be310f4f334f3babc
     } catch (SQLException e) {
       return new ErrorResponse("Invalid authorization token.");
     } catch (UserNotFoundException | InconsistentDataException e) {
