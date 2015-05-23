@@ -15,9 +15,7 @@ public class ErrorResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public ErrorResponse() {
-    this(null);
-  }
+  public ErrorResponse() {}
 
   /**
    * Constructs an error response with the given message. Sets status code to 1.

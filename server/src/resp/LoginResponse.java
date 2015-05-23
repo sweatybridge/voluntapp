@@ -13,9 +13,7 @@ public class LoginResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public LoginResponse() {
-    this(null);
-  }
+  public LoginResponse() {}
 
   /**
    * Construct a successful login response with auth token.

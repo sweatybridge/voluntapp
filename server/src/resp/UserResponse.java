@@ -1,18 +1,22 @@
 package resp;
 
 /**
- * A successful response to a login request.
+ * A successful response to a user request.
  */
 public class UserResponse extends Response {
 
   /**
-   * Details returned to the client after successful login.
+   * User details returned to the client.
    */
   private String email;
-  private transient String hashedPassword;
   private String firstName;
   private String lastName;
   private int userId;
+
+  /**
+   * Fields excluded from serialisation.
+   */
+  private transient String hashedPassword;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.

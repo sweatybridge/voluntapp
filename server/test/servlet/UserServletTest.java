@@ -79,8 +79,57 @@ public class UserServletTest {
   }
 
   @Test
-  public void testDoGetHttpServletRequestHttpServletResponse() {
-    fail("Not yet implemented");
+  public void doGetReturnsUserDetails() {
+    String token = "123456";
+    UserResponse expected =
+        new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
+            TEST_FIRST_NAME, TEST_LAST_NAME);
+
+    when(req.getHeader("Authorization")).thenReturn(token);
+    try {
+      when(db.getUserIdFromSession(token)).thenReturn(TEST_USER_ID);
+      when(db.verifyUser(any(UserRequest.class))).thenReturn(expected);
+    } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
+      fail("Not yet implemented");
+    }
+
+    try {
+      servlet.doGet(req, resp);
+    } catch (IOException | ServletException e) {
+      fail("Not yet implemented");
+    }
+
+    ArgumentCaptor<UserRequest> arg =
+        ArgumentCaptor.forClass(UserRequest.class);
+    try {
+      verify(db).verifyUser(arg.capture());
+    } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
+      fail("Not yet implemented");
+    }
+    assertEquals(TEST_USER_ID, arg.getValue().getUserId());
+
+    verify(respBody).print(gson.toJson(expected));
+  }
+
+  @Test
+  public void doGetFailsWhenTokenIsInvalid() {
+    String token = "123456";
+    ErrorResponse expected = new ErrorResponse("Invalid authorization token.");
+
+    when(req.getHeader("Authorization")).thenReturn(token);
+    try {
+      when(db.getUserIdFromSession(token)).thenThrow(new SQLException());
+    } catch (SQLException e) {
+      fail("Not yet implemented");
+    }
+
+    try {
+      servlet.doGet(req, resp);
+    } catch (IOException | ServletException e) {
+      fail("Not yet implemented");
+    }
+
+    verify(respBody).print(gson.toJson(expected));
   }
 
   @Test

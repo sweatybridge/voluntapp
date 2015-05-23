@@ -13,9 +13,7 @@ public class SuccessResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public SuccessResponse() {
-    this(null);
-  }
+  public SuccessResponse() {}
 
   /**
    * Constructs a simple success response with a message.
@@ -24,5 +22,6 @@ public class SuccessResponse extends Response {
    */
   public SuccessResponse(String message) {
     this.message = message;
+    statusCode = 0;
   }
 }

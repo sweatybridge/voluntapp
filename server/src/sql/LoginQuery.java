@@ -33,6 +33,10 @@ public class LoginQuery implements SQLQuery {
 
   @Override
   public String getSQLQuery() {
+    if (email == null) {
+      return "SELECT * FROM public.\"USERS\" WHERE \"ID\"=" + "'" + userId
+          + "'" + ";";
+    }
     return "SELECT * FROM public.\"USERS\" WHERE \"EMAIL\"=" + "'" + email
         + "'" + ";";
   }

@@ -3,8 +3,7 @@ package resp;
 /**
  * Represents a standard format that all API responses should conform to.
  * 
- * NOTE: All responses are only required to implement setters as GSON performs
- * the serialisation of private fields automatically.
+ * NOTE: GSON performs serialisation of private fields automatically.
  */
 public abstract class Response {
 

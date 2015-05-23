@@ -61,6 +61,9 @@ public class UserServlet extends HttpServlet {
     String auth = request.getHeader("Authorization");
 
     Response resp = handle(auth);
+    if (resp instanceof ErrorResponse) {
+      response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+    }
 
     response.getWriter().print(gson.toJson(resp));
   }

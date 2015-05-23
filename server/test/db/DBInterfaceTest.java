@@ -54,7 +54,7 @@ public class DBInterfaceTest {
   public final static int TEST_VERIFY_USER_1_ID = 17;
   public final static String TEST_VERIFY_USER_1_QUERY = String
       .format(
-          "SELECT \"ID\" , \"PASSWORD\" FROM public.\"USERS\" WHERE \"EMAIL\"='%s';",
+          "SELECT * FROM public.\"USERS\" WHERE \"EMAIL\"='%s';",
           TEST_VERIFY_USER_1_EMAIL);
 
   // Test data for Add User tests
