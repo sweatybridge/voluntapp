@@ -91,7 +91,13 @@ public class DBInterfaceTest {
           "UPDATE public.\"USERS\" SET \"EMAIL\"='%s',"
               + "\"FIRST_NAME\"='%s',\"LAST_NAME\"='%s',\"PASSWORD\"='%s' WHERE \"ID\"=%d",
           TEST_UPDATE_USER_1_EMAIL, TEST_UPDATE_USER_1_FIRSTNAME,
-          TEST_UPDATE_USER_1_LASTNAME, TEST_UPDATE_USER_1_PASSWORD, TEST_UPDATE_USER_1_ID);
+          TEST_UPDATE_USER_1_LASTNAME, TEST_UPDATE_USER_1_PASSWORD,
+          TEST_UPDATE_USER_1_ID);
+
+  // Test data for Delete Session Tests
+  public final static String TEST_DELETE_SESSION_1_ID = "42094sdfsdf6456";
+  public final static String TEST_DELETE_SESSION_1_QUERY = String.format(
+      "DELETE FROM \"SESSIONS\" WHERE \"SID\"='%s';", TEST_DELETE_SESSION_1_ID);
 
   @Test
   public void doesGetUserObtainCorrectDataGivenEmail() {
@@ -300,7 +306,7 @@ public class DBInterfaceTest {
     when(conn.createStatement()).thenThrow(new SQLException());
     db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
         TEST_PUT_SESSION_1_SID));
-    verify(stmt, times(0)).execute(TEST_PUT_SESSION_1_QUERY);
+    verify(stmt, times(0)).execute(any(String.class));
   }
 
   @Test(expected = SQLException.class)
@@ -330,12 +336,12 @@ public class DBInterfaceTest {
         TEST_UPDATE_USER_1_LASTNAME);
     try {
       assertEquals(db.updateUser(TEST_UPDATE_USER_1_ID, rr), true);
-      verify(stmt,times(1)).executeUpdate(TEST_UPDATE_USER_1_QUERY);
+      verify(stmt, times(1)).executeUpdate(TEST_UPDATE_USER_1_QUERY);
     } catch (SQLException | InconsistentDataException | UserNotFoundException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-  
+
   @Test
   public void doesUpdateUserPreventDatabaseAccsessIfNothingToBeChanged() {
     try {
@@ -343,17 +349,18 @@ public class DBInterfaceTest {
     } catch (SQLException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
-    RegisterRequest rr = new RegisterRequest(null,null,null,null);
+    RegisterRequest rr = new RegisterRequest(null, null, null, null);
     try {
       assertEquals(db.updateUser(TEST_UPDATE_USER_1_ID, rr), true);
-      verify(stmt,times(0)).executeUpdate(any(String.class));
+      verify(stmt, times(0)).executeUpdate(any(String.class));
     } catch (SQLException | InconsistentDataException | UserNotFoundException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-  
+
   @Test(expected = InconsistentDataException.class)
-  public void doesUpdateUserThrowIDExceptionWhenNeeded() throws InconsistentDataException {
+  public void doesUpdateUserThrowIDExceptionWhenNeeded()
+      throws InconsistentDataException {
     try {
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_USER_1_QUERY)).thenReturn(7);
@@ -365,14 +372,15 @@ public class DBInterfaceTest {
         TEST_UPDATE_USER_1_LASTNAME);
     try {
       db.updateUser(TEST_UPDATE_USER_1_ID, rr);
-      verify(stmt,times(0)).executeUpdate(any(String.class));
+      verify(stmt, times(0)).executeUpdate(any(String.class));
     } catch (SQLException | UserNotFoundException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-  
+
   @Test(expected = UserNotFoundException.class)
-  public void doesUpdateUserThrowUserNotFoundExceptionWhenNeeded() throws UserNotFoundException {
+  public void doesUpdateUserThrowUserNotFoundExceptionWhenNeeded()
+      throws UserNotFoundException {
     try {
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_USER_1_QUERY)).thenReturn(0);
@@ -384,14 +392,15 @@ public class DBInterfaceTest {
         TEST_UPDATE_USER_1_LASTNAME);
     try {
       db.updateUser(TEST_UPDATE_USER_1_ID, rr);
-      verify(stmt,times(0)).executeUpdate(any(String.class));
+      verify(stmt, times(0)).executeUpdate(any(String.class));
     } catch (SQLException | InconsistentDataException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-  
+
   @Test(expected = SQLException.class)
-  public void doesUpdateUserThrowSQLExceptionWhenConnectionFails() throws SQLException {
+  public void doesUpdateUserThrowSQLExceptionWhenConnectionFails()
+      throws SQLException {
     when(conn.createStatement()).thenThrow(new SQLException());
     RegisterRequest rr = new RegisterRequest(TEST_UPDATE_USER_1_EMAIL,
         TEST_UPDATE_USER_1_PASSWORD, TEST_UPDATE_USER_1_FIRSTNAME,
@@ -402,7 +411,38 @@ public class DBInterfaceTest {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
+
+  @Test
+  public void doesDeleteSessionCorrectlyQueryTheDatabase() {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.executeUpdate(TEST_DELETE_SESSION_1_QUERY)).thenReturn(1);
+      assertEquals(db.deleteSession(TEST_DELETE_SESSION_1_ID), true);
+      verify(stmt, times(1)).executeUpdate(TEST_DELETE_SESSION_1_QUERY);
+    } catch (SQLException e) {
+      fail("Unexpected Exception: " + e.getMessage());
+    }
+  }
   
+  @Test(expected = SQLException.class)
+  public void doesDeleteSessionCorrectlyThrowSQLExceptionWhenCreateStatmentFails()
+      throws SQLException {
+    when(conn.createStatement()).thenThrow(new SQLException());
+    db.deleteSession(TEST_DELETE_SESSION_1_ID);
+    verify(stmt, times(0)).execute(any(String.class));
+  }
   
+  @Test
+  public void doesDeleteSessionFailWhenNoSessionsAreFound() {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.executeUpdate(TEST_DELETE_SESSION_1_QUERY)).thenReturn(0);
+      assertEquals(db.deleteSession(TEST_DELETE_SESSION_1_ID), false);
+      verify(stmt, times(1)).executeUpdate(TEST_DELETE_SESSION_1_QUERY);
+    } catch (SQLException e) {
+      fail("Unexpected Exception: " + e.getMessage());
+    }
+  }
   
+
 }

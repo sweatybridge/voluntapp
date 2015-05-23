@@ -185,6 +185,7 @@ public class DBInterface {
   public boolean deleteSession(String sid) throws SQLException {
     SessionDelete sd = new SessionDelete(sid);
     int rowsChanged = update(sd);
+    // If this it not 1 we may have a problem and wish to log it/
     return rowsChanged == 1;
   }
 
