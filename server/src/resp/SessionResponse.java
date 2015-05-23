@@ -41,4 +41,8 @@ public class SessionResponse extends Response {
   public int getUserId() {
     return userId;
   }
+
+  public String getSessionId() {
+    return sessionId;
+  }
 }

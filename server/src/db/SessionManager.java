@@ -5,6 +5,8 @@ import java.security.SecureRandom;
 import java.sql.SQLException;
 
 import req.SessionRequest;
+import resp.SessionResponse;
+import exception.SessionNotFoundException;
 
 /**
  * The class for managing (opening, checking and closing) sessions for user on
@@ -107,7 +109,12 @@ public class SessionManager {
    *         interaction.
    */
   public boolean checkSession(String sessionId, int userId) throws SQLException {
-    return db.getSession(sessionId).getUserId() == userId;
+    try {
+      SessionResponse session = db.getSession(sessionId);
+      return session.getUserId() == userId;
+    } catch (SessionNotFoundException e) {
+      return false;
+    }
   }
 
   /**

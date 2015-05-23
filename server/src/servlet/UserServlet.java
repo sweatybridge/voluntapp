@@ -5,8 +5,8 @@ import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.sql.SQLException;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import db.SessionManager;
 import exception.InconsistentDataException;
+import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
 /**
@@ -56,7 +57,7 @@ public class UserServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+      throws IOException {
     // Parse authorization header
     String auth = request.getHeader("Authorization");
 
@@ -73,7 +74,7 @@ public class UserServlet extends HttpServlet {
    */
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+      throws IOException {
 
     // TODO get current user id from auth token
     // TODO delete from user table
@@ -89,7 +90,7 @@ public class UserServlet extends HttpServlet {
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+      throws IOException {
     // Parse user register request
     RegisterRequest req;
     try {
@@ -116,7 +117,7 @@ public class UserServlet extends HttpServlet {
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException, ServletException {
+      throws IOException {
     // Parse user login request
     String data = request.getParameter("payload");
     UserRequest req;
@@ -130,6 +131,19 @@ public class UserServlet extends HttpServlet {
     Response resp = handle(req);
     if (resp instanceof ErrorResponse) {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+    } else {
+      // Initiate jsession if request is not ajax
+      /*
+      if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+        HttpSession jsession = request.getSession();
+        response.sendRedirect("/");
+      }
+      */
+      SessionResponse session = (SessionResponse) resp;
+      request.getSession().setAttribute("token", session.getSessionId());
+      // Cookie cookie = new Cookie("token", session.getSessionId());
+      // cookie.setHttpOnly(true);
+      // response.addCookie(cookie);
     }
 
     // Write response to output
@@ -193,10 +207,12 @@ public class UserServlet extends HttpServlet {
       SessionResponse session = db.getSession(auth);
 
       return db.getUser(new UserRequest(session.getUserId()));
-    } catch (SQLException e) {
+    } catch (SessionNotFoundException e) {
       return new ErrorResponse("Invalid authorization token.");
     } catch (UserNotFoundException | InconsistentDataException e) {
       return new ErrorResponse("User does not exist in database.");
+    } catch (SQLException e) {
+      return new ErrorResponse("Database error.");
     }
   }
 }

@@ -24,6 +24,7 @@ import sql.SessionQuery;
 import sql.UserInsert;
 import sql.UserUpdate;
 import exception.InconsistentDataException;
+import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
 /**
@@ -99,9 +100,10 @@ public class DBInterface {
    * @param sid The ID of the session to be looked up.
    * @return The ID of the user that it belongs to.
    * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   *         interaction or session is not found.
    */
-  public SessionResponse getSession(String sid) throws SQLException {
+  public SessionResponse getSession(String sid) throws SQLException,
+      SessionNotFoundException {
     SessionQuery sq = new SessionQuery(sid);
     query(sq);
     return new SessionResponse(sid, sq.getUserID());
