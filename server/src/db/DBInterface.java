@@ -6,9 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import req.CalendarRequest;
+import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
+import resp.CalendarResponse;
+import resp.EventResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
 import sql.LoginQuery;
@@ -104,6 +108,28 @@ public class DBInterface {
   }
 
   /**
+   * Retrieve a calendar by its id.
+   * 
+   * @param cr CalendarRequest
+   * @return CalendarResponse
+   */
+  public CalendarResponse getCalendar(int calendarId) {
+    // TODO: implement this
+    return new CalendarResponse();
+  }
+
+  /**
+   * Retrieve an event by its id.
+   * 
+   * @param er EventRequest
+   * @return EventResponse
+   */
+  public EventResponse getEvent(int eventId) {
+    // TODO: implement this
+    return new EventResponse();
+  }
+
+  /**
    * Store user entity into database.
    * 
    * @param rq RegisterRequest that contains user registration information
@@ -111,12 +137,12 @@ public class DBInterface {
    * @throws SQLException if insertion failed
    */
   public int putUser(RegisterRequest rq) throws SQLException {
-  
+
     // Get the password in and put it in the pass variable
     UserInsert ui =
         new UserInsert(rq.getEmail(), rq.getPassword(), rq.getFirstName(),
             rq.getLastName());
-  
+
     Statement stmt;
     stmt = conn.createStatement();
     stmt.executeUpdate(ui.getSQLUpdate(), Statement.RETURN_GENERATED_KEYS);
@@ -124,7 +150,7 @@ public class DBInterface {
     if (!rs.next()) {
       throw new SQLException();
     }
-  
+
     return rs.getInt("ID");
   }
 
@@ -140,6 +166,28 @@ public class DBInterface {
   public boolean putSession(SessionRequest sq) throws SQLException {
     SessionInsert si = new SessionInsert(sq.getSessionId(), sq.getUserId());
     return insert(si);
+  }
+
+  /**
+   * Store the calendar into the database.
+   * 
+   * @param cr CalendarRequest object submitted by client
+   * @return calendar ID
+   */
+  public int putCalendar(CalendarRequest cr) {
+    // TODO: implement this
+    return -1;
+  }
+
+  /**
+   * Store the event into the database.
+   * 
+   * @param er EventRequest object submitted by client
+   * @return event ID
+   */
+  public int putEvent(EventRequest er) {
+    // TODO: implement this
+    return -1;
   }
 
   /**
