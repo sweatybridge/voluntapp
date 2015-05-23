@@ -27,7 +27,7 @@ import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.ErrorResponse;
-import resp.LoginResponse;
+import resp.SessionResponse;
 import resp.UserResponse;
 
 import com.google.gson.Gson;
@@ -48,6 +48,8 @@ public class UserServletTest {
   private static final String TEST_PASSWORD = "123123";
   private static final String TEST_FIRST_NAME = "Qiao";
   private static final String TEST_LAST_NAME = "Han";
+
+  private static final String TEST_SESSION_ID = "123456";
 
   @Mock
   private DBInterface db;
@@ -80,14 +82,19 @@ public class UserServletTest {
 
   @Test
   public void doGetReturnsUserDetails() {
-    String token = "123456";
+    String token = TEST_SESSION_ID;
     UserResponse expected =
         new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
             TEST_FIRST_NAME, TEST_LAST_NAME);
 
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
+<<<<<<< HEAD
       when(db.getUserIdFromSession(token)).thenReturn(TEST_USER_ID);
+=======
+      when(db.getSession(token)).thenReturn(
+          new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
+>>>>>>> 5d20804b919a6212da51fd2be310f4f334f3babc
       when(db.getUser(any(UserRequest.class))).thenReturn(expected);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e1) {
       fail("Not yet implemented");
@@ -113,12 +120,12 @@ public class UserServletTest {
 
   @Test
   public void doGetFailsWhenTokenIsInvalid() {
-    String token = "123456";
+    String token = "invalid";
     ErrorResponse expected = new ErrorResponse("Invalid authorization token.");
 
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
-      when(db.getUserIdFromSession(token)).thenThrow(new SQLException());
+      when(db.getSession(token)).thenThrow(new SQLException());
     } catch (SQLException e) {
       fail("Not yet implemented");
     }
@@ -182,7 +189,7 @@ public class UserServletTest {
     }
 
     verify(respBody).print(
-        gson.toJson(new LoginResponse(arg1.getValue().getSessionId())));
+        gson.toJson(new SessionResponse(arg1.getValue().getSessionId())));
   }
 
   @Test
@@ -274,7 +281,7 @@ public class UserServletTest {
     }
 
     verify(respBody).print(
-        gson.toJson(new LoginResponse(arg.getValue().getSessionId())));
+        gson.toJson(new SessionResponse(arg.getValue().getSessionId())));
   }
 
   @Test
