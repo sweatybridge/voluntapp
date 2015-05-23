@@ -1,11 +1,17 @@
 package resp;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+
+import sql.SQLInsert;
+import sql.SQLQuery;
+import sql.SQLUpdate;
 
 /**
  * A successful response to a login request.
  */
-public class SessionResponse extends Response {
+public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQLUpdate {
 
   /**
    * Session details returned to the client.
@@ -18,6 +24,10 @@ public class SessionResponse extends Response {
   private transient Timestamp timeStamp;
   private transient int expiresIn;
   private transient int userId;
+  private transient ResultSet rs;
+  
+  private static String USER_COLUMN = "USER"; 
+  private static String SID_COLUMN = "SID"; 
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -44,5 +54,48 @@ public class SessionResponse extends Response {
 
   public String getSessionId() {
     return sessionId;
+  }
+
+  @Override
+  public String getSQLUpdate() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("DELETE FROM \"SESSIONS\" WHERE \"SID\"='")
+      .append(sessionId).append("';");
+    return builder.toString();
+  }
+
+  @Override
+  public void checkResult(int rowsAffected) {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public String getSQLQuery() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT * FROM \"SESSIONS\" WHERE " + "\"SID\"='")
+        .append(sessionId).append("';");
+    return builder.toString();
+  }
+  
+  private void setSessionResponse() throws SQLException {
+    this.sessionId = rs.getString(SID_COLUMN);
+    this.userId = rs.getInt(USER_COLUMN);
+  }
+
+  @Override
+  public void setResult(ResultSet result) {
+    this.rs = result;
+    try {
+      result.next();
+      setSessionResponse();
+    } catch (SQLException e) {
+      System.err.println(e.getMessage());
+    }
+  }
+
+  @Override
+  public String getSQLInsert() {
+    return "INSERT INTO \"SESSIONS\" VALUES ('" + sessionId + "', " + userId + 
+        ", DEFAULT);";
   }
 }

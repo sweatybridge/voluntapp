@@ -15,14 +15,9 @@ import resp.CalendarResponse;
 import resp.EventResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
-import sql.LoginQuery;
+import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
-import sql.SessionDelete;
-import sql.SessionInsert;
-import sql.SessionQuery;
-import sql.UserInsert;
-import sql.UserUpdate;
 import exception.InconsistentDataException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
@@ -36,8 +31,7 @@ import exception.UserNotFoundException;
 public class DBInterface {
 
   // Database information and conn
-  public final static String DATABASE_NAME =
-      "jdbc:postgresql://db.doc.ic.ac.uk/";
+  public final static String DATABASE_NAME = "jdbc:postgresql://db.doc.ic.ac.uk/";
   public final static String DATABASE_USER = "g1427134_u";
   public final static String DATABASE_PASS = "TRLzYYiVbD";
   private Connection conn;
@@ -45,7 +39,8 @@ public class DBInterface {
   /**
    * Builds the interface with the given connection.
    * 
-   * @param conn The connection to be used for the database.
+   * @param conn
+   *          The connection to be used for the database.
    */
   public DBInterface(Connection conn) {
     this.conn = conn;
@@ -56,9 +51,8 @@ public class DBInterface {
    */
   public DBInterface() {
     try {
-      conn =
-          DriverManager.getConnection(DBInterface.DATABASE_NAME,
-              DBInterface.DATABASE_USER, DBInterface.DATABASE_PASS);
+      conn = DriverManager.getConnection(DBInterface.DATABASE_NAME,
+          DBInterface.DATABASE_USER, DBInterface.DATABASE_PASS);
     } catch (SQLException e) {
       System.exit(0);
     }
@@ -67,52 +61,50 @@ public class DBInterface {
   /**
    * Retrieve user entity from database.
    * 
-   * @param uq User request containing the information to look up the user.
+   * @param uq
+   *          User request containing the information to look up the user.
    * @return A UserResponse with the email,password and ID of the user.
-   * @throws SQLException There was an error in the database.
-   * @throws UserNotFoundException Thrown if the users data was not in the
-   *         database.
-   * @throws InconsistentDataException Thrown when the database is shown to be
-   *         in a bad inconsistent state.
+   * @throws SQLException
+   *           There was an error in the database.
+   * @throws UserNotFoundException
+   *           Thrown if the users data was not in the database.
+   * @throws InconsistentDataException
+   *           Thrown when the database is shown to be in a bad inconsistent
+   *           state.
    */
   public UserResponse getUser(UserRequest uq) throws SQLException,
       UserNotFoundException, InconsistentDataException {
 
-    LoginQuery query;
-    if (uq.getUserId() == -1) {
-      // Get the password in and put it in the pass variable
-      query = new LoginQuery(uq.getEmail());
-    } else {
-      query = new LoginQuery(uq.getUserId());
-    }
+    UserResponse rs = new UserResponse(uq.getEmail(), uq.getPassword(),
+        uq.getUserId(), null, null);
 
-    query(query);
-    query.checkValid();
-
-    return new UserResponse(query.getEmail(), query.getPassword(),
-        query.getID(), query.getFirstName(), query.getLastName());
+    query(rs);
+    rs.checkResult();
+    return rs;
   }
 
   /**
    * Retrieve session information from a supplied session ID number. Used to
    * find out the user id, which user is logged for rights, etc.
    * 
-   * @param sid The ID of the session to be looked up.
+   * @param sid
+   *          The ID of the session to be looked up.
    * @return The ID of the user that it belongs to.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction or session is not found.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
   public SessionResponse getSession(String sid) throws SQLException,
       SessionNotFoundException {
-    SessionQuery sq = new SessionQuery(sid);
-    query(sq);
-    return new SessionResponse(sid, sq.getUserID());
+    SessionResponse sr = new SessionResponse(sid);
+    query(sr);
+    return sr;
   }
 
   /**
    * Retrieve a calendar by its id.
    * 
-   * @param cr CalendarRequest
+   * @param cr
+   *          CalendarRequest
    * @return CalendarResponse
    */
   public CalendarResponse getCalendar(int calendarId) {
@@ -123,7 +115,8 @@ public class DBInterface {
   /**
    * Retrieve an event by its id.
    * 
-   * @param er EventRequest
+   * @param er
+   *          EventRequest
    * @return EventResponse
    */
   public EventResponse getEvent(int eventId) {
@@ -134,20 +127,21 @@ public class DBInterface {
   /**
    * Store user entity into database.
    * 
-   * @param rq RegisterRequest that contains user registration information
+   * @param rq
+   *          RegisterRequest that contains user registration information
    * @return userId primary key generated by database
-   * @throws SQLException if insertion failed
+   * @throws SQLException
+   *           if insertion failed
    */
   public int putUser(RegisterRequest rq) throws SQLException {
 
     // Get the password in and put it in the pass variable
-    UserInsert ui =
-        new UserInsert(rq.getEmail(), rq.getPassword(), rq.getFirstName(),
-            rq.getLastName());
+    UserResponse us = new UserResponse(rq.getEmail(), rq.getPassword(),
+        UserResponse.INVALID_USER_ID, rq.getFirstName(), rq.getLastName());
 
     Statement stmt;
     stmt = conn.createStatement();
-    stmt.executeUpdate(ui.getSQLUpdate(), Statement.RETURN_GENERATED_KEYS);
+    stmt.executeUpdate(us.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
     ResultSet rs = stmt.getGeneratedKeys();
     if (!rs.next()) {
       throw new SQLException();
@@ -160,20 +154,22 @@ public class DBInterface {
    * Store a new session to the database, called within the SessionManager
    * class.
    * 
-   * @param sq The SessionRequest that is to be added.
+   * @param sq
+   *          The SessionRequest that is to be added.
    * @return Whether or not the insertion was a success.
-   * @throws SQLException Thrown when there is a problem with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is a problem with the database interaction.
    */
   public boolean putSession(SessionRequest sq) throws SQLException {
-    SessionInsert si = new SessionInsert(sq.getSessionId(), sq.getUserId());
-    return insert(si);
+    SessionResponse sr = new SessionResponse(sq.getSessionId(), sq.getUserId());
+    return insert(sr);
   }
 
   /**
    * Store the calendar into the database.
    * 
-   * @param cr CalendarRequest object submitted by client
+   * @param cr
+   *          CalendarRequest object submitted by client
    * @return calendar ID
    */
   public int putCalendar(CalendarRequest cr) {
@@ -184,35 +180,46 @@ public class DBInterface {
   /**
    * Store the event into the database.
    * 
-   * @param er EventRequest object submitted by client
+   * @param er
+   *          EventRequest object submitted by client
    * @return event ID
+   * @throws SQLException
    */
-  public int putEvent(EventRequest er) {
-    // TODO: implement this
-    return -1;
+  public int putEvent(EventRequest ereq) throws SQLException {
+    EventResponse eresp = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
+        ereq.getTime(), ereq.getCalendarId(), ereq.getDuration());
+    Statement stmt = conn.createStatement();
+    stmt.executeUpdate(eresp.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+    ResultSet rs = stmt.getGeneratedKeys();
+    if (!rs.next()) {
+      throw new SQLException();
+    }
+    return rs.getInt(EventResponse.EID_COLUMN);
   }
 
   /**
    * Updates a given users information. Uses the filled in fields in the
    * RegusterRequest to find out which ones to update, will ignore NULL fields.
    * 
-   * @param userId The ID of the user to be updated.
-   * @param rr The request object with the new information.
+   * @param userId
+   *          The ID of the user to be updated.
+   * @param rr
+   *          The request object with the new information.
    * @return Whether or not the update with successful.
-   * @throws SQLException Thrown when there is a problem with the database
-   *         interaction.
-   * @throws InconsistentDataException Thrown when more than one row was changed
-   *         (This indicates a big problem with the information in the
-   *         database).
-   * @throws UserNotFoundException Thrown when the user could not be found in
-   *         the database.
+   * @throws SQLException
+   *           Thrown when there is a problem with the database interaction.
+   * @throws InconsistentDataException
+   *           Thrown when more than one row was changed (This indicates a big
+   *           problem with the information in the database).
+   * @throws UserNotFoundException
+   *           Thrown when the user could not be found in the database.
    */
   public boolean updateUser(int userId, RegisterRequest rr)
       throws SQLException, InconsistentDataException, UserNotFoundException {
-    UserUpdate uu =
-        new UserUpdate(userId, rr.getEmail(), rr.getFirstName(),
-            rr.getLastName(), rr.getPassword());
-    int rows = update(uu);
+    UserResponse ur = new UserResponse(rr.getEmail(), rr.getPassword(), userId,
+        rr.getFirstName(), rr.getLastName());
+    int rows = update(ur);
     if (rows > 1) {
       throw new InconsistentDataException(
           "Update user info modified more than 1 row!");
@@ -227,14 +234,15 @@ public class DBInterface {
   /**
    * Used to log the user one, by deleting the session information.
    * 
-   * @param sid The session ID to be removed.
+   * @param sid
+   *          The session ID to be removed.
    * @return Whether or not the deleting was successful.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
   public boolean deleteSession(String sid) throws SQLException {
-    SessionDelete sd = new SessionDelete(sid);
-    int rowsChanged = update(sd);
+    SessionResponse sr = new SessionResponse(sid, UserResponse.INVALID_USER_ID);
+    int rowsChanged = update(sr);
     // If this it not 1 we may have a problem and wish to log it/
     return rowsChanged == 1;
   }
@@ -243,15 +251,16 @@ public class DBInterface {
    * Function to run the SQLUpdate on the database, used for insertion
    * operations.
    * 
-   * @param insertion The query to be executed.
+   * @param insertion
+   *          The query to be executed.
    * @return Whether or not the insertion was successful.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
-  private boolean insert(SQLUpdate insertion) throws SQLException {
+  private boolean insert(SQLInsert insertion) throws SQLException {
     Statement stmt;
     stmt = conn.createStatement();
-    boolean rs = stmt.execute(insertion.getSQLUpdate());
+    boolean rs = stmt.execute(insertion.getSQLInsert());
     return rs;
   }
 
@@ -259,10 +268,11 @@ public class DBInterface {
    * Function to run the SQLUpdate on the database, used for update/delete
    * operations. Returns 1 if the query is skipped due to it having no effect.
    * 
-   * @param query The query to be executed.
+   * @param query
+   *          The query to be executed.
    * @return How many rows were affected by the update.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
   private int update(SQLUpdate query) throws SQLException {
     Statement stmt;
@@ -283,10 +293,11 @@ public class DBInterface {
    * This function returns results by setting them to fields within the SQLQuery
    * object that was passed in.
    * 
-   * @param query The query to be executed.
+   * @param query
+   *          The query to be executed.
    * @return Whether the query was successful.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
   private boolean query(SQLQuery query) throws SQLException {
     Statement stmt;

@@ -13,3 +13,20 @@ VALUES (DEFAULT, 'barney@thedinosaur.co.uk', '0e222a9a8ca001d326658ccde8a7e963',
 
 INSERT INTO public."SESSIONS"
 VALUES (12345678912345678900, 2);
+
+/* Adding an event into the event table */
+
+INSERT INTO public."EVENTS"
+VALUES (DEFAULT, 'Test Event', 'Text Desc', 'Test Location', now(), now(), DEFAULT, DEFAULT, 10, true);
+
+
+/* Query to add events to the database AND update the EVENT_CALENDAR mapping */
+
+WITH x AS (
+  INSERT INTO public."EVENTS" 
+  VALUES (DEFAULT, 'Test Event5', 'Text Desc5', 'Test Locatio5n', now(), now(), DEFAULT, DEFAULT, 0, true)
+  RETURNING "EID"
+  )
+INSERT INTO public."CALENDAR_EVENT"
+SELECT 1,"EID" 
+FROM x; 

@@ -87,7 +87,10 @@
           dataType: "json",
           method: form.attr("method"),
           statusCode: {
-            200: function(data) { window.location.replace("main.html"); },
+            200: function(data) {
+              //alert('success');
+              window.location.replace("main.html"); 
+            },
             400: function(data) { errorDiv.text(data.responseJSON.message); }
           }
         });

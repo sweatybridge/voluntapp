@@ -197,7 +197,7 @@ public class UserServlet extends HttpServlet {
       // Successfully logged in
       return new SessionResponse(token);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
-      return new ErrorResponse("You have entered a wrong password.");
+      return new ErrorResponse(e.getMessage());
     }
   }
 

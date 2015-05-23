@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
+import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
@@ -292,8 +293,8 @@ public class DBInterfaceTest {
       fail("Unexpected expection: " + e.getMessage());
     }
     try {
-      assertEquals(db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
-          TEST_PUT_SESSION_1_SID)), true);
+      assertEquals(true, db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
+          TEST_PUT_SESSION_1_SID)));
       verify(stmt, times(1)).execute(TEST_PUT_SESSION_1_QUERY);
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
@@ -442,6 +443,12 @@ public class DBInterfaceTest {
     } catch (SQLException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
+  }
+  
+  @Test
+  public void test1() throws SQLException {
+    DBInterface db = new DBInterface();
+    System.out.println(db.putEvent(new EventRequest("HELLLO", "HELLLO DES", "HELLLO LOC", "10/04/1884", "14:23:05", "00:10:20", 1)));
   }
   
 
