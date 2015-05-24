@@ -11,7 +11,8 @@ import sql.SQLUpdate;
 /**
  * A successful response to a login request.
  */
-public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQLUpdate {
+public class SessionResponse extends Response implements SQLInsert, SQLQuery,
+    SQLUpdate {
 
   /**
    * Session details returned to the client.
@@ -25,19 +26,22 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
   private transient int expiresIn;
   private transient int userId;
   private transient ResultSet rs;
-  
-  private static String USER_COLUMN = "USER"; 
-  private static String SID_COLUMN = "SID"; 
+  private transient boolean found;
+
+  public static String USER_COLUMN = "USER";
+  public static String SID_COLUMN = "SID";
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public SessionResponse() {}
+  public SessionResponse() {
+  }
 
   /**
    * Construct a successful login response with auth token.
    * 
-   * @param token authorization token
+   * @param token
+   *          authorization token
    */
   public SessionResponse(String sessionId) {
     this.sessionId = sessionId;
@@ -59,14 +63,18 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
   @Override
   public String getSQLUpdate() {
     StringBuilder builder = new StringBuilder();
-    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='")
-      .append(sessionId).append("';");
+    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='").append(sessionId)
+        .append("';");
     return builder.toString();
+  }
+
+  public boolean isFound() {
+    return found;
   }
 
   @Override
   public void checkResult(int rowsAffected) {
-    // TODO Auto-generated method stub
+    // TODO:
   }
 
   @Override
@@ -76,7 +84,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
         .append(sessionId).append("';");
     return builder.toString();
   }
-  
+
   private void setSessionResponse() throws SQLException {
     this.sessionId = rs.getString(SID_COLUMN);
     this.userId = rs.getInt(USER_COLUMN);
@@ -86,8 +94,10 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
   public void setResult(ResultSet result) {
     this.rs = result;
     try {
-      result.next();
-      setSessionResponse();
+      found = result.next();
+      if (found) {
+        setSessionResponse();
+      }
     } catch (SQLException e) {
       System.err.println(e.getMessage());
     }
@@ -95,7 +105,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
 
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO \"SESSION\" VALUES ('" + sessionId + "', " + userId + 
-        ", DEFAULT);";
+    return "INSERT INTO \"SESSION\" VALUES ('" + sessionId + "', " + userId
+        + ", DEFAULT);";
   }
 }
