@@ -79,7 +79,7 @@ public class DBInterfaceTest {
   public final static String TEST_PUT_SESSION_1_SID = "he234few3c2355cs23jcp0";
   public final static int TEST_PUT_SESSION_1_ID = 67;
   public final static String TEST_PUT_SESSION_1_QUERY = String.format(
-      "INSERT INTO \"SESSIONS\" VALUES ('%s', %s, DEFAULT);",
+      "INSERT INTO \"SESSION\" VALUES ('%s', %s, DEFAULT);",
       TEST_PUT_SESSION_1_SID, TEST_PUT_SESSION_1_ID);
 
   // Test data for Update User tests
@@ -90,7 +90,7 @@ public class DBInterfaceTest {
   public final static String TEST_UPDATE_USER_1_LASTNAME = "Harold";
   public final static String TEST_UPDATE_USER_1_QUERY = String
       .format(
-          "UPDATE public.\"USERS\" SET \"EMAIL\"='%s',"
+          "UPDATE public.\"USER\" SET \"EMAIL\"='%s',"
               + "\"FIRST_NAME\"='%s',\"LAST_NAME\"='%s',\"PASSWORD\"='%s' WHERE \"ID\"=%d",
           TEST_UPDATE_USER_1_EMAIL, TEST_UPDATE_USER_1_FIRSTNAME,
           TEST_UPDATE_USER_1_LASTNAME, TEST_UPDATE_USER_1_PASSWORD,
@@ -108,7 +108,7 @@ public class DBInterfaceTest {
   public final static int TEST_PUT_EVENT_1_EID = 82;
   public final static String TEST_PUT_EVENT_1_QUERY = String
       .format(
-          "WITH x AS (INSERT INTO public.\"EVENTS\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
+          "WITH x AS (INSERT INTO public.\"EVENT\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
           TEST_PUT_EVENT_1_TITLE, TEST_PUT_EVENT_1_DESC,
           TEST_PUT_EVENT_1_LOCATION, TEST_PUT_EVENT_1_DATE,
           TEST_PUT_EVENT_1_TIME, TEST_PUT_EVENT_1_DURATION,
@@ -117,7 +117,7 @@ public class DBInterfaceTest {
   // Test data for Delete Session Tests
   public final static String TEST_DELETE_SESSION_1_ID = "42094sdfsdf6456";
   public final static String TEST_DELETE_SESSION_1_QUERY = String.format(
-      "DELETE FROM \"SESSIONS\" WHERE \"SID\"='%s';", TEST_DELETE_SESSION_1_ID);
+      "DELETE FROM \"SESSION\" WHERE \"SID\"='%s';", TEST_DELETE_SESSION_1_ID);
 
   @Test
   public void doesGetUserObtainCorrectDataGivenEmail() {

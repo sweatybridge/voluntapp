@@ -114,7 +114,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
   public String getSQLInsert() {
     return String
         .format(
-            "WITH x AS (INSERT INTO public.\"EVENTS\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
+            "WITH x AS (INSERT INTO public.\"EVENT\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
             title, description, location, date, (time == null) ? "DEFAULT"
                 : time, (duration == null) ? "DEFAULT" : duration, max,
             calendarId);

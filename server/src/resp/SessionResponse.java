@@ -59,7 +59,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
   @Override
   public String getSQLUpdate() {
     StringBuilder builder = new StringBuilder();
-    builder.append("DELETE FROM \"SESSIONS\" WHERE \"SID\"='")
+    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='")
       .append(sessionId).append("';");
     return builder.toString();
   }
@@ -72,7 +72,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
   @Override
   public String getSQLQuery() {
     StringBuilder builder = new StringBuilder();
-    builder.append("SELECT * FROM \"SESSIONS\" WHERE " + "\"SID\"='")
+    builder.append("SELECT * FROM \"SESSION\" WHERE " + "\"SID\"='")
         .append(sessionId).append("';");
     return builder.toString();
   }
@@ -95,7 +95,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery, SQ
 
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO \"SESSIONS\" VALUES ('" + sessionId + "', " + userId + 
+    return "INSERT INTO \"SESSION\" VALUES ('" + sessionId + "', " + userId + 
         ", DEFAULT);";
   }
 }
