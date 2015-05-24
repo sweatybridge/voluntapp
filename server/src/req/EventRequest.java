@@ -24,6 +24,7 @@ public class EventRequest implements Request {
   private String time; // HH:MM
   private String date; // YY-MM-DD
   private String duration;
+  private String max;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -31,7 +32,7 @@ public class EventRequest implements Request {
   public EventRequest() {}
 
   public EventRequest(String title, String description, String location,
-      String time, String date, String duration, int calendarId) {
+      String time, String date, String duration, String max, int calendarId) {
     this.title = title;
     this.description = description;
     this.location = location;
@@ -39,6 +40,7 @@ public class EventRequest implements Request {
     this.date = date;
     this.duration = duration;
     this.calendarId = calendarId;
+    this.max = max;
   }
 
   @Override
@@ -60,6 +62,10 @@ public class EventRequest implements Request {
 
   public String getDescription() {
     return description;
+  }
+  
+  public String getMax() {
+    return max;
   }
 
   public String getLocation() {

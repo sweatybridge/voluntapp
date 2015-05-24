@@ -20,6 +20,8 @@ WITH (
   OIDS=FALSE
 );
 
+---------------------------------------------------------------------------------------------------
+
 
 /* Session table query */
 
@@ -31,12 +33,35 @@ CREATE TABLE "SESSIONS"
   CONSTRAINT "SESSIONS_pkey" PRIMARY KEY ("SID"),
   CONSTRAINT "SESSIONS_USER_fkey" FOREIGN KEY ("USER")
       REFERENCES "USERS" ("ID") MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
-  CONSTRAINT sidchk CHECK (char_length("SID") = 20)
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT sidchk CHECK (char_length("SID") = 26)
 )
 WITH (
   OIDS=FALSE
 );
+
+/* Trigger for the automatic update of users last_seen */
+CREATE TRIGGER lastseentrig
+  AFTER INSERT OR UPDATE
+  ON "SESSIONS"
+  FOR EACH ROW
+  EXECUTE PROCEDURE lastseenfun();
+
+/* Function for auto update last seen */
+
+CREATE OR REPLACE FUNCTION lastseenfun () RETURNS trigger AS $$
+  DECLARE
+    curtime timestamp := now();
+  BEGIN
+    UPDATE public."USERS" SET "LAST_SEEN" = curtime
+       WHERE "ID" = NEW."USER";
+    RETURN NEW;
+  END; $$ LANGUAGE plpgsql
+
+
+---------------------------------------------------------------------------------------------------
+
+
 
 /*  Calender table query */
 
@@ -51,13 +76,15 @@ CREATE TABLE "CALENDAR"
   CONSTRAINT "CALENDER_pkey" PRIMARY KEY ("ID"),
   CONSTRAINT "CALENDER_CREATOR_fkey" FOREIGN KEY ("CREATOR")
       REFERENCES "USERS" ("ID") MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+      ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT calnamechk CHECK (char_length("NAME") > 0 AND char_length("NAME") < 100),
   CONSTRAINT joincode CHECK (char_length("JOIN_CODE") = 6)
 )
 WITH (
   OIDS=FALSE
 );
+
+---------------------------------------------------------------------------------------------------
 
 /* Event table */
 
@@ -70,11 +97,9 @@ CREATE TABLE "EVENTS"
   "DATE" date NOT NULL,
   "TIME" time with time zone,
   "DURATION" interval,
-  "ATTENDEES" integer[] NOT NULL DEFAULT '{}'::integer[],
   "MAX_ATTENDEES" integer,
   "ACTIVE" boolean NOT NULL DEFAULT true,
   CONSTRAINT "EVENTS_pkey" PRIMARY KEY ("EID"),
-  CONSTRAINT attendeechk CHECK (array_length("ATTENDEES", 1) <= "MAX_ATTENDEES"),
   CONSTRAINT descriptionchk CHECK (char_length("DESCRIPTION") <= 255),
   CONSTRAINT locationchk CHECK (char_length("LOCATION") <= 255),
   CONSTRAINT titlechk CHECK (char_length("TITLE") <= 100 AND char_length("TITLE") > 0)
@@ -83,23 +108,46 @@ WITH (
   OIDS=FALSE
 );
 
+---------------------------------------------------------------------------------------------------
 
-/* Function for auto update last seen */
+/* Calendar to Events mapping table */
 
-CREATE OR REPLACE FUNCTION lastseenfun () RETURNS trigger AS $$
-  DECLARE
-    curtime timestamp := now();
-  BEGIN
-    UPDATE public."USERS" SET "LAST_SEEN" = curtime
-       WHERE "ID" = NEW."USER";
-    RETURN NEW;
-  END; $$ LANGUAGE plpgsql
+CREATE TABLE "CALENDAR_EVENT"
+(
+  "CID" integer NOT NULL,
+  "EID" integer NOT NULL,
+  CONSTRAINT "CALENDER_EVENT_pkey" PRIMARY KEY ("CID", "EID"),
+  CONSTRAINT "CALENDER_EVENT_CID_fkey" FOREIGN KEY ("CID")
+      REFERENCES "CALENDAR" ("ID") MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "CALENDER_EVENT_EID_fkey" FOREIGN KEY ("EID")
+      REFERENCES "EVENTS" ("EID") MATCH SIMPLE
+      ON UPDATE CASCADE ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
 
-/* Trigger for the automatic update. Note: this goes with the SESSIONS table*/
+---------------------------------------------------------------------------------------------------
 
-CREATE TRIGGER lastseentrig AFTER INSERT OR UPDATE ON public."SESSIONS"
-FOR EACH ROW 
-EXECUTE PROCEDURE lastseenfun();
+/* Event to Users mapping table */
+
+CREATE TABLE "EVENT_USER"
+(
+  "EID" integer,
+  "UID" integer,
+  CONSTRAINT "EVENT_USER_EID_fkey" FOREIGN KEY ("EID")
+      REFERENCES "EVENTS" ("EID") MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "EVENT_USER_UID_fkey" FOREIGN KEY ("UID")
+      REFERENCES "USERS" ("ID") MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+
+
 
 
 

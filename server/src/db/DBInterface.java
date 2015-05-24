@@ -188,7 +188,7 @@ public class DBInterface {
   public int putEvent(EventRequest ereq) throws SQLException {
     EventResponse eresp = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
-        ereq.getTime(), ereq.getCalendarId(), ereq.getDuration());
+        ereq.getTime(), ereq.getCalendarId(), ereq.getDuration(), ereq.getMax());
     Statement stmt = conn.createStatement();
     stmt.executeUpdate(eresp.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
     ResultSet rs = stmt.getGeneratedKeys();
