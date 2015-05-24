@@ -1,240 +1,121 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebApp</title>
+    <title>Login</title>
     <meta charset="UTF-8">
     
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/main.css">
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
-
   </head>
 
-  <body ng-app="">
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"><strong>WebApp</strong> beta</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="#">Create</a></li>
-            <li><a href="#">Settings</a></li>
-            <li><a href="#">Profile</a></li>
-            <li><a href="#">Logout</a></li>
-          </ul>
-          <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a href="#account" class="navbar-link">{{firstName}}</a></p>
-        </div>
-      </div>
-    </nav>
+  <body>
+    <form class="form-centre" role="form" id="login_form" action="user" method="post" autocomplete="on">
+      <h2 class="form-heading">Please login</h2>
+      <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
+      <input type="password" name="password" class="form-control" placeholder="Password" required>
+      <input class="btn btn-primary" type="submit" value="Login">
+      <p class="form-error" id="login_errors"></p>
+    </form>
+    <div class="centre">
+    <p>Don't have an account?</p>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
+      Register now
+    </button>
+    </div>
     
-    <div class="container-fluid">
-      <div class="row">
-        <div id="d_left_sidebar" class="col-sm-2">
-          <p class="lead">Welcome, {{firstName}}</p>
-          <p>You haven't logged in since <strong>{{lastSeen}}</strong></p>
-          <input type="text" ng-model="firstName">
-          
-          <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingOne">
-                <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    My calendars
-                  </a>
-                </h4>
-              </div>
-              <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                <div class="panel-body">
-                  It seems like you haven't joined to or created any calendars...
-                </div>
-              </div>
-            </div>
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingTwo">
-                <h4 class="panel-title">
-                  <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                    My profile
-                  </a>
-                </h4>
-              </div>
-              <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
-                <div class="panel-body">
-                  TODO: add in profile form for password update etc.
-                </div>
-              </div>
-            </div>
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingThree">
-                <h4 class="panel-title">
-                  <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Settings
-                  </a>
-                </h4>
-              </div>
-              <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-                <div class="panel-body">
-                  ??
-                </div>
-              </div>
-            </div>
+    <!-- Modal -->
+    <div class="modal fade" id="registerModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Register Now</h4>
           </div>
-        </div>
-        
-        <div id="d_main_col" class="col-sm-8">
-          <span class="lead">My events for <strong>&lt;&lt;Jan 1</strong> - <strong>Jan 8&gt;&gt;</strong></span>
-          <button id="b_refresh" type="button" class="btn btn-success">Refresh</button>
-          <span>Display: </span>
-          <div class="btn-group" role="group" aria-label="...">
-          <button id="b_hide_left" type="button" class="btn btn-primary active" data-toggle="button">Left sidebar</button>
-          <button id="b_hide_weekend" type="button" class="btn btn-primary active" data-toggle="button">Weekend</button>
-          <button id="b_hide_right" type="button" class="btn btn-primary active" data-toggle="button">Right sidebar</button>
+          <div class="modal-body">
+            <form class="form-centre" role="form" id="register_form" action="user" method="put" autocomplete="on">
+              <div class="form-group"><input type="email" name="email" class="form-control" placeholder="Email" autofocus required></div>
+              <div class="form-group"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+              <div class="form-group"><input type="password" name="conf_password" class="form-control" placeholder="Confirm password" required></div>
+              <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
+              <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
+              <div class="form-group"><input class="btn btn-primary" type="submit" value="Register"></div>
+              <p class="form-error" id="register_errors"></p>
+            </form>
           </div>
-          <table id="t_calendar" class="table">
-            <tr>
-              <th class="th_weekday">Monday</th>
-              <th class="th_weekday">Tuesday</th>
-              <th class="th_weekday">Wednesday</th>
-              <th class="th_weekday">Thursday</th>
-              <th class="th_weekday">Friday</th>
-              <th class="th_weekend">Saturday</th>
-              <th class="th_weekend">Sunday</th>
-            </tr>
-            <tr>
-              <td>
-                <div class="event">
-                  <p class="e_title">Campus Tour</p>
-                  <span class="e_time">14:00 - 15:00</span>
-                  <!--<button type="button" class="btn btn-info btn-sm">v</button>-->
-                  <p class="e_desc">Regular campus tour showing prospective students and their parents around the South Kensington Campus</p>
-                </div>
-              </td>
-              <td>data</td>
-              <td>data</td>
-              <td>data</td>
-              <td>data</td>
-              <td>data</td>
-              <td>data</td>
-            </tr>
-          </table>
-        </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+    <script>
+      // DOCUMENT READY
+      $(function() {
+        // Bind forms to ajax
+        $("#login_form").submit(function(e) {
+          e.preventDefault();
+          submitAjaxForm($(this), $("#login_errors"));
+        });
         
-        <div id="d_right_sidebar" class="col-sm-2">
-          <div id="d_right_sidebar" role="tabpanel">
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs nav-justified" role="tablist">
-              <li role="presentation" class="active"><a href="#crt_event" aria-controls="event" role="tab" data-toggle="tab">Event</a></li>
-              <li role="presentation"><a href="#crt_calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
-            </ul>
-
-            <!-- Tab panes -->
-            <div class="tab-content">
-              <div role="tabpanel" class="tab-pane fade in active" id="crt_event">
-                <form class="form-centre" role="form" id="event_form" action="event" method="put" autocomplete="off">
-                  <select class="form-control" name="calendar">
-                    <option value="volvo">Volvo</option>
-                    <option value="saab">Saab</option>
-                    <option value="opel">Opel</option>
-                    <option value="audi">Audi</option>
-                  </select>
-                  <input type="text" name="title" class="form-control" placeholder="Title" required>
-                  <input type="time" name="startTime" class="form-control" placeholder="Start time" required>
-                  <input type="time" name="endTime" class="form-control" placeholder="End time" required>
-                  <input type="date" name="date" class="form-control" placeholder="Date" required>
-                  <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
-                  <input type="number" name="size" class="form-control" min="0" value="0" placeholder="Size" required>
-                  <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
-                  <input class="btn btn-primary" type="submit" value="Create Event">
-                  <p class="form-error" id="event_create_errors"></p>
-                </form>
-              </div>
-              <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
-                <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
-                <form class="form-centre" role="form" id="calendar_join_form" action="calendar" method="post" autocomplete="off">
-                  <input type="text" name="token" class="form-control" placeholder="Token" autofocus required>
-                  <input class="btn btn-primary" type="submit" value="Join">
-                  <p class="form-error" id="calendar_join_errors"></p>
-                </form>
-                <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
-                <form class="form-centre" role="form" id="calendar_create_form" action="calendar" method="put" autocomplete="off">
-                  <input type="text" name="title" class="form-control" placeholder="Title" required>
-                  <div class="checkbox">
-                    <label><input type="checkbox" name="allowJoin" value="true">Allow Joining</label>
-                  </div>
-                  <input class="btn btn-primary" type="submit" value="Create">
-                  <p class="form-error" id="calendar_create_errors"></p>
-                </form>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        $("#register_form").submit(function(e) {
+          e.preventDefault();
+          var form = $(this);
+          if (validateRegister(form)) {
+            return
+          }
+          submitAjaxForm(form, $("#register_errors"));
+        });
         
-      </div> <!-- End of row -->
-    </div> <!-- End of container -->
-  
-  <script>
-    // DOCUMENT READY
-    $(function() {
-      // Bind weekend collapse
-      $("#b_hide_weekend").click(function(){
-        // TODO: check if this train reck is the only way to do this
-        $("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
-      });
+      }); // End of document ready
       
-      // Bind sidebar collapse
-      $("#b_hide_left").click(function() {
-        $("#d_left_sidebar").toggleClass("col-hidden col-sm-2");
-        updateMainCol();
-      });
+      // Convert input fields into an javascript object
+      function getFormObj(form) {
+          var formObj = {};
+          var inputs = form.serializeArray();
+          $.each(inputs, function (i, input) {
+              formObj[input.name] = input.value;
+          });
+          return formObj;
+      }
       
-      $("#b_hide_right").click(function() {
-        $("#d_right_sidebar").toggleClass("col-hidden col-sm-2");
-        updateMainCol();        
-      });
-      
-      // Bind event description show button
-      $(".event button").click(function() {
-        $(this).next(".e_desc").toggle(500);
-      });
-
-      $("#btn_logout").click(function() {
-        $.ajax({
-          type: "POST",
-          url: "/logout",
-          data: JSON.stringify({userId: "cookie"}),
-          contentType: "application/json; charset=utf-8",
+      // Submit ajax form with different error field
+      function submitAjaxForm(form, errorDiv) {
+        $.ajax(form.attr("action"), {
+          data: {payload: JSON.stringify(getFormObj(form))},
           dataType: "json",
-          success: function(data){window.replace("/");},
-          failure: function(errMsg) {
-              alert(errMsg);
+          method: form.attr("method"),
+          statusCode: {
+            200: function(data) {
+              window.location.replace("/"); 
+            },
+            400: function(data) { errorDiv.text(data.responseJSON.message); }
           }
         });
-      })
-    }); // End of document ready
-    
-    // Update main column class whether sizebars are hidden or not
-    function updateMainCol() {
-      var size = 8;
-      if ($("#d_right_sidebar").hasClass("col-hidden")) {
-        size += 2;
       }
-      if ($("#d_left_sidebar").hasClass("col-hidden")) {
-        size += 2;
+      
+      // Register form validation function, called onsubmit
+      function validateRegister($form) {
+        var form = $form[0];
+        var pass_val = form["password"].value;
+        
+        // Check password length
+        if (pass_val.length < 6) {
+          //form["password"].setCustomValidity("At least 6 characters long");
+          $("#register_errors").text("Password must be at least 6 characters long");
+          return true;
+        }
+        
+        // Check confirmation
+        var conf_pass_val = form["conf_password"].value;
+        if (pass_val !== conf_pass_val) {
+          //form["conf_password"].setCustomValidity("Passwords must match");
+          $("#register_errors").text("Password must match");
+          return true;
+        }
+        return false;
       }
-      $("#d_main_col").attr("class", "col-sm-" + size);
-    }
-  </script>
+    </script>
   </body>
 </html>

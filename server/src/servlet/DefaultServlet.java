@@ -8,7 +8,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * Provide authentication to index.html and redirect to login when required.
@@ -25,12 +24,13 @@ public class DefaultServlet extends HttpServlet {
     // Verify session id is installed
     for (Cookie c : request.getCookies()) {
       if (c.getName().equals("token")) {
-        getServletContext().getNamedDispatcher("default").forward(request,
-            response);
+        getServletContext().getRequestDispatcher("WEB-INF/main.html").forward(
+            request, response);
         return;
       }
     }
 
-    response.sendRedirect("/login");
+    getServletContext().getRequestDispatcher("index.html").forward(request,
+        response);
   }
 }
