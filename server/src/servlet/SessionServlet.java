@@ -106,16 +106,13 @@ public class SessionServlet extends HttpServlet {
       return;
     }
 
-    try {
-      // Invalidate session on server
-      sm.closeSession(token);
-      request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
-          "You have successfully logged out."));
-
-    } catch (SQLException e) {
+    // Invalidate session on server
+    if (!sm.closeSession(token)) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Unable to log out."));
     }
+    request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
+        "You have successfully logged out."));
   }
 
   private Cookie createSessionCookie(Response resp) {
