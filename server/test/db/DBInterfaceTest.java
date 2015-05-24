@@ -307,14 +307,14 @@ public class DBInterfaceTest {
   public void doesPutSessionCorrectlyApplyTheQueryToTheDatabase() {
     try {
       when(conn.createStatement()).thenReturn(stmt);
-      when(stmt.execute(TEST_PUT_SESSION_1_QUERY)).thenReturn(true);
+      when(stmt.executeUpdate(TEST_PUT_SESSION_1_QUERY)).thenReturn(1);
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
     }
     try {
       assertEquals(true, db.putSession(new SessionRequest(
           TEST_PUT_SESSION_1_ID, TEST_PUT_SESSION_1_SID)));
-      verify(stmt, times(1)).execute(TEST_PUT_SESSION_1_QUERY);
+      verify(stmt, times(1)).executeUpdate(TEST_PUT_SESSION_1_QUERY);
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
     }
@@ -326,7 +326,7 @@ public class DBInterfaceTest {
     when(conn.createStatement()).thenThrow(new SQLException());
     db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
         TEST_PUT_SESSION_1_SID));
-    verify(stmt, times(0)).execute(any(String.class));
+    verify(stmt, times(0)).executeUpdate(any(String.class));
   }
 
   @Test(expected = SQLException.class)
@@ -337,10 +337,10 @@ public class DBInterfaceTest {
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
     }
-    when(stmt.execute(TEST_PUT_SESSION_1_QUERY)).thenThrow(new SQLException());
+    when(stmt.executeUpdate(TEST_PUT_SESSION_1_QUERY)).thenThrow(new SQLException());
     db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
         TEST_PUT_SESSION_1_SID));
-    verify(stmt, times(1)).execute(TEST_PUT_SESSION_1_QUERY);
+    verify(stmt, times(1)).executeUpdate(TEST_PUT_SESSION_1_QUERY);
   }
 
   @Test
