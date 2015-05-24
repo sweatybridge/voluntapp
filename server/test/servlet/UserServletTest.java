@@ -13,7 +13,6 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -93,7 +92,8 @@ public class UserServletTest {
       when(db.getSession(token)).thenReturn(
           new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
       when(db.getUser(any(UserRequest.class))).thenReturn(expected);
-    } catch (SQLException | UserNotFoundException | InconsistentDataException | SessionNotFoundException e1) {
+    } catch (SQLException | UserNotFoundException | InconsistentDataException
+        | SessionNotFoundException e1) {
       fail("Not yet implemented");
     }
 

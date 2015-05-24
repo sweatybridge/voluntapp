@@ -19,7 +19,7 @@ CLASS_FILES = $(ALL_FILES:.java=.class)
 all : $(addprefix $(BIN), $(CLASS_FILES))
 
 $(BIN)%.class : $(SRC)%.java
-	javac -d $(BIN) -cp $(LIB)*:$(SRC):./lib/* $<
+	javac -d $(BIN) -cp $(LIB)*:$(SRC) $<
 
 clean : 
 	rm -rf $(BIN)*

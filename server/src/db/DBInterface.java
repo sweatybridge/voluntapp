@@ -1,7 +1,6 @@
 package db;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -30,10 +29,6 @@ import exception.UserNotFoundException;
  */
 public class DBInterface {
 
-  // Database information and conn
-  public final static String DATABASE_NAME = "jdbc:postgresql://db.doc.ic.ac.uk/";
-  public final static String DATABASE_USER = "g1427134_u";
-  public final static String DATABASE_PASS = "TRLzYYiVbD";
   private Connection conn;
 
   /**
@@ -44,18 +39,6 @@ public class DBInterface {
    */
   public DBInterface(Connection conn) {
     this.conn = conn;
-  }
-
-  /**
-   * Basic constructor, defaults to our database.
-   */
-  public DBInterface() {
-    try {
-      conn = DriverManager.getConnection(DBInterface.DATABASE_NAME,
-          DBInterface.DATABASE_USER, DBInterface.DATABASE_PASS);
-    } catch (SQLException e) {
-      System.exit(0);
-    }
   }
 
   /**

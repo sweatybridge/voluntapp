@@ -1,5 +1,11 @@
 package listener;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -20,25 +26,46 @@ import db.DBInterface;
 @WebListener
 public class Application implements ServletContextListener {
 
-  /**
-   * Reusable objects for all servlets (must be thread safe).
-   */
-  private static final Gson gson = new Gson();
-  private static final DBInterface db = new DBInterface();
+  private static final Logger logger = Logger.getLogger("Application");
+
+  private Connection conn;
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     ServletContext context = sce.getServletContext();
 
-    // Instantiate servlets and add mappings
-    context.addServlet(DefaultServlet.class.getName(), new DefaultServlet(db))
-        .addMapping("");
-    context.addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
-        .addMapping("/user");
+    try {
+      // Establish database connection
+      conn =
+          DriverManager.getConnection(context.getInitParameter("db_host"),
+              context.getInitParameter("db_user"),
+              context.getInitParameter("db_pass"));
+
+      // Reusable objects for all servlets (must be thread safe).
+      Gson gson = new Gson();
+      DBInterface db = new DBInterface(conn);
+
+      // Instantiate servlets and add mappings
+      context
+          .addServlet(DefaultServlet.class.getName(), new DefaultServlet(db))
+          .addMapping("");
+      context
+          .addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
+          .addMapping("/user");
+
+    } catch (SQLException e) {
+      // Shuts down server if any error occur during context initialisation
+      logger.log(Level.SEVERE, "Failed to establish connection with database.");
+      System.exit(1);
+    }
   }
 
   @Override
   public void contextDestroyed(ServletContextEvent arg0) {
-    /* Required by context listener interface */
+    try {
+      conn.close();
+    } catch (SQLException e) {
+      logger.log(Level.WARNING, "Failed to close connection with database.");
+    }
   }
 }
