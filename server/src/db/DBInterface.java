@@ -264,7 +264,7 @@ public class DBInterface {
   private boolean insert(SQLInsert insertion) throws SQLException {
     Statement stmt;
     stmt = conn.createStatement();
-    stmt.execute(insertion.getSQLInsert());
+    stmt.executeUpdate(insertion.getSQLInsert());
     return true;
   }
 
