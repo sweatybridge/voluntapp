@@ -12,6 +12,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import servlet.DefaultServlet;
+import servlet.SessionServlet;
 import servlet.UserServlet;
 
 import com.google.gson.Gson;
@@ -52,6 +53,9 @@ public class Application implements ServletContextListener {
       context
           .addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
           .addMapping("/user");
+      context
+          .addServlet(SessionServlet.class.getName(), new SessionServlet(gson, db))
+          .addMapping("/session");
 
     } catch (SQLException e) {
       // Shuts down server if any error occur during context initialisation
