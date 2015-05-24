@@ -17,6 +17,7 @@ import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
+import resp.EventResponse;
 import resp.UserResponse;
 
 import static org.junit.Assert.assertEquals;
@@ -94,6 +95,24 @@ public class DBInterfaceTest {
           TEST_UPDATE_USER_1_EMAIL, TEST_UPDATE_USER_1_FIRSTNAME,
           TEST_UPDATE_USER_1_LASTNAME, TEST_UPDATE_USER_1_PASSWORD,
           TEST_UPDATE_USER_1_ID);
+
+  // Test data for Put Event tests
+  public final static String TEST_PUT_EVENT_1_TITLE = "My Awesome Event";
+  public final static String TEST_PUT_EVENT_1_DESC = "The best event of all time, DONT MISS OUT!";
+  public final static String TEST_PUT_EVENT_1_LOCATION = "Room 12, Riverdale, The Moon";
+  public final static String TEST_PUT_EVENT_1_TIME = "10:20:04";
+  public final static String TEST_PUT_EVENT_1_DATE = "04/06/1994";
+  public final static String TEST_PUT_EVENT_1_DURATION = "00:10:20";
+  public final static String TEST_PUT_EVENT_1_MAX = "100";
+  public final static int TEST_PUT_EVENT_1_CALID = 4334;
+  public final static int TEST_PUT_EVENT_1_EID = 82;
+  public final static String TEST_PUT_EVENT_1_QUERY = String
+      .format(
+          "WITH x AS (INSERT INTO public.\"EVENTS\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
+          TEST_PUT_EVENT_1_TITLE, TEST_PUT_EVENT_1_DESC,
+          TEST_PUT_EVENT_1_LOCATION, TEST_PUT_EVENT_1_DATE,
+          TEST_PUT_EVENT_1_TIME, TEST_PUT_EVENT_1_DURATION,
+          TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
 
   // Test data for Delete Session Tests
   public final static String TEST_DELETE_SESSION_1_ID = "42094sdfsdf6456";
@@ -293,8 +312,8 @@ public class DBInterfaceTest {
       fail("Unexpected expection: " + e.getMessage());
     }
     try {
-      assertEquals(true, db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
-          TEST_PUT_SESSION_1_SID)));
+      assertEquals(true, db.putSession(new SessionRequest(
+          TEST_PUT_SESSION_1_ID, TEST_PUT_SESSION_1_SID)));
       verify(stmt, times(1)).execute(TEST_PUT_SESSION_1_QUERY);
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
@@ -424,7 +443,7 @@ public class DBInterfaceTest {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-  
+
   @Test(expected = SQLException.class)
   public void doesDeleteSessionCorrectlyThrowSQLExceptionWhenCreateStatmentFails()
       throws SQLException {
@@ -432,7 +451,7 @@ public class DBInterfaceTest {
     db.deleteSession(TEST_DELETE_SESSION_1_ID);
     verify(stmt, times(0)).execute(any(String.class));
   }
-  
+
   @Test
   public void doesDeleteSessionFailWhenNoSessionsAreFound() {
     try {
@@ -445,5 +464,54 @@ public class DBInterfaceTest {
     }
   }
 
+  @Test
+  public void doesPutEventCorrectlyCallTheInsertQuery() {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.getGeneratedKeys()).thenReturn(rs);
+      when(rs.next()).thenReturn(true);
+      when(rs.getInt(EventResponse.EID_COLUMN))
+          .thenReturn(TEST_PUT_EVENT_1_EID);
+      EventRequest er = new EventRequest(TEST_PUT_EVENT_1_TITLE,
+          TEST_PUT_EVENT_1_DESC, TEST_PUT_EVENT_1_LOCATION,
+          TEST_PUT_EVENT_1_DATE, TEST_PUT_EVENT_1_TIME,
+          TEST_PUT_EVENT_1_DURATION, TEST_PUT_EVENT_1_MAX,
+          TEST_PUT_EVENT_1_CALID);
+      assertEquals(TEST_PUT_EVENT_1_EID, db.putEvent(er));
+      verify(stmt, times(1)).executeUpdate(TEST_PUT_EVENT_1_QUERY,
+          Statement.RETURN_GENERATED_KEYS);
+    } catch (SQLException e) {
+      fail("Unexpected Exception: " + e.getMessage());
+    }
+  }
+
+  @Test(expected = SQLException.class)
+  public void doesPutEventThrowSQLExceptionWhenCreateStatementFails()
+      throws SQLException {
+    when(conn.createStatement()).thenThrow(new SQLException());
+    EventRequest er = new EventRequest(TEST_PUT_EVENT_1_TITLE,
+        TEST_PUT_EVENT_1_DESC, TEST_PUT_EVENT_1_LOCATION,
+        TEST_PUT_EVENT_1_DATE, TEST_PUT_EVENT_1_TIME,
+        TEST_PUT_EVENT_1_DURATION, TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
+    db.putEvent(er);
+  }
+
+  @Test(expected = SQLException.class)
+  public void doesPutEventThrowSQLExceptionWhenQueryFails() throws SQLException {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.getGeneratedKeys()).thenReturn(rs);
+      when(rs.next()).thenReturn(false);
+    } catch (SQLException e) {
+      fail("Unexpected Exception: " + e.getMessage());
+    }
+    EventRequest er = new EventRequest(TEST_PUT_EVENT_1_TITLE,
+        TEST_PUT_EVENT_1_DESC, TEST_PUT_EVENT_1_LOCATION,
+        TEST_PUT_EVENT_1_DATE, TEST_PUT_EVENT_1_TIME,
+        TEST_PUT_EVENT_1_DURATION, TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
+    db.putEvent(er);
+    verify(stmt, times(1)).executeUpdate(TEST_PUT_EVENT_1_QUERY,
+        Statement.RETURN_GENERATED_KEYS);
+  }
 
 }

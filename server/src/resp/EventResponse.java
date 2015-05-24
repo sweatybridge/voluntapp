@@ -72,7 +72,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
    *          The ID of the user requests
    */
   public EventResponse(String title, String description, String location,
-      String time, String date, int calendarId, String duration) {
+      String time, String date, int calendarId, String duration, String max) {
     this.title = title;
     this.description = description;
     this.location = location;
@@ -80,6 +80,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
     this.time = time;
     this.date = date;
     this.calendarId = calendarId;
+    this.max = Integer.parseInt(max);
   }
 
   public int getCalendarId() {
@@ -113,7 +114,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
   public String getSQLInsert() {
     return String
         .format(
-            "  WITH x AS (INSERT INTO public.\"EVENTS\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x; ",
+            "WITH x AS (INSERT INTO public.\"EVENTS\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
             title, description, location, date, (time == null) ? "DEFAULT"
                 : time, (duration == null) ? "DEFAULT" : duration, max,
             calendarId);
