@@ -17,6 +17,7 @@ import servlet.UserServlet;
 import com.google.gson.Gson;
 
 import db.DBInterface;
+import filter.AuthorizationFilter;
 
 /**
  * Main application context that maps servlets to their respective URI and
@@ -52,6 +53,11 @@ public class Application implements ServletContextListener {
       context
           .addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
           .addMapping("/user");
+      
+      // Instantiate authorization filter
+      context
+          .addFilter(AuthorizationFilter.class.getName(), 
+              new AuthorizationFilter(db));
 
     } catch (SQLException e) {
       // Shuts down server if any error occur during context initialisation
