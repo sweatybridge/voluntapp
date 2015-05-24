@@ -13,6 +13,7 @@ import req.UserRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
+import resp.SuccessResponse;
 import resp.UserResponse;
 
 import com.google.gson.Gson;
@@ -96,7 +97,26 @@ public class SessionServlet extends HttpServlet {
    */
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {}
+      throws IOException {
+    // Parse session id
+    String token = request.getHeader("Authorization");
+    if (token == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Unauthorized logout attempt."));
+      return;
+    }
+
+    try {
+      // Invalidate session on server
+      sm.closeSession(token);
+      request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
+          "You have successfully logged out."));
+
+    } catch (SQLException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Unable to log out."));
+    }
+  }
 
   private Cookie createSessionCookie(Response resp) {
     /*
@@ -106,7 +126,7 @@ public class SessionServlet extends HttpServlet {
      */
     SessionResponse session = (SessionResponse) resp;
     Cookie cookie = new Cookie("token", session.getSessionId());
-    cookie.setHttpOnly(true);
+    // cookie.setHttpOnly(true);
     return cookie;
   }
 
