@@ -106,6 +106,9 @@ public class UserServlet extends HttpServlet {
     Response resp = handle(req);
     if (resp instanceof ErrorResponse) {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+    } else if (resp instanceof SessionResponse) {
+      Cookie cookie = createSessionCookie(resp);
+      response.addCookie(cookie);
     }
 
     // Write response to output
@@ -131,23 +134,26 @@ public class UserServlet extends HttpServlet {
     Response resp = handle(req);
     if (resp instanceof ErrorResponse) {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-    } else {
-      // Initiate jsession if request is not ajax
-      /*
-      if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-        HttpSession jsession = request.getSession();
-        response.sendRedirect("/");
-      }
-      */
-      SessionResponse session = (SessionResponse) resp;
-      // request.getSession().setAttribute("token", session.getSessionId());
-      Cookie cookie = new Cookie("token", session.getSessionId());
-      cookie.setHttpOnly(true);
+    } else if (resp instanceof SessionResponse) {
+      // Set the session cookie if request is from a browser
+      Cookie cookie = createSessionCookie(resp);
       response.addCookie(cookie);
     }
 
     // Write response to output
     response.getWriter().print(gson.toJson(resp));
+  }
+
+  private Cookie createSessionCookie(Response resp) {
+    /*
+     * if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+     * HttpSession jsession = request.getSession(); response.sendRedirect("/");
+     * }
+     */
+    SessionResponse session = (SessionResponse) resp;
+    Cookie cookie = new Cookie("token", session.getSessionId());
+    cookie.setHttpOnly(true);
+    return cookie;
   }
 
   private Response handle(RegisterRequest req) {
