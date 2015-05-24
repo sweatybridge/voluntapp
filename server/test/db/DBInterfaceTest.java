@@ -444,12 +444,6 @@ public class DBInterfaceTest {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-  
-  @Test
-  public void test1() throws SQLException {
-    DBInterface db = new DBInterface();
-    System.out.println(db.putEvent(new EventRequest("HELLLO", "HELLLO DES", "HELLLO LOC", "10/04/1884", "14:23:05", "00:10:20", 1)));
-  }
-  
+
 
 }
