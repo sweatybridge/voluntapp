@@ -13,7 +13,7 @@
   </head>
 
   <body>
-    <form class="form-centre" role="form" id="login_form" action="user" method="post" autocomplete="on">
+    <form class="form-centre" role="form" id="login_form" action="session" method="post" autocomplete="on">
       <h2 class="form-heading">Please login</h2>
       <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
       <input type="password" name="password" class="form-control" placeholder="Password" required>
@@ -36,7 +36,7 @@
             <h4 class="modal-title">Register Now</h4>
           </div>
           <div class="modal-body">
-            <form class="form-centre" role="form" id="register_form" action="user" method="put" autocomplete="on">
+            <form class="form-centre" role="form" id="register_form" action="user" method="post" autocomplete="on">
               <div class="form-group"><input type="email" name="email" class="form-control" placeholder="Email" autofocus required></div>
               <div class="form-group"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
               <div class="form-group"><input type="password" name="conf_password" class="form-control" placeholder="Confirm password" required></div>
@@ -83,13 +83,12 @@
       // Submit ajax form with different error field
       function submitAjaxForm(form, errorDiv) {
         $.ajax(form.attr("action"), {
-          data: {payload: JSON.stringify(getFormObj(form))},
+          data: JSON.stringify(getFormObj(form)),
+          contentType: "application/json; charset=utf-8",
           dataType: "json",
           method: form.attr("method"),
           statusCode: {
-            200: function(data) {
-              window.location.reload(); 
-            },
+            200: function(data) { window.location.reload(); },
             400: function(data) { errorDiv.text(data.responseJSON.message); }
           }
         });
