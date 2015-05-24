@@ -91,11 +91,11 @@ public class SessionManager {
     String newId = getNewSessionId();
 
     // Create and return the correct Session object
-    if (db.putSession(new SessionRequest(userId, newId))) {
-      return newId;
+    if (!db.putSession(new SessionRequest(userId, newId))) {
+      throw new SQLException();
     }
     // Should never get here without throwing an exception
-    return null;
+    return newId;
   }
 
   /**

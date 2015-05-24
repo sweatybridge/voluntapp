@@ -5,6 +5,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import servlet.DefaultServlet;
 import servlet.UserServlet;
 
 import com.google.gson.Gson;
@@ -30,6 +31,8 @@ public class Application implements ServletContextListener {
     ServletContext context = sce.getServletContext();
 
     // Instantiate servlets and add mappings
+    context.addServlet(DefaultServlet.class.getName(), new DefaultServlet(db))
+        .addMapping("");
     context.addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
         .addMapping("/user");
   }
