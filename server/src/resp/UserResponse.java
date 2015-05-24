@@ -73,14 +73,14 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM public.\"USERS\" WHERE \"%s\"='%s';",
+    return String.format("SELECT * FROM public.\"USER\" WHERE \"%s\"='%s';",
         (email == null) ? ID_COLUMN : EMAIL_COLUMN, (email == null) ? userId
             : email);
   }
   
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO public.\"USERS\" VALUES(DEFAULT, '" + email + "','" 
+    return "INSERT INTO public.\"USER\" VALUES(DEFAULT, '" + email + "','" 
         + hashedPassword + "','" + firstName + "','" + lastName + "', DEFAULT);";
   }
   

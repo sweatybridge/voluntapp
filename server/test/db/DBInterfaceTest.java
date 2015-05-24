@@ -55,13 +55,13 @@ public class DBInterfaceTest {
   public final static String TEST_GET_USER_1_PASSWORD = "helllo";
   public final static int TEST_GET_USER_1_ID = 17;
   public final static String TEST_GET_USER_1_QUERY = String.format(
-      "SELECT * FROM public.\"USERS\" WHERE \"EMAIL\"='%s';",
+      "SELECT * FROM public.\"USER\" WHERE \"EMAIL\"='%s';",
       TEST_GET_USER_1_EMAIL);
   public final static String TEST_GET_USER_2_EMAIL = "themoon@nasa.s";
   public final static String TEST_GET_USER_2_PASSWORD = "itsreallycheese";
   public final static int TEST_GET_USER_2_ID = 892;
   public final static String TEST_GET_USER_2_QUERY = String.format(
-      "SELECT * FROM public.\"USERS\" WHERE \"ID\"='%s';", TEST_GET_USER_2_ID);
+      "SELECT * FROM public.\"USER\" WHERE \"ID\"='%s';", TEST_GET_USER_2_ID);
 
   // Test data for Add User tests
   public final static String TEST_PUT_USER_1_EMAIL = "thisisdave@therock.co";
@@ -71,7 +71,7 @@ public class DBInterfaceTest {
   public final static int TEST_PUT_USER_1_ID = 87;
   public final static String TEST_PUT_USER_1_QUERY = String
       .format(
-          "INSERT INTO public.\"USERS\" VALUES(DEFAULT, '%s','%s','%s','%s', DEFAULT);",
+          "INSERT INTO public.\"USER\" VALUES(DEFAULT, '%s','%s','%s','%s', DEFAULT);",
           TEST_PUT_USER_1_EMAIL, TEST_PUT_USER_1_PASSWORD,
           TEST_PUT_USER_1_FIRSTNAME, TEST_PUT_USER_1_LASTNAME);
 
