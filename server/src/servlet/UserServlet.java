@@ -168,14 +168,19 @@ public class UserServlet extends HttpServlet {
     }
 
     // Write to database
+    int userId;
     try {
-      int userId = db.putUser(req);
-      String token = sm.startSession(userId);
+      userId = db.putUser(req);
+    } catch (SQLException e) {
+      return new ErrorResponse("The email you entered is already in use.");
+    }
 
+    try {
+      String token = sm.startSession(userId);
       // Successfully registered
       return new SessionResponse(token);
     } catch (SQLException e) {
-      return new ErrorResponse("The email you entered is already in use.");
+      return new ErrorResponse(e.getMessage());
     }
   }
 
