@@ -1,70 +1,107 @@
 
 /* Createing the table to store user information */
 
-CREATE TABLE public."USERS"
+CREATE TABLE "USERS"
 (
-   "ID" serial PRIMARY KEY, 
-   "EMAIL" character varying(254) NOT NULL UNIQUE, 
-   "PASSWORD" character varying(255) NOT NULL, 
-   "FIRST_NAME" character varying(50) NOT NULL, 
-   "LAST_NAME" character varying(50), 
-   "LAST_SEEN" timestamp with time zone NOT NULL DEFAULT CURRENT_DATE
-) 
-WITH (
-  OIDS = FALSE
+  "ID" serial NOT NULL,
+  "EMAIL" text NOT NULL,
+  "PASSWORD" text NOT NULL,
+  "FIRST_NAME" text NOT NULL,
+  "LAST_NAME" text,
+  "LAST_SEEN" timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT "USERS_pkey" PRIMARY KEY ("ID"),
+  CONSTRAINT "USERS_EMAIL_key" UNIQUE ("EMAIL"),
+  CONSTRAINT emailchk CHECK (char_length("EMAIL") <= 254 AND char_length("EMAIL") > 2),
+  CONSTRAINT firstnamechk CHECK (char_length("FIRST_NAME") <= 50 AND char_length("FIRST_NAME") >= 2),
+  CONSTRAINT lastnamechk CHECK (char_length("LAST_NAME") <= 50),
+  CONSTRAINT passwordchk CHECK (char_length("PASSWORD") <= 50 AND char_length("PASSWORD") >= 6)
 )
-;
-
-
-/* Altering the default value of a column */
-
-ALTER TABLE public."USERS" 
-ALTER "LAST_SEEN" SET DEFAULT NOW();
+WITH (
+  OIDS=FALSE
+);
 
 
 /* Session table query */
 
-CREATE TABLE public."SESSIONS"
+CREATE TABLE "SESSIONS"
 (
-  "SID" character(20) NOT NULL PRIMARY KEY,
-  "USER" int NULL NULL REFERENCES public."USERS"("ID")
+  "SID" text NOT NULL,
+  "USER" integer,
+  "START_TIME" timestamp without time zone DEFAULT timezone('gmt-1'::text, now()),
+  CONSTRAINT "SESSIONS_pkey" PRIMARY KEY ("SID"),
+  CONSTRAINT "SESSIONS_USER_fkey" FOREIGN KEY ("USER")
+      REFERENCES "USERS" ("ID") MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT sidchk CHECK (char_length("SID") = 20)
 )
+WITH (
+  OIDS=FALSE
+);
 
 /*  Calender table query */
 
-CREATE TABLE public."CALENDER"
+CREATE TABLE "CALENDAR"
 (
-   "ID" serial NOT NULL PRIMARY KEY, 
-   "NAME" character varying(50) NOT NULL,
-   "CREATOR" int REFERENCES public."USERS"("ID"), 
-   "CREATED" timestamp without time zone NOT NULL, 
-   "JOIN_ENABLED" boolean NOT NULL DEFAULT true, 
-   "JOIN_CODE" character(6)
-) 
-WITH (
-  OIDS = FALSE
+  "ID" integer NOT NULL DEFAULT nextval('"CALENDER_ID_seq"'::regclass),
+  "NAME" text NOT NULL,
+  "CREATOR" integer NOT NULL,
+  "CREATED" timestamp without time zone NOT NULL DEFAULT now(),
+  "JOIN_ENABLED" boolean NOT NULL DEFAULT true,
+  "JOIN_CODE" text NOT NULL,
+  CONSTRAINT "CALENDER_pkey" PRIMARY KEY ("ID"),
+  CONSTRAINT "CALENDER_CREATOR_fkey" FOREIGN KEY ("CREATOR")
+      REFERENCES "USERS" ("ID") MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT calnamechk CHECK (char_length("NAME") > 0 AND char_length("NAME") < 100),
+  CONSTRAINT joincode CHECK (char_length("JOIN_CODE") = 6)
 )
-;
+WITH (
+  OIDS=FALSE
+);
 
 /* Event table */
 
-CREATE TABLE public."EVENTS"
+CREATE TABLE "EVENTS"
 (
-   "EID" serial PRIMARY KEY, 
-   "TITLE" character varying(100) NOT NULL, 
-   "DESCRIPTION" character varying(255) NOT NULL, 
-   "LOCATION" character varying(255) NOT NULL, 
-   "DATE" date NOT NULL, 
-   "TIME" time with time zone,
-   "DURATION" interval,
-   "ATTENDEES" int[],
-   "MAX_ATTENDEES" int,
-   "ACTIVE" boolean NOT NULL
-) 
-WITH (
-  OIDS = FALSE
+  "EID" serial NOT NULL,
+  "TITLE" text NOT NULL,
+  "DESCRIPTION" text,
+  "LOCATION" text,
+  "DATE" date NOT NULL,
+  "TIME" time with time zone,
+  "DURATION" interval,
+  "ATTENDEES" integer[] NOT NULL DEFAULT '{}'::integer[],
+  "MAX_ATTENDEES" integer,
+  "ACTIVE" boolean NOT NULL DEFAULT true,
+  CONSTRAINT "EVENTS_pkey" PRIMARY KEY ("EID"),
+  CONSTRAINT attendeechk CHECK (array_length("ATTENDEES", 1) <= "MAX_ATTENDEES"),
+  CONSTRAINT descriptionchk CHECK (char_length("DESCRIPTION") <= 255),
+  CONSTRAINT locationchk CHECK (char_length("LOCATION") <= 255),
+  CONSTRAINT titlechk CHECK (char_length("TITLE") <= 100 AND char_length("TITLE") > 0)
 )
-;
+WITH (
+  OIDS=FALSE
+);
+
+
+/* Function for auto update last seen */
+
+CREATE OR REPLACE FUNCTION lastseenfun () RETURNS trigger AS $$
+  DECLARE
+    curtime timestamp := now();
+  BEGIN
+    UPDATE public."USERS" SET "LAST_SEEN" = curtime
+       WHERE "ID" = NEW."USER";
+    RETURN NEW;
+  END; $$ LANGUAGE plpgsql
+
+/* Trigger for the automatic update. Note: this goes with the SESSIONS table*/
+
+CREATE TRIGGER lastseentrig AFTER INSERT OR UPDATE ON public."SESSIONS"
+FOR EACH ROW 
+EXECUTE PROCEDURE lastseenfun();
+
+
 
 
 
