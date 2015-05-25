@@ -35,7 +35,7 @@
             <li><a href="#">Profile</a></li>
             <li><a id="btn_logout" href="#">Logout</a></li>
           </ul>
-          <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a href="#account" class="navbar-link">{{firstName}}</a></p>
+          <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a class="firstName" href="#account" class="navbar-link"></a></p>
         </div>
       </div>
     </nav>
@@ -43,7 +43,7 @@
     <div class="container-fluid">
       <div class="row">
         <div id="d_left_sidebar" class="col-sm-2">
-          <p class="lead">Welcome, <span id="firstName"></span></p>
+          <p class="lead">Welcome, <span class="firstName"></span></p>
           <p>You haven't logged in since <strong>{{lastSeen}}</strong></p>
           
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
@@ -56,7 +56,7 @@
                 </h4>
               </div>
               <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                <div class="panel-body">
+                <div id="#active_calendars" class="panel-body">
                   It seems like you haven't joined to or created any calendars...
                 </div>
               </div>
@@ -263,13 +263,13 @@
             200: function(data) {
               $.toaster({
                 priority: 'success',
-                message: data.responseJSON.message
+                message: data.message
               })
             },
             400: function(data) {
               $.toaster({
                 priority: 'danger',
-                message: data.responseJSON.message
+                message: data.message
               })
             },
             404: function(data) {
@@ -296,7 +296,7 @@
           method: 'GET',
           statusCode: {
               200: function(data) {
-                  $('#firstName').text(data.responseJSON.firstName)
+                  $('.firstName').text(data.firstName)
               }
           }
       })
