@@ -92,8 +92,7 @@ public class SessionServlet extends HttpServlet {
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-  }
+      throws IOException {}
 
   /**
    * Logs out the user and remove its session.
@@ -101,16 +100,13 @@ public class SessionServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    // Parse session id
-    String token = request.getHeader("Authorization");
-    if (token == null) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Unauthorized logout attempt."));
-      return;
-    }
+
+    SessionResponse session =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
 
     // Invalidate session on server
-    if (!sm.closeSession(token)) {
+    if (!sm.closeSession(session.getSessionId())) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Unable to log out."));
       return;

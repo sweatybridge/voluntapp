@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import resp.ErrorResponse;
+import resp.Response;
 import resp.SessionResponse;
 import db.DBInterface;
 import exception.SessionNotFoundException;
@@ -44,6 +45,7 @@ public class AuthorizationFilter implements Filter {
     // Allow user registration
     if (request.getRequestURI().equals("/api/user")
         && request.getMethod().equals("POST")) {
+      // Attach a dummy session response
       req.setAttribute(SessionResponse.class.getSimpleName(),
           new SessionResponse());
       chain.doFilter(req, resp);
@@ -53,6 +55,7 @@ public class AuthorizationFilter implements Filter {
     // Allow user login
     if (request.getRequestURI().equals("/api/session")
         && request.getMethod().equals("POST")) {
+      // Attach a dummy session response
       req.setAttribute(SessionResponse.class.getSimpleName(),
           new SessionResponse());
       chain.doFilter(req, resp);
@@ -70,16 +73,16 @@ public class AuthorizationFilter implements Filter {
     try {
       // Install session response on request chain
       SessionResponse sessionResp = db.getSession(sessionID);
+      // TODO: refresh token
+
       req.setAttribute(SessionResponse.class.getSimpleName(), sessionResp);
 
     } catch (SessionNotFoundException e) {
-      req.setAttribute(SessionResponse.class.getSimpleName(),
-          new ErrorResponse(
-              "Invalid session identifier - session identifier not found."));
+      req.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Invalid session identifier - session identifier not found."));
     } catch (SQLException e) {
-      req.setAttribute(SessionResponse.class.getSimpleName(),
-          new ErrorResponse(
-              "Database error while searching the session number."));
+      req.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Database error while searching the session number."));
     } finally {
       chain.doFilter(req, resp);
     }

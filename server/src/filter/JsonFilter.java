@@ -43,7 +43,7 @@ public class JsonFilter implements Filter {
     resp.setContentType("application/json");
     resp.setCharacterEncoding("utf-8");
 
-    // Only propagates request if there is a session
+    // Only propagates further if there is a session
     if (req.getAttribute(SessionResponse.class.getSimpleName()) != null) {
       chain.doFilter(req, resp);
     }
