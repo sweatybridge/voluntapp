@@ -4,8 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import req.CalendarRequest;
+import req.CalendarRequest.CalendarEventsQuery;
 import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
@@ -93,13 +97,21 @@ public class DBInterface {
   /**
    * Retrieve a calendar by its id.
    * 
-   * @param cr
+   * @param calendarId
    *          CalendarRequest
    * @return CalendarResponse
+   * @throws SQLException 
    */
-  public CalendarResponse getCalendar(int calendarId) {
-    // TODO: implement this
-    return new CalendarResponse();
+  public CalendarResponse getCalendar(CalendarRequest request) 
+      throws SQLException {
+    CalendarResponse result = new CalendarResponse(request.getCalendarId());
+    query(result);
+    if (request.getStartDate() != null) {
+      CalendarEventsQuery query = request.getCalendarEventsQuery();
+      query(query);
+      result.setEvents(query.getEvents());
+    }
+    return result;
   }
 
   /**
