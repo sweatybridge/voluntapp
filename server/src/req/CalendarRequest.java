@@ -35,10 +35,18 @@ public class CalendarRequest implements Request {
     this.inviteCode = inviteCode;
     this.userId = userId;
   }
-
+  
   @Override
   public boolean isValid() {
     return (name != null && !name.isEmpty());
+  }
+  
+  public void setUserId(int userId) {
+    this.userId = userId;
+  }
+  
+  public void setInviteCode(String inviteCode) {
+    this.inviteCode = inviteCode;
   }
 
   public String getName() {

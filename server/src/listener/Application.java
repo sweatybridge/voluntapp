@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 
 import db.DBInterface;
 import db.SessionManager;
+import filter.AuthorizationFilter;
+import servlet.CalendarServlet;
 
 /**
  * Main application context that maps servlets to their respective URI and
@@ -57,6 +59,14 @@ public class Application implements ServletContextListener {
           .addMapping("/user");
       context.addServlet(SessionServlet.class.getName(),
           new SessionServlet(gson, db, sm)).addMapping("/session");
+      context
+          .addServlet(CalendarServlet.class.getName(), 
+          new CalendarServlet(gson, db)).addMapping("/calendar");
+      
+      // Instantiate authorization filter
+      context
+          .addFilter(AuthorizationFilter.class.getName(), 
+              new AuthorizationFilter(db));
 
     } catch (SQLException e) {
       // Shuts down server if any error occur during context initialisation
