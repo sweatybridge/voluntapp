@@ -128,6 +128,7 @@ public class SessionServlet extends HttpServlet {
      */
     SessionResponse session = (SessionResponse) resp;
     Cookie cookie = new Cookie("token", session.getSessionId());
+    cookie.setPath("/");
     // cookie.setHttpOnly(true);
     return cookie;
   }
@@ -141,7 +142,7 @@ public class SessionServlet extends HttpServlet {
     try {
       UserResponse user = db.getUser(req);
 
-      // TODO: Check that password matches the hashed value
+      // Check that password matches the hashed value
       if (!PasswordUtils.validatePassword(req.getPassword(),
           user.getHashedPassword())) {
         return new ErrorResponse("You have entered a wrong password.");

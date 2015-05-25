@@ -15,7 +15,6 @@ import javax.servlet.annotation.WebListener;
 
 import servlet.CalendarServlet;
 import servlet.DefaultServlet;
-import servlet.EventServlet;
 import servlet.SessionServlet;
 import servlet.UserServlet;
 
@@ -55,13 +54,16 @@ public class Application implements ServletContextListener {
       SessionManager sm = new SessionManager(db);
 
       // Initialise filters
+      context.addFilter(AuthorizationFilter.class.getSimpleName(),
+      // new AuthorizationFilter(db)).addMappingForServletNames(
+      // EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true,
+      // CalendarServlet.class.getName(), EventServlet.class.getName());
+          new AuthorizationFilter(db)).addMappingForUrlPatterns(
+          EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true,
+          "/api/*");
       context.addFilter(JsonFilter.class.getSimpleName(), new JsonFilter(gson))
           .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true,
-              "/*");
-      context.addFilter(AuthorizationFilter.class.getSimpleName(),
-          new AuthorizationFilter(db)).addMappingForServletNames(
-          EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true,
-          CalendarServlet.class.getName(), EventServlet.class.getName());
+              "/api/*");
 
       // Instantiate servlets and add mappings
       context
@@ -69,11 +71,11 @@ public class Application implements ServletContextListener {
           .addMapping("");
       context
           .addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
-          .addMapping("/user");
+          .addMapping("/api/user");
       context.addServlet(SessionServlet.class.getName(),
-          new SessionServlet(gson, db, sm)).addMapping("/session");
+          new SessionServlet(gson, db, sm)).addMapping("/api/session");
       context.addServlet(CalendarServlet.class.getName(),
-          new CalendarServlet(gson, db)).addMapping("/calendar");
+          new CalendarServlet(gson, db)).addMapping("/api/calendar");
 
     } catch (SQLException e) {
       // Shuts down server if any error occur during context initialisation

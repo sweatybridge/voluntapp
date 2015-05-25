@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import resp.ErrorResponse;
 import resp.Response;
+import resp.SessionResponse;
 
 import com.google.gson.Gson;
 
@@ -42,8 +43,10 @@ public class JsonFilter implements Filter {
     resp.setContentType("application/json");
     resp.setCharacterEncoding("utf-8");
 
-    // Propagates request to the next filter
-    chain.doFilter(req, resp);
+    // Only propagates request if there is a session
+    if (req.getAttribute(SessionResponse.class.getSimpleName()) != null) {
+      chain.doFilter(req, resp);
+    }
 
     // Retrieve response object installed by servlet
     Response servletResponse =

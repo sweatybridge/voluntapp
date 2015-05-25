@@ -1,6 +1,7 @@
 package filter;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.sql.SQLException;
 
 import javax.servlet.Filter;
@@ -10,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import resp.ErrorResponse;
 import resp.SessionResponse;
@@ -38,11 +40,38 @@ public class AuthorizationFilter implements Filter {
       FilterChain chain) throws IOException, ServletException {
 
     HttpServletRequest request = (HttpServletRequest) req;
+
+    // Allow user registration
+    if (request.getRequestURI().equals("/api/user")
+        && request.getMethod().equals("POST")) {
+      req.setAttribute(SessionResponse.class.getSimpleName(),
+          new SessionResponse());
+      chain.doFilter(req, resp);
+      return;
+    }
+
+    // Allow user login
+    if (request.getRequestURI().equals("/api/session")
+        && request.getMethod().equals("POST")) {
+      req.setAttribute(SessionResponse.class.getSimpleName(),
+          new SessionResponse());
+      chain.doFilter(req, resp);
+      return;
+    }
+
+    // Stop all requests without an auth token immediately
     String sessionID = request.getHeader("Authorization");
+    if (sessionID == null) {
+      HttpServletResponse response = (HttpServletResponse) resp;
+      response.setStatus(HttpURLConnection.HTTP_UNAUTHORIZED);
+      return;
+    }
 
     try {
+      // Install session response on request chain
       SessionResponse sessionResp = db.getSession(sessionID);
       req.setAttribute(SessionResponse.class.getSimpleName(), sessionResp);
+
     } catch (SessionNotFoundException e) {
       req.setAttribute(SessionResponse.class.getSimpleName(),
           new ErrorResponse(
@@ -51,9 +80,10 @@ public class AuthorizationFilter implements Filter {
       req.setAttribute(SessionResponse.class.getSimpleName(),
           new ErrorResponse(
               "Database error while searching the session number."));
+    } finally {
+      chain.doFilter(req, resp);
     }
 
-    chain.doFilter(req, resp);
   }
 
   @Override
