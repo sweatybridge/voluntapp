@@ -108,4 +108,10 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
     return "INSERT INTO \"SESSION\" VALUES ('" + sessionId + "', " + userId
         + ", DEFAULT);";
   }
+
+  public String getSQLRefresh() {
+    return String.format(
+        "UPDATE \"SESSION\" SET \"SID\"='%s', \"START_TIME\"=now() WHERE \"USER\"=%d;", sessionId,
+        userId);
+  }
 }
