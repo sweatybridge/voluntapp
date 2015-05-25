@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import db.SessionManager;
 import exception.InconsistentDataException;
+import exception.PasswordHashFailureException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
@@ -43,8 +44,10 @@ public class UserServlet extends HttpServlet {
   /**
    * Constructs a user servlet with injected dependencies.
    * 
-   * @param gson json serialiser
-   * @param db database interface
+   * @param gson
+   *          json serialiser
+   * @param db
+   *          database interface
    */
   public UserServlet(Gson gson, DBInterface db) {
     this.gson = gson;
@@ -79,8 +82,8 @@ public class UserServlet extends HttpServlet {
     // TODO get current user id from auth token
     // TODO delete from user table
 
-    Response resp =
-        new SuccessResponse("Successfully deleted user from database.");
+    Response resp = new SuccessResponse(
+        "Successfully deleted user from database.");
 
     response.getWriter().print(gson.toJson(resp));
   }
@@ -94,8 +97,8 @@ public class UserServlet extends HttpServlet {
     // Parse user register request
     RegisterRequest req;
     try {
-      String body =
-          request.getReader().readLine().substring("payload=".length());
+      String body = request.getReader().readLine()
+          .substring("payload=".length());
       String payload = URLDecoder.decode(body, "UTF-8");
       req = gson.fromJson(payload, RegisterRequest.class);
     } catch (IOException | RuntimeException e) {
@@ -173,6 +176,8 @@ public class UserServlet extends HttpServlet {
       userId = db.putUser(req);
     } catch (SQLException e) {
       return new ErrorResponse("The email you entered is already in use.");
+    } catch (PasswordHashFailureException e) {
+      return new ErrorResponse("Password hashing failed, THE WORLD IS OVER!");
     }
 
     try {

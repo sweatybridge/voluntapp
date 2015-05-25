@@ -1,5 +1,7 @@
 package resp;
 
+import java.sql.ResultSet;
+
 /**
  * An error response indicating that the request has failed. Contains an error
  * message and a status code that can be used to trigger different error

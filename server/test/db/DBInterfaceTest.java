@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
+import exception.PasswordHashFailureException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
@@ -148,6 +149,12 @@ public class DBInterfaceTest {
           EventResponse.DURATION_COLUMN, TEST_UPDATE_EVENT_1_DURATION,
           EventResponse.MAX_ATTEDEE_COLUMN, TEST_UPDATE_EVENT_1_MAX,
           EventResponse.EID_COLUMN, TEST_UPDATE_EVENT_1_EID);
+
+  // Test data for Delete Event tests
+  public final static int TEST_DELETE_EVENT_1_EID = 26584;
+  public final static String TEST_DELETE_EVENT_1_QUERY = String.format(
+      "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=%d", "\""
+          + EventResponse.ACTIVE_COLUMN + "\"=false", TEST_DELETE_EVENT_1_EID);
 
   @Test
   public void doesGetUserObtainCorrectDataGivenEmail() {
@@ -301,7 +308,7 @@ public class DBInterfaceTest {
           TEST_PUT_USER_1_LASTNAME)), TEST_PUT_USER_1_ID);
       verify(stmt, times(1)).executeUpdate(TEST_PUT_USER_1_QUERY,
           Statement.RETURN_GENERATED_KEYS);
-    } catch (SQLException e) {
+    } catch (SQLException | PasswordHashFailureException e) {
       fail("Unexpected exception: " + e.getMessage());
     }
   }
@@ -310,9 +317,13 @@ public class DBInterfaceTest {
   public void doesPutUserThrowSQLExceptionWhenCreateStatementFails()
       throws SQLException {
     when(conn.createStatement()).thenThrow(new SQLException());
-    db.putUser(new RegisterRequest(TEST_PUT_USER_1_EMAIL,
-        TEST_PUT_USER_1_PASSWORD, TEST_PUT_USER_1_FIRSTNAME,
-        TEST_PUT_USER_1_LASTNAME));
+    try {
+      db.putUser(new RegisterRequest(TEST_PUT_USER_1_EMAIL,
+          TEST_PUT_USER_1_PASSWORD, TEST_PUT_USER_1_FIRSTNAME,
+          TEST_PUT_USER_1_LASTNAME));
+    } catch (PasswordHashFailureException e) {
+      fail("Unexpected exception: " + e.getMessage());
+    }
     verify(stmt, times(0)).executeUpdate(any(String.class), anyInt());
   }
 
@@ -325,9 +336,13 @@ public class DBInterfaceTest {
     } catch (SQLException e) {
       fail("Unexpected exception: " + e.getMessage());
     }
-    assertEquals(db.putUser(new RegisterRequest(TEST_PUT_USER_1_EMAIL,
-        TEST_PUT_USER_1_PASSWORD, TEST_PUT_USER_1_FIRSTNAME,
-        TEST_PUT_USER_1_LASTNAME)), TEST_PUT_USER_1_ID);
+    try {
+      assertEquals(db.putUser(new RegisterRequest(TEST_PUT_USER_1_EMAIL,
+          TEST_PUT_USER_1_PASSWORD, TEST_PUT_USER_1_FIRSTNAME,
+          TEST_PUT_USER_1_LASTNAME)), TEST_PUT_USER_1_ID);
+    } catch (PasswordHashFailureException e) {
+      fail("Unexpected exception: " + e.getMessage());
+    }
     verify(stmt, times(1)).executeUpdate(TEST_PUT_USER_1_QUERY,
         Statement.RETURN_GENERATED_KEYS);
 
@@ -483,7 +498,8 @@ public class DBInterfaceTest {
   }
 
   @Test(expected = SessionNotFoundException.class)
-  public void doesGetSessionCorrectlyThrowSessionNotFoundException() throws SessionNotFoundException {
+  public void doesGetSessionCorrectlyThrowSessionNotFoundException()
+      throws SessionNotFoundException {
     try {
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_SESSION_1_QUERY)).thenReturn(rs);
@@ -650,6 +666,18 @@ public class DBInterfaceTest {
           TEST_UPDATE_EVENT_1_DURATION, TEST_UPDATE_EVENT_1_MAX, -1);
       db.updateEvent(TEST_UPDATE_EVENT_1_EID, er);
     } catch (SQLException | EventNotFoundException e) {
+      fail("Unexpected Exception: " + e.getMessage());
+    }
+  }
+
+  @Test
+  public void doesDeleteCorrectlyQueryTheDatabase() {
+    try {
+      when(conn.createStatement()).thenReturn(stmt);
+      when(stmt.executeUpdate(TEST_DELETE_EVENT_1_QUERY)).thenReturn(1);
+      assertEquals(true, db.deleteEvent(TEST_DELETE_EVENT_1_EID));
+      verify(stmt, times(1)).executeUpdate(TEST_DELETE_EVENT_1_QUERY);
+    } catch (Exception e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }

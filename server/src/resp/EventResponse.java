@@ -14,8 +14,7 @@ import sql.SQLUpdate;
 /**
  * A successful response to a event request.
  */
-public class EventResponse extends Response implements SQLQuery, SQLInsert,
-    SQLUpdate {
+public class EventResponse extends Response {
 
   public static String EID_COLUMN = "EID";
   public static String TITLE_COLUMN = "TITLE";
@@ -47,6 +46,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
   private transient Date sqlDate;
   private transient Time sqlTime;
   private transient boolean found;
+  private transient boolean delete;
 
   /**
    * Fields excluded from serialisation.
@@ -87,6 +87,14 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
     }
   }
 
+  public EventResponse(String title, String description, String location,
+      String time, String date, String duration, String max, int eventId,
+      int calendarId, boolean delete) {
+    this(title, description, location, time, date, duration, max, eventId,
+        calendarId);
+    this.delete = delete;
+  }
+
   public int getCalendarId() {
     return calendarId;
   }
@@ -118,7 +126,9 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
         + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
             + DURATION_COLUMN + "\"='" + duration + "',")
         + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + MAX_ATTEDEE_COLUMN + "\"=" + max + ",");
+            + MAX_ATTEDEE_COLUMN + "\"=" + max + ",")
+        + ((!delete || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + ACTIVE_COLUMN + "\"" + "=false,");
     return (found == 0) ? null : String.format(
         "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=%d",
         formatString.substring(0, formatString.length() - 1), eventId);
