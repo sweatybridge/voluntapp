@@ -159,8 +159,9 @@ public class DBInterface {
    *          CalendarRequest object submitted by client
    * @return calendar ID
    */
-  public int putCalendar(CalendarRequest cr) {
-    // TODO: implement this
+  public int putCalendar(CalendarRequest cq) {
+    CalendarResponse cr = new CalendarResponse(cq.getName(), 
+        cq.isJoinEnabled(), cq.getUserId(), cq.getInviteCode());
     return -1;
   }
 

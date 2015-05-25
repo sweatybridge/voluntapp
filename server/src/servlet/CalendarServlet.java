@@ -70,6 +70,7 @@ public class CalendarServlet extends HttpServlet {
     CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
         CalendarRequest.class);
     
+    // Set userID of calendar creator and invite code of the calendar. 
     calendarRequest.setUserId(sessionResponse.getUserId());
     calendarRequest.setInviteCode(generator.getInviteCode());
     
@@ -80,6 +81,7 @@ public class CalendarServlet extends HttpServlet {
     }
     
     // Put calendar into the database.
+    
     
         
   }
