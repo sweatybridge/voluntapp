@@ -92,8 +92,7 @@ public class SessionServlet extends HttpServlet {
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-  }
+      throws IOException {}
 
   /**
    * Logs out the user and remove its session.
@@ -101,16 +100,13 @@ public class SessionServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    // Parse session id
-    String token = request.getHeader("Authorization");
-    if (token == null) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Unauthorized logout attempt."));
-      return;
-    }
+
+    SessionResponse session =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
 
     // Invalidate session on server
-    if (!sm.closeSession(token)) {
+    if (!sm.closeSession(session.getSessionId())) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Unable to log out."));
       return;
@@ -128,6 +124,7 @@ public class SessionServlet extends HttpServlet {
      */
     SessionResponse session = (SessionResponse) resp;
     Cookie cookie = new Cookie("token", session.getSessionId());
+    cookie.setPath("/");
     // cookie.setHttpOnly(true);
     return cookie;
   }
@@ -141,7 +138,7 @@ public class SessionServlet extends HttpServlet {
     try {
       UserResponse user = db.getUser(req);
 
-      // TODO: Check that password matches the hashed value
+      // Check that password matches the hashed value
       if (!PasswordUtils.validatePassword(req.getPassword(),
           user.getHashedPassword())) {
         return new ErrorResponse("You have entered a wrong password.");

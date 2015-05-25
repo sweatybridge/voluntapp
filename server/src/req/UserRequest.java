@@ -8,11 +8,6 @@ import org.apache.commons.validator.routines.EmailValidator;
 public class UserRequest implements Request {
 
   /**
-   * Invalid login request object to replace null checks.
-   */
-  public static final UserRequest INVALID = new UserRequest();
-
-  /**
    * Fields excluded from serialisation and deserialisation.
    */
   private transient int userId = -1;

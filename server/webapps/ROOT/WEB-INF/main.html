@@ -43,9 +43,8 @@
     <div class="container-fluid">
       <div class="row">
         <div id="d_left_sidebar" class="col-sm-2">
-          <p class="lead">Welcome, {{firstName}}</p>
+          <p class="lead">Welcome, <span id="firstName"></span></p>
           <p>You haven't logged in since <strong>{{lastSeen}}</strong></p>
-          <input type="text" ng-model="firstName">
           
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
@@ -142,7 +141,7 @@
             <!-- Tab panes -->
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane fade in active" id="crt_event">
-                <form class="form-centre" role="form" id="event_form" action="event" method="post" autocomplete="off">
+                <form class="form-centre" role="form" id="event_form" action="/api/event" method="post" autocomplete="off">
                   <select class="form-control" name="calendar">
                     <option value="volvo">Volvo</option>
                     <option value="saab">Saab</option>
@@ -168,7 +167,7 @@
                   <p class="form-error" id="calendar_join_errors"></p>
                 </form>
                 <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
-                <form class="form-centre" role="form" id="calendar_create_form" action="calendar" method="post" autocomplete="off">
+                <form class="form-centre" role="form" id="calendar_create_form" action="/api/calendar" method="post" autocomplete="off">
                   <input type="text" name="name" class="form-control" placeholder="Title" required>
                   <div class="checkbox">
                     <label><input type="checkbox" name="allowJoin" value="true">Allow Joining</label>
@@ -212,7 +211,7 @@
 
       // Bind logout button
       $("#btn_logout").click(function() {
-        $.ajax("/session", {
+        $.ajax("/api/session", {
           method: "DELETE",
           statusCode: {
             200: function(data) {
@@ -292,6 +291,15 @@
         }
       })
 
+      // Request user profile information
+      $.ajax('/api/user', {
+          method: 'GET',
+          statusCode: {
+              200: function(data) {
+                  $('#firstName').text(data.responseJSON.firstName)
+              }
+          }
+      })
     }); // End of document ready
 
     // Update main column class whether sizebars are hidden or not

@@ -1,7 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
@@ -22,7 +21,6 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
-import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
 /**
@@ -39,10 +37,8 @@ public class UserServlet extends HttpServlet {
   /**
    * Constructs a user servlet with injected dependencies.
    * 
-   * @param gson
-   *          json serialiser
-   * @param db
-   *          database interface
+   * @param gson json serialiser
+   * @param db database interface
    */
   public UserServlet(Gson gson, DBInterface db) {
     this.gson = gson;
@@ -50,17 +46,25 @@ public class UserServlet extends HttpServlet {
   }
 
   /**
-   * TODO: Retrieve details of the current user.
+   * Retrieve details of the current user.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    // Parse authorization header
-    String auth = request.getHeader("Authorization");
 
-    Response resp = handle(auth);
-    if (resp instanceof ErrorResponse) {
-      response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
+    // Session should not be null if user is authenticated
+    SessionResponse session =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
+
+    Response resp;
+    try {
+      int userId = session.getUserId();
+      resp = db.getUser(new UserRequest(userId));
+    } catch (UserNotFoundException e) {
+      resp = new ErrorResponse("User is deleted but session is active.");
+    } catch (SQLException | InconsistentDataException e) {
+      resp = new ErrorResponse(e.getMessage());
     }
 
     request.setAttribute(Response.class.getSimpleName(), resp);
@@ -74,10 +78,14 @@ public class UserServlet extends HttpServlet {
       throws IOException {
 
     // get current user id from auth token
+    SessionResponse session =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
+
     // delete from user table
 
-    Response resp = new SuccessResponse(
-        "Successfully deleted user from database.");
+    Response resp =
+        new SuccessResponse("Successfully deleted user from database.");
 
     request.setAttribute(Response.class.getSimpleName(), resp);
   }
@@ -87,8 +95,7 @@ public class UserServlet extends HttpServlet {
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-  }
+      throws IOException {}
 
   /**
    * Registers the user with database.
@@ -97,8 +104,8 @@ public class UserServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Parse user registration request
-    RegisterRequest user = gson.fromJson(request.getReader(),
-        RegisterRequest.class);
+    RegisterRequest user =
+        gson.fromJson(request.getReader(), RegisterRequest.class);
 
     // Validate registration
     if (!user.isValid()) {
@@ -109,14 +116,7 @@ public class UserServlet extends HttpServlet {
 
     try {
       // Write to database
-      int userId;
-      try {
-        userId = db.putUser(user);
-      } catch (PasswordHashFailureException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Password Hashing Failed"));
-        return;
-      }
+      int userId = db.putUser(user);
 
       // Forward to session servlet
       request.setAttribute("userId", userId);
@@ -126,21 +126,9 @@ public class UserServlet extends HttpServlet {
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The email you entered is already in use."));
-    }
-  }
-
-  private Response handle(String auth) {
-    try {
-      // TODO: improve security against brute force attack
-      SessionResponse session = db.getSession(auth);
-
-      return db.getUser(new UserRequest(session.getUserId()));
-    } catch (SessionNotFoundException e) {
-      return new ErrorResponse("Invalid authorization token.");
-    } catch (UserNotFoundException | InconsistentDataException e) {
-      return new ErrorResponse("User does not exist in database.");
-    } catch (SQLException e) {
-      return new ErrorResponse("Database error.");
+    } catch (PasswordHashFailureException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Password Hashing Failed"));
     }
   }
 }

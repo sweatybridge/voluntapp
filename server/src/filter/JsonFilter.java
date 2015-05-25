@@ -9,11 +9,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletResponse;
 
 import resp.ErrorResponse;
 import resp.Response;
+import resp.SessionResponse;
 
 import com.google.gson.Gson;
 
@@ -22,10 +22,13 @@ import com.google.gson.Gson;
  * Serialises Response objects to JSON. doFilter will be invoked on every
  * incoming request.
  */
-@WebFilter("/*")
 public class JsonFilter implements Filter {
 
-  private Gson gson;
+  private final Gson gson;
+
+  public JsonFilter(Gson gson) {
+    this.gson = gson;
+  }
 
   @Override
   public void destroy() {
@@ -40,8 +43,10 @@ public class JsonFilter implements Filter {
     resp.setContentType("application/json");
     resp.setCharacterEncoding("utf-8");
 
-    // Propagates request to the next filter
-    chain.doFilter(req, resp);
+    // Only propagates further if there is a session
+    if (req.getAttribute(SessionResponse.class.getSimpleName()) != null) {
+      chain.doFilter(req, resp);
+    }
 
     // Retrieve response object installed by servlet
     Response servletResponse =
@@ -53,16 +58,12 @@ public class JsonFilter implements Filter {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
 
-    // TODO: Remove this legacy null check
-    if (servletResponse != null) {
-      gson.toJson(servletResponse, resp.getWriter());
-    }
+    gson.toJson(servletResponse, resp.getWriter());
   }
 
   @Override
   public void init(FilterConfig arg0) throws ServletException {
     /* Required by filter interface */
-    this.gson = new Gson();
   }
 
 }
