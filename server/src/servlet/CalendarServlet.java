@@ -1,24 +1,30 @@
 package servlet;
 
+import java.io.IOException;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import req.SessionRequest;
+import req.CalendarRequest;
+import resp.ErrorResponse;
+import resp.Response;
 import resp.SessionResponse;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
 import db.SessionManager;
+import db.InviteCodeGenerator;
+
 
 @WebServlet
 public class CalendarServlet extends HttpServlet {
   
   private final Gson gson;
   private final DBInterface db;
-  private final SessionManager sm;
+  private final InviteCodeGenerator generator = new InviteCodeGenerator();
 
   private static final long serialVersionUID = 1L;
   
@@ -31,7 +37,6 @@ public class CalendarServlet extends HttpServlet {
   public CalendarServlet(Gson gson, DBInterface db) {
     this.gson = gson;
     this.db = db;
-    this.sm = new SessionManager(db);
   }  
   
   /**
@@ -54,12 +59,28 @@ public class CalendarServlet extends HttpServlet {
   
   /**
    * Post method adds a new calendar to the database.
+   * @throws IOException 
    */
   @Override
   protected void doPost(HttpServletRequest request, 
-      HttpServletResponse respone) {
+      HttpServletResponse respone) throws IOException {
     SessionResponse sessionResponse = (SessionResponse) request.getAttribute(
         SessionResponse.class.getSimpleName());
+    
+    CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
+        CalendarRequest.class);
+    
+    calendarRequest.setUserId(sessionResponse.getUserId());
+    calendarRequest.setInviteCode(generator.getInviteCode());
+    
+    if (!calendarRequest.isValid()) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Claendar request is invalid."));
+      return;
+    }
+    
+    // Put calendar into the database.
+    
         
   }
   
