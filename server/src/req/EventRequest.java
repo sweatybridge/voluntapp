@@ -5,14 +5,9 @@ package req;
  */
 public class EventRequest implements Request {
 
-  /**
-   * Invalid register request object to replace null checks.
-   */
-  public static final EventRequest INVALID = new EventRequest();
-
   private static final String TIME_PATTERN =
       "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$";
-  private static final String DATE_PATTERN = "^\\d{2}-\\d{2}-\\d{2}$";
+  private static final String DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
 
   /**
    * Event details sent by the client.
@@ -22,7 +17,7 @@ public class EventRequest implements Request {
   private String description;
   private String location;
   private String time; // HH:MM
-  private String date; // YY-MM-DD
+  private String date; // YYYY-MM-DD
   private String duration;
   private String max;
 

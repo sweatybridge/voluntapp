@@ -9,7 +9,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletResponse;
 
 import resp.ErrorResponse;
@@ -22,10 +21,13 @@ import com.google.gson.Gson;
  * Serialises Response objects to JSON. doFilter will be invoked on every
  * incoming request.
  */
-@WebFilter("/*")
 public class JsonFilter implements Filter {
 
-  private Gson gson;
+  private final Gson gson;
+
+  public JsonFilter(Gson gson) {
+    this.gson = gson;
+  }
 
   @Override
   public void destroy() {
@@ -62,7 +64,6 @@ public class JsonFilter implements Filter {
   @Override
   public void init(FilterConfig arg0) throws ServletException {
     /* Required by filter interface */
-    this.gson = new Gson();
   }
 
 }

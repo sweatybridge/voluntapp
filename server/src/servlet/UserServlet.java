@@ -50,7 +50,7 @@ public class UserServlet extends HttpServlet {
   }
 
   /**
-   * TODO: Retrieve details of the current user.
+   * Retrieve details of the current user.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,6 +58,13 @@ public class UserServlet extends HttpServlet {
     // Parse authorization header
     String auth = request.getHeader("Authorization");
 
+    try {
+      SessionResponse session = db.getSession(auth);
+      session.getUserId();
+    } catch (SQLException | SessionNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     Response resp = handle(auth);
     if (resp instanceof ErrorResponse) {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);

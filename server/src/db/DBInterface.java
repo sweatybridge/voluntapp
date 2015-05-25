@@ -76,7 +76,7 @@ public class DBInterface {
    * 
    * @param sid
    *          The ID of the session to be looked up.
-   * @return The ID of the user that it belongs to.
+   * @return The session response with user id.
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
