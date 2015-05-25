@@ -168,8 +168,8 @@
                   <p class="form-error" id="calendar_join_errors"></p>
                 </form>
                 <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
-                <form class="form-centre" role="form" id="calendar_create_form" action="calendar" method="put" autocomplete="off">
-                  <input type="text" name="title" class="form-control" placeholder="Title" required>
+                <form class="form-centre" role="form" id="calendar_create_form" action="calendar" method="post" autocomplete="off">
+                  <input type="text" name="name" class="form-control" placeholder="Title" required>
                   <div class="checkbox">
                     <label><input type="checkbox" name="allowJoin" value="true">Allow Joining</label>
                   </div>
@@ -225,6 +225,36 @@
 
       // Bind event creation form
       $('#event_form').submit(function(e) {
+        e.preventDefault()
+        var form = $(this)
+        $.ajax(form.attr('action'), {
+          method: form.attr('method'),
+          data: JSON.stringify(getFormObj(form)),
+          statusCode: {
+            200: function(data) {
+              $.toaster({
+                priority: 'success',
+                message: data.responseJSON.message
+              })
+            },
+            400: function(data) {
+              $.toaster({
+                priority: 'danger',
+                message: data.responseJSON.message
+              })
+            },
+            404: function(data) {
+              $.toaster({
+                priority: 'danger',
+                message: 'Failed to create event.'
+              })
+            }
+          }
+        })
+      })
+
+      // Bind calendar creation form
+      $('#calendar_create_form').submit(function(e) {
         e.preventDefault()
         var form = $(this)
         $.ajax(form.attr('action'), {
