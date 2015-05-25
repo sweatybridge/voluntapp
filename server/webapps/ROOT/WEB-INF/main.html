@@ -43,9 +43,8 @@
     <div class="container-fluid">
       <div class="row">
         <div id="d_left_sidebar" class="col-sm-2">
-          <p class="lead">Welcome, {{firstName}}</p>
+          <p class="lead">Welcome, <span id="firstName"></span></p>
           <p>You haven't logged in since <strong>{{lastSeen}}</strong></p>
-          <input type="text" ng-model="firstName">
           
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
@@ -292,6 +291,15 @@
         }
       })
 
+      // Request user profile information
+      $.ajax('/api/user', {
+          method: 'GET',
+          statusCode: {
+              200: function(data) {
+                  $('#firstName').text(data.responseJSON.firstName)
+              }
+          }
+      })
     }); // End of document ready
 
     // Update main column class whether sizebars are hidden or not
