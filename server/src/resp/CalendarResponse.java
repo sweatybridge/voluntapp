@@ -9,7 +9,8 @@ import sql.SQLInsert;
  * A successful response to a calendar request.
  */
 public class CalendarResponse extends Response implements SQLInsert {
-
+  
+  public static String CID_COLUMN = "ID";
   /**
    * Calendar details returned to client.
    */
@@ -47,5 +48,9 @@ public class CalendarResponse extends Response implements SQLInsert {
     return String.format("INSERT INTO public.\"CALENDAR\" VALUES " +
     		"(DEFAULT, '%s', '%d', DEFAULT, %b, '%s');", name, userId, joinEnabled, 
     		joinCode);
+  }
+
+  public void setCalendarID(int id) {
+    this.calendarId = id;
   }
 }

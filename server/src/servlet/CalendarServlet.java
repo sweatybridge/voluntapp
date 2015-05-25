@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarRequest;
+import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
@@ -63,7 +65,7 @@ public class CalendarServlet extends HttpServlet {
    */
   @Override
   protected void doPost(HttpServletRequest request, 
-      HttpServletResponse respone) throws IOException {
+      HttpServletResponse response) throws IOException {
     SessionResponse sessionResponse = (SessionResponse) request.getAttribute(
         SessionResponse.class.getSimpleName());
     
@@ -80,10 +82,15 @@ public class CalendarServlet extends HttpServlet {
       return;
     }
     
-    // Put calendar into the database.
-    
-    
-        
+    // Put calendar into the database and record the response.
+    Response result;
+    try {
+      result = db.putCalendar(calendarRequest);
+    } catch (SQLException e) {
+      result = new ErrorResponse("Error while saving the calendar to the " +
+      		"data base. " + e.getMessage());
+    }
+    request.setAttribute(Response.class.getSimpleName(), result);
   }
   
   /**
