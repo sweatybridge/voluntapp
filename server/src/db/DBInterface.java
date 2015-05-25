@@ -162,11 +162,33 @@ public class DBInterface {
    * 
    * @param cr
    *          CalendarRequest object submitted by client
-   * @return calendar ID
+   * @return CalendarResponse object
+   * @throws SQLException 
    */
-  public int putCalendar(CalendarRequest cr) {
-    // TODO: implement this
-    return -1;
+  public CalendarResponse putCalendar(CalendarRequest cq) throws SQLException {
+    CalendarResponse cr = new CalendarResponse(cq.getName(), 
+        cq.isJoinEnabled(), cq.getUserId(), cq.getInviteCode());
+    cr.setCalendarID(getID(cr, CalendarResponse.CID_COLUMN));
+    return cr;
+  }
+  
+  /**
+   * Utility method which retrieves the ID of the inserted database record. 
+   * @param insert
+   *        SQLInsert object corresponding to the record to be added to the 
+   *        database
+   * @param ColumnID
+   * @return ID of the inserted database record
+   * @throws SQLException
+   */
+  private int getID(SQLInsert insert, String ColumnID) throws SQLException {
+    Statement stmt = conn.createStatement();
+    stmt.executeUpdate(insert.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+    ResultSet rs = stmt.getGeneratedKeys();
+    if (!rs.next()) {
+      throw new SQLException();
+    }
+    return rs.getInt(ColumnID);
   }
 
   /**
@@ -182,13 +204,7 @@ public class DBInterface {
         ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
         ereq.getTime(), ereq.getDuration(), ereq.getMax(), -1,
         ereq.getCalendarId());
-    Statement stmt = conn.createStatement();
-    stmt.executeUpdate(eresp.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
-    ResultSet rs = stmt.getGeneratedKeys();
-    if (!rs.next()) {
-      throw new SQLException();
-    }
-    return rs.getInt(EventResponse.EID_COLUMN);
+    return getID(eresp, EventResponse.EID_COLUMN);
   }
 
   /**

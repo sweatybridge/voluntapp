@@ -142,7 +142,7 @@ public class SessionServlet extends HttpServlet {
       UserResponse user = db.getUser(req);
 
       // TODO: Check that password matches the hashed value
-      if (PasswordUtils.validatePassword(req.getPassword(),
+      if (!PasswordUtils.validatePassword(req.getPassword(),
           user.getHashedPassword())) {
         return new ErrorResponse("You have entered a wrong password.");
       }
