@@ -31,7 +31,6 @@ import exception.UserNotFoundException;
 public class UserServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
-  // private static final Logger logger = Logger.getLogger("UserServlet");
 
   private final Gson gson;
   private final DBInterface db;
@@ -61,7 +60,7 @@ public class UserServlet extends HttpServlet {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
 
-    response.getWriter().print(gson.toJson(resp));
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
   /**
@@ -77,7 +76,7 @@ public class UserServlet extends HttpServlet {
     Response resp =
         new SuccessResponse("Successfully deleted user from database.");
 
-    response.getWriter().print(gson.toJson(resp));
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
   /**

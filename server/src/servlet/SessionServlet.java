@@ -35,10 +35,10 @@ public class SessionServlet extends HttpServlet {
   private final DBInterface db;
   private final SessionManager sm;
 
-  public SessionServlet(Gson gson, DBInterface db) {
+  public SessionServlet(Gson gson, DBInterface db, SessionManager sm) {
     this.gson = gson;
     this.db = db;
-    this.sm = new SessionManager(db);
+    this.sm = sm;
   }
 
   /**
@@ -110,7 +110,9 @@ public class SessionServlet extends HttpServlet {
     if (!sm.closeSession(token)) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Unable to log out."));
+      return;
     }
+
     request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
         "You have successfully logged out."));
   }
