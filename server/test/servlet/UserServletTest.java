@@ -28,6 +28,7 @@ import resp.UserResponse;
 import com.google.common.collect.ImmutableMap;
 
 import exception.InconsistentDataException;
+import exception.PasswordHashFailureException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
@@ -44,9 +45,8 @@ public class UserServletTest extends ServletTest {
   @Test
   public void getReturnsUserDetails() {
     String token = TEST_SESSION_ID;
-    UserResponse expected =
-        new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
-            TEST_FIRST_NAME, TEST_LAST_NAME);
+    UserResponse expected = new UserResponse(TEST_EMAIL, TEST_PASSWORD,
+        TEST_USER_ID, TEST_FIRST_NAME, TEST_LAST_NAME);
 
     when(req.getHeader("Authorization")).thenReturn(token);
     try {
@@ -64,8 +64,8 @@ public class UserServletTest extends ServletTest {
       fail("Not yet implemented");
     }
 
-    ArgumentCaptor<UserRequest> arg =
-        ArgumentCaptor.forClass(UserRequest.class);
+    ArgumentCaptor<UserRequest> arg = ArgumentCaptor
+        .forClass(UserRequest.class);
     try {
       verify(db).getUser(arg.capture());
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
@@ -88,7 +88,8 @@ public class UserServletTest extends ServletTest {
 
   @Test
   public void postSucceedsUserRegistrationWhenInformationIsValid()
-      throws IOException, SQLException, ServletException {
+      throws IOException, SQLException, ServletException,
+      PasswordHashFailureException {
     // Reader returns valid payload
     when(req.getReader()).thenReturn(
         new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
@@ -107,7 +108,8 @@ public class UserServletTest extends ServletTest {
 
   @Test
   public void postFailsRegistrationWhenEmailIsAlreadyInUse()
-      throws IOException, SQLException, ServletException {
+      throws IOException, SQLException, ServletException,
+      PasswordHashFailureException {
     // Reader returns valid payload
     when(req.getReader()).thenReturn(
         new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(

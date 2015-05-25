@@ -15,12 +15,14 @@ import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
 import resp.UserResponse;
+import utils.PasswordUtils;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
 import db.SessionManager;
 import exception.InconsistentDataException;
+import exception.PasswordHashFailureException;
 import exception.UserNotFoundException;
 
 /**
@@ -90,7 +92,8 @@ public class SessionServlet extends HttpServlet {
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {}
+      throws IOException {
+  }
 
   /**
    * Logs out the user and remove its session.
@@ -139,7 +142,8 @@ public class SessionServlet extends HttpServlet {
       UserResponse user = db.getUser(req);
 
       // TODO: Check that password matches the hashed value
-      if (!req.getPassword().equals(user.getHashedPassword())) {
+      if (PasswordUtils.validatePassword(req.getPassword(),
+          user.getHashedPassword())) {
         return new ErrorResponse("You have entered a wrong password.");
       }
 
@@ -148,7 +152,8 @@ public class SessionServlet extends HttpServlet {
 
       // Successfully logged in
       return new SessionResponse(token);
-    } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
+    } catch (SQLException | UserNotFoundException | InconsistentDataException
+        | PasswordHashFailureException e) {
       return new ErrorResponse(e.getMessage());
     }
   }
