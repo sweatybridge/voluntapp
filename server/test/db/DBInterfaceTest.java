@@ -9,13 +9,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.postgresql.ds.PGConnectionPoolDataSource;
 
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
-
 import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
@@ -23,7 +23,6 @@ import req.UserRequest;
 import resp.EventResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class DBInterfaceTest {
 
   @Mock
-  private Connection conn;
+  private PGConnectionPoolDataSource ds;
 
   @Mock
   private Statement stmt;
@@ -44,7 +43,7 @@ public class DBInterfaceTest {
   @Before
   public void setup() {
     MockitoAnnotations.initMocks(this);
-    db = new DBInterface(conn);
+    db = new DBInterface(ds);
   }
 
   // Database Columns

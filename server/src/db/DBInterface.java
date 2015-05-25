@@ -1,14 +1,11 @@
 package db;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+
+import org.postgresql.ds.PGConnectionPoolDataSource;
 
 import req.CalendarRequest;
 import req.CalendarRequest.CalendarEventsQuery;
@@ -39,18 +36,28 @@ import exception.UserNotFoundException;
  */
 public class DBInterface {
 
+  private PGConnectionPoolDataSource source;
   private Connection conn;
 
   /**
-   * Builds the interface with the given connection.
+   * Builds the interface with the given data source.
+   * 
+   * @param source
+   *          The data source used to obtain a database connection.
+   */
+  public DBInterface(PGConnectionPoolDataSource source) {
+    this.source = source;
+  }
+
+  /**
+   * Legacy constructor for test suite.
    * 
    * @param conn
-   *          The connection to be used for the database.
    */
   public DBInterface(Connection conn) {
     this.conn = conn;
   }
-
+  
   /**
    * Retrieve user entity from database.
    * 
@@ -146,15 +153,20 @@ public class DBInterface {
         PasswordUtils.getPasswordHash(rq.getPassword()),
         UserResponse.INVALID_USER_ID, rq.getFirstName(), rq.getLastName());
 
-    Statement stmt;
-    stmt = conn.createStatement();
-    stmt.executeUpdate(us.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
-    ResultSet rs = stmt.getGeneratedKeys();
-    if (!rs.next()) {
-      throw new SQLException();
+    Connection conn = source.getConnection();
+    int uid;
+    try {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(us.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+      ResultSet rs = stmt.getGeneratedKeys();
+      if (!rs.next()) {
+        throw new SQLException();
+      }
+      uid = rs.getInt("ID");
+    } finally {
+      conn.close();
     }
-
-    return rs.getInt("ID");
+    return uid;
   }
 
   /**
@@ -360,9 +372,13 @@ public class DBInterface {
    *           Thrown when there is an error with the database interaction.
    */
   private boolean insert(SQLInsert insertion) throws SQLException {
-    Statement stmt;
-    stmt = conn.createStatement();
-    stmt.executeUpdate(insertion.getSQLInsert());
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(insertion.getSQLInsert());
+    } finally {
+      conn.close();
+    }
     return true;
   }
 
@@ -377,13 +393,17 @@ public class DBInterface {
    *           Thrown when there is an error with the database interaction.
    */
   private int update(SQLUpdate query) throws SQLException {
-    Statement stmt;
-    stmt = conn.createStatement();
-    String q = query.getSQLUpdate();
-    if (q != null) {
-      int result = stmt.executeUpdate(q);
-      query.checkResult(result);
-      return result;
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      String q = query.getSQLUpdate();
+      if (q != null) {
+        int result = stmt.executeUpdate(q);
+        query.checkResult(result);
+        return result;
+      }
+    } finally {
+      conn.close();
     }
     // The query is pointless, return 1 to signal success
     return 1;
@@ -402,10 +422,14 @@ public class DBInterface {
    *           Thrown when there is an error with the database interaction.
    */
   private boolean query(SQLQuery query) throws SQLException {
-    Statement stmt;
-    stmt = conn.createStatement();
-    ResultSet result = stmt.executeQuery(query.getSQLQuery());
-    query.setResult(result);
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      ResultSet result = stmt.executeQuery(query.getSQLQuery());
+      query.setResult(result);
+    } finally {
+      conn.close();
+    }
     return true;
   }
 
