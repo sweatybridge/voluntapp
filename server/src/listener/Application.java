@@ -15,6 +15,7 @@ import javax.servlet.annotation.WebListener;
 
 import servlet.CalendarServlet;
 import servlet.DefaultServlet;
+import servlet.EventServlet;
 import servlet.SessionServlet;
 import servlet.UserServlet;
 
@@ -58,8 +59,9 @@ public class Application implements ServletContextListener {
           .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true,
               "/*");
       context.addFilter(AuthorizationFilter.class.getSimpleName(),
-          new AuthorizationFilter(db)).addMappingForUrlPatterns(
-          EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true, "/*");
+          new AuthorizationFilter(db)).addMappingForServletNames(
+          EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC), true,
+          CalendarServlet.class.getName(), EventServlet.class.getName());
 
       // Instantiate servlets and add mappings
       context
@@ -72,10 +74,6 @@ public class Application implements ServletContextListener {
           new SessionServlet(gson, db, sm)).addMapping("/session");
       context.addServlet(CalendarServlet.class.getName(),
           new CalendarServlet(gson, db)).addMapping("/calendar");
-
-      // Instantiate authorization filter
-      context.addFilter(AuthorizationFilter.class.getName(),
-          new AuthorizationFilter(db));
 
     } catch (SQLException e) {
       // Shuts down server if any error occur during context initialisation

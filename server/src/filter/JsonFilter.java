@@ -55,10 +55,7 @@ public class JsonFilter implements Filter {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
 
-    // TODO: Remove this legacy null check
-    if (servletResponse != null) {
-      gson.toJson(servletResponse, resp.getWriter());
-    }
+    gson.toJson(servletResponse, resp.getWriter());
   }
 
   @Override

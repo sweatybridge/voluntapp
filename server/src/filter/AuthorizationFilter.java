@@ -29,7 +29,7 @@ public class AuthorizationFilter implements Filter {
     /* Required by the filter interface. */
   }
 
-  /*
+  /**
    * Performs a database lookup of the session ID and adds an attribute to the
    * request which is equal to the result of the database query.
    */
@@ -37,18 +37,20 @@ public class AuthorizationFilter implements Filter {
   public void doFilter(ServletRequest req, ServletResponse resp,
       FilterChain chain) throws IOException, ServletException {
 
-    String sessionID = ((HttpServletRequest) req).getHeader("Authorization");
+    HttpServletRequest request = (HttpServletRequest) req;
+    String sessionID = request.getHeader("Authorization");
+
     try {
       SessionResponse sessionResp = db.getSession(sessionID);
       req.setAttribute(SessionResponse.class.getSimpleName(), sessionResp);
     } catch (SessionNotFoundException e) {
       req.setAttribute(SessionResponse.class.getSimpleName(),
-          new ErrorResponse("Invalid session identifier - session "
-              + "identifier not found."));
+          new ErrorResponse(
+              "Invalid session identifier - session identifier not found."));
     } catch (SQLException e) {
       req.setAttribute(SessionResponse.class.getSimpleName(),
-          new ErrorResponse("Database error while searching the "
-              + "session number."));
+          new ErrorResponse(
+              "Database error while searching the session number."));
     }
 
     chain.doFilter(req, resp);
