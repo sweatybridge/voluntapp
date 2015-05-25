@@ -54,8 +54,9 @@ public class CalendarRequest implements Request {
     this.userId = userId;
   }
   
-  public CalendarRequest(Timestamp startDate) {
+  public CalendarRequest(Timestamp startDate, int calendarId) {
     this.startDate = startDate;
+    this.calendarId = calendarId;
   }
   
   @Override
@@ -122,7 +123,7 @@ public class CalendarRequest implements Request {
           events.add(new EventResponse(
               rs.getString(EventResponse.TITLE_COLUMN), 
               rs.getString(EventResponse.DESC_COLUMN), 
-              rs.getNString(EventResponse.LOCATION_COLUMN), 
+              rs.getString(EventResponse.LOCATION_COLUMN), 
               rs.getString(EventResponse.DATE_COLUMN), 
               rs.getString(EventResponse.TIME_COLUMN), 
               rs.getString(EventResponse.DURATION_COLUMN), 
