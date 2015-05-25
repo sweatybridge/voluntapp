@@ -28,7 +28,8 @@ public class SessionManager {
   private DBInterface db;
 
   /**
-   * @param db The database with which the session manager will interact with
+   * @param db
+   *          The database with which the session manager will interact with
    */
   public SessionManager(DBInterface db) {
     this.db = db;
@@ -49,7 +50,6 @@ public class SessionManager {
     }
   }
 
-
   /**
    * Gets a new session ID that hasn't been used before (TODO).
    * 
@@ -64,26 +64,26 @@ public class SessionManager {
     return id;
   }
 
-
   /**
    * Checks whether a session ID is already live. NOT IMPLEMENTED YET (TODO).
    * 
-   * @param id The session to test.
+   * @param id
+   *          The session to test.
    * @return Whether or not the session exists already.
    */
   private boolean isIdAlive(String id) {
     return false;
   }
 
-
   /**
    * Starts a user session. Generates the ID and adds it to the database with
    * the user's ID.
    * 
-   * @param userId The user to create the session for.
+   * @param userId
+   *          The user to create the session for.
    * @return The new session ID to send back to the user.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
   public String startSession(int userId) throws SQLException {
 
@@ -102,11 +102,13 @@ public class SessionManager {
    * Use to find out if a session token provided by the user is valid and
    * correct.
    * 
-   * @param sessionId The session ID to test (normally user provided).
-   * @param userId The userID the session should belong to.
+   * @param sessionId
+   *          The session ID to test (normally user provided).
+   * @param userId
+   *          The userID the session should belong to.
    * @return Whether or not the session exists and is valid.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
    */
   public boolean checkSession(String sessionId, int userId) throws SQLException {
     try {
@@ -120,12 +122,15 @@ public class SessionManager {
   /**
    * Use to close a user session.
    * 
-   * @param sessionId The ID of the session to close.
+   * @param sessionId
+   *          The ID of the session to close.
    * @return Whether or not the session was successfully closed.
-   * @throws SQLException Thrown when there is an error with the database
-   *         interaction.
    */
-  public boolean closeSession(String sessionId) throws SQLException {
-    return db.deleteSession(sessionId);
+  public boolean closeSession(String sessionId) {
+    try {
+      return db.deleteSession(sessionId);
+    } catch (SQLException e) {
+      return false;
+    }
   }
 }

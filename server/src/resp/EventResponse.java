@@ -18,15 +18,14 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
     SQLUpdate {
 
   public static String EID_COLUMN = "EID";
-  private static String TITLE_COLUMN = "TITLE";
-  private static String DESC_COLUMN = "DESCRIPTION";
-  private static String LOCATION_COLUMN = "LOCATION";
-  private static String DATE_COLUMN = "DATE";
-  private static String TIME_COLUMN = "TIME";
-  private static String DURATION_COLUMN = "DURATION";
-  private static String ATTENDEE_COLUMN = "ATTENSEES";
-  private static String MAX_ATTEDEE_COLUMN = "MAX_ATTENDEES";
-  private static String ACTIVE_COLUMN = "ACTIVE";
+  public static String TITLE_COLUMN = "TITLE";
+  public static String DESC_COLUMN = "DESCRIPTION";
+  public static String LOCATION_COLUMN = "LOCATION";
+  public static String DATE_COLUMN = "DATE";
+  public static String TIME_COLUMN = "TIME";
+  public static String DURATION_COLUMN = "DURATION";
+  public static String MAX_ATTEDEE_COLUMN = "MAX_ATTENDEES";
+  public static String ACTIVE_COLUMN = "ACTIVE";
 
   /**
    * Event details returned to the client.
@@ -38,6 +37,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
   private String time; // HH:MM
   private String date; // YY-MM-DD
   private String duration;
+  private int max = -1;
 
   /**
    * Other variables used by the database interface
@@ -46,8 +46,6 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
   private transient PGInterval sqlDuration;
   private transient Date sqlDate;
   private transient Time sqlTime;
-  private transient int[] attendees;
-  private transient int max;
   private transient boolean found;
 
   /**
@@ -72,15 +70,21 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
    *          The ID of the user requests
    */
   public EventResponse(String title, String description, String location,
-      String time, String date, int calendarId, String duration, String max) {
+      String time, String date, String duration, String max, int eventId,
+      int calendarId) {
     this.title = title;
     this.description = description;
     this.location = location;
     this.duration = duration;
     this.time = time;
     this.date = date;
+    this.eventId = eventId;
     this.calendarId = calendarId;
-    this.max = Integer.parseInt(max);
+    if (max == null) {
+      this.max = -1;
+    } else {
+      this.max = Integer.parseInt(max);
+    }
   }
 
   public int getCalendarId() {
@@ -95,14 +99,29 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
     this.sqlTime = (Time) rs.getObject(TIME_COLUMN);
     this.sqlDate = (Date) rs.getObject(DATE_COLUMN);
     this.sqlDuration = (PGInterval) rs.getObject(DURATION_COLUMN);
-    this.attendees = (int[]) rs.getArray(ATTENDEE_COLUMN).getArray();
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
   }
 
   @Override
   public String getSQLUpdate() {
-    // TODO Auto-generated method stub
-    return null;
+    int found = 0;
+    String formatString = ((title == null || found++ == Integer.MIN_VALUE) ? ""
+        : "\"" + TITLE_COLUMN + "\"='" + title + "',")
+        + ((description == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + DESC_COLUMN + "\"='" + description + "',")
+        + ((location == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + LOCATION_COLUMN + "\"='" + location + "',")
+        + ((date == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + DATE_COLUMN + "\"='" + date + "',")
+        + ((time == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + TIME_COLUMN + "\"='" + time + "',")
+        + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + DURATION_COLUMN + "\"='" + duration + "',")
+        + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + MAX_ATTEDEE_COLUMN + "\"=" + max + ",");
+    return (found == 0) ? null : String.format(
+        "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=%d",
+        formatString.substring(0, formatString.length() - 1), eventId);
   }
 
   @Override
@@ -114,7 +133,7 @@ public class EventResponse extends Response implements SQLQuery, SQLInsert,
   public String getSQLInsert() {
     return String
         .format(
-            "WITH x AS (INSERT INTO public.\"EVENTS\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', '{}', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
+            "WITH x AS (INSERT INTO public.\"EVENT\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
             title, description, location, date, (time == null) ? "DEFAULT"
                 : time, (duration == null) ? "DEFAULT" : duration, max,
             calendarId);

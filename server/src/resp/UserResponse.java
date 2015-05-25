@@ -96,7 +96,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
         + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
             : "\"PASSWORD\"='" + hashedPassword + "',");
     return (found == 0) ? null : String.format(
-        "UPDATE public.\"USERS\" SET %s WHERE \"ID\"=%d",
+        "UPDATE public.\"USER\" SET %s WHERE \"ID\"=%d",
         formatString.substring(0, formatString.length() - 1), userId);
   }
 

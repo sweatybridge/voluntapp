@@ -2,11 +2,10 @@ package servlet;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URLDecoder;
 import java.sql.SQLException;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,12 +16,10 @@ import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
-import resp.UserResponse;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
-import db.SessionManager;
 import exception.InconsistentDataException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
@@ -34,11 +31,9 @@ import exception.UserNotFoundException;
 public class UserServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
-  // private static final Logger logger = Logger.getLogger("UserServlet");
 
   private final Gson gson;
   private final DBInterface db;
-  private final SessionManager sm;
 
   /**
    * Constructs a user servlet with injected dependencies.
@@ -49,11 +44,10 @@ public class UserServlet extends HttpServlet {
   public UserServlet(Gson gson, DBInterface db) {
     this.gson = gson;
     this.db = db;
-    this.sm = new SessionManager(db);
   }
 
   /**
-   * Retrieve details of the current user.
+   * TODO: Retrieve details of the current user.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -66,138 +60,61 @@ public class UserServlet extends HttpServlet {
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
 
-    response.getWriter().print(gson.toJson(resp));
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
   /**
-   * Delete current user from the database.
+   * TODO: Delete current user from the database.
    */
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    // TODO get current user id from auth token
-    // TODO delete from user table
+    // get current user id from auth token
+    // delete from user table
 
     Response resp =
         new SuccessResponse("Successfully deleted user from database.");
 
-    response.getWriter().print(gson.toJson(resp));
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
   /**
-   * Register a new user with supplied information.
+   * TODO: Updates the user details with supplied information.
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    // Parse user register request
-    RegisterRequest req;
-    try {
-      String body =
-          request.getReader().readLine().substring("payload=".length());
-      String payload = URLDecoder.decode(body, "UTF-8");
-      req = gson.fromJson(payload, RegisterRequest.class);
-    } catch (IOException | RuntimeException e) {
-      req = RegisterRequest.INVALID;
-    }
-
-    // Handle request in a RESTful manner
-    Response resp = handle(req);
-    if (resp instanceof ErrorResponse) {
-      response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-    }
-
-    // Write response to output
-    response.getWriter().print(gson.toJson(resp));
-  }
+      throws IOException {}
 
   /**
-   * Logs in the user with email and password.
+   * Registers the user with database.
    */
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    // Parse user login request
-    String data = request.getParameter("payload");
-    UserRequest req;
-    try {
-      req = gson.fromJson(data, UserRequest.class);
-    } catch (RuntimeException e) {
-      req = UserRequest.INVALID;
-    }
-
-    // Handle request in a RESTful manner
-    Response resp = handle(req);
-    if (resp instanceof ErrorResponse) {
-      response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
-    } else {
-      // Initiate jsession if request is not ajax
-      /*
-      if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-        HttpSession jsession = request.getSession();
-        response.sendRedirect("/");
-      }
-      */
-      SessionResponse session = (SessionResponse) resp;
-      // request.getSession().setAttribute("token", session.getSessionId());
-      Cookie cookie = new Cookie("token", session.getSessionId());
-      cookie.setHttpOnly(true);
-      response.addCookie(cookie);
-    }
-
-    // Write response to output
-    response.getWriter().print(gson.toJson(resp));
-  }
-
-  private Response handle(RegisterRequest req) {
-    if (req == RegisterRequest.INVALID) {
-      return new ErrorResponse("Error parsing request payload.");
-    }
+      throws IOException, ServletException {
+    // Parse user registration request
+    RegisterRequest user =
+        gson.fromJson(request.getReader(), RegisterRequest.class);
 
     // Validate registration
-    if (!req.isValid()) {
-      return new ErrorResponse(
-          "You have entered invalid registration information.");
+    if (!user.isValid()) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "You have entered invalid registration information."));
+      return;
     }
 
-    // Write to database
     try {
-      int userId = db.putUser(req);
-      String token = sm.startSession(userId);
+      // Write to database
+      int userId = db.putUser(user);
 
-      // Successfully registered
-      return new SessionResponse(token);
+      // Forward to session servlet
+      request.setAttribute("userId", userId);
+      getServletContext().getRequestDispatcher("/session").forward(request,
+          response);
+
     } catch (SQLException e) {
-      return new ErrorResponse("The email you entered is already in use.");
-    }
-  }
-
-  private Response handle(UserRequest req) {
-    if (req == UserRequest.INVALID) {
-      return new ErrorResponse("Error parsing request payload.");
-    }
-
-    // Validate login
-    if (!req.isValid()) {
-      return new ErrorResponse("You have entered invalid login information.");
-    }
-
-    try {
-      UserResponse user = db.getUser(req);
-
-      // TODO: Check that password matches the hashed value
-      if (!req.getPassword().equals(user.getHashedPassword())) {
-        return new ErrorResponse("You have entered a wrong password.");
-      }
-
-      // Start a new session to support multi-client login
-      String token = sm.startSession(user.getUserId());
-
-      // Successfully logged in
-      return new SessionResponse(token);
-    } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
-      return new ErrorResponse(e.getMessage());
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "The email you entered is already in use."));
     }
   }
 

@@ -12,12 +12,14 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import servlet.DefaultServlet;
+import servlet.SessionServlet;
 import servlet.UserServlet;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
 import filter.AuthorizationFilter;
+import db.SessionManager;
 
 /**
  * Main application context that maps servlets to their respective URI and
@@ -45,6 +47,7 @@ public class Application implements ServletContextListener {
       // Reusable objects for all servlets (must be thread safe).
       Gson gson = new Gson();
       DBInterface db = new DBInterface(conn);
+      SessionManager sm = new SessionManager(db);
 
       // Instantiate servlets and add mappings
       context
@@ -53,7 +56,8 @@ public class Application implements ServletContextListener {
       context
           .addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
           .addMapping("/user");
-      
+      context.addServlet(SessionServlet.class.getName(),
+          new SessionServlet(gson, db, sm)).addMapping("/session");
       // Instantiate authorization filter
       context
           .addFilter(AuthorizationFilter.class.getName(), 

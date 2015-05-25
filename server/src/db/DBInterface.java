@@ -17,6 +17,7 @@ import resp.UserResponse;
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
+import exception.EventNotFoundException;
 import exception.InconsistentDataException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
@@ -80,6 +81,9 @@ public class DBInterface {
       SessionNotFoundException {
     SessionResponse sr = new SessionResponse(sid);
     query(sr);
+    if (!sr.isFound()) {
+      throw new SessionNotFoundException("The Session could not be found");
+    }
     return sr;
   }
 
@@ -171,7 +175,8 @@ public class DBInterface {
   public int putEvent(EventRequest ereq) throws SQLException {
     EventResponse eresp = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
-        ereq.getTime(), ereq.getCalendarId(), ereq.getDuration(), ereq.getMax());
+        ereq.getTime(), ereq.getDuration(), ereq.getMax(), -1,
+        ereq.getCalendarId());
     Statement stmt = conn.createStatement();
     stmt.executeUpdate(eresp.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
     ResultSet rs = stmt.getGeneratedKeys();
@@ -203,15 +208,31 @@ public class DBInterface {
     UserResponse ur = new UserResponse(rr.getEmail(), rr.getPassword(), userId,
         rr.getFirstName(), rr.getLastName());
     int rows = update(ur);
-    if (rows > 1) {
-      throw new InconsistentDataException(
-          "Update user info modified more than 1 row!");
-    }
-    if (rows == 0) {
+    if (rows == 1) {
+      return true;
+    } else if (rows == 0) {
       throw new UserNotFoundException(
           "The user could not be updated, as they don't exist");
     }
-    return rows == 1;
+    throw new InconsistentDataException(
+        "Update user info modified more than 1 row!");
+  }
+
+  public boolean updateEvent(int eventId, EventRequest ereq)
+      throws SQLException, EventNotFoundException, InconsistentDataException {
+    EventResponse er = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
+        ereq.getTime(), ereq.getDuration(), ereq.getMax(), eventId, -1);
+    int rows = update(er);
+    if (rows == 1) {
+      return true;
+    }
+    if (rows == 0) {
+      throw new EventNotFoundException(
+          "The event could not be updated, as it doesn't exist");
+    }
+    throw new InconsistentDataException(
+        "Update event info modified more than 1 row!");
   }
 
   /**
@@ -243,8 +264,8 @@ public class DBInterface {
   private boolean insert(SQLInsert insertion) throws SQLException {
     Statement stmt;
     stmt = conn.createStatement();
-    int rs = stmt.executeUpdate(insertion.getSQLInsert());
-    return rs == 1;
+    stmt.executeUpdate(insertion.getSQLInsert());
+    return true;
   }
 
   /**
@@ -287,20 +308,6 @@ public class DBInterface {
     stmt = conn.createStatement();
     ResultSet result = stmt.executeQuery(query.getSQLQuery());
     query.setResult(result);
-    return true;
-  }
-
-  /**
-   * Destroys the database connection used by this class
-   * 
-   * @return Whether the connection was closed normally.
-   */
-  public boolean destory() {
-    try {
-      conn.close();
-    } catch (SQLException e) {
-      return false;
-    }
     return true;
   }
 }

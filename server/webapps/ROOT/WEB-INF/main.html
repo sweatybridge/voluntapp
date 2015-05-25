@@ -32,7 +32,7 @@
             <li><a href="#">Create</a></li>
             <li><a href="#">Settings</a></li>
             <li><a href="#">Profile</a></li>
-            <li><a href="#">Logout</a></li>
+            <li><a id="btn_logout" href="#">Logout</a></li>
           </ul>
           <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a href="#account" class="navbar-link">{{firstName}}</a></p>
         </div>
@@ -210,18 +210,25 @@
       });
 
       $("#btn_logout").click(function() {
-        $.ajax({
-          type: "POST",
-          url: "/logout",
-          data: JSON.stringify({userId: "cookie"}),
+        $.ajax("/session", {
           contentType: "application/json; charset=utf-8",
           dataType: "json",
-          success: function(data){window.replace("/");},
-          failure: function(errMsg) {
-              alert(errMsg);
+          method: "DELETE",
+          statusCode: {
+            200: function(data) {
+              window.location.reload();
+            },
+            400: function(data) { errorDiv.text(data.responseJSON.message); }
           }
         });
-      })
+      });
+
+      $.ajaxSetup({
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader("Authorization", getCookie("token"));
+        }
+      });
+
     }); // End of document ready
     
     // Update main column class whether sizebars are hidden or not
@@ -234,6 +241,13 @@
         size += 2;
       }
       $("#d_main_col").attr("class", "col-sm-" + size);
+    }
+
+    // Temporary function to get auth token from cookie
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
     }
   </script>
   </body>
