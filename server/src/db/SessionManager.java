@@ -120,6 +120,24 @@ public class SessionManager {
   }
 
   /**
+   * Refreshes a user session
+   * 
+   * @param userId
+   *          The user whose session to refresh
+   * @return The new value of the session Id
+   * @throws SQLException
+   *           Thrown if there was an error in database interaction.
+   */
+  public String refreshSession(int userId) throws SQLException {
+    String newId = getNewSessionId();
+    if (db.updateSession(userId, newId)) {
+      return newId;
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Use to close a user session.
    * 
    * @param sessionId
