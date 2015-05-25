@@ -71,6 +71,10 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
     		JOIN_CODE_COLUMN, calendarId);
   }
   
+  public List<EventResponse> getCalendarEvents() {
+    return events;
+  }
+  
   @Override
   public void setResult(ResultSet result) {
     this.rs = result;
