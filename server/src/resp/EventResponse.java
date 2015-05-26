@@ -7,10 +7,6 @@ import java.sql.Time;
 
 import org.postgresql.util.PGInterval;
 
-import sql.SQLInsert;
-import sql.SQLQuery;
-import sql.SQLUpdate;
-
 /**
  * A successful response to a event request.
  */

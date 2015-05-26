@@ -15,15 +15,15 @@ public class EventRequestTest {
   private static final String TEST_LOCATION = "London";
   private static final String TEST_START_DATE = "2015-06-30";
   private static final String TEST_START_TIME = "14:45";
-  private static final String TEST_END_DATE = "16-6-05";
+  private static final String TEST_END_DATE = "2016-6-05";
   private static final String TEST_END_TIME = "8:5";
   private static final String TEST_TIMEZONE = "Europe/London";
   private static final int TEST_CAL_ID = 7;
   private static final int TEST_MAX = 50;
 
   private static final String TEST_BAD_DATE = "2015-2-29";
-  private static final String TEST_BAD_DATE_2 = "12-2-3";
-  private static final String TEST_BAD_TIME = "7:60";
+  private static final String TEST_BAD_DATE_2 = "2012-2-3";
+  private static final String TEST_BAD_TIME = "7:20:44";
   private static final String TEST_BAD_TIME_2 = "25:10";
 
   private final Gson gson = new Gson();
@@ -92,6 +92,16 @@ public class EventRequestTest {
 
     assertFalse(event.isValid());
     assertFalse(event2.isValid());
+  }
+
+  @Test
+  public void validationFailsWhenStartDateIsAfterEndDate() {
+    EventRequest event =
+        new EventRequest(TEST_TITLE, null, null, TEST_END_TIME, TEST_END_DATE,
+            TEST_START_TIME, TEST_START_DATE, TEST_TIMEZONE, TEST_MAX,
+            TEST_CAL_ID);
+
+    assertFalse(event.isValid());
   }
 
   @Test

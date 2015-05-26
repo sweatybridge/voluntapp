@@ -37,8 +37,7 @@ import exception.UserNotFoundException;
 public class DBInterface {
 
   private PGConnectionPoolDataSource source;
-  private Connection conn;
-
+  
   /**
    * Builds the interface with the given data source.
    * 
@@ -49,15 +48,6 @@ public class DBInterface {
     this.source = source;
   }
 
-  /**
-   * Legacy constructor for test suite.
-   * 
-   * @param conn
-   */
-  public DBInterface(Connection conn) {
-    this.conn = conn;
-  }
-  
   /**
    * Retrieve user entity from database.
    * 
@@ -210,13 +200,20 @@ public class DBInterface {
    * @throws SQLException
    */
   private int getID(SQLInsert insert, String ColumnID) throws SQLException {
-    Statement stmt = conn.createStatement();
-    stmt.executeUpdate(insert.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
-    ResultSet rs = stmt.getGeneratedKeys();
-    if (!rs.next()) {
-      throw new SQLException();
+    Connection conn = source.getConnection();
+    int id;
+    try {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(insert.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+      ResultSet rs = stmt.getGeneratedKeys();
+      if (!rs.next()) {
+        throw new SQLException();
+      }
+      id = rs.getInt(ColumnID);
+    } finally {
+      conn.close();
     }
-    return rs.getInt(ColumnID);
+    return id;
   }
 
   /**
@@ -442,11 +439,16 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error interacting with the database.
    */
-  public boolean updateSession(int userId, String sessionId) throws SQLException {
+  public boolean updateSession(int userId, String sessionId)
+      throws SQLException {
     SessionResponse sr = new SessionResponse(sessionId, userId);
-    Statement stmt;
-    stmt = conn.createStatement();
-    stmt.executeUpdate(sr.getSQLRefresh());
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      stmt.executeUpdate(sr.getSQLRefresh());
+    } finally {
+      conn.close();
+    }
     return true;
   }
 }

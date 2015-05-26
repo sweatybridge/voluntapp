@@ -1,8 +1,11 @@
 package req;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.validator.routines.CalendarValidator;
 
 /**
@@ -53,6 +56,29 @@ public class EventRequest implements Request {
     this.calendarId = calendarId;
   }
 
+  public EventRequest(String title, String description, String location,
+      Calendar startDateTime, Calendar endDateTime, TimeZone clientTimezone,
+      int max, int calendarId) {
+    this.title = title;
+    this.description = description;
+    this.location = location;
+    this.startDateTime = startDateTime;
+    this.endDateTime = endDateTime;
+    this.clientTimezone = clientTimezone;
+    this.max = max;
+    this.calendarId = calendarId;
+
+    if (startDateTime != null) {
+      Date start = startDateTime.getTime();
+      SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+      df.setTimeZone(clientTimezone);
+      this.startDate = df.format(start);
+      SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
+      tf.setTimeZone(clientTimezone);
+      this.startTime = tf.format(start);
+    }
+  }
+
   @Override
   public boolean isValid() {
     return (title != null && !title.isEmpty()) && (max >= 0)
@@ -84,7 +110,7 @@ public class EventRequest implements Request {
     endDateTime =
         CalendarValidator.getInstance().validate(endDate + endTime,
             DATE_TIME_PATTERN, clientTimezone);
-    return endDateTime != null;
+    return endDateTime != null && endDateTime.after(startDateTime);
   }
 
   public int getCalendarId() {
@@ -135,8 +161,11 @@ public class EventRequest implements Request {
   }
 
   public String getDuration() {
-    // FIXME: compute duration from start and end
-    return null;
+    if (startDateTime == null || endDateTime == null) {
+      return null;
+    }
+    long duration =
+        endDateTime.getTimeInMillis() - startDateTime.getTimeInMillis();
+    return DurationFormatUtils.formatDuration(duration, "HH:mm:ss");
   }
-
 }

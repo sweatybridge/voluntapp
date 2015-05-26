@@ -1,21 +1,27 @@
 package db;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
+import java.util.TimeZone;
 
+import org.apache.commons.validator.routines.CalendarValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
-import exception.EventNotFoundException;
-import exception.InconsistentDataException;
-import exception.PasswordHashFailureException;
-import exception.SessionNotFoundException;
-import exception.UserNotFoundException;
 import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
@@ -23,14 +29,19 @@ import req.UserRequest;
 import resp.EventResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import exception.EventNotFoundException;
+import exception.InconsistentDataException;
+import exception.PasswordHashFailureException;
+import exception.SessionNotFoundException;
+import exception.UserNotFoundException;
 
 public class DBInterfaceTest {
 
   @Mock
   private PGConnectionPoolDataSource ds;
+  
+  @Mock
+  private Connection conn;
 
   @Mock
   private Statement stmt;
@@ -69,13 +80,15 @@ public class DBInterfaceTest {
   // Test data for Add User tests
   public final static String TEST_PUT_USER_1_EMAIL = "thisisdave@therock.co";
   public final static String TEST_PUT_USER_1_PASSWORD = "nicepasswordboyz";
+  public final static String TEST_PUT_USER_1_HASHED_PASSWORD =
+      "cd4cae1cecf91de945845dd34d6b3291ec1d46589cb66d07e0f5080cf6731fac:2f95215eee637bb8d12c81e9bd2389c0157043f244ed6cad008d34fef5b08175d6079ffb1495a8e35f4f01c8329b38c0940c14e8c1171dc7f5633c1975b2b6662d0909851b40400f9fe81cd8e484735f3a92171524a19959890801777522d6d1181bb38639a9a7031f5389722f0b0929b13b87bd74b6cdbd6037cf1be193b189";
   public final static String TEST_PUT_USER_1_FIRSTNAME = "Not";
   public final static String TEST_PUT_USER_1_LASTNAME = "Dave";
   public final static int TEST_PUT_USER_1_ID = 87;
   public final static String TEST_PUT_USER_1_QUERY = String
       .format(
           "INSERT INTO public.\"USER\" VALUES(DEFAULT, '%s','%s','%s','%s', DEFAULT);",
-          TEST_PUT_USER_1_EMAIL, TEST_PUT_USER_1_PASSWORD,
+          TEST_PUT_USER_1_EMAIL, TEST_PUT_USER_1_HASHED_PASSWORD,
           TEST_PUT_USER_1_FIRSTNAME, TEST_PUT_USER_1_LASTNAME);
 
   // Test data for Add Session tests
@@ -110,14 +123,21 @@ public class DBInterfaceTest {
           TEST_UPDATE_USER_1_LASTNAME, TEST_UPDATE_USER_1_PASSWORD,
           TEST_UPDATE_USER_1_ID);
 
+  public final static String PATTERN = "dd/MM/yyyy-HH:mm:ss";
   // Test data for Put Event tests
   public final static String TEST_PUT_EVENT_1_TITLE = "My Awesome Event";
   public final static String TEST_PUT_EVENT_1_DESC = "The best event of all time, DONT MISS OUT!";
   public final static String TEST_PUT_EVENT_1_LOCATION = "Room 12, Riverdale, The Moon";
+  public final static TimeZone TEST_PUT_EVENT_1_TIMEZONE = TimeZone.getTimeZone("Europe/London");
+  public final static Calendar TEST_PUT_EVENT_1_DATE_TIME = CalendarValidator
+      .getInstance().validate("04/06/1994-10:20:04", PATTERN, TEST_PUT_EVENT_1_TIMEZONE);
+  public final static Calendar TEST_PUT_EVENT_1_END_DATE_TIME = CalendarValidator
+      .getInstance().validate("04/06/1994-10:30:24", PATTERN, TEST_PUT_EVENT_1_TIMEZONE);
   public final static String TEST_PUT_EVENT_1_TIME = "10:20:04";
   public final static String TEST_PUT_EVENT_1_DATE = "04/06/1994";
   public final static String TEST_PUT_EVENT_1_DURATION = "00:10:20";
-  public final static String TEST_PUT_EVENT_1_MAX = "100";
+  
+  public final static int TEST_PUT_EVENT_1_MAX = 100;
   public final static int TEST_PUT_EVENT_1_CALID = 4334;
   public final static int TEST_PUT_EVENT_1_EID = 82;
   public final static String TEST_PUT_EVENT_1_QUERY = String
@@ -133,10 +153,15 @@ public class DBInterfaceTest {
   public final static String TEST_UPDATE_EVENT_1_TITLE = "This is the next one";
   public final static String TEST_UPDATE_EVENT_1_DESC = "Yes, yes it is";
   public final static String TEST_UPDATE_EVENT_1_LOCATION = "The Sun";
+  public final static TimeZone TEST_UPDATE_EVENT_1_TIMEZONE = TimeZone.getTimeZone("Europe/London");
+  public final static Calendar TEST_UPDATE_EVENT_1_DATE_TIME = CalendarValidator
+      .getInstance().validate("20/05/1993-14:42:22", PATTERN, TEST_UPDATE_EVENT_1_TIMEZONE);
+  public final static Calendar TEST_UPDATE_EVENT_1_END_DATE_TIME = CalendarValidator
+      .getInstance().validate("20/05/1993-19:15:16", PATTERN, TEST_UPDATE_EVENT_1_TIMEZONE);
   public final static String TEST_UPDATE_EVENT_1_DATE = "20/05/1993";
   public final static String TEST_UPDATE_EVENT_1_TIME = "14:42:22";
   public final static String TEST_UPDATE_EVENT_1_DURATION = "04:32:54";
-  public final static String TEST_UPDATE_EVENT_1_MAX = "231";
+  public final static int TEST_UPDATE_EVENT_1_MAX = 231;
   public final static String TEST_UPDATE_EVENT_1_QUERY = String
       .format(
           "UPDATE public.\"EVENT\" SET \"%s\"='%s',\"%s\"='%s',\"%s\"='%s',\"%s\"='%s',\"%s\"='%s',\"%s\"='%s',\"%s\"=%s WHERE \"%s\"=%d",
@@ -158,6 +183,7 @@ public class DBInterfaceTest {
   @Test
   public void doesGetUserObtainCorrectDataGivenEmail() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_USER_1_QUERY)).thenReturn(rs);
       when(rs.next()).thenReturn(true).thenReturn(false);
@@ -186,6 +212,7 @@ public class DBInterfaceTest {
   @Test
   public void doesGetUserObtainCorrectDataGivenId() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_USER_2_QUERY)).thenReturn(rs);
       when(rs.next()).thenReturn(true).thenReturn(false);
@@ -215,6 +242,7 @@ public class DBInterfaceTest {
   public void doesGetUserThrowUserNotFoundExceptionWhenNeeded()
       throws UserNotFoundException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_USER_1_QUERY)).thenReturn(rs);
       when(rs.next()).thenReturn(false);
@@ -236,6 +264,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesGetUserThrowSQLExceptionWhenCreateStatementFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
 
     UserRequest uq = new UserRequest(TEST_GET_USER_1_EMAIL,
@@ -252,6 +281,7 @@ public class DBInterfaceTest {
   public void doesGetUserThrowIDExceptionWhenNeeded()
       throws InconsistentDataException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_USER_1_QUERY)).thenReturn(rs);
       when(rs.next()).thenReturn(true);
@@ -273,6 +303,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesGetUserThrowSQLExceptionWhenQueryFails() throws SQLException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
     } catch (SQLException e) {
       fail("Something failed (Wrong throw): " + e.getMessage());
@@ -293,6 +324,7 @@ public class DBInterfaceTest {
   @Test
   public void doesPutUserCorrectlyApplyTheQueryToTheDatabase() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.getGeneratedKeys()).thenReturn(rs);
       when(rs.next()).thenReturn(true);
@@ -315,6 +347,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesPutUserThrowSQLExceptionWhenCreateStatementFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
     try {
       db.putUser(new RegisterRequest(TEST_PUT_USER_1_EMAIL,
@@ -329,6 +362,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesPutUserThrowSQLExceptionWhenQueryFails() throws SQLException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.getGeneratedKeys()).thenReturn(rs);
       when(rs.next()).thenReturn(false);
@@ -350,6 +384,7 @@ public class DBInterfaceTest {
   @Test
   public void doesPutSessionCorrectlyApplyTheQueryToTheDatabase() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_PUT_SESSION_1_QUERY)).thenReturn(1);
     } catch (SQLException e) {
@@ -367,6 +402,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesPutSessionCorrectlyThrowSQLExceptionWhenCreateStatmentFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
     db.putSession(new SessionRequest(TEST_PUT_SESSION_1_ID,
         TEST_PUT_SESSION_1_SID));
@@ -377,6 +413,7 @@ public class DBInterfaceTest {
   public void doesPutSessionCorrectlyThrowSQLExceptionWhenQueryFails()
       throws SQLException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
     } catch (SQLException e) {
       fail("Unexpected expection: " + e.getMessage());
@@ -391,6 +428,7 @@ public class DBInterfaceTest {
   @Test
   public void doesUpdateUserCorrectlyQueryTheDatabaseToChangeData() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_USER_1_QUERY)).thenReturn(1);
     } catch (SQLException e) {
@@ -410,6 +448,7 @@ public class DBInterfaceTest {
   @Test
   public void doesUpdateUserPreventDatabaseAccsessIfNothingToBeChanged() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
     } catch (SQLException e) {
       fail("Unexpected Exception: " + e.getMessage());
@@ -427,6 +466,7 @@ public class DBInterfaceTest {
   public void doesUpdateUserThrowIDExceptionWhenNeeded()
       throws InconsistentDataException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_USER_1_QUERY)).thenReturn(7);
     } catch (SQLException e) {
@@ -447,6 +487,7 @@ public class DBInterfaceTest {
   public void doesUpdateUserThrowUserNotFoundExceptionWhenNeeded()
       throws UserNotFoundException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_USER_1_QUERY)).thenReturn(0);
     } catch (SQLException e) {
@@ -466,6 +507,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesUpdateUserThrowSQLExceptionWhenConnectionFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
     RegisterRequest rr = new RegisterRequest(TEST_UPDATE_USER_1_EMAIL,
         TEST_UPDATE_USER_1_PASSWORD, TEST_UPDATE_USER_1_FIRSTNAME,
@@ -480,6 +522,7 @@ public class DBInterfaceTest {
   @Test
   public void doesGetSessionCorrectlyQueryTheDatabase() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_SESSION_1_QUERY)).thenReturn(rs);
       when(rs.next()).thenReturn(true);
@@ -500,6 +543,7 @@ public class DBInterfaceTest {
   public void doesGetSessionCorrectlyThrowSessionNotFoundException()
       throws SessionNotFoundException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeQuery(TEST_GET_SESSION_1_QUERY)).thenReturn(rs);
       when(rs.next()).thenReturn(false);
@@ -514,6 +558,7 @@ public class DBInterfaceTest {
   @Test
   public void doesDeleteSessionCorrectlyQueryTheDatabase() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_DELETE_SESSION_1_QUERY)).thenReturn(1);
       assertEquals(db.deleteSession(TEST_DELETE_SESSION_1_ID), true);
@@ -526,6 +571,7 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesDeleteSessionCorrectlyThrowSQLExceptionWhenCreateStatmentFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
     db.deleteSession(TEST_DELETE_SESSION_1_ID);
     verify(stmt, times(0)).execute(any(String.class));
@@ -534,6 +580,7 @@ public class DBInterfaceTest {
   @Test
   public void doesDeleteSessionFailWhenNoSessionsAreFound() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_DELETE_SESSION_1_QUERY)).thenReturn(0);
       assertEquals(db.deleteSession(TEST_DELETE_SESSION_1_ID), false);
@@ -546,16 +593,17 @@ public class DBInterfaceTest {
   @Test
   public void doesPutEventCorrectlyCallTheInsertQuery() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.getGeneratedKeys()).thenReturn(rs);
       when(rs.next()).thenReturn(true);
       when(rs.getInt(EventResponse.EID_COLUMN))
           .thenReturn(TEST_PUT_EVENT_1_EID);
-      EventRequest er = new EventRequest(TEST_PUT_EVENT_1_TITLE,
-          TEST_PUT_EVENT_1_DESC, TEST_PUT_EVENT_1_LOCATION,
-          TEST_PUT_EVENT_1_DATE, TEST_PUT_EVENT_1_TIME,
-          TEST_PUT_EVENT_1_DURATION, TEST_PUT_EVENT_1_MAX,
-          TEST_PUT_EVENT_1_CALID);
+      EventRequest er =
+          new EventRequest(TEST_PUT_EVENT_1_TITLE, TEST_PUT_EVENT_1_DESC,
+              TEST_PUT_EVENT_1_LOCATION, TEST_PUT_EVENT_1_DATE_TIME,
+              TEST_PUT_EVENT_1_END_DATE_TIME, TEST_PUT_EVENT_1_TIMEZONE,
+              TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
       assertEquals(TEST_PUT_EVENT_1_EID, db.putEvent(er));
       verify(stmt, times(1)).executeUpdate(TEST_PUT_EVENT_1_QUERY,
           Statement.RETURN_GENERATED_KEYS);
@@ -567,27 +615,31 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesPutEventThrowSQLExceptionWhenCreateStatementFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
-    EventRequest er = new EventRequest(TEST_PUT_EVENT_1_TITLE,
-        TEST_PUT_EVENT_1_DESC, TEST_PUT_EVENT_1_LOCATION,
-        TEST_PUT_EVENT_1_DATE, TEST_PUT_EVENT_1_TIME,
-        TEST_PUT_EVENT_1_DURATION, TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
+    EventRequest er =
+        new EventRequest(TEST_PUT_EVENT_1_TITLE, TEST_PUT_EVENT_1_DESC,
+            TEST_PUT_EVENT_1_LOCATION, TEST_PUT_EVENT_1_DATE_TIME,
+            TEST_PUT_EVENT_1_END_DATE_TIME, TEST_PUT_EVENT_1_TIMEZONE,
+            TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
     db.putEvent(er);
   }
 
   @Test(expected = SQLException.class)
   public void doesPutEventThrowSQLExceptionWhenQueryFails() throws SQLException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.getGeneratedKeys()).thenReturn(rs);
       when(rs.next()).thenReturn(false);
     } catch (SQLException e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
-    EventRequest er = new EventRequest(TEST_PUT_EVENT_1_TITLE,
-        TEST_PUT_EVENT_1_DESC, TEST_PUT_EVENT_1_LOCATION,
-        TEST_PUT_EVENT_1_DATE, TEST_PUT_EVENT_1_TIME,
-        TEST_PUT_EVENT_1_DURATION, TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
+    EventRequest er =
+        new EventRequest(TEST_PUT_EVENT_1_TITLE, TEST_PUT_EVENT_1_DESC,
+            TEST_PUT_EVENT_1_LOCATION, TEST_PUT_EVENT_1_DATE_TIME,
+            TEST_PUT_EVENT_1_END_DATE_TIME, TEST_PUT_EVENT_1_TIMEZONE,
+            TEST_PUT_EVENT_1_MAX, TEST_PUT_EVENT_1_CALID);
     db.putEvent(er);
     verify(stmt, times(1)).executeUpdate(TEST_PUT_EVENT_1_QUERY,
         Statement.RETURN_GENERATED_KEYS);
@@ -596,12 +648,14 @@ public class DBInterfaceTest {
   @Test
   public void doesUpdateEventCorrectlyPerformTheDatabaseQuery() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_EVENT_1_QUERY)).thenReturn(1);
-      EventRequest er = new EventRequest(TEST_UPDATE_EVENT_1_TITLE,
-          TEST_UPDATE_EVENT_1_DESC, TEST_UPDATE_EVENT_1_LOCATION,
-          TEST_UPDATE_EVENT_1_DATE, TEST_UPDATE_EVENT_1_TIME,
-          TEST_UPDATE_EVENT_1_DURATION, TEST_UPDATE_EVENT_1_MAX, -1);
+      EventRequest er =
+          new EventRequest(TEST_UPDATE_EVENT_1_TITLE, TEST_UPDATE_EVENT_1_DESC,
+              TEST_UPDATE_EVENT_1_LOCATION, TEST_UPDATE_EVENT_1_DATE_TIME,
+              TEST_UPDATE_EVENT_1_END_DATE_TIME, TEST_UPDATE_EVENT_1_TIMEZONE,
+              TEST_UPDATE_EVENT_1_MAX, -1);
       assertEquals(true, db.updateEvent(TEST_UPDATE_EVENT_1_EID, er));
       verify(stmt, times(1)).executeUpdate(TEST_UPDATE_EVENT_1_QUERY);
     } catch (SQLException | EventNotFoundException | InconsistentDataException e) {
@@ -612,9 +666,9 @@ public class DBInterfaceTest {
   @Test
   public void doesUpdateEventCorrectlyRemoveUselessQueries() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
-      EventRequest er = new EventRequest(null, null, null, null, null, null,
-          null, -1);
+      EventRequest er = new EventRequest(null, null, null, null, null, null, -1, -1);
       assertEquals(true, db.updateEvent(TEST_UPDATE_EVENT_1_EID, er));
       verify(stmt, times(0)).executeUpdate(any(String.class));
     } catch (SQLException | EventNotFoundException | InconsistentDataException e) {
@@ -625,11 +679,13 @@ public class DBInterfaceTest {
   @Test(expected = SQLException.class)
   public void doesUpdateEventCorrectlyThrowSQLExceptionWhenConnectionFails()
       throws SQLException {
+    when(ds.getConnection()).thenReturn(conn);
     when(conn.createStatement()).thenThrow(new SQLException());
-    EventRequest er = new EventRequest(TEST_UPDATE_EVENT_1_TITLE,
-        TEST_UPDATE_EVENT_1_DESC, TEST_UPDATE_EVENT_1_LOCATION,
-        TEST_UPDATE_EVENT_1_DATE, TEST_UPDATE_EVENT_1_TIME,
-        TEST_UPDATE_EVENT_1_DURATION, TEST_UPDATE_EVENT_1_MAX, -1);
+    EventRequest er =
+        new EventRequest(TEST_UPDATE_EVENT_1_TITLE, TEST_UPDATE_EVENT_1_DESC,
+            TEST_UPDATE_EVENT_1_LOCATION, TEST_UPDATE_EVENT_1_DATE_TIME,
+            TEST_UPDATE_EVENT_1_END_DATE_TIME, TEST_UPDATE_EVENT_1_TIMEZONE,
+            TEST_UPDATE_EVENT_1_MAX, -1);
     try {
       db.updateEvent(TEST_UPDATE_EVENT_1_EID, er);
     } catch (EventNotFoundException | InconsistentDataException e) {
@@ -641,12 +697,14 @@ public class DBInterfaceTest {
   public void doesUpdateEventCorrectlyThrowEventNotFoundException()
       throws EventNotFoundException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_EVENT_1_QUERY)).thenReturn(0);
-      EventRequest er = new EventRequest(TEST_UPDATE_EVENT_1_TITLE,
-          TEST_UPDATE_EVENT_1_DESC, TEST_UPDATE_EVENT_1_LOCATION,
-          TEST_UPDATE_EVENT_1_DATE, TEST_UPDATE_EVENT_1_TIME,
-          TEST_UPDATE_EVENT_1_DURATION, TEST_UPDATE_EVENT_1_MAX, -1);
+      EventRequest er =
+          new EventRequest(TEST_UPDATE_EVENT_1_TITLE, TEST_UPDATE_EVENT_1_DESC,
+              TEST_UPDATE_EVENT_1_LOCATION, TEST_UPDATE_EVENT_1_DATE_TIME,
+              TEST_UPDATE_EVENT_1_END_DATE_TIME, TEST_UPDATE_EVENT_1_TIMEZONE,
+              TEST_UPDATE_EVENT_1_MAX, -1);
       db.updateEvent(TEST_UPDATE_EVENT_1_EID, er);
     } catch (SQLException | InconsistentDataException e) {
       fail("Unexpected Exception: " + e.getMessage());
@@ -657,12 +715,14 @@ public class DBInterfaceTest {
   public void doesUpdateEventCorrectlyThrowInconsistentDataException()
       throws InconsistentDataException {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_UPDATE_EVENT_1_QUERY)).thenReturn(5);
-      EventRequest er = new EventRequest(TEST_UPDATE_EVENT_1_TITLE,
-          TEST_UPDATE_EVENT_1_DESC, TEST_UPDATE_EVENT_1_LOCATION,
-          TEST_UPDATE_EVENT_1_DATE, TEST_UPDATE_EVENT_1_TIME,
-          TEST_UPDATE_EVENT_1_DURATION, TEST_UPDATE_EVENT_1_MAX, -1);
+      EventRequest er =
+          new EventRequest(TEST_UPDATE_EVENT_1_TITLE, TEST_UPDATE_EVENT_1_DESC,
+              TEST_UPDATE_EVENT_1_LOCATION, TEST_UPDATE_EVENT_1_DATE_TIME,
+              TEST_UPDATE_EVENT_1_END_DATE_TIME, TEST_UPDATE_EVENT_1_TIMEZONE,
+              TEST_UPDATE_EVENT_1_MAX, -1);
       db.updateEvent(TEST_UPDATE_EVENT_1_EID, er);
     } catch (SQLException | EventNotFoundException e) {
       fail("Unexpected Exception: " + e.getMessage());
@@ -672,6 +732,7 @@ public class DBInterfaceTest {
   @Test
   public void doesDeleteCorrectlyQueryTheDatabase() {
     try {
+      when(ds.getConnection()).thenReturn(conn);
       when(conn.createStatement()).thenReturn(stmt);
       when(stmt.executeUpdate(TEST_DELETE_EVENT_1_QUERY)).thenReturn(1);
       assertEquals(true, db.deleteEvent(TEST_DELETE_EVENT_1_EID));
