@@ -29,12 +29,12 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
   private String firstName;
   private String lastName;
   private int userId;
-  private transient ResultSet rs;
-  private transient boolean found;
 
   /**
    * Fields excluded from serialisation.
    */
+  private transient ResultSet rs;
+  private transient boolean found;
   private transient String hashedPassword;
 
   /**

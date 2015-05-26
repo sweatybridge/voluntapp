@@ -54,6 +54,7 @@ public class CalendarRequest implements Request {
     this.userId = userId;
   }
   
+  /* Constructor added for testing. */
   public CalendarRequest(Timestamp startDate, int calendarId) {
     this.startDate = startDate;
     this.calendarId = calendarId;
