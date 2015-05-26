@@ -1,6 +1,7 @@
 package listener;
 
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
@@ -31,7 +32,7 @@ import filter.JsonFilter;
 @WebListener
 public class Application implements ServletContextListener {
 
-  // private static final Logger logger = Logger.getLogger("Application");
+  public static final Logger logger = Logger.getLogger("Logs'R'Us");
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
@@ -39,7 +40,7 @@ public class Application implements ServletContextListener {
 
     // Using connection pool managed by servlet container
     PGConnectionPoolDataSource source = new PGConnectionPoolDataSource();
-    source.setServerName(context.getInitParameter("db_host"));
+    source.setUrl(context.getInitParameter("db_host"));
     source.setUser(context.getInitParameter("db_user"));
     source.setPassword(context.getInitParameter("db_pass"));
     source.setSsl(true);
