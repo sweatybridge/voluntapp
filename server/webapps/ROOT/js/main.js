@@ -89,6 +89,25 @@ $(function() {
       }
     }
   })
+
+  // Bind previous and next day button
+  $('#prev_day').click(function() {
+    // shift weekday columns left by one
+    $('#t_calendar tbody').children().each(function(k, v) {
+      var first = $(v).children()[0]
+      $(first).detach()
+      $(first).appendTo(v)
+    })
+  })
+
+  $('#next_day').click(function() {
+    // shift weekday columns right by one
+    $('#t_calendar tbody').children().each(function(k, v) {
+      var last = $(v).children()[6]
+      $(last).detach()
+      $(last).prependTo(v)
+    })
+  })
 }); // End of document ready
 
 // Update main column class whether sizebars are hidden or not
@@ -118,4 +137,11 @@ function getFormObj(form) {
     formObj[input.name] = input.value;
   });
   return formObj;
+}
+
+// Render a new event on the calendar
+function createEventView(model) {
+  // find the cell corresponding to start date
+  model.startDate
+  // append event div
 }

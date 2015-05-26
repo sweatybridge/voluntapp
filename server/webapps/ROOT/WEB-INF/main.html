@@ -105,13 +105,19 @@
         </div>
         
         <div id="d_main_col" class="col-sm-8">
-          <span class="lead">My events for <strong>&lt;&lt;Jan 1</strong> - <strong>Jan 8&gt;&gt;</strong></span>
-          <button id="b_refresh" type="button" class="btn btn-success">Refresh</button>
-          <span>Display: </span>
-          <div class="btn-group" role="group" aria-label="...">
-          <button id="b_hide_left" type="button" class="btn btn-primary active" data-toggle="button">Left sidebar</button>
-          <button id="b_hide_weekend" type="button" class="btn btn-primary active" data-toggle="button">Weekend</button>
-          <button id="b_hide_right" type="button" class="btn btn-primary active" data-toggle="button">Right sidebar</button>
+          <div class="lead centre">
+<!--             <button id="b_refresh" type="button" class="btn btn-success">Refresh</button> -->
+<!--             <span>Display: </span> -->
+            <div class="btn-group" role="group" aria-label="...">
+              <button id="b_hide_left" type="button" class="btn btn-primary active" data-toggle="button">Left sidebar</button>
+              <button id="b_hide_weekend" type="button" class="btn btn-primary active" data-toggle="button">Weekend</button>
+              <button id="b_hide_right" type="button" class="btn btn-primary active" data-toggle="button">Right sidebar</button>
+            </div>
+          </div>
+          <div class="lead centre">
+            <strong>
+                <a id="prev_day" href="#">&lt;&lt;</a> Jan 1 - Jan 8 <a id="next_day" href="#">&gt;&gt;</a>
+            </strong>
           </div>
           <table id="t_calendar" class="table">
             <tr>

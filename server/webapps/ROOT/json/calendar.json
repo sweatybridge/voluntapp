@@ -1,0 +1,37 @@
+{
+	"calendarId": 3,
+	"name": "First Calendar",
+	"joinEnabled": true,
+	"joinCode": "XMU6QM",
+	"events": [{
+		"eventId": 11,
+		"title": "Campus Tour",
+		"description": "Regular campus tour showing prospective students and their parents around South Kensington.",
+		"location": "",
+		"startTime": "14:00",
+		"startDate": "2015-05-30",
+		"endTime": "15:00",
+		"endDate": "2015-05-30",
+		"max": 30
+	}, {
+		"eventId": 12,
+		"title": "Science Museum Trip",
+		"description": "Guide freshers on a tour to the Science Museum. Complimentary IMAX ticket.",
+		"location": "Science Museum",
+		"startTime": "13:00",
+		"startDate": "2015-06-02",
+		"endTime": "16:00",
+		"endDate": "2015-06-02",
+		"max": 10
+	}, {
+		"eventId": 13,
+		"title": "Bar Night",
+		"description": "Annual DoC Soc bar night needs your help!",
+		"location": "Union",
+		"startTime": "20:00",
+		"startDate": "2015-06-02",
+		"endTime": "",
+		"endDate": "",
+		"max": 60
+	}]
+}
