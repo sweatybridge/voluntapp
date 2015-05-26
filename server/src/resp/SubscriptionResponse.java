@@ -57,4 +57,8 @@ public class SubscriptionResponse extends Response implements SQLQuery {
   public void setCalendarIds(List<Integer> calendarIds) {
     this.calendarIds = calendarIds;
   }
+  /*
+  insert into "USER_CALENDAR"("UID", "CID")
+  select 63,"ID" from "CALENDAR" where "JOIN_CODE"='abcdef';
+  */
 }

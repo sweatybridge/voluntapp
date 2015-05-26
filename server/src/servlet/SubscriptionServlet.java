@@ -1,5 +1,6 @@
 package servlet;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import req.SubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
@@ -34,24 +36,63 @@ public class SubscriptionServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    SessionResponse sessionResponse = (SessionResponse) 
-        request.getAttribute(SessionResponse.class.getSimpleName());
-    
-    /* No valid userId supplied. */
-    if (sessionResponse.getUserId() == 0) {
-      request.setAttribute(Response.class.getSimpleName(), 
-          new ErrorResponse("Error - no user ID supplied."));
+    int userId = getUserId(request);
+    if (userId == 0) {
       return;
     }
-    
     Response subResp;
     try {
-      subResp = db.getUsersCalendars(sessionResponse.getUserId());
+      subResp = db.getUsersCalendars(userId);
     } catch (SQLException e) {
       subResp = new ErrorResponse("Error while retirieving the calendar IDs " +
       		"from the database.");
     }
-    
     request.setAttribute(Response.class.getSimpleName(), subResp);
+  }
+  
+  /**
+   * Given the ID of the user and the join code of the calendar, register 
+   * user's subscription to the specified calendar.
+   * @throws IOException 
+   */
+  @Override 
+  public void doPut(HttpServletRequest request, HttpServletResponse response) 
+      throws IOException {
+    int userId = getUserId(request);
+    if (userId == 0) {
+      return;
+    }
+    SubscriptionRequest subReq = 
+        gson.fromJson(request.getReader(), SubscriptionRequest.class);
+    subReq.setUserId(userId);
+    
+    Response subResp;
+    try {
+      subResp = db.putCalendarSubscription(subReq);
+    } catch (SQLException e) {
+      subResp = new ErrorResponse("Error while registering user's calendar " +
+      		"subscription.");
+    }
+    request.setAttribute(Response.class.getSimpleName(), subResp);
+  }
+  
+  /**
+   * Retrieve the authorization parameters from the request attribute. 
+   * Generate an error response when the user ID is invalid.
+   * 
+   * @param request sent to the server
+   * @return ID of the user
+   */
+  private int getUserId(HttpServletRequest request) {
+    SessionResponse sessionResponse = (SessionResponse) 
+        request.getAttribute(SessionResponse.class.getSimpleName());
+    
+    /* No valid userId supplied - added for the sake of debugging. */
+    if (sessionResponse.getUserId() == 0) {
+      request.setAttribute(Response.class.getSimpleName(), 
+          new ErrorResponse("Error - no user ID supplied."));
+      return 0;
+    } 
+    return sessionResponse.getUserId();
   }
 }

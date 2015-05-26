@@ -27,7 +27,7 @@
 \section{Group Structure and Work Division}
 
 \noindent
-We divided our group responsibilities based on our individual strengths. Han has done extensive development work on both server and client side applications in past internships and part time jobs and is hence the most suitable candidate for the role of group leader. The group leader is responsible for guiding the choices of technology together with ensuring a schedule for the timely completion of the project. In addition, he is also responsible for managing the team during evaluations of the project requirements and the suitability of different technology stacks in fulfilling our design goals.
+We divided our group responsibilities based on our individual strengths. Han has done extensive development work on both server and client side applications in past internships and part time jobs and hence is the most suitable candidate for the role of group leader. The group leader is responsible for guiding the choices of technology together with ensuring a schedule for the timely completion of the project. In addition, he is also responsible for managing the team during evaluations of the project requirements and the suitability of different technology stacks in fulfilling our design goals.
 \\
 \\
 \noindent
@@ -53,33 +53,33 @@ Although it may increase the amount of time that writing our App will take, we b
 \\
 \\
 \noindent
-Lastly for the database we chose to use PostgreSQL due to convenience as CSG had already given us an already configured database to use.  
+Lastly, for the database we chose to use PostgreSQL due to convenience as CSG had already given us an already configured database to use.  
 
 \section{Description of our App}
-Our project is a multi-user calendar App which allows people to, create/subscribe to calendars, create/join events and obtain feedback on who has signed up to your events. The App is targeted at volunteers for college events but can be easily extended for more general purposes.
+Our project is a multi-user calendar App which allows users to, create/subscribe to calendars, create/join events and obtain feedback on who has signed up to their events. The App is targeted at volunteers for college events but can be easily extended for more general purposes.
 \\
 \\
 \noindent
-It has three main entity types and several relations between them, these are the users, the calendars and the events, see ~\cref{sec:er} for more details. The idea came from a specific problem that we found occurring very often, people using emails to organise events and work out specifically who can attend or to get a general idea of how many people to expect. This can lead to very inefficient communication and cause a verity of problems to occur. Such as events occurring so often that the people who are attending (volunteering) start to pay less attention to them, or if an event if so popular that it ends up being over subscribed and the organisers have to send a huge number of emails back to the people who didn't make it in time.
+It has three main entity types: the users, the calendars and the events, and several relations between them, see ~\cref{sec:er} for more details. The idea came from a specific problem that we found occurring very often, namely people using emails to organise events and work out specifically who can attend or get a general idea of how many people to expect. This can lead to very inefficient communication and cause a variety of organisation hardships. Examples of such common problematic situation are events occurring so often that the people who are attending (volunteering) start to pay less attention to them, or events being so popular that they ends up being over subscribed and the organisers have to send a huge number of emails back to the people who didn't make it in time.
 \\
 \\
 \noindent
-We are designing and making our App while having these problems in mind and aim to come up with a system which could eliminate or ease some of them.
+We are creating our App while having these problems in mind and aim to come up with a system which could eliminate or ease some of them by grouping the related events into calendars and presenting them to user in an ordered manner.
 
 \section{User Interactions} 
-The basic idea is that there will be two types of users (per calendar), the administrators and the users (subscribers). They will both interact with the calendars in different ways and have various typical uses. Note that any user can create a calendar or join others so these roles are not absolute.
+The basic idea is that there will be two types of users (per calendar), the administrators and the ordinary users (subscribers). They will both interact with the calendars in different ways and have various typical uses. Note that any user can create a calendar or join other calendars so these roles are not absolute.
 \\
 \\
 \noindent
-For the subscribers of calendars that need to be able to see events in a clear manner and easily be able to gauge their interest about the event. They also need the ability to sign up for the event if they wish to attend (depending on the event this might be a strict attendance or a flexible one). In addition to this they should be able to change between the calendars they are subscribed to and create a view with the calendars that interest them at any time. Finally they should be able to create calendars and gain administrator privilege on them. 
+A subscriber of a calendar needs to be able to see calendar's events in a clear manner and easily access the details of an event, like time, location, duration and short description, together with a feedback on the interest about the event (number of people already registered to the event). Users also need the ability to sign up for the event they wish to attend (depending on the event this might be a strict attendance or a flexible one). In addition, users should be able to change between the calendars they are subscribed to and create a dynamically-customisable view including only the calendars that interest them at a particular time. The view would enable the users to preview the information about events occurring in a certain time interval (for example, in two weeks from the current date). Finally, all users of the App should be able to create calendars and gain administrator privilege on them. 
 \\
 \\
 \noindent
-The administrations of a calendar need extra abilities in addition to those of a subscriber. They will be able to create, modify details of and delete any event on their calendars along with the ability to see the number of people who have signed up and their identities. In addition they can delete whole calendars and invite people to subscribe via an invite code which they can give out to anyone who may be interested. We are also looking into other ways that users may be invited to calendars.  
+The administrations of a calendar need extra abilities in addition to those of a subscriber. They will be able to create, modify details of and delete any event on their calendars along with the ability to see the number of people who have signed up and their identities. In addition, they can delete whole calendars and invite people to subscribe via an invite code which they can give out to anyone who may be interested. We are also looking into other ways that users may be invited to calendars.  
 \\
 \\
 \noindent
-Lastly everyone will also be able to interact by registering and logging in to our App, see ~\cref{sec:fd} for user flow diagrams.
+Lastly, everyone will also be able to interact by registering and logging in to our App, see ~\cref{sec:fd} for user flow diagrams.
 
 \appendix
 \label{appendix}
@@ -94,7 +94,7 @@ PK, FK and U stand for Primary Key, Foreign Key and Unique respectively. PK impl
 \\
 \\
 \noindent
-There is a relationship missing from this diagram, this is the subscriber relationship. Each of the relationships will be represented in the database as a table with ID to ID mappings with the 2 participants. The cardinality constraints can also be very easily added into the database to ensure that the data remains consistent. For example the \textbf{belongs to} relationship will be realised with a table with one column being the CID (Calendar Id) and the other being the EID (Event Id). The (CID,EID) pair will be the primary key.
+There is a relationship missing from this diagram, namely the subscriber relationship. Each of the relationships will be represented in the database as a table with ID to ID mappings between the two participants. The cardinality constraints can also be very easily added into the database to ensure that the data remains consistent. For example the \textbf{belongs to} relationship will be realised with a table with one column being the CID (Calendar Id) and the other being the EID (Event Id). The (CID,EID) pair will be the primary key.
 \newpage
 \section{User Interaction Diagrams}
 \label{sec:fd}
@@ -111,6 +111,6 @@ There is a relationship missing from this diagram, this is the subscriber relati
   \caption{Use flow of a new user creating a calendar}
 \end{minipage}
 \end{figure}
-\noindent These diagrams show two typical use situations it which the user would interact with our WebApp. The blue boxes are explicit interactions with our App, where as the red boxes are events which require no explicit (but most like some) interaction.
+\noindent These diagrams show two typical use situations it which the user would interact with our WebApp. The blue boxes are explicit interactions with our App, where as the red boxes are events which require no explicit (but most likely some) interaction.
 
 \end{document}

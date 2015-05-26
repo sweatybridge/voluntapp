@@ -12,6 +12,7 @@ import req.CalendarRequest.CalendarEventsQuery;
 import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
+import req.SubscriptionRequest;
 import req.UserRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
@@ -140,6 +141,16 @@ public class DBInterface {
     SubscriptionResponse resp = new SubscriptionResponse(userId);
     query(resp);
     return resp;
+  }
+  
+  /**
+   * 
+   * @param subReq
+   * @return
+   */
+  public Response putCalendarSubscription(SubscriptionRequest subReq) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   /**
