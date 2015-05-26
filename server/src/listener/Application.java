@@ -14,6 +14,7 @@ import org.postgresql.ds.PGConnectionPoolDataSource;
 import servlet.CalendarServlet;
 import servlet.DefaultServlet;
 import servlet.SessionServlet;
+import servlet.SubscriptionServlet;
 import servlet.UserServlet;
 
 import com.google.gson.Gson;
@@ -69,6 +70,8 @@ public class Application implements ServletContextListener {
         new SessionServlet(gson, db, sm)).addMapping("/api/session");
     context.addServlet(CalendarServlet.class.getName(),
         new CalendarServlet(gson, db)).addMapping("/api/calendar");
+    context.addServlet(SubscriptionServlet.class.getName(),
+        new SubscriptionServlet(gson, db)).addMapping("/api/subscription");
   }
 
   @Override

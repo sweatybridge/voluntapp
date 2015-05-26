@@ -17,6 +17,7 @@ import resp.CalendarResponse;
 import resp.EventResponse;
 import resp.Response;
 import resp.SessionResponse;
+import resp.SubscriptionResponse;
 import resp.UserResponse;
 import sql.SQLInsert;
 import sql.SQLQuery;
@@ -123,6 +124,22 @@ public class DBInterface {
   public EventResponse getEvent(int eventId) {
     // TODO: implement this
     return new EventResponse();
+  }
+  
+  /**
+   * Get IDs of all calendars to which the user subscribed.
+   * 
+   * @param  userId
+   *         ID of the user whose calendars are supposed to be retrieved.
+   * @return SubscriptionResponse
+   *         Object whose calendarIds field is set to IDs of all calendars 
+   *         to which a user subscribed.
+   * @throws SQLException 
+   */
+  public SubscriptionResponse getUsersCalendars(int userId) throws SQLException {
+    SubscriptionResponse resp = new SubscriptionResponse(userId);
+    query(resp);
+    return resp;
   }
 
   /**
