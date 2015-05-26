@@ -7,11 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import req.SubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
-import resp.SubscriptionResponse;
 
 import com.google.gson.Gson;
 
@@ -20,10 +18,12 @@ import db.DBInterface;
 @WebServlet
 public class SubscriptionServlet extends HttpServlet {
   
+  private static final long serialVersionUID = 1L;
+  
   private final DBInterface db;
   private final Gson gson;
   
-  public SubscriptionServlet(DBInterface db, Gson gson) {
+  public SubscriptionServlet(Gson gson, DBInterface db) {
     this.db = db;
     this.gson = gson;
   }
