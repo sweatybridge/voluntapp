@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.google.gson.Gson;
+
 public class JsonFilterTest {
 
   @Mock
@@ -24,12 +26,13 @@ public class JsonFilterTest {
   @Mock
   private FilterChain chain;
 
+  private final Gson gson = new Gson();
   private JsonFilter filter;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    filter = new JsonFilter();
+    filter = new JsonFilter(gson);
   }
 
   @Test
