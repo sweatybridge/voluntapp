@@ -1,6 +1,7 @@
 package listener;
 
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
@@ -32,7 +33,7 @@ import filter.JsonFilter;
 @WebListener
 public class Application implements ServletContextListener {
 
-  // private static final Logger logger = Logger.getLogger("Application");
+  public static final Logger logger = Logger.getLogger("Logs'R'Us");
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
@@ -74,6 +75,7 @@ public class Application implements ServletContextListener {
   }
 
   @Override
-  public void contextDestroyed(ServletContextEvent arg0) {}
+  public void contextDestroyed(ServletContextEvent arg0) {
+  }
 
 }

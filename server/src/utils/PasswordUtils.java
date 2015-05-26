@@ -79,8 +79,6 @@ public class PasswordUtils {
   public static boolean validatePassword(String givenPassword,
       String storedPassword) throws PasswordHashFailureException {
     String[] parts = storedPassword.split(":");
-    System.out.println(parts[0]);
-    System.out.println(parts[1]);
     byte[] salt = fromHex(parts[0]);
     byte[] hash = fromHex(parts[1]);
 
