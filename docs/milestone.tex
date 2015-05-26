@@ -7,6 +7,7 @@
 \usepackage{cleveref}
 \usepackage{tikz}
 \usepackage{float}
+\usepackage{comment}
 
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
@@ -39,28 +40,31 @@ More specifically, our team members are initially in charge of working on follow
   \item Server-side processing - Bradley / Piotr / Han
   \item Database set-up - Bradley / Piotr
 \end{enumerate}
+
 \noindent
-As we progress, we believe we will work on different parts of the project from this initial assignment so that everyone can get a holistic understanding of the full stack web application design.
+As we progress, we believe we will work on different parts of the project from this initial assignment so that everyone will get a holistic understanding of the full stack web development process.
 
 
 \section{Choice of Implementation Languages}
-Although the frontend has to be written in HTML, CSS, and Javascript, there exists a wide variety of web development frameworks that we have considered, ranging from full blown MVC models such as AngularJS, MeteorJS, Backbone.js, to minimalistic libraries such as jQuery, Modernizr, HTML5 Boilerplate. As the team is relatively new to web development, we decided to use frameworks that more closely represent the fundamental DOM layout to enhance our understanding. This means that HTML5 Boilerplate is a good choice because it modernises the standard HTML technologies without adding extra layers of abstractions. In addition, we have chosen to use the Bootstrap framework to enhance the visual presentation of our web app. Lastly, we have decided to separate our data models from the views by making AJAX calls to our backend using a RESTful API that retrieves JSON objects for updating the views. Using JSON as the data format is not only easy to parse and understand but also allows for rich data structures like nested objects and arrays.
+Although the frontend has to be written in HTML, CSS, and Javascript, we have considered a wide variety of web development frameworks, ranging from full blown MVC frameworks such as AngularJS, MeteorJS, and Django templates, to minimalistic libraries such as jQuery, Backbone.js, and HTML5 Boilerplate. As the team is relatively new to web development, we decided to use frameworks that more closely represent the fundamental DOM layout to enhance our understanding. This means that HTML5 Boilerplate is a good choice because it consolidates the best practices of using modern web technologies without adding extra layers of abstraction. In addition, we have chosen to use the Bootstrap framework to enhance the visual presentation of our web app. Lastly, we decided to separate our data models from the views by fetching data asynchronously as JSON objects from our backend using RESTful APIs. Using RESTful APIs allows for easy integration with mobile clients while using JSON as the data format allows for transfer of rich data structures like nested objects and arrays.
+\begin{comment}
+  see also, closure, scala, dart, go, c++
+\end{comment}
 \\
 \\
 \noindent
-We have picked Java as our backend implementation language, after considering the strengths and weaknesses of Python, node.js, and PHP in detail.
-Although it may increase the amount of time that writing our App will take, we believe this to be a good trade-off. Java code is much more habitable and allows for easier extension. We think it will keep our options open going forward as it is very portable and platform independent. Java also provides several frameworks we can use to unit test our code such as JUnit and Mockito along with many useful libraries to provide much of the functionality that we will need. We set up our web container using Apache Tomcat as it allows us to work in pure Java.
+We have picked a statically typed language, Java, as the implementation language for our backend. Although it may increase the amount of time needed to write our App, we believe the extra type safety combined with an active developer community makes it a good trade-off over other dynamically typed languages such as Python, node.js, and PHP. As most of us are familiar with Java, it is also easier to apply sound software design patterns that we have learnt over the course of our studies, such as singleton pattern or dependency injection/inversion. With the support of testing frameworks like JUnit and Mockito, we are able to provide good test coverage on our backend code base to ensure long term maintainability. This is especially important for our target market - enterprise web apps (see our App description). More generally, Java code is more habitable and allows for easier extension with its wide range of third party libraries. We also believe it will keep our options open going forward as it is very portable and platform independent.
 \\
 \\
 \noindent
-Lastly, for the database we chose to use PostgreSQL due to convenience as CSG had already given us an already configured database to use.  
+Lastly, we have decided to use Apache Tomcat as the web container and PostgreSQL as the database engine because they have been conveniently set up by CSG on lab machines.
 
 \section{Description of our App}
 Our project is a multi-user calendar App which allows users to, create/subscribe to calendars, create/join events and obtain feedback on who has signed up to their events. The App is targeted at volunteers for college events but can be easily extended for more general purposes.
 \\
 \\
 \noindent
-It has three main entity types: the users, the calendars and the events, and several relations between them, see ~\cref{sec:er} for more details. The idea came from a specific problem that we found occurring very often, namely people using emails to organise events and work out specifically who can attend or get a general idea of how many people to expect. This can lead to very inefficient communication and cause a variety of organisation hardships. Examples of such common problematic situation are events occurring so often that the people who are attending (volunteering) start to pay less attention to them, or events being so popular that they ends up being over subscribed and the organisers have to send a huge number of emails back to the people who didn't make it in time.
+It has three main entity types: the users, the calendars and the events, and several relations between them, see \cref{sec:er} for more details. The idea came from a specific problem that we found occurring very often, namely people using emails to organise events and work out specifically who can attend or get a general idea of how many people to expect. This can lead to very inefficient communication and cause a variety of organisation hardships. Examples of such common problematic situation are events occurring so often that the people who are attending (volunteering) start to pay less attention to them, or events being so popular that they ends up being over subscribed and the organisers have to send a huge number of emails back to the people who didn't make it in time.
 \\
 \\
 \noindent
@@ -79,7 +83,7 @@ The administrations of a calendar need extra abilities in addition to those of a
 \\
 \\
 \noindent
-Lastly, everyone will also be able to interact by registering and logging in to our App, see ~\cref{sec:fd} for user flow diagrams.
+Lastly, everyone will also be able to interact by registering and logging in to our App, see \cref{sec:fd} for user flow diagrams.
 
 \appendix
 \label{appendix}
