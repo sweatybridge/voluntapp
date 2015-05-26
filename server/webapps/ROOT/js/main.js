@@ -36,11 +36,11 @@ $(function() {
   })
 
   // Bind event creation form
-  $('#event_form').submit(function(e) {
+  $("#event_form").submit(function(e) {
     e.preventDefault()
     var form = $(this)
-    $.ajax(form.attr('action'), {
-      method: form.attr('method'),
+    $.ajax(form.attr("action"), {
+      method: form.attr("method"),
       data: JSON.stringify(getFormObj(form)),
       statusCode: {
         200: function(data) {
@@ -54,11 +54,11 @@ $(function() {
   })
 
   // Bind calendar creation form
-  $('#calendar_create_form').submit(function(e) {
+  $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
     var form = $(this)
-    $.ajax(form.attr('action'), {
-      method: form.attr('method'),
+    $.ajax(form.attr("action"), {
+      method: form.attr("method"),
       data: JSON.stringify(getFormObj(form)),
       statusCode: {
         200: function(data) {
@@ -73,36 +73,36 @@ $(function() {
 
   // Sets up request headers for all subsequent ajax calls
   $.ajaxSetup({
-    contentType: 'application/json; charset=utf-8',
-    dataType: 'json',
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", getCookie("token"))
     }
   })
 
   // Request user profile information
-  $.ajax('/api/user', {
-    method: 'GET',
+  $.ajax("/api/user", {
+    method: "GET",
     statusCode: {
       200: function(data) {
-        $('.firstName').text(data.firstName)
+        $(".firstName").text(data.firstName)
       }
     }
   })
 
   // Bind previous and next day button
-  $('#prev_day').click(function() {
+  $("#prev_day").click(function() {
     // shift weekday columns left by one
-    $('#t_calendar tbody').children().each(function(k, v) {
+    $("#t_calendar tbody").children().each(function(k, v) {
       var first = $(v).children()[0]
       $(first).detach()
       $(first).appendTo(v)
     })
   })
 
-  $('#next_day').click(function() {
+  $("#next_day").click(function() {
     // shift weekday columns right by one
-    $('#t_calendar tbody').children().each(function(k, v) {
+    $("#t_calendar tbody").children().each(function(k, v) {
       var last = $(v).children()[6]
       $(last).detach()
       $(last).prependTo(v)
@@ -142,6 +142,24 @@ function getFormObj(form) {
 // Render a new event on the calendar
 function createEventView(model) {
   // find the cell corresponding to start date
-  model.startDate
-  // append event div
+  $("#t_calendar_body").children().each(function(k, v) {
+    if ($(v).data("date") === model.startDate) {
+      // append event div
+      $("<div/>", {
+        "data-eventId": model.eventId,
+        class: "event"
+      }).append($("<p/>", {
+        class: "e_title",
+        text: model.title
+      })).append($("<span/>", {
+        class: "e_time",
+        text: model.startTime
+      })).append($("<p/>", {
+        class: "e_desc",
+        text: model.description
+      })).appendTo(v)
+    }
+
+    // if event not in view, don't render
+  })
 }
