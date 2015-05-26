@@ -5,16 +5,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import sql.SQLInsert;
 import sql.SQLQuery;
 
-public class SubscriptionResponse extends Response implements SQLQuery {
+public class SubscriptionResponse extends Response implements SQLQuery, SQLInsert {
   
   /* Columns of the USER_CALENDAR table. */
   private static final String UID_COLUMN = "UID";
   private static final String CID_COLUMN = "CID";
   
   private List<Integer> calendarIds = new ArrayList<Integer>();
-  
+  private String joinCode;
   /**
    * Fields excluded from serialisation.
    */
@@ -28,6 +29,11 @@ public class SubscriptionResponse extends Response implements SQLQuery {
   
   public SubscriptionResponse(int userId) {
     this.userId = userId;
+  }
+  
+  public SubscriptionResponse(int userId, String joinCode) {
+    this.userId = userId;
+    this.joinCode = joinCode;
   }
   
   @Override
@@ -57,8 +63,12 @@ public class SubscriptionResponse extends Response implements SQLQuery {
   public void setCalendarIds(List<Integer> calendarIds) {
     this.calendarIds = calendarIds;
   }
-  /*
-  insert into "USER_CALENDAR"("UID", "CID")
-  select 63,"ID" from "CALENDAR" where "JOIN_CODE"='abcdef';
-  */
+  
+  public String getSQLInsert() {
+    return String.format("" +
+    		"INSERT INTO \"USER_CALENDAR\"(\"%s\",\"%s\") SELECT %d, \"ID\" " +
+    		"FROM \"CALENDAR\" WHERE \"%s\"='%s';", 
+    		UID_COLUMN, CID_COLUMN, userId, CalendarResponse.JOIN_CODE_COLUMN, 
+    		joinCode);
+  }
 }

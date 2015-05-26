@@ -144,13 +144,19 @@ public class DBInterface {
   }
   
   /**
+   * Given the join code of a calendar and the ID of a user, register user's 
+   * subscription to a given calendar.
    * 
-   * @param subReq
+   * @param SubscriptionRequest containing the user ID and calendar join code
    * @return
+   * @throws SQLException 
    */
-  public Response putCalendarSubscription(SubscriptionRequest subReq) {
-    // TODO Auto-generated method stub
-    return null;
+  public Response putCalendarSubscription(SubscriptionRequest subReq) 
+      throws SQLException {
+    SubscriptionResponse subResp = 
+        new SubscriptionResponse(subReq.getUserId(), subReq.getJoinCode());
+    insert(subResp);
+    return subResp;
   }
 
   /**
