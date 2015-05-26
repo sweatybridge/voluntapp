@@ -44,22 +44,10 @@ $(function() {
       data: JSON.stringify(getFormObj(form)),
       statusCode: {
         200: function(data) {
-          $.toaster({
-            priority: 'success',
-            message: data.responseJSON.message
-          })
+          toastr.success(data.responseJSON.message)
         },
         400: function(data) {
-          $.toaster({
-            priority: 'danger',
-            message: data.responseJSON.message
-          })
-        },
-        404: function(data) {
-          $.toaster({
-            priority: 'danger',
-            message: 'Failed to create event.'
-          })
+          toastr.error(data.responseJSON.message)
         }
       }
     })
@@ -74,22 +62,10 @@ $(function() {
       data: JSON.stringify(getFormObj(form)),
       statusCode: {
         200: function(data) {
-          $.toaster({
-            priority: 'success',
-            message: data.message
-          })
+          toastr.success(data.message)
         },
         400: function(data) {
-          $.toaster({
-            priority: 'danger',
-            message: data.message
-          })
-        },
-        404: function(data) {
-          $.toaster({
-            priority: 'danger',
-            message: 'Failed to create event.'
-          })
+          toastr.error(data.message)
         }
       }
     })
@@ -106,12 +82,12 @@ $(function() {
 
   // Request user profile information
   $.ajax('/api/user', {
-      method: 'GET',
-      statusCode: {
-          200: function(data) {
-              $('.firstName').text(data.firstName)
-          }
+    method: 'GET',
+    statusCode: {
+      200: function(data) {
+        $('.firstName').text(data.firstName)
       }
+    }
   })
 }); // End of document ready
 

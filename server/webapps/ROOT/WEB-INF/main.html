@@ -1,22 +1,34 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>WebApp</title>
-    <meta charset="UTF-8">
-    
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 50px;
+                padding-bottom: 20px;
+            }
+        </style>
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="css/common.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.1/toastr.min.css">
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
-
-    <script src="js/jquery.toaster.js"></script>
-  </head>
-
-  <body ng-app="">
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -182,154 +194,22 @@
         </div>
         
       </div> <!-- End of row -->
-    </div> <!-- End of container -->
-  
-  <script>
-    // DOCUMENT READY
-    $(function() {
-      // Bind weekend collapse
-      $("#b_hide_weekend").click(function(){
-        // TODO: check if this train reck is the only way to do this
-        $("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
-      });
-      
-      // Bind sidebar collapse
-      $("#b_hide_left").click(function() {
-        $("#d_left_sidebar").toggleClass("col-hidden col-sm-2");
-        updateMainCol();
-      });
-      
-      $("#b_hide_right").click(function() {
-        $("#d_right_sidebar").toggleClass("col-hidden col-sm-2");
-        updateMainCol();        
-      });
-      
-      // Bind event description show button
-      $(".event button").click(function() {
-        $(this).next(".e_desc").toggle(500);
-      });
+    </div> <!-- /container -->        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 
-      // Bind logout button
-      $("#btn_logout").click(function() {
-        $.ajax("/api/session", {
-          method: "DELETE",
-          statusCode: {
-            200: function(data) {
-              window.location.reload()
-            },
-            400: function(data) { alert(data.responseJSON.message); }
-          }
-        })
-      })
+        <script src="js/vendor/bootstrap.min.js"></script>
 
-      // Bind event creation form
-      $('#event_form').submit(function(e) {
-        e.preventDefault()
-        var form = $(this)
-        $.ajax(form.attr('action'), {
-          method: form.attr('method'),
-          data: JSON.stringify(getFormObj(form)),
-          statusCode: {
-            200: function(data) {
-              $.toaster({
-                priority: 'success',
-                message: data.responseJSON.message
-              })
-            },
-            400: function(data) {
-              $.toaster({
-                priority: 'danger',
-                message: data.responseJSON.message
-              })
-            },
-            404: function(data) {
-              $.toaster({
-                priority: 'danger',
-                message: 'Failed to create event.'
-              })
-            }
-          }
-        })
-      })
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
 
-      // Bind calendar creation form
-      $('#calendar_create_form').submit(function(e) {
-        e.preventDefault()
-        var form = $(this)
-        $.ajax(form.attr('action'), {
-          method: form.attr('method'),
-          data: JSON.stringify(getFormObj(form)),
-          statusCode: {
-            200: function(data) {
-              $.toaster({
-                priority: 'success',
-                message: data.message
-              })
-            },
-            400: function(data) {
-              $.toaster({
-                priority: 'danger',
-                message: data.message
-              })
-            },
-            404: function(data) {
-              $.toaster({
-                priority: 'danger',
-                message: 'Failed to create event.'
-              })
-            }
-          }
-        })
-      })
-
-      // Sets up request headers for all subsequent ajax calls
-      $.ajaxSetup({
-        contentType: 'application/json; charset=utf-8',
-        dataType: 'json',
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader("Authorization", getCookie("token"))
-        }
-      })
-
-      // Request user profile information
-      $.ajax('/api/user', {
-          method: 'GET',
-          statusCode: {
-              200: function(data) {
-                  $('.firstName').text(data.firstName)
-              }
-          }
-      })
-    }); // End of document ready
-
-    // Update main column class whether sizebars are hidden or not
-    function updateMainCol() {
-      var size = 8;
-      if ($("#d_right_sidebar").hasClass("col-hidden")) {
-        size += 2;
-      }
-      if ($("#d_left_sidebar").hasClass("col-hidden")) {
-        size += 2;
-      }
-      $("#d_main_col").attr("class", "col-sm-" + size);
-    }
-
-    // Temporary function to get auth token from cookie
-    function getCookie(name) {
-      var value = "; " + document.cookie;
-      var parts = value.split("; " + name + "=");
-      if (parts.length == 2) return parts.pop().split(";").shift();
-    }
-
-    // Convert input fields into an javascript object
-    function getFormObj(form) {
-      var formObj = {};
-      var inputs = form.serializeArray();
-      $.each(inputs, function (i, input) {
-        formObj[input.name] = input.value;
-      });
-      return formObj;
-    }
-  </script>
-  </body>
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
+        </script>
+    </body>
 </html>
