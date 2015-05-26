@@ -161,7 +161,7 @@
               </div>
               <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
                 <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
-                <form class="form-centre" role="form" id="calendar_join_form" action="calendar" method="post" autocomplete="off">
+                <form class="form-centre" role="form" id="calendar_join_form" action="/api/calendar" method="post" autocomplete="off">
                   <input type="text" name="token" class="form-control" placeholder="Token" autofocus required>
                   <input class="btn btn-primary" type="submit" value="Join">
                   <p class="form-error" id="calendar_join_errors"></p>
@@ -187,6 +187,11 @@
   <script>
     // DOCUMENT READY
     $(function() {
+	  $(document).ready(function() {
+	    $.ajax("/api/subscription", {
+			method: "GET"
+		})
+	  });
       // Bind weekend collapse
       $("#b_hide_weekend").click(function(){
         // TODO: check if this train reck is the only way to do this
