@@ -39,7 +39,7 @@ public class Application implements ServletContextListener {
 
     // Using connection pool managed by servlet container
     PGConnectionPoolDataSource source = new PGConnectionPoolDataSource();
-    source.setUrl(context.getInitParameter("db_host"));
+    source.setServerName(context.getInitParameter("db_host"));
     source.setUser(context.getInitParameter("db_user"));
     source.setPassword(context.getInitParameter("db_pass"));
     source.setSsl(true);
@@ -71,6 +71,7 @@ public class Application implements ServletContextListener {
   }
 
   @Override
-  public void contextDestroyed(ServletContextEvent arg0) {}
+  public void contextDestroyed(ServletContextEvent arg0) {
+  }
 
 }
