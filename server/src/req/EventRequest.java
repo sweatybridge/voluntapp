@@ -108,7 +108,7 @@ public class EventRequest implements Request {
   }
 
   /**
-   * @return could be null
+   * Could return null
    */
   public String getDescription() {
     return description;
@@ -120,6 +120,23 @@ public class EventRequest implements Request {
 
   public Calendar getEndDateTime() {
     return endDateTime;
+  }
+
+  /**
+   * Should only be called if the request object is constructed manually by
+   * server as they might contain invalid information submitted by client.
+   */
+  public String getStartTime() {
+    return startTime;
+  }
+
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public String getDuration() {
+    // FIXME: compute duration from start and end
+    return null;
   }
 
 }

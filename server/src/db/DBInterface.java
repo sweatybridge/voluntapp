@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import req.CalendarRequest;
@@ -215,10 +216,12 @@ public class DBInterface {
    * @throws SQLException
    */
   public int putEvent(EventRequest ereq) throws SQLException {
-    EventResponse eresp = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
-        ereq.getTime(), ereq.getDuration(), ereq.getMax(), -1,
-        ereq.getCalendarId());
+    // TODO: why convert max to string?
+    EventResponse eresp =
+        new EventResponse(ereq.getTitle(), ereq.getDescription(),
+            ereq.getLocation(), ereq.getStartTime(), ereq.getStartDate(),
+            ereq.getDuration(), Integer.toString(ereq.getMax()), -1,
+            ereq.getCalendarId());
     return getID(eresp, EventResponse.EID_COLUMN);
   }
 
@@ -273,9 +276,11 @@ public class DBInterface {
    */
   public boolean updateEvent(int eventId, EventRequest ereq)
       throws SQLException, EventNotFoundException, InconsistentDataException {
-    EventResponse er = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getDate(),
-        ereq.getTime(), ereq.getDuration(), ereq.getMax(), eventId, -1);
+    // TODO: why convert max to string?
+    EventResponse er =
+        new EventResponse(ereq.getTitle(), ereq.getDescription(),
+            ereq.getLocation(), ereq.getStartTime(), ereq.getStartDate(),
+            ereq.getDuration(), Integer.toString(ereq.getMax()), eventId, -1);
     return updateRowCheckHelper(er);
   }
 
