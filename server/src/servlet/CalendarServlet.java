@@ -108,16 +108,18 @@ public class CalendarServlet extends HttpServlet {
    * database.
    */
   @Override
-  protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-    // TODO: implement this
+  protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
+    request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+        "Error - DELETE method of the calendar servlet not supported."));
   }
   
   /**
    * Given the calendar ID and new calendar data, update the database.  
    */
   @Override 
-  protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
-    // TODO: implement this
+  protected void doPut(HttpServletRequest request, HttpServletResponse response) {
+    request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+        "Error - DPUT method of the calendar servlet not supported."));
   }
   
   /**

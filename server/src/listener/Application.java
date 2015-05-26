@@ -1,6 +1,7 @@
 package listener;
 
 import java.util.EnumSet;
+import java.util.logging.Logger;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContext;
@@ -13,6 +14,7 @@ import org.postgresql.ds.PGConnectionPoolDataSource;
 import servlet.CalendarServlet;
 import servlet.DefaultServlet;
 import servlet.SessionServlet;
+import servlet.SubscriptionServlet;
 import servlet.UserServlet;
 
 import com.google.gson.Gson;
@@ -31,7 +33,7 @@ import filter.JsonFilter;
 @WebListener
 public class Application implements ServletContextListener {
 
-  // private static final Logger logger = Logger.getLogger("Application");
+  public static final Logger logger = Logger.getLogger("Logs'R'Us");
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {
@@ -68,9 +70,12 @@ public class Application implements ServletContextListener {
         new SessionServlet(gson, db, sm)).addMapping("/api/session");
     context.addServlet(CalendarServlet.class.getName(),
         new CalendarServlet(gson, db)).addMapping("/api/calendar");
+    context.addServlet(SubscriptionServlet.class.getName(),
+        new SubscriptionServlet(gson, db)).addMapping("/api/subscription");
   }
 
   @Override
-  public void contextDestroyed(ServletContextEvent arg0) {}
+  public void contextDestroyed(ServletContextEvent arg0) {
+  }
 
 }
