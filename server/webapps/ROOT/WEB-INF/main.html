@@ -178,6 +178,7 @@
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane fade in active" id="crt_event">
                 <form class="form-centre" role="form" id="event_form" action="/api/event" method="post" autocomplete="off">
+                  <div class="form-group">
                   <select class="form-control" name="calendar">
                     <option value="volvo">Volvo</option>
                     <option value="saab">Saab</option>
@@ -192,6 +193,7 @@
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
                   <input type="number" name="size" class="form-control" min="0" value="0" placeholder="Size" required>
                   <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
+                  </div>
                   <input class="btn btn-primary" type="submit" value="Create Event">
                   <p class="form-error" id="event_create_errors"></p>
                 </form>
@@ -199,7 +201,7 @@
               <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
                 <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
                 <form class="form-centre" role="form" id="calendar_join_form" action="calendar" method="post" autocomplete="off">
-                  <input type="text" name="token" class="form-control" placeholder="Token" autofocus required>
+                  <div class="form-group"><input type="text" name="token" class="form-control" placeholder="Token" autofocus required></div>
                   <input class="btn btn-primary" type="submit" value="Join">
                   <p class="form-error" id="calendar_join_errors"></p>
                 </form>
