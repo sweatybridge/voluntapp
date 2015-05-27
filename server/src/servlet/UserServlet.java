@@ -137,7 +137,6 @@ public class UserServlet extends HttpServlet {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The email you entered is already in use."));
     } catch (PasswordHashFailureException e) {
-      // TODO: move hash failure out since it cannot be tested
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Password Hashing Failed"));
     }
