@@ -31,130 +31,125 @@ import exception.UserNotFoundException;
 @WebServlet
 public class SessionServlet extends HttpServlet {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private final Gson gson;
-	private final DBInterface db;
-	private final SessionManager sm;
+  private final Gson gson;
+  private final DBInterface db;
+  private final SessionManager sm;
 
-	public SessionServlet(Gson gson, DBInterface db, SessionManager sm) {
-		this.gson = gson;
-		this.db = db;
-		this.sm = sm;
-	}
+  public SessionServlet(Gson gson, DBInterface db, SessionManager sm) {
+    this.gson = gson;
+    this.db = db;
+    this.sm = sm;
+  }
 
-	/**
-	 * Creates a new session token based on user email and password.
-	 */
-	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
-		// Handle forwarded login request from user servlet
-		Integer userId = (Integer) request.getAttribute("userId");
-		if (userId != null) {
-			try {
-				// Start a new session
-				String sessionId = sm.startSession(userId);
-				SessionResponse loginResponse = new SessionResponse(sessionId);
+  /**
+   * Creates a new session token based on user email and password.
+   */
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    // Handle login by email and password
+    Integer userId = (Integer) request.getAttribute("userId");
+    if (userId == null) {
 
-				// TODO: figure out why serialisation fails here
-				request.setAttribute(Response.class.getSimpleName(),
-						loginResponse);
+      // Parse user login request
+      UserRequest login = gson.fromJson(request.getReader(), UserRequest.class);
 
-				// Set the session cookie if request comes from a browser
-				Cookie cookie = createSessionCookie(loginResponse);
-				response.addCookie(cookie);
+      // Validate login request
+      if (!login.isValid()) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "You have entered invalid login information."));
+        return;
+      }
 
-			} catch (SQLException e) {
-				// Return an error message
-				request.setAttribute(Response.class.getSimpleName(),
-						new ErrorResponse(e.getMessage()));
-			}
-			return;
-		}
+      try {
+        // Find the user in database
+        UserResponse user = db.getUser(login);
 
-		// Parse user login request
-		UserRequest user = gson
-				.fromJson(request.getReader(), UserRequest.class);
+        // Check that password matches the hashed value
+        if (!PasswordUtils.validatePassword(login.getPassword(),
+            user.getHashedPassword())) {
+          request.setAttribute(Response.class.getSimpleName(),
+              new ErrorResponse("You have entered invalid login information."));
+          return;
+        }
 
-		// Handle request in a RESTful manner
-		Response loginResponse = login(user);
-		if (loginResponse instanceof SessionResponse) {
-			// Set the session cookie if request comes from a browser
-			Cookie cookie = createSessionCookie(loginResponse);
-			response.addCookie(cookie);
-		}
+        // return user id for starting a session
+        userId = user.getUserId();
 
-		// Pass response object to serialisation filter
-		request.setAttribute(Response.class.getSimpleName(), loginResponse);
-	}
+      } catch (SQLException | InconsistentDataException
+          | PasswordHashFailureException e) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Something really bad has happened."));
+        return;
+      } catch (UserNotFoundException e) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "You have entered invalid login information."));
+        return;
+      }
+    }
 
-	/**
-	 * TODO: Refreshes the current session token.
-	 */
-	@Override
-	public void doPut(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
-	}
+    try {
+      // Start a new session
+      String sessionId = sm.startSession(userId);
+      SessionResponse loginResponse = new SessionResponse(sessionId);
 
-	/**
-	 * Logs out the user and remove its session.
-	 */
-	@Override
-	public void doDelete(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+      // Set the session cookie if request comes from a browser
+      Cookie cookie = createSessionCookie(loginResponse);
+      response.addCookie(cookie);
 
-		SessionResponse session = (SessionResponse) request
-				.getAttribute(SessionResponse.class.getSimpleName());
+      // Pass response object to serialisation filter
+      request.setAttribute(Response.class.getSimpleName(), loginResponse);
 
-		// Invalidate session on server
-		if (!sm.closeSession(session.getSessionId())) {
-			request.setAttribute(Response.class.getSimpleName(),
-					new ErrorResponse("Unable to log out."));
-			return;
-		}
+    } catch (SQLException e) {
+      // Failed to start session
+      request.setAttribute(Response.class.getSimpleName(),
+          new ErrorResponse(e.getMessage()));
+    }
+  }
 
-		request.setAttribute(Response.class.getSimpleName(),
-				new SuccessResponse("You have successfully logged out."));
-	}
+  /**
+   * TODO: Refreshes the current session token.
+   */
+  @Override
+  public void doPut(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {}
 
-	private Cookie createSessionCookie(Response resp) {
-		/*
-		 * if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With")))
-		 * { HttpSession jsession = request.getSession();
-		 * response.sendRedirect("/"); }
-		 */
-		SessionResponse session = (SessionResponse) resp;
-		Cookie cookie = new Cookie("token", session.getSessionId());
-		cookie.setPath("/");
-		// cookie.setHttpOnly(true);
-		return cookie;
-	}
+  /**
+   * Logs out the user and remove its session.
+   */
+  @Override
+  public void doDelete(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
 
-	private Response login(UserRequest req) {
-		// Validate login
-		if (!req.isValid()) {
-			return new ErrorResponse(
-					"You have entered invalid login information.");
-		}
+    SessionResponse session =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
 
-		try {
-			UserResponse user = db.getUser(req);
+    Response resp = invalidateSession(session);
 
-			// Check that password matches the hashed value
-			if (!PasswordUtils.validatePassword(req.getPassword(),
-					user.getHashedPassword())) {
-				return new ErrorResponse("You have entered a wrong password.");
-			}
+    request.setAttribute(Response.class.getSimpleName(), resp);
+  }
 
-			// Start a new session to support multi-client login
-			String token = sm.startSession(user.getUserId());
+  private Cookie createSessionCookie(Response resp) {
+    /*
+     * if (!"XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+     * HttpSession jsession = request.getSession(); response.sendRedirect("/");
+     * }
+     */
+    SessionResponse session = (SessionResponse) resp;
+    Cookie cookie = new Cookie("token", session.getSessionId());
+    cookie.setPath("/");
+    // cookie.setHttpOnly(true);
+    return cookie;
+  }
 
-			// Successfully logged in
-			return new SessionResponse(token);
-		} catch (SQLException | UserNotFoundException
-				| InconsistentDataException | PasswordHashFailureException e) {
-			return new ErrorResponse(e.getMessage());
-		}
-	}
+  private Response invalidateSession(SessionResponse session) {
+    if (sm.closeSession(session.getSessionId())) {
+      return new SuccessResponse("You have successfully logged out.");
+    } else {
+      return new ErrorResponse("Unable to log out.");
+    }
+  }
 }
