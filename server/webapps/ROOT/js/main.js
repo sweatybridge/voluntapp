@@ -40,7 +40,7 @@ $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.responseJSON.message); }, $("#calendar_create_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); }, $("#calendar_create_errors"));
   });
 
   // Sets up request headers for all subsequent ajax calls
@@ -76,7 +76,7 @@ $(function() {
     if (validateUpdate(form)) {
       return;
     }
-    submitAjaxForm(form, function(data) { toastr.success(data.responseJSON.message); }, $("#profile_errors"));
+    submitAjaxForm(form, function(data) { toastr.success(data.message); }, $("#profile_errors"));
   });
   
 
