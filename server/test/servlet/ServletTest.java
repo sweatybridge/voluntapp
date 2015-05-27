@@ -30,8 +30,8 @@ public abstract class ServletTest {
   protected static final int TEST_USER_ID = 7;
   protected static final String TEST_EMAIL = "james.bond@gmail.com";
   protected static final String TEST_PASSWORD = "123456";
-  protected static final String TEST_PASSWORD_HASHED = "123456";
-  protected static final String TEST_PASSWORD_WRONG = "654321";
+  protected static final String TEST_PASSWORD_HASHED = "123456:123456";
+  protected static final String TEST_PASSWORD_WRONG = "654321:342424";
   protected static final String TEST_FIRST_NAME = "James";
   protected static final String TEST_LAST_NAME = "Bond";
 
