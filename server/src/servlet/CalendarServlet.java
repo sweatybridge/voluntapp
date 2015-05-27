@@ -130,8 +130,14 @@ public class CalendarServlet extends HttpServlet {
     SessionResponse sessionResponse = (SessionResponse) request.getAttribute(
         SessionResponse.class.getSimpleName());
     
-    CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
-        CalendarRequest.class);
+    CalendarRequest calendarRequest;
+    if (request.getMethod().equals("GET")) {
+      calendarRequest = gson.fromJson(request.getParameter("data"), 
+          CalendarRequest.class);
+    } else {
+      calendarRequest = gson.fromJson(request.getReader(), 
+          CalendarRequest.class);
+    }
     
     // Set userID of calendar creator. 
     calendarRequest.setUserId(sessionResponse.getUserId());
