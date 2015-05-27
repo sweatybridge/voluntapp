@@ -42,8 +42,27 @@ $(function() {
   // Bind event creation form
   $("#event_form").submit(function(e) {
     e.preventDefault();
-    submitAjaxForm($(this), function(data) { toastr.success(data.responseJSON.message); }, $("#event_create_errors"));
-  })
+    // Seperate datetime into date and time
+    var form = $(this);
+    var formObj = getFormObj(form);
+    var regex = new RegExp('/', "g");
+    formObj["startTime"] = formObj["startDate"].split(" ")[1];
+    formObj["startDate"] = formObj["startDate"].split(" ")[0].replace(regex, '-');
+    formObj["endTime"] = formObj["endDate"].split(" ")[1];
+    formObj["endDate"] = formObj["endDate"].split(" ")[0].replace(regex, '-');
+    console.log(formObj);
+    formObj["timezone"] = jstz.determine().name();
+    
+    // Submit form
+    $.ajax(form.attr("action"), {
+      data: JSON.stringify(formObj),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      method: form.attr("method"),
+      success: function(data) { toastr.success("Created " + formObj["title"]); },
+      error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
+    });
+  });
 
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
