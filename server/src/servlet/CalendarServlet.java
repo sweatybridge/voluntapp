@@ -9,17 +9,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarRequest;
-import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
 
 import db.DBInterface;
-import db.SessionManager;
 import db.InviteCodeGenerator;
 
 

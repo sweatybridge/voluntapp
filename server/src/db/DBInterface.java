@@ -153,6 +153,7 @@ public class DBInterface {
    */
   public Response putCalendarSubscription(SubscriptionRequest subReq) 
       throws SQLException {
+    /* TODO: Register calendar subscription only when the join enable field was checked. */
     SubscriptionResponse subResp = 
         new SubscriptionResponse(subReq.getUserId(), subReq.getJoinCode());
     insert(subResp);
@@ -344,7 +345,7 @@ public class DBInterface {
   public boolean deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
     EventResponse er = new EventResponse(null, null, null, null, null, null,
-        null, eventId, -1, true);
+        null, eventId, -1, false);
     return updateRowCheckHelper(er);
   }
 

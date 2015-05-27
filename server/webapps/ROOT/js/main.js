@@ -1,5 +1,8 @@
 // DOCUMENT READY
 $(function() {
+  // Render calendar from yesterday
+  updateCalendarDates(yesterday());
+
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
@@ -84,20 +87,32 @@ $(function() {
   $("#prev_day").click(function() {
     // shift weekday columns left by one
     $("#t_calendar tbody").children().each(function(k, v) {
-      var first = $(v).children()[0]
-      $(first).detach()
-      $(first).appendTo(v)
-    })
-  })
+      var first = $(v).children()[0];
+      $(first).detach();
+      $(first).appendTo(v);
+    });
+  });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
     $("#t_calendar tbody").children().each(function(k, v) {
-      var last = $(v).children()[6]
-      $(last).detach()
-      $(last).prependTo(v)
-    })
-  })
+      var last = $(v).children()[6];
+      $(last).detach();
+      $(last).prependTo(v);
+    });
+  });
+
+  // Retrieve and render calendar events
+  $.ajax("/json/calendar.json", {
+    success: function(data) {
+      $.each(data.events, function(index, value) {
+        createEventView(value);
+      });
+    },
+    error: function(data) {
+      console.log("Failed to retrieve calendar events.");
+    }
+  });
 }); // End of document ready
 
 // Update main column class whether sizebars are hidden or not
@@ -122,8 +137,8 @@ function getCookie(name) {
 // Render a new event on the calendar
 function createEventView(model) {
   // find the cell corresponding to start date
-  $("#t_calendar_body").children().each(function(k, v) {
-    if ($(v).data("date") === model.startDate) {
+  $("#t_calendar_body").children().each(function(k, elem) {
+    if ($(elem).data("date") === model.startDate) {
       // append event div
       $("<div/>", {
         "data-eventId": model.eventId,
@@ -137,11 +152,28 @@ function createEventView(model) {
       })).append($("<p/>", {
         class: "e_desc",
         text: model.description
-      })).appendTo(v)
+      })).appendTo(elem);
     }
 
     // if event not in view, don't render
-  })
+  });
+}
+
+// Update data-date field of calendar view from startDate
+function updateCalendarDates(startDate) {
+  // TODO: Handle different time zone
+  $("#t_calendar_body").children().each(function(k, elem) {
+    startDate.setDate(startDate.getDate() + 1);
+    var date = startDate.toJSON().split("T")[0];
+    $(elem).attr("data-date", date);
+  });
+}
+
+// Get yesterday as date object
+function yesterday() {
+  var today = new Date();
+  today.setDate(today.getDate() - 1);
+  return today;
 }
 
 // Update user profile information on view

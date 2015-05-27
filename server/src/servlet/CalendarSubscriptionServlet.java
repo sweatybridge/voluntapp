@@ -18,14 +18,14 @@ import com.google.gson.Gson;
 import db.DBInterface;
 
 @WebServlet
-public class SubscriptionServlet extends HttpServlet {
+public class CalendarSubscriptionServlet extends HttpServlet {
   
   private static final long serialVersionUID = 1L;
   
   private final DBInterface db;
   private final Gson gson;
   
-  public SubscriptionServlet(Gson gson, DBInterface db) {
+  public CalendarSubscriptionServlet(Gson gson, DBInterface db) {
     this.db = db;
     this.gson = gson;
   }

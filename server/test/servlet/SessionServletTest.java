@@ -24,11 +24,13 @@ import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
 import resp.UserResponse;
+import utils.PasswordUtils;
 
 import com.google.common.collect.ImmutableMap;
 
 import db.SessionManager;
 import exception.InconsistentDataException;
+import exception.PasswordHashFailureException;
 import exception.UserNotFoundException;
 
 public class SessionServletTest extends ServletTest {
@@ -47,7 +49,7 @@ public class SessionServletTest extends ServletTest {
   @Test
   public void postSucceedsLoginWhenEmailAndPasswordAreValid()
       throws IOException, SQLException, UserNotFoundException,
-      InconsistentDataException {
+			InconsistentDataException, PasswordHashFailureException {
 
     prepareValidLogin();
 
@@ -200,7 +202,8 @@ public class SessionServletTest extends ServletTest {
 
   @Test
   public void shouldAddCookieWhenLoginSucceeds() throws IOException,
-      SQLException, UserNotFoundException, InconsistentDataException {
+			SQLException, UserNotFoundException, InconsistentDataException,
+			PasswordHashFailureException {
 
     prepareValidLogin();
 
@@ -211,7 +214,8 @@ public class SessionServletTest extends ServletTest {
   }
 
   private void prepareValidLogin() throws IOException, SQLException,
-      UserNotFoundException, InconsistentDataException {
+			UserNotFoundException, InconsistentDataException,
+			PasswordHashFailureException {
     // Reader returns valid payload
     when(req.getReader()).thenReturn(
         new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
@@ -219,7 +223,7 @@ public class SessionServletTest extends ServletTest {
 
     // Database returns valid user
     when(db.getUser(any(UserRequest.class))).thenReturn(
-        new UserResponse(TEST_EMAIL, TEST_PASSWORD_HASHED, TEST_USER_ID,
+        new UserResponse(TEST_EMAIL, PasswordUtils.getPasswordHash(TEST_PASSWORD), TEST_USER_ID,
             TEST_FIRST_NAME, TEST_LAST_NAME));
 
     // Session manager returns valid session
