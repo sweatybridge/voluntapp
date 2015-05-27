@@ -78,17 +78,56 @@ $(function() {
     beforeSend: function(xhr) {
       xhr.setRequestHeader("Authorization", getCookie("token"))
     }
-  })
+  });
 
   // Request user profile information
   $.ajax("/api/user", {
     method: "GET",
     statusCode: {
       200: function(data) {
-        $(".firstName").text(data.firstName)
+        $(".email").text(data.email);
+        $(".firstName").text(data.firstName);
+        $(".lastName").text(data.lastName);
       }
     }
-  })
+  });
+  
+  // Bind user profile buttons
+  $("#profile_form").hide();
+  $("#b_update_profile").click(function() {
+    $("#d_user_profile").toggle();
+    $("#profile_form").toggle();
+  });
+  $("#b_cancel_profile").click(function() {
+    $("#profile_form").toggle();
+    $("#d_user_profile").toggle();
+  });
+  
+  // Bind user profile update form
+  // Bind calendar creation form
+  $("#profile_form").submit(function(e) {
+    e.preventDefault();
+    var form = $(this);
+    
+    // Validate
+    if (validateUpdate(form)) {
+      return;
+    }
+    // Submit
+    $.ajax(form.attr("action"), {
+      method: form.attr("method"),
+      data: JSON.stringify(getFormObj(form)),
+      statusCode: {
+        200: function(data) {
+          toastr.success(data.message);
+        },
+        400: function(data) {
+          toastr.error(data.message);
+        }
+      }
+    });
+  });
+  
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
@@ -162,4 +201,24 @@ function createEventView(model) {
 
     // if event not in view, don't render
   })
+}
+
+// Validation of update form
+function validateUpdate($form) {
+  var form = $form[0];
+  var pass_val = form["newPassword"].value;
+  
+  // Check password length
+  if (pass_val.length < 6) {
+    $("#profile_errors").text("New password must be at least 6 characters long");
+    return true;
+  }
+  
+  // Check confirmation
+  var conf_pass_val = form["confPassword"].value;
+  if (pass_val !== conf_pass_val) {
+    $("#profile_errors").text("Password must match");
+    return true;
+  }
+  return false;
 }

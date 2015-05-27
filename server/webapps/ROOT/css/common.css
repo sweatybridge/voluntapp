@@ -46,7 +46,7 @@ form .form-control {
 }
 
 form input[type="submit"] {
-  margin-top: 10px;
+  //margin-top: 10px;
 }
 
 /*.form input[name="username"] {

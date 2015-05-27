@@ -39,7 +39,7 @@
             <form class="form-centre" role="form" id="register_form" action="/api/user" method="post" autocomplete="on">
               <div class="form-group"><input type="email" name="email" class="form-control" placeholder="Email" autofocus required></div>
               <div class="form-group"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
-              <div class="form-group"><input type="password" name="conf_password" class="form-control" placeholder="Confirm password" required></div>
+              <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm password" required></div>
               <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
               <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
               <div class="form-group"><input class="btn btn-primary" type="submit" value="Register"></div>
@@ -109,7 +109,7 @@
         }
         
         // Check confirmation
-        var conf_pass_val = form["conf_password"].value;
+        var conf_pass_val = form["confPassword"].value;
         if (pass_val !== conf_pass_val) {
           //form["conf_password"].setCustomValidity("Passwords must match");
           $("#register_errors").text("Password must match");

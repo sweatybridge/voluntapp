@@ -26,9 +26,9 @@
         <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     </head>
     <body>
-        <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+    <!--[if lt IE 8]>
+        <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -47,7 +47,7 @@
             <li><a href="#">Profile</a></li>
             <li><a id="btn_logout" href="#">Logout</a></li>
           </ul>
-          <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a class="firstName" href="#account" class="navbar-link"></a></p>
+          <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a class="firstName" href="#account" class="navbar-link">[firstName]</a></p>
         </div>
       </div>
     </nav>
@@ -56,7 +56,7 @@
       <div class="row">
         <div id="d_left_sidebar" class="col-sm-2">
           <p class="lead">Welcome, <span class="firstName"></span></p>
-          <p>You haven't logged in since <strong>{{lastSeen}}</strong></p>
+          <p>You haven't logged in since <strong class="firstName">[firstName]</strong></p>
           
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
@@ -83,7 +83,25 @@
               </div>
               <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                 <div class="panel-body">
-                  TODO: add in profile form for password update etc.
+                  <div id="d_user_profile">
+                    <p>Email: <strong class="email">[email]</strong></p>
+                    <p>First Name: <strong class="firstName">[firstName]</strong></p>
+                    <p>Last Name: <strong class="lastName">[lastName]</strong></p>
+                    <button id="b_update_profile" type="button" class="btn btn-info">Update</button>
+                  </div>
+                  <form class="form-centre" role="form" id="profile_form" action="/api/user" method="post" autocomplete="on">
+                    <div class="form-group"><input type="email" name="email" class="form-control email" placeholder="Email" autofocus required></div>
+                    <div class="form-group"><input type="text" name="firstName" class="form-control firstName" placeholder="First name" required></div>
+                    <div class="form-group"><input type="text" name="lastName" class="form-control lastName" placeholder="Last name (optional)"></div>
+                    <div class="form-group"><input type="password" name="password" class="form-control" placeholder="Current password" required></div>
+                    <div class="form-group"><input type="password" name="newPassword" class="form-control" placeholder="New password" required></div>
+                    <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm new password" required></div>
+                    <div class="form-group">
+                      <input class="btn btn-primary" type="submit" value="Update">
+                      <input id="b_cancel_profile" type="button" class="btn btn-danger" value="Cancel">
+                    </div>
+                    <p class="form-error" id="profile_errors"></p>
+                  </form>
                 </div>
               </div>
             </div>
@@ -168,8 +186,9 @@
                   </select>
                   <input type="text" name="title" class="form-control" placeholder="Title" required>
                   <input type="time" name="startTime" class="form-control" placeholder="Start time" required>
+                  <input type="date" name="startDate" class="form-control" placeholder="Start date" required>
                   <input type="time" name="endTime" class="form-control" placeholder="End time" required>
-                  <input type="date" name="date" class="form-control" placeholder="Date" required>
+                  <input type="date" name="endDate" class="form-control" placeholder="End date" required>
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
                   <input type="number" name="size" class="form-control" min="0" value="0" placeholder="Size" required>
                   <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
