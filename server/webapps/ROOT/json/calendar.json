@@ -12,7 +12,8 @@
 		"startDate": "2015-05-30",
 		"endTime": "15:00",
 		"endDate": "2015-05-30",
-		"max": 30
+		"max": 30,
+		"timezone": "Europe/London"
 	}, {
 		"eventId": 12,
 		"title": "Science Museum Trip",
@@ -22,7 +23,8 @@
 		"startDate": "2015-06-02",
 		"endTime": "16:00",
 		"endDate": "2015-06-02",
-		"max": 10
+		"max": 10,
+		"timezone": "Europe/London"
 	}, {
 		"eventId": 13,
 		"title": "Bar Night",
@@ -32,6 +34,6 @@
 		"startDate": "2015-06-02",
 		"endTime": "",
 		"endDate": "",
-		"max": 60
+		"timezone": "Europe/London"
 	}]
 }
