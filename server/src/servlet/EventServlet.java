@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import req.EventRequest;
 import resp.ErrorResponse;
+import resp.EventResponse;
 import resp.Response;
 import resp.SuccessResponse;
 
@@ -54,10 +55,15 @@ public class EventServlet extends HttpServlet {
     }
     
     try {
-      // TODO: What to do with the return value of putEvent?
-      db.putEvent(eventReq);
-      request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
-          "Event was successfully registered."));
+      int eventId = db.putEvent(eventReq);
+      EventResponse resp =
+          new EventResponse(eventReq.getTitle(), eventReq.getDescription(),
+              eventReq.getLocation(), eventReq.getStartTime(),
+              eventReq.getStartDate(), eventReq.getDuration(),
+              Integer.toString(eventReq.getMax()), eventId,
+              eventReq.getCalendarId());
+      
+      request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error occurred while adding a new event to the database."));
