@@ -52,13 +52,14 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     
+    <script src="js/utils.js"></script>
     <script>
       // DOCUMENT READY
       $(function() {
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
-          submitAjaxForm($(this), $("#login_errors"));
+          submitAjaxForm($(this), function(data) { window.location.reload(); }, $("#login_errors"));
         });
         
         $("#register_form").submit(function(e) {
@@ -67,36 +68,10 @@
           if (validateRegister(form)) {
             return
           }
-          submitAjaxForm(form, $("#register_errors"));
+          submitAjaxForm(form, function(data) { window.location.reload(); }, $("#register_errors"));
         });
         
       }); // End of document ready
-      
-      // Convert input fields into an javascript object
-      function getFormObj(form) {
-          var formObj = {};
-          var inputs = form.serializeArray();
-          $.each(inputs, function (i, input) {
-              formObj[input.name] = input.value;
-          });
-          return formObj;
-      }
-      
-      // Submit ajax form with different error field
-      function submitAjaxForm(form, errorDiv) {
-        $.ajax(form.attr("action"), {
-          data: JSON.stringify(getFormObj(form)),
-          contentType: "application/json; charset=utf-8",
-          dataType: "json",
-          method: form.attr("method"),
-          statusCode: {
-            200: function(data) { 
-              window.location.reload(); 
-            },
-            400: function(data) { errorDiv.text(data.responseJSON.message); }
-          }
-        });
-      }
       
       // Register form validation function, called onsubmit
       function validateRegister($form) {

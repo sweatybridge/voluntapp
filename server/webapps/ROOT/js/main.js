@@ -26,50 +26,22 @@ $(function() {
   $("#btn_logout").click(function() {
     $.ajax("/api/session", {
       method: "DELETE",
-      statusCode: {
-        200: function(data) {
-          window.location.reload()
-        },
-        400: function(data) { alert(data.responseJSON.message); }
-      }
-    })
-  })
+      success: function(data) { window.location.reload(); },
+      error: function(data) { alert(data.responseJSON.message); }
+    });
+  });
 
   // Bind event creation form
   $("#event_form").submit(function(e) {
-    e.preventDefault()
-    var form = $(this)
-    $.ajax(form.attr("action"), {
-      method: form.attr("method"),
-      data: JSON.stringify(getFormObj(form)),
-      statusCode: {
-        200: function(data) {
-          toastr.success(data.responseJSON.message)
-        },
-        400: function(data) {
-          toastr.error(data.responseJSON.message)
-        }
-      }
-    })
+    e.preventDefault();
+    submitAjaxForm($(this), function(data) { toastr.success(data.responseJSON.message); }, $("#event_create_errors"));
   })
 
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    var form = $(this)
-    $.ajax(form.attr("action"), {
-      method: form.attr("method"),
-      data: JSON.stringify(getFormObj(form)),
-      statusCode: {
-        200: function(data) {
-          toastr.success(data.message)
-        },
-        400: function(data) {
-          toastr.error(data.message)
-        }
-      }
-    })
-  })
+    submitAjaxForm($(this), function(data) { toastr.success(data.responseJSON.message); }, $("#calendar_create_errors"));
+  });
 
   // Sets up request headers for all subsequent ajax calls
   $.ajaxSetup({
@@ -104,19 +76,7 @@ $(function() {
     if (validateUpdate(form)) {
       return;
     }
-    // Submit
-    $.ajax(form.attr("action"), {
-      method: form.attr("method"),
-      data: JSON.stringify(getFormObj(form)),
-      statusCode: {
-        200: function(data) {
-          toastr.success(data.message);
-        },
-        400: function(data) {
-          toastr.error(data.message);
-        }
-      }
-    });
+    submitAjaxForm(form, function(data) { toastr.success(data.responseJSON.message); }, $("#profile_errors"));
   });
   
 
@@ -157,16 +117,6 @@ function getCookie(name) {
   var value = "; " + document.cookie;
   var parts = value.split("; " + name + "=");
   if (parts.length == 2) return parts.pop().split(";").shift();
-}
-
-// Convert input fields into an javascript object
-function getFormObj(form) {
-  var formObj = {};
-  var inputs = form.serializeArray();
-  $.each(inputs, function (i, input) {
-    formObj[input.name] = input.value;
-  });
-  return formObj;
 }
 
 // Render a new event on the calendar
