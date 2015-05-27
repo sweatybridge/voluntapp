@@ -81,16 +81,7 @@ $(function() {
   });
 
   // Request user profile information
-  $.ajax("/api/user", {
-    method: "GET",
-    statusCode: {
-      200: function(data) {
-        $(".email").text(data.email);
-        $(".firstName").text(data.firstName);
-        $(".lastName").text(data.lastName);
-      }
-    }
-  });
+  refreshUser();
   
   // Bind user profile buttons
   $("#profile_form").hide();
@@ -203,6 +194,19 @@ function createEventView(model) {
   })
 }
 
+// Update user profile information on view
+function refreshUser() {
+  $.ajax("/api/user", {
+    method: "GET",
+    statusCode: {
+      200: function(data) {
+        $(".email").text(data.email);
+        $(".firstName").text(data.firstName);
+        $(".lastName").text(data.lastName);
+      }
+    }
+  });
+}
 // Validation of update form
 function validateUpdate($form) {
   var form = $form[0];
