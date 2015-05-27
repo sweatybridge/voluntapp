@@ -45,10 +45,6 @@ form .form-control {
   color: FireBrick;
 }
 
-form input[type="submit"] {
-  //margin-top: 10px;
-}
-
 /*.form input[name="username"] {
   margin-bottom: 0px;
   border-bottom-right-radius: 0;

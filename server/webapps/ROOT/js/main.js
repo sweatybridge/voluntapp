@@ -198,13 +198,12 @@ function createEventView(model) {
 function refreshUser() {
   $.ajax("/api/user", {
     method: "GET",
-    statusCode: {
-      200: function(data) {
-        $(".email").text(data.email);
-        $(".firstName").text(data.firstName);
-        $(".lastName").text(data.lastName);
+    success: function(data) {
+        $("[data-bind='email']").text(data.email);
+        $("[data-bind='firstName']").text(data.firstName);
+        $("[data-bind='lastName']").text(data.lastName);
+        $("[data-bind='lastSeen']").text(data.lastSeen);
       }
-    }
   });
 }
 // Validation of update form

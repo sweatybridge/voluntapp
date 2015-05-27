@@ -15,8 +15,10 @@
   <body>
     <form class="form-centre" role="form" id="login_form" action="/api/session" method="post" autocomplete="on">
       <h2 class="form-heading">Please login</h2>
-      <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
-      <input type="password" name="password" class="form-control" placeholder="Password" required>
+      <div class="form-group">
+        <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+      </div>
       <input class="btn btn-primary" type="submit" value="Login">
       <p class="form-error" id="login_errors"></p>
     </form>
