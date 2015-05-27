@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +23,6 @@ import resp.SessionResponse;
 import com.google.gson.Gson;
 
 import db.DBInterface;
-import db.SessionManager;
 
 public abstract class ServletTest {
 
@@ -42,7 +43,9 @@ public abstract class ServletTest {
   @Mock
   protected DBInterface db;
   @Mock
-  protected SessionManager sm;
+  protected ServletContext context;
+  @Mock
+  protected RequestDispatcher dispatcher;
 
   protected Gson gson = new Gson();
 

@@ -2,7 +2,7 @@ package servlet;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.junit.Before;
@@ -19,7 +20,6 @@ import org.mockito.ArgumentCaptor;
 
 import req.RegisterRequest;
 import req.UserRequest;
-import resp.ErrorResponse;
 import resp.Response;
 import resp.UserResponse;
 
@@ -35,8 +35,14 @@ public class UserServletTest extends ServletTest {
 
   @Before
   public void setUp() {
-    // Create a new servlet for every test to prevent state persistence
-    servlet = new UserServlet(gson, db);
+    // Create subclass to return mocked context
+    servlet = new UserServlet(gson, db) {
+      private static final long serialVersionUID = 1L;
+
+      public ServletContext getServletContext() {
+        return context;
+      }
+    };
   }
 
   @Test
@@ -83,6 +89,25 @@ public class UserServletTest extends ServletTest {
   }
 
   @Test
+  public void getFailsWhenDatabaseIsInconsistent() throws SQLException,
+      UserNotFoundException, InconsistentDataException {
+    // Sets up post condition of getUser
+    when(db.getUser(any(UserRequest.class))).thenThrow(
+        new InconsistentDataException(""));
+
+    // Method under test
+    servlet.doGet(req, resp);
+
+    // Verify pre condition of getUser
+    ArgumentCaptor<UserRequest> arg =
+        ArgumentCaptor.forClass(UserRequest.class);
+    verify(db).getUser(arg.capture());
+    assertEquals(TEST_USER_ID, arg.getValue().getUserId());
+
+    validateErrorResponse();
+  }
+
+  @Test
   public void postSucceedsUserRegistrationWhenInformationIsValid()
       throws IOException, SQLException, ServletException,
       PasswordHashFailureException {
@@ -95,11 +120,37 @@ public class UserServletTest extends ServletTest {
     // Database returns valid user id
     when(db.putUser(any(RegisterRequest.class))).thenReturn(TEST_USER_ID);
 
+    // Context returns mocked dispatcher
+    when(context.getRequestDispatcher(any(String.class)))
+        .thenReturn(dispatcher);
+
     // Method under test
     servlet.doPost(req, resp);
 
     // Checks user id is installed before forwarding
     verify(req).setAttribute("userId", TEST_USER_ID);
+
+    // Check that request is forwarded to session servlet
+    verify(context).getRequestDispatcher("/session");
+    verify(dispatcher).forward(req, resp);
+  }
+
+  @Test
+  public void postFailsRegistrationWhenInformationIsInvalid()
+      throws IOException, SQLException, ServletException,
+      PasswordHashFailureException {
+    // Reader returns valid payload
+    when(req.getReader()).thenReturn(
+        new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
+            "email", TEST_EMAIL, "password", TEST_PASSWORD)))));
+
+    // Method under test
+    servlet.doPost(req, resp);
+
+    // Database is not accessed
+    verify(db, never()).putUser(any(RegisterRequest.class));
+
+    validateErrorResponse();
   }
 
   @Test
@@ -118,9 +169,7 @@ public class UserServletTest extends ServletTest {
     // Method under test
     servlet.doPost(req, resp);
 
-    // Error response is installed
-    verify(req).setAttribute(eq(Response.class.getSimpleName()),
-        any(ErrorResponse.class));
+    validateErrorResponse();
   }
 
   @Test
@@ -133,13 +182,6 @@ public class UserServletTest extends ServletTest {
   public void deleteSucceedsRemovingUserFromDatabase() {
     // TODO: complete implementation
     servlet.doDelete(req, resp);
-  }
-
-  @Test
-  public void shouldForwardToSessionServletWhenRegistrationSucceeds()
-      throws IOException, ServletException {
-    // TODO: complete implementation
-    servlet.doPost(req, resp);
   }
 
 }

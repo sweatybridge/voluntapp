@@ -17,6 +17,7 @@ import javax.servlet.http.Cookie;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
 import req.UserRequest;
 import resp.Response;
@@ -26,15 +27,20 @@ import resp.UserResponse;
 
 import com.google.common.collect.ImmutableMap;
 
+import db.SessionManager;
 import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
 public class SessionServletTest extends ServletTest {
 
+  @Mock
+  protected SessionManager sm;
+
   private SessionServlet servlet;
 
   @Before
   public void setUp() {
+    // Create a new servlet for every test to prevent state persistence
     servlet = new SessionServlet(gson, db, sm);
   }
 
