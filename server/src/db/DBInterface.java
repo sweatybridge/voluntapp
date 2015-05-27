@@ -9,16 +9,16 @@ import org.postgresql.ds.PGConnectionPoolDataSource;
 
 import req.CalendarRequest;
 import req.CalendarRequest.CalendarEventsQuery;
+import req.CalendarSubscriptionRequest;
 import req.EventRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
-import req.SubscriptionRequest;
 import req.UserRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
 import resp.Response;
 import resp.SessionResponse;
-import resp.SubscriptionResponse;
+import resp.CalendarSubscriptionResponse;
 import resp.UserResponse;
 import sql.SQLInsert;
 import sql.SQLQuery;
@@ -137,8 +137,10 @@ public class DBInterface {
    *         to which a user subscribed.
    * @throws SQLException 
    */
-  public SubscriptionResponse getUsersCalendars(int userId) throws SQLException {
-    SubscriptionResponse resp = new SubscriptionResponse(userId);
+  public CalendarSubscriptionResponse getUsersCalendars(int userId) 
+      throws SQLException {
+    CalendarSubscriptionResponse resp = 
+        new CalendarSubscriptionResponse(userId);
     query(resp);
     return resp;
   }
@@ -151,11 +153,11 @@ public class DBInterface {
    * @return
    * @throws SQLException 
    */
-  public Response putCalendarSubscription(SubscriptionRequest subReq) 
+  public Response putCalendarSubscription(CalendarSubscriptionRequest subReq) 
       throws SQLException {
     /* TODO: Register calendar subscription only when the join enable field was checked. */
-    SubscriptionResponse subResp = 
-        new SubscriptionResponse(subReq.getUserId(), subReq.getJoinCode());
+    CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
+            subReq.getUserId(), subReq.getJoinCode());
     insert(subResp);
     return subResp;
   }

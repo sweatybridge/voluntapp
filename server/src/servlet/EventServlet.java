@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import req.EventRequest;
 import resp.ErrorResponse;
 import resp.Response;
+import resp.SuccessResponse;
 
 import com.google.gson.Gson;
 
@@ -55,6 +56,8 @@ public class EventServlet extends HttpServlet {
     try {
       // TODO: What to do with the return value of putEvent?
       db.putEvent(eventReq);
+      request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
+          "Event was successfully registered."));
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error occurred while adding a new event to the database."));
@@ -82,6 +85,9 @@ public class EventServlet extends HttpServlet {
         if (!db.updateEvent(Integer.parseInt(eventId), eventReq)) {
           request.setAttribute(Response.class.getSimpleName(), 
               new ErrorResponse("Update of the event data was not successful."));
+        } else {
+          request.setAttribute(Response.class.getSimpleName(), 
+              "Event data were updated successfully.");
         }
       } catch (NumberFormatException e) {
         request.setAttribute(Response.class.getSimpleName(), 
@@ -120,6 +126,8 @@ public class EventServlet extends HttpServlet {
     if (eventId != null) {
       try {
         db.deleteEvent(Integer.parseInt(eventId));
+        request.setAttribute(Response.class.getSimpleName(), 
+            new SuccessResponse("The event was successfully deleted."));
       } catch(EventNotFoundException e) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "No event with specified event ID exists in the database."));

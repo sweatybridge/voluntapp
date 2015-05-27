@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import req.SubscriptionRequest;
+import req.CalendarSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
@@ -62,8 +62,8 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     if (userId == 0) {
       return;
     }
-    SubscriptionRequest subReq = 
-        gson.fromJson(request.getReader(), SubscriptionRequest.class);
+    CalendarSubscriptionRequest subReq = 
+        gson.fromJson(request.getReader(), CalendarSubscriptionRequest.class);
     subReq.setUserId(userId);
     
     Response subResp;

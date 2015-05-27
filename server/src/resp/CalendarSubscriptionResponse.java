@@ -8,7 +8,7 @@ import java.util.List;
 import sql.SQLInsert;
 import sql.SQLQuery;
 
-public class SubscriptionResponse extends Response implements SQLQuery, SQLInsert {
+public class CalendarSubscriptionResponse extends Response implements SQLQuery, SQLInsert {
   
   /* Columns of the USER_CALENDAR table. */
   private static final String UID_COLUMN = "UID";
@@ -25,13 +25,13 @@ public class SubscriptionResponse extends Response implements SQLQuery, SQLInser
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public SubscriptionResponse() {}
+  public CalendarSubscriptionResponse() {}
   
-  public SubscriptionResponse(int userId) {
+  public CalendarSubscriptionResponse(int userId) {
     this.userId = userId;
   }
   
-  public SubscriptionResponse(int userId, String joinCode) {
+  public CalendarSubscriptionResponse(int userId, String joinCode) {
     this.userId = userId;
     this.joinCode = joinCode;
   }
