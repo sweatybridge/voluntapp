@@ -24,6 +24,9 @@ $(function() {
   $(".event button").click(function() {
     $(this).next(".e_desc").toggle(500);
   });
+  
+  // Bind datetime picker
+  $(".datetimepicker").datetimepicker();
 
   // Bind logout button
   $("#btn_logout").click(function() {
