@@ -250,11 +250,16 @@ function refreshCalendar() {
       return;
     }
     $("#user_calendars").empty();
+    $("#select_calendar").empty();
     $.each(data.calendarIds, function(index, calendarId) {
       // For every calendar get calendar data
       var d_json = "{'calendarId':" + calendarId + "}";
       $.get("/api/calendar", { data: d_json }, function(data) {
         // TODO: update global variable with calendar data
+        $('#select_calendar')
+         .append($("<option></option>")
+         .attr("value",calendarId)
+         .text(data.name));
         $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+data.name)).appendTo("#user_calendars");
       });
     });
