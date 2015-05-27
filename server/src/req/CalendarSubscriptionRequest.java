@@ -1,6 +1,6 @@
 package req;
 
-public class SubscriptionRequest implements Request {
+public class CalendarSubscriptionRequest implements Request {
   
   private String joinCode;
   
@@ -12,9 +12,9 @@ public class SubscriptionRequest implements Request {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public SubscriptionRequest() {}
+  public CalendarSubscriptionRequest() {}
   
-  public SubscriptionRequest(int userId) {
+  public CalendarSubscriptionRequest(int userId) {
     this.userId = userId;
   }
   

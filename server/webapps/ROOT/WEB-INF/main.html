@@ -69,7 +69,7 @@
                 </h4>
               </div>
               <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                <div id="#active_calendars" class="panel-body">
+                <div id="user_calendars" class="panel-body">
                   It seems like you haven't joined to or created any calendars...
                 </div>
               </div>
@@ -198,7 +198,7 @@
                 <form class="form-centre" role="form" id="calendar_create_form" action="/api/calendar" method="post" autocomplete="off">
                   <input type="text" name="name" class="form-control" placeholder="Title" required>
                   <div class="checkbox">
-                    <label><input type="checkbox" name="joinEnabled" value="true">Allow Joining</label>
+                    <label><input type="checkbox" name="joinEnabled" value="true" checked>Allow Joining</label>
                   </div>
                   <input class="btn btn-primary" type="submit" value="Create">
                   <p class="form-error" id="calendar_create_errors"></p>

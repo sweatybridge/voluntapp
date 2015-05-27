@@ -71,7 +71,7 @@ $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); }, $("#calendar_create_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendar(); }, $("#calendar_create_errors"));
   });
 
   // Sets up request headers for all subsequent ajax calls
@@ -82,6 +82,9 @@ $(function() {
       xhr.setRequestHeader("Authorization", getCookie("token"));
     }
   });
+  
+  // Request calendar information
+  refreshCalendar();
 
   // Request user profile information
   refreshUser();
@@ -243,6 +246,25 @@ function refreshUser() {
       }
   });
 }
+
+// Update calendars
+function refreshCalendar() {
+  $.get("/api/subscription/calendar", function(data) {
+    if (data.calendarIds.length < 1) {
+      return;
+    }
+    $("#user_calendars").empty();
+    $.each(data.calendarIds, function(index, calendarId) {
+      // For every calendar get calendar data
+      var d_json = "{'calendarId':" + calendarId + "}";
+      $.get("/api/calendar", { data: d_json }, function(data) {
+        // TODO: update global variable with calendar data
+        $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+data.name)).appendTo("#user_calendars");
+      });
+    });
+  });
+}
+
 // Validation of update form
 function validateUpdate($form) {
   var form = $form[0];
