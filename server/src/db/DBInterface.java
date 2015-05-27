@@ -153,6 +153,7 @@ public class DBInterface {
    */
   public Response putCalendarSubscription(SubscriptionRequest subReq) 
       throws SQLException {
+    /* TODO: Register calendar subscription only when the join enable field was checked. */
     SubscriptionResponse subResp = 
         new SubscriptionResponse(subReq.getUserId(), subReq.getJoinCode());
     insert(subResp);
