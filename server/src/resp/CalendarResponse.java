@@ -20,7 +20,6 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   public static String JOIN_ENABLED_COLUMN = "JOIN_ENABLED";
   public static String JOIN_CODE_COLUMN = "JOIN_CODE";
   
-  private ResultSet rs;
   /**
    * Calendar details returned to client.
    */
@@ -32,6 +31,7 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   /**
    * Fields excluded from deserialisation.
    */
+  private transient ResultSet rs;
   private transient Timestamp creationDate;
   private transient int userId;
 
