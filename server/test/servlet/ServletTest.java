@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,6 +64,13 @@ public abstract class ServletTest {
     // Check error response is installed
     verify(req).setAttribute(eq(Response.class.getSimpleName()),
         any(ErrorResponse.class));
+  }
+
+  protected void validateForwardingTo(String url) throws ServletException,
+      IOException {
+    // Check that request is forwarded to session servlet
+    verify(context).getRequestDispatcher(url);
+    verify(dispatcher).forward(req, resp);
   }
 
 }

@@ -48,7 +48,7 @@ public class SessionServletTest extends ServletTest {
   public void postSucceedsLoginWhenEmailAndPasswordAreValid()
       throws IOException, SQLException, UserNotFoundException,
       InconsistentDataException {
-    // Set up mocks
+
     prepareValidLogin();
 
     // Method under test
@@ -135,6 +135,47 @@ public class SessionServletTest extends ServletTest {
   }
 
   @Test
+  public void postFailsLoginWhenSessionCannotBeCreatedInDatabase()
+      throws IOException, SQLException, UserNotFoundException,
+      InconsistentDataException {
+    // Reader returns valid payload
+    when(req.getReader()).thenReturn(
+        new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
+            "email", TEST_EMAIL, "password", TEST_PASSWORD)))));
+
+    // Database returns valid user
+    when(db.getUser(any(UserRequest.class))).thenReturn(
+        new UserResponse(TEST_EMAIL, TEST_PASSWORD_HASHED, TEST_USER_ID,
+            TEST_FIRST_NAME, TEST_LAST_NAME));
+
+    // Session manager fails to insert into database
+    when(sm.startSession(any(Integer.class))).thenThrow(new SQLException());
+
+    // Method under test
+    servlet.doPost(req, resp);
+
+    validateErrorResponse();
+  }
+
+  @Test
+  public void postFailsLoginWhenRequestObjectIsInvalid() throws IOException,
+      SQLException, UserNotFoundException, InconsistentDataException {
+    // Reader returns invalid payload
+    when(req.getReader()).thenReturn(
+        new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
+            "email", TEST_EMAIL)))));
+
+    // Method under test
+    servlet.doPost(req, resp);
+
+    // Database and session manager are never accessed
+    verify(db, never()).getUser(any(UserRequest.class));
+    verify(sm, never()).startSession(any(Integer.class));
+
+    validateErrorResponse();
+  }
+
+  @Test
   public void putSucceedsTokenRefresh() throws IOException {
     // TODO: complete implementation
     servlet.doPut(req, resp);
@@ -158,21 +199,9 @@ public class SessionServletTest extends ServletTest {
   }
 
   @Test
-  public void deleteFailsLogoutWhenAuthorizationHeaderIsNull()
-      throws IOException {
-    // Method under test
-    servlet.doDelete(req, resp);
-
-    // No session is closed
-    verify(sm, never()).closeSession(any(String.class));
-
-    validateErrorResponse();
-  }
-
-  @Test
   public void shouldAddCookieWhenLoginSucceeds() throws IOException,
       SQLException, UserNotFoundException, InconsistentDataException {
-    // Set up mocks
+
     prepareValidLogin();
 
     // Method under test

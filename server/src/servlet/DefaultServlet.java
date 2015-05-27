@@ -2,21 +2,14 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.logging.Level;
 
-import javax.mail.Session;
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import listener.Application;
-
-import utils.EmailUtils;
 
 import db.DBInterface;
 import exception.SessionNotFoundException;
@@ -39,18 +32,18 @@ public class DefaultServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
 
+    ServletContext context = getServletContext();
+
     // Verify session id is installed
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie c : cookies) {
         if (c.getName().equals("token")) {
-
-          // Validate session id with database
-          String sid = c.getValue();
           try {
-            db.getSession(sid);
-            getServletContext().getRequestDispatcher("/WEB-INF/main.html")
-                .forward(request, response);
+            // Validate session id with database
+            db.getSession(c.getValue());
+            context.getRequestDispatcher("/WEB-INF/main.html").forward(request,
+                response);
             return;
           } catch (SQLException | SessionNotFoundException e) {
           }
@@ -59,7 +52,7 @@ public class DefaultServlet extends HttpServlet {
     }
 
     // Forward to login page
-    getServletContext().getRequestDispatcher("/index.html").forward(request,
-        response);
+    context.getRequestDispatcher("/index.html").forward(request, response);
   }
+
 }

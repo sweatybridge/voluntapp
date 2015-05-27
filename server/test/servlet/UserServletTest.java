@@ -39,6 +39,7 @@ public class UserServletTest extends ServletTest {
     servlet = new UserServlet(gson, db) {
       private static final long serialVersionUID = 1L;
 
+      @Override
       public ServletContext getServletContext() {
         return context;
       }
@@ -130,13 +131,11 @@ public class UserServletTest extends ServletTest {
     // Checks user id is installed before forwarding
     verify(req).setAttribute("userId", TEST_USER_ID);
 
-    // Check that request is forwarded to session servlet
-    verify(context).getRequestDispatcher("/session");
-    verify(dispatcher).forward(req, resp);
+    validateForwardingTo("/session");
   }
 
   @Test
-  public void postFailsRegistrationWhenInformationIsInvalid()
+  public void postFailsRegistrationWhenRequestObjectIsInvalid()
       throws IOException, SQLException, ServletException,
       PasswordHashFailureException {
     // Reader returns valid payload

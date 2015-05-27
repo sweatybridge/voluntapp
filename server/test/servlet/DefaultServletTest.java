@@ -8,13 +8,13 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import resp.SessionResponse;
 import exception.SessionNotFoundException;
 
 public class DefaultServletTest extends ServletTest {
@@ -23,52 +23,71 @@ public class DefaultServletTest extends ServletTest {
 
   @Before
   public void setUp() {
-    servlet = new DefaultServlet(db);
+    servlet = new DefaultServlet(db) {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public ServletContext getServletContext() {
+        return context;
+      }
+    };
   }
 
   @Test
   public void getForwardsToMainWhenCookieContainsValidSession()
       throws SQLException, SessionNotFoundException, IOException,
       ServletException {
-    // Sets up mock
+
     prepareClientCookies();
 
-    // Database returns valid session
-    when(db.getSession(any(String.class))).thenReturn(
-        new SessionResponse(TEST_SESSION_ID));
+    // Context returns mocked dispatcher
+    when(context.getRequestDispatcher(any(String.class)))
+        .thenReturn(dispatcher);
 
     // Method under test
     servlet.doGet(req, resp);
 
-    // TODO: validate forwarding
+    // Database returns valid session
+    verify(db).getSession(TEST_SESSION_ID);
+
+    validateForwardingTo("/WEB-INF/main.html");
   }
 
   @Test
   public void getForwardsToLoginWhenSessionIsInvalid() throws SQLException,
       SessionNotFoundException, IOException, ServletException {
-    // Sets up mock
+
     prepareClientCookies();
 
     // Database contains no session
     when(db.getSession(any(String.class))).thenThrow(
         new SessionNotFoundException());
 
+    // Context returns mocked dispatcher
+    when(context.getRequestDispatcher(any(String.class)))
+        .thenReturn(dispatcher);
+
     // Method under test
     servlet.doGet(req, resp);
 
-    // TODO: validate forwarding
+    validateForwardingTo("/index.html");
   }
 
   @Test
   public void getForwardsToLoginWhenCookieIsNotSet() throws SQLException,
       SessionNotFoundException, IOException, ServletException {
-    // Return immediately without querying database
-    verify(db, never()).getSession(any(String.class));
+
+    // Context returns mocked dispatcher
+    when(context.getRequestDispatcher(any(String.class)))
+        .thenReturn(dispatcher);
 
     // Method under test
     servlet.doGet(req, resp);
 
-    // TODO: validate forwarding
+    // Return immediately without querying database
+    verify(db, never()).getSession(any(String.class));
+
+    validateForwardingTo("/index.html");
   }
 
   private void prepareClientCookies() {
