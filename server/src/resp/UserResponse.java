@@ -71,7 +71,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
     this.userId = rs.getInt(ID_COLUMN);
     this.firstName = rs.getString(FIRST_NAME_COLUMN);
     this.lastName = rs.getString(LAST_NAME_COLUMN);
-    this.lastSeen = rs.getTimestamp(LAST_SEEN_COLUMN)
+    this.lastSeen = rs.getTimestamp(LAST_SEEN_COLUMN);
   }
 
   @Override
