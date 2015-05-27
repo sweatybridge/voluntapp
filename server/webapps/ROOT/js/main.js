@@ -1,3 +1,5 @@
+var current_start_date;
+
 // DOCUMENT READY
 $(function() {
   // Render calendar from yesterday
@@ -8,7 +10,7 @@ $(function() {
     // TODO: check if this train reck is the only way to do this
     $("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
   });
-  
+
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
     $("#d_left_sidebar").toggleClass("col-hidden col-sm-2");
@@ -51,7 +53,7 @@ $(function() {
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     beforeSend: function(xhr) {
-      xhr.setRequestHeader("Authorization", getCookie("token"))
+      xhr.setRequestHeader("Authorization", getCookie("token"));
     }
   });
 
@@ -81,25 +83,26 @@ $(function() {
     }
     submitAjaxForm(form, function(data) { toastr.success(data.message); }, $("#profile_errors"));
   });
-  
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
-    // shift weekday columns left by one
-    $("#t_calendar tbody").children().each(function(k, v) {
-      var first = $(v).children()[0];
-      $(first).detach();
-      $(first).appendTo(v);
-    });
+    // TODO: Retrieve more events from server
+    
+    // get tomorrow's events from local storage
+    
+    // advance date by 1
+    current_start_date.setDate(current_start_date.getDate() - 1);
+    updateCalendarDates(current_start_date);
   });
 
   $("#next_day").click(function() {
+    // TODO retrieve more events from server
+
+    // get yesterday's events from local storage
+
     // shift weekday columns right by one
-    $("#t_calendar tbody").children().each(function(k, v) {
-      var last = $(v).children()[6];
-      $(last).detach();
-      $(last).prependTo(v);
-    });
+    current_start_date.setDate(current_start_date.getDate() + 1);
+    updateCalendarDates(current_start_date);
   });
 
   // Retrieve and render calendar events
@@ -154,7 +157,6 @@ function createEventView(model) {
         text: model.description
       })).appendTo(elem);
     }
-
     // if event not in view, don't render
   });
 }
@@ -162,11 +164,31 @@ function createEventView(model) {
 // Update data-date field of calendar view from startDate
 function updateCalendarDates(startDate) {
   // TODO: Handle different time zone
+  current_start_date = new Date(startDate);
+  $("#prev_day").next().text(formatDate(startDate));
+
   $("#t_calendar_body").children().each(function(k, elem) {
-    startDate.setDate(startDate.getDate() + 1);
+    // update data fields
     var date = startDate.toJSON().split("T")[0];
     $(elem).attr("data-date", date);
+
+    // update headings
+    var heading = $($("#t_calendar_heading").children()[k]);
+    heading.text(getWeekDay(startDate));
+    heading.removeClass("th_weekend").removeClass("th_weekday");
+
+    var day = startDate.getDay();
+    if (day === 0 || day === 6) {
+      heading.addClass("th_weekend");
+    } else {
+      heading.addClass("th_weekday");
+    }
+
+    // increment date
+    startDate.setDate(startDate.getDate() + 1);
   });
+
+  $("#next_day").prev().text(formatDate(startDate));
 }
 
 // Get yesterday as date object
@@ -206,4 +228,16 @@ function validateUpdate($form) {
     return true;
   }
   return false;
+}
+
+// Format date string to May 15
+function formatDate(date) {
+  var str = date.toDateString();
+  return str.substring(str.indexOf(' ') + 1, str.lastIndexOf(' '));
+}
+
+// Format day of week, TODO: put this into date prototype
+function getWeekDay(date) {
+  var str = date.toDateString();
+  return str.substring(0, str.indexOf(' '));
 }
