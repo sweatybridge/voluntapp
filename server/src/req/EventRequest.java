@@ -18,6 +18,7 @@ public class EventRequest implements Request {
   /**
    * Event details sent by the client.
    */
+  private String eventId;
   private int calendarId;
   private String title;
   private String description;
@@ -167,5 +168,9 @@ public class EventRequest implements Request {
     long duration =
         endDateTime.getTimeInMillis() - startDateTime.getTimeInMillis();
     return DurationFormatUtils.formatDuration(duration, "HH:mm:ss");
+  }
+  
+  public String getEventId() {
+    return eventId;
   }
 }

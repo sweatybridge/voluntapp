@@ -105,7 +105,10 @@ public class EventResponse extends Response {
     this.sqlDuration = (PGInterval) rs.getObject(DURATION_COLUMN);
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
   }
-
+  
+  /* TODO: Change the update query to allow partial updates, i.e. updates of 
+   * only a subset of the row fields.
+   */
   @Override
   public String getSQLUpdate() {
     int found = 0;

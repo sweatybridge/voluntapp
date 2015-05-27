@@ -2,6 +2,7 @@ package resp;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import exception.InconsistentDataException;
 import exception.UserNotFoundException;
@@ -20,6 +21,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
   private static final String FIRST_NAME_COLUMN = "FIRST_NAME";
   private static final String LAST_NAME_COLUMN = "LAST_NAME";
   private static final String ID_COLUMN = "ID";
+  private static final String LAST_SEEN_COLUMN = "LAST_SEEN";
   public static final int INVALID_USER_ID = -1;
 
   /**
@@ -29,7 +31,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
   private String firstName;
   private String lastName;
   private int userId;
-
+  private Timestamp lastSeen;
   /**
    * Fields excluded from serialisation.
    */
@@ -69,6 +71,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
     this.userId = rs.getInt(ID_COLUMN);
     this.firstName = rs.getString(FIRST_NAME_COLUMN);
     this.lastName = rs.getString(LAST_NAME_COLUMN);
+    this.lastSeen = rs.getTimestamp(LAST_SEEN_COLUMN)
   }
 
   @Override

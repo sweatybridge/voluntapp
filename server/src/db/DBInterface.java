@@ -345,7 +345,7 @@ public class DBInterface {
   public boolean deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
     EventResponse er = new EventResponse(null, null, null, null, null, null,
-        null, eventId, -1, true);
+        null, eventId, -1, false);
     return updateRowCheckHelper(er);
   }
 
