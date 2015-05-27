@@ -1,11 +1,14 @@
 // DOCUMENT READY
 $(function() {
+  // Render calendar from yesterday
+  updateCalendarDates(yesterday());
+
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
     $("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
   });
-  
+
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
     $("#d_left_sidebar").toggleClass("col-hidden col-sm-2");
@@ -28,86 +31,100 @@ $(function() {
       method: "DELETE",
       statusCode: {
         200: function(data) {
-          window.location.reload()
+          window.location.reload();
         },
-        400: function(data) { alert(data.responseJSON.message); }
+        400: function(data) {
+          alert(data.responseJSON.message);
+        }
       }
-    })
-  })
+    });
+  });
 
   // Bind event creation form
   $("#event_form").submit(function(e) {
     e.preventDefault()
-    var form = $(this)
+    var form = $(this);
     $.ajax(form.attr("action"), {
       method: form.attr("method"),
       data: JSON.stringify(getFormObj(form)),
       statusCode: {
         200: function(data) {
-          toastr.success(data.responseJSON.message)
+          toastr.success(data.message);
         },
         400: function(data) {
-          toastr.error(data.responseJSON.message)
+          toastr.error(data.message);
         }
       }
-    })
-  })
+    });
+  });
 
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
-    e.preventDefault()
+    e.preventDefault();
     var form = $(this)
     $.ajax(form.attr("action"), {
       method: form.attr("method"),
       data: JSON.stringify(getFormObj(form)),
       statusCode: {
         200: function(data) {
-          toastr.success(data.message)
+          toastr.success(data.message);
         },
         400: function(data) {
-          toastr.error(data.message)
+          toastr.error(data.message);
         }
       }
-    })
-  })
+    });
+  });
 
   // Sets up request headers for all subsequent ajax calls
   $.ajaxSetup({
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     beforeSend: function(xhr) {
-      xhr.setRequestHeader("Authorization", getCookie("token"))
+      xhr.setRequestHeader("Authorization", getCookie("token"));
     }
-  })
+  });
 
   // Request user profile information
   $.ajax("/api/user", {
     method: "GET",
     statusCode: {
       200: function(data) {
-        $(".firstName").text(data.firstName)
+        $(".firstName").text(data.firstName);
       }
     }
-  })
+  });
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
     // shift weekday columns left by one
     $("#t_calendar tbody").children().each(function(k, v) {
-      var first = $(v).children()[0]
-      $(first).detach()
-      $(first).appendTo(v)
-    })
-  })
+      var first = $(v).children()[0];
+      $(first).detach();
+      $(first).appendTo(v);
+    });
+  });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
     $("#t_calendar tbody").children().each(function(k, v) {
-      var last = $(v).children()[6]
-      $(last).detach()
-      $(last).prependTo(v)
-    })
-  })
+      var last = $(v).children()[6];
+      $(last).detach();
+      $(last).prependTo(v);
+    });
+  });
+
+  // Retrieve and render calendar events
+  $.ajax("/json/calendar.json", {
+    success: function(data) {
+      $.each(data.events, function(index, value) {
+        createEventView(value);
+      });
+    },
+    error: function(data) {
+      console.log("Failed to retrieve calendar events.");
+    }
+  });
 }); // End of document ready
 
 // Update main column class whether sizebars are hidden or not
@@ -142,8 +159,8 @@ function getFormObj(form) {
 // Render a new event on the calendar
 function createEventView(model) {
   // find the cell corresponding to start date
-  $("#t_calendar_body").children().each(function(k, v) {
-    if ($(v).data("date") === model.startDate) {
+  $("#t_calendar_body").children().each(function(k, elem) {
+    if ($(elem).data("date") === model.startDate) {
       // append event div
       $("<div/>", {
         "data-eventId": model.eventId,
@@ -157,9 +174,25 @@ function createEventView(model) {
       })).append($("<p/>", {
         class: "e_desc",
         text: model.description
-      })).appendTo(v)
+      })).appendTo(elem);
     }
-
     // if event not in view, don't render
-  })
+  });
+}
+
+// Update data-date field of calendar view from startDate
+function updateCalendarDates(startDate) {
+  // TODO: Handle different time zone
+  $("#t_calendar_body").children().each(function(k, elem) {
+    startDate.setDate(startDate.getDate() + 1);
+    var date = startDate.toJSON().split("T")[0];
+    $(elem).attr("data-date", date);
+  });
+}
+
+// Get yesterday as date object
+function yesterday() {
+  var today = new Date();
+  today.setDate(today.getDate() - 1);
+  return today;
 }
