@@ -1,4 +1,4 @@
-var current_start_date;
+var app = {};
 
 // DOCUMENT READY
 $(function() {
@@ -116,8 +116,9 @@ $(function() {
     // get tomorrow's events from local storage
     
     // advance date by 1
-    current_start_date.setDate(current_start_date.getDate() - 1);
-    updateCalendarDates(current_start_date);
+    app.current_start_date.setDate(app.current_start_date.getDate() - 1);
+    updateCalendarDates(app.current_start_date);
+    renderCalendar()
   });
 
   $("#next_day").click(function() {
@@ -126,15 +127,17 @@ $(function() {
     // get yesterday's events from local storage
 
     // shift weekday columns right by one
-    current_start_date.setDate(current_start_date.getDate() + 1);
-    updateCalendarDates(current_start_date);
+    app.current_start_date.setDate(app.current_start_date.getDate() + 1);
+    updateCalendarDates(app.current_start_date);
+    renderCalendar();
   });
 
   // Retrieve and render calendar events
   $.ajax("/json/calendar.json", {
     success: function(data) {
-      $.each(data.events, function(index, value) {
-        createEventView(value);
+      app.events = data.events;
+      $.each(app.events, function(index, event) {
+        createEventView(event);
       });
     },
     error: function(data) {
@@ -166,7 +169,7 @@ function getCookie(name) {
 function createEventView(model) {
   // find the cell corresponding to start date
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).data("date") === model.startDate) {
+    if ($(elem).attr("data-date") === model.startDate) {
       // append event div
       $("<div/>", {
         "data-eventId": model.eventId,
@@ -189,7 +192,7 @@ function createEventView(model) {
 // Update data-date field of calendar view from startDate
 function updateCalendarDates(startDate) {
   // TODO: Handle different time zone
-  current_start_date = new Date(startDate);
+  app.current_start_date = new Date(startDate);
   $("#prev_day").next().text(formatDate(startDate));
 
   $("#t_calendar_body").children().each(function(k, elem) {
@@ -197,17 +200,21 @@ function updateCalendarDates(startDate) {
     var date = startDate.toJSON().split("T")[0];
     $(elem).attr("data-date", date);
 
-    // update headings
+    // update heading text
     var heading = $($("#t_calendar_heading").children()[k]);
     heading.text(getWeekDay(startDate));
-    heading.removeClass("th_weekend").removeClass("th_weekday");
 
+    // update heading class
+    heading.removeClass("th_weekend").removeClass("th_weekday");
     var day = startDate.getDay();
     if (day === 0 || day === 6) {
       heading.addClass("th_weekend");
     } else {
       heading.addClass("th_weekday");
     }
+
+    // clear all current events visible on this day
+    $(elem).empty();
 
     // increment date
     startDate.setDate(startDate.getDate() + 1);
@@ -284,4 +291,10 @@ function formatDate(date) {
 function getWeekDay(date) {
   var str = date.toDateString();
   return str.substring(0, str.indexOf(' '));
+}
+
+function renderCalendar() {
+  $.each(app.events, function(index, event) {
+    createEventView(event);
+  });
 }
