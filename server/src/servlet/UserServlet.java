@@ -49,8 +49,7 @@ public class UserServlet extends HttpServlet {
    * Retrieve details of the current user.
    */
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
     // Session should not be null if user is authenticated
     SessionResponse session =
@@ -74,8 +73,7 @@ public class UserServlet extends HttpServlet {
    * TODO: Delete current user from the database.
    */
   @Override
-  public void doDelete(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
+  public void doDelete(HttpServletRequest request, HttpServletResponse response) {
 
     // get current user id from auth token
     SessionResponse session =
@@ -94,8 +92,20 @@ public class UserServlet extends HttpServlet {
    * TODO: Updates the user details with supplied information.
    */
   @Override
-  public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {}
+  public void doPut(HttpServletRequest request, HttpServletResponse response) {
+
+    // get current user id from auth token
+    SessionResponse session =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
+
+    // update user with new information
+
+    Response resp = new SuccessResponse("Successfully updated user.");
+
+    request.setAttribute(Response.class.getSimpleName(), resp);
+
+  }
 
   /**
    * Registers the user with database.

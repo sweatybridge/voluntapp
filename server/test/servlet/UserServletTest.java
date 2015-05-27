@@ -1,7 +1,6 @@
 package servlet;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -22,14 +21,12 @@ import req.RegisterRequest;
 import req.UserRequest;
 import resp.ErrorResponse;
 import resp.Response;
-import resp.SessionResponse;
 import resp.UserResponse;
 
 import com.google.common.collect.ImmutableMap;
 
 import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
-import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
 public class UserServletTest extends ServletTest {
@@ -43,47 +40,46 @@ public class UserServletTest extends ServletTest {
   }
 
   @Test
-  public void getReturnsUserDetails() {
-    String token = TEST_SESSION_ID;
-    UserResponse expected = new UserResponse(TEST_EMAIL, TEST_PASSWORD,
-        TEST_USER_ID, TEST_FIRST_NAME, TEST_LAST_NAME);
+  public void getSucceedsWhenUserExistsInDatabase() throws SQLException,
+      UserNotFoundException, InconsistentDataException {
+    // Sets up expected response
+    UserResponse expected =
+        new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
+            TEST_FIRST_NAME, TEST_LAST_NAME);
 
-    when(req.getHeader("Authorization")).thenReturn(token);
-    try {
-      when(db.getSession(token)).thenReturn(
-          new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
-      when(db.getUser(any(UserRequest.class))).thenReturn(expected);
-    } catch (SQLException | UserNotFoundException | InconsistentDataException
-        | SessionNotFoundException e1) {
-      fail("Not yet implemented");
-    }
+    // Sets up post condition of getUser
+    when(db.getUser(any(UserRequest.class))).thenReturn(expected);
 
-    try {
-      servlet.doGet(req, resp);
-    } catch (IOException e) {
-      fail("Not yet implemented");
-    }
+    // Method under test
+    servlet.doGet(req, resp);
 
-    ArgumentCaptor<UserRequest> arg = ArgumentCaptor
-        .forClass(UserRequest.class);
-    try {
-      verify(db).getUser(arg.capture());
-    } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
-      fail("Not yet implemented");
-    }
+    // Verify pre condition of getUser
+    ArgumentCaptor<UserRequest> arg =
+        ArgumentCaptor.forClass(UserRequest.class);
+    verify(db).getUser(arg.capture());
     assertEquals(TEST_USER_ID, arg.getValue().getUserId());
+
+    // Check expected response is returned
+    verify(req).setAttribute(Response.class.getSimpleName(), expected);
   }
 
   @Test
-  public void getFailsWhenTokenIsInvalid() throws SQLException,
-      SessionNotFoundException, IOException {
-    String token = "invalid";
-    ErrorResponse expected = new ErrorResponse("Invalid authorization token.");
+  public void getFailsWhenUserIsDeletedButSessionIsActive()
+      throws SQLException, UserNotFoundException, InconsistentDataException {
+    // Sets up post condition of getUser
+    when(db.getUser(any(UserRequest.class))).thenThrow(
+        new UserNotFoundException(TEST_EMAIL));
 
-    when(req.getHeader("Authorization")).thenReturn(token);
-    when(db.getSession(token)).thenThrow(new SessionNotFoundException());
-
+    // Method under test
     servlet.doGet(req, resp);
+
+    // Verify pre condition of getUser
+    ArgumentCaptor<UserRequest> arg =
+        ArgumentCaptor.forClass(UserRequest.class);
+    verify(db).getUser(arg.capture());
+    assertEquals(TEST_USER_ID, arg.getValue().getUserId());
+
+    validateErrorResponse();
   }
 
   @Test
@@ -128,22 +124,22 @@ public class UserServletTest extends ServletTest {
   }
 
   @Test
-  public void putSucceedsUserUpdateWhenInformationIsValid() throws IOException {
+  public void putSucceedsUserUpdateWhenInformationIsValid() {
     // TODO: complete implementation
     servlet.doPut(req, resp);
   }
 
   @Test
-  public void deleteSucceedsRemovingUserFromDatabase() throws IOException {
+  public void deleteSucceedsRemovingUserFromDatabase() {
     // TODO: complete implementation
     servlet.doDelete(req, resp);
   }
 
   @Test
   public void shouldForwardToSessionServletWhenRegistrationSucceeds()
-      throws IOException {
+      throws IOException, ServletException {
     // TODO: complete implementation
-    fail("Not yet implemented.");
+    servlet.doPost(req, resp);
   }
 
 }

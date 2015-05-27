@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import req.UserRequest;
-import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
@@ -169,10 +168,10 @@ public class SessionServletTest extends ServletTest {
       SQLException, UserNotFoundException, InconsistentDataException {
     // Set up mocks
     prepareValidLogin();
-  
+
     // Method under test
     servlet.doPost(req, resp);
-  
+
     validateCookie();
   }
 
@@ -200,12 +199,6 @@ public class SessionServletTest extends ServletTest {
 
     assertEquals("token", cookie.getName());
     assertEquals(TEST_SESSION_ID, cookie.getValue());
-  }
-
-  private void validateErrorResponse() {
-    // Check error response is installed
-    verify(req).setAttribute(eq(Response.class.getSimpleName()),
-        any(ErrorResponse.class));
   }
 
 }

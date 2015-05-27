@@ -1,5 +1,10 @@
 package servlet;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import resp.ErrorResponse;
+import resp.Response;
+import resp.SessionResponse;
 
 import com.google.gson.Gson;
 
@@ -40,6 +49,17 @@ public abstract class ServletTest {
   @Before
   public void init() throws IOException {
     MockitoAnnotations.initMocks(this);
+
+    // Post condition of authorization filter ensures that all requests handled
+    // by servlets contain a valid session response object
+    when(req.getAttribute(SessionResponse.class.getSimpleName())).thenReturn(
+        new SessionResponse(TEST_SESSION_ID, TEST_USER_ID));
+  }
+
+  protected void validateErrorResponse() {
+    // Check error response is installed
+    verify(req).setAttribute(eq(Response.class.getSimpleName()),
+        any(ErrorResponse.class));
   }
 
 }
