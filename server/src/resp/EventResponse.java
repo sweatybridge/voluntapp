@@ -105,8 +105,9 @@ public class EventResponse extends Response {
     this.sqlDuration = (PGInterval) rs.getObject(DURATION_COLUMN);
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
   }
-  
-  /* TODO: Change the update query to allow partial updates, i.e. updates of 
+
+  /*
+   * TODO: Change the update query to allow partial updates, i.e. updates of
    * only a subset of the row fields.
    */
   @Override
@@ -115,15 +116,15 @@ public class EventResponse extends Response {
     String formatString = ((title == null || found++ == Integer.MIN_VALUE) ? ""
         : "\"" + TITLE_COLUMN + "\"='" + title + "',")
         + ((description == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DESC_COLUMN + "\"='" + description + "',")
+            + DESC_COLUMN + "\"='" + description.replace("\'", "\'\'") + "',")
         + ((location == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + LOCATION_COLUMN + "\"='" + location + "',")
+            + LOCATION_COLUMN + "\"='" + location.replace("\'", "\'\'") + "',")
         + ((startDate == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DATE_COLUMN + "\"='" + startDate + "',")
+            + DATE_COLUMN + "\"='" + startDate.replace("\'", "\'\'") + "',")
         + ((startTime == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + TIME_COLUMN + "\"='" + startTime + "',")
+            + TIME_COLUMN + "\"='" + startTime.replace("\'", "\'\'") + "',")
         + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DURATION_COLUMN + "\"='" + duration + "',")
+            + DURATION_COLUMN + "\"='" + duration.replace("\'", "\'\'") + "',")
         + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
             + MAX_ATTEDEE_COLUMN + "\"=" + max + ",")
         + ((!delete || found++ == Integer.MIN_VALUE) ? "" : "\""
@@ -143,9 +144,11 @@ public class EventResponse extends Response {
     return String
         .format(
             "WITH x AS (INSERT INTO public.\"EVENT\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
-            title, description, location, startDate,
-            (startTime == null) ? "DEFAULT" : startTime,
-            (duration == null) ? "DEFAULT" : duration, max, calendarId);
+            title.replace("\'", "\'\'"), description.replace("\'", "\'\'"),
+            location.replace("\'", "\'\'"), startDate.replace("\'", "\'\'"),
+            (startTime == null) ? "DEFAULT" : startTime.replace("\'", "\'\'"),
+            (duration == null) ? "DEFAULT" : duration.replace("\'", "\'\'"),
+            max, calendarId);
   }
 
   @Override

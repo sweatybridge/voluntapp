@@ -21,12 +21,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.postgresql.ds.PGConnectionPoolDataSource;
+import org.postgresql.osgi.PGDataSourceFactory;
 
 import req.EventRequest;
+import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.EventResponse;
+import resp.EventSubscriptionResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
 import exception.EventNotFoundException;
@@ -762,5 +765,4 @@ public class DBInterfaceTest {
       fail("Unexpected Exception: " + e.getMessage());
     }
   }
-
 }
