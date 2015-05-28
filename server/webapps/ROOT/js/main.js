@@ -128,7 +128,7 @@ $(function() {
     // advance date by 1
     app.current_start_date.setDate(app.current_start_date.getDate() - 1);
     updateCalendarDates(app.current_start_date);
-    renderCalendar()
+    renderEvents();
   });
 
   $("#next_day").click(function() {
@@ -139,7 +139,7 @@ $(function() {
     // shift weekday columns right by one
     app.current_start_date.setDate(app.current_start_date.getDate() + 1);
     updateCalendarDates(app.current_start_date);
-    renderCalendar();
+    renderEvents();
   });
 
   // Retrieve and render calendar events
