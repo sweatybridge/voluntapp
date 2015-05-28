@@ -121,38 +121,15 @@ $(function() {
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
-    // TODO: Retrieve more events from server
-    
-    // get tomorrow's events from local storage
-    
     // advance date by 1
     app.current_start_date.setDate(app.current_start_date.getDate() - 1);
-    updateCalendarDates(app.current_start_date);
-    renderEvents();
+    refreshEvents();
   });
 
   $("#next_day").click(function() {
-    // TODO retrieve more events from server
-
-    // get yesterday's events from local storage
-
     // shift weekday columns right by one
     app.current_start_date.setDate(app.current_start_date.getDate() + 1);
-    updateCalendarDates(app.current_start_date);
-    renderEvents();
-  });
-
-  // Retrieve and render calendar events
-  $.ajax("/json/events.json", {
-    success: function(data) {
-      app.events = data;
-      $.each(app.events, function(index, event) {
-        createEventView(event);
-      });
-    },
-    error: function(data) {
-      console.log("Failed to retrieve calendar events.");
-    }
+    refreshEvents();
   });
 }); // End of document ready
 
@@ -169,15 +146,15 @@ function refreshUser() {
 
 // Update calendars
 function refreshCalendar() {
-  $.get("/json/calendar.json", function(data) {
-    if (data.length < 1) {
+  $.get("/api/subscription/calendar", function(data) {
+    if (data.calendars.length < 1) {
       return;
     }
     $("#user_calendars").empty();
     $("#select_calendar").empty();
-    $.each(data, function(index, calendar) {
+    $.each(data.calendars, function(index, calendar) {
       // TODO: update global variable with calendar data
-      app.calendars = data;
+      app.calendars = calendar;
       $('#select_calendar')
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
@@ -189,7 +166,20 @@ function refreshCalendar() {
 
 // Update Events
 function refreshEvents() {
-  
+  // Retrieve and render calendar events
+  $.ajax("/json/events.json", {
+    success: function(data) {
+      app.events = data;
+      $.each(app.events, function(index, event) {
+        createEventView(event);
+      });
+    },
+    error: function(data) {
+      console.log("Failed to retrieve calendar events.");
+    }
+  });
+  updateCalendarDates(app.current_start_date);
+  renderEvents();
 }
 
 // Render events

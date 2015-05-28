@@ -1,4 +1,4 @@
-[{
+{"calendars": [{
 	"calendarId": 3,
 	"name": "First Calendar",
 	"joinEnabled": true,
@@ -19,3 +19,4 @@
 	"joinEnabled": true,
 	"joinCode": "XMU6QM"
 }]
+}
