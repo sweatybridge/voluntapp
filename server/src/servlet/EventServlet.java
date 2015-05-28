@@ -123,10 +123,9 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq =
-        gson.fromJson(request.getReader(), EventRequest.class);
-
-    String eventId = eventReq.getEventId();
+    
+    String eventId = request.getPathInfo().substring(1);
+    
     if (eventId != null) {
       try {
         db.deleteEvent(Integer.parseInt(eventId));
@@ -143,6 +142,9 @@ public class EventServlet extends HttpServlet {
             "Update left the database in an inconsistent state, "
                 + "more than one row was deleted."));
       }
+    } else {
+      request.setAttribute(Response.class.getSimpleName(), 
+          new ErrorResponse("No event ID was specified."));
     }
   }
 

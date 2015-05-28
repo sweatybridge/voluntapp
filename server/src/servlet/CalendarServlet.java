@@ -48,26 +48,20 @@ public class CalendarServlet extends HttpServlet {
    * response.
    * 
    * @throws IOException
+   * 
+   * TODO: Add verification if a user is allowed to retrieve information about a specific calendar
    */
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    String id = request.getPathInfo();
+    String id = request.getPathInfo().substring(1);
     if (id == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Request not RESTful enough."));
       return;
     }
-
-    int calendarId = Integer.parseInt(id.substring(1));
-
-    CalendarRequest calendarRequest = initCalendarRequest(request);
-    // Check if calendar ID was provided.
-    if (calendarRequest.getCalendarId() == null) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Calendar request is invalid, no calendar ID was specified."));
-      return;
-    }
+    
+    CalendarRequest calendarRequest = new CalendarRequest(Integer.parseInt(id));
 
     try {
       request.setAttribute(Response.class.getSimpleName(),
@@ -122,7 +116,7 @@ public class CalendarServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response) {
     request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-        "Error - DPUT method of the calendar servlet not supported."));
+        "Error - PUT method of the calendar servlet not supported."));
   }
 
   /**
