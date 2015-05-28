@@ -8,7 +8,10 @@ $(function() {
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
-    $("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
+    var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
+    console.log(sat_index);
+    var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
+    $(selector).toggle();
   });
 
   // Bind sidebar collapse
@@ -89,12 +92,6 @@ $(function() {
     }
   });
   
-  // Request calendar information
-  refreshCalendar();
-
-  // Request user profile information
-  refreshUser();
-  
   // Bind user profile buttons
   $("#profile_form").hide();
   $("#b_update_profile").click(function() {
@@ -131,6 +128,15 @@ $(function() {
     app.current_start_date.setDate(app.current_start_date.getDate() + 1);
     refreshEvents();
   });
+  
+  // Request calendar information
+  refreshCalendar();
+
+  // Request user profile information
+  refreshUser();
+  
+  // Request events
+  refreshEvents();
 }); // End of document ready
 
 // Update user profile information on view
@@ -170,16 +176,14 @@ function refreshEvents() {
   $.ajax("/json/events.json", {
     success: function(data) {
       app.events = data;
-      $.each(app.events, function(index, event) {
-        createEventView(event);
-      });
+      updateCalendarDates(app.current_start_date);
+      renderEvents();
     },
     error: function(data) {
       console.log("Failed to retrieve calendar events.");
     }
   });
-  updateCalendarDates(app.current_start_date);
-  renderEvents();
+  
 }
 
 // Render events
