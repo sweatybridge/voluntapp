@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
@@ -142,8 +143,20 @@ public class DBInterface {
    */
   public CalendarSubscriptionResponse getUsersCalendars(int userId)
       throws SQLException {
+    List<CalendarResponse> cals = new ArrayList<>();
     CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
-    query(resp);
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      ResultSet result = stmt.executeQuery(resp.getSQLQuery());
+      while (result.next()) {
+        cals.add(getCalendar(new CalendarRequest(result
+            .getInt(CalendarResponse.CID_COLUMN))));
+      }
+    } finally {
+      conn.close();
+    }
+    resp.setCalendars(cals);
     return resp;
   }
 
@@ -269,11 +282,10 @@ public class DBInterface {
    */
   public EventResponse putEvent(EventRequest ereq) throws SQLException {
     // TODO: why convert max to string?
-    EventResponse eresp =
-        new EventResponse(ereq.getTitle(), ereq.getDescription(),
-            ereq.getLocation(), ereq.getStartTime(), ereq.getStartDate(),
-            ereq.getDuration(), Integer.toString(ereq.getMax()), -1,
-            ereq.getCalendarId());
+    EventResponse eresp = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
+        ereq.getStartDate(), ereq.getDuration(),
+        Integer.toString(ereq.getMax()), -1, ereq.getCalendarId());
     int id = getID(eresp, EventResponse.EID_COLUMN);
     eresp.setEventId(id);
     return eresp;
@@ -435,7 +447,7 @@ public class DBInterface {
   public boolean deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
     EventResponse er = new EventResponse(null, null, null, null, null, null,
-        null, eventId, -1, false);
+        null, eventId, -1, true);
     return updateRowCheckHelper(er);
   }
 

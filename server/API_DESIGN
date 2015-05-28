@@ -1,0 +1,19 @@
+/api/user   - Get    | Gets information about logged in user
+            - Post   | Creates the user in the database (registers)
+            - Put    | Update users information
+            - Delete | Not supported
+
+/api/event/<ID> - Get    | Returns the information relateing to the event with the given ID
+                - Put    | Updates a given event (given by ID)
+                - Delete | Deletes a given event (given by ID)
+/api/event      - Post   | Creates a new event with the payload details
+
+/api/calendar/<ID> - Get    | Returns the information about the calendar from the given ID
+                   - Put    | Update the calendar information about the given ID
+                   - Delete | Deletes a given calendar (given by ID)
+/api/calendar      - Post   | Creates a new calendar with the payload details
+
+/api/subscription  - Get    | Gets the subscriptions of the user that is logged in
+                   - Post   | Adds the calendar (in the payload) to the users follow list
+                   - Delete | Deletes a calendar (in the payload) from the users follow list
+                   - Puts   | Not supported
