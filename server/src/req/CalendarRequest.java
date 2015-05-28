@@ -166,17 +166,4 @@ public class CalendarRequest implements Request {
       return events;
     }
   }
-
-  /*
-   * public static void main(String[] args) {
-   * 
-   * @SuppressWarnings("deprecation") CalendarRequest req = new
-   * CalendarRequest(new Timestamp(94, 3, 14, 1, 1, 1, 1));
-   * System.out.println(req.getCalendarEventsQuery().getSQLQuery()); }
-   */
-  
-  public static void main(String[] args) {
-    CalendarRequest req = new CalendarRequest(new Timestamp(94, 3, 14, 1, 1, 1, 1), 4);
-    System.out.println(req.getCalendarEventsQuery().getSQLQuery());
-  }
 }

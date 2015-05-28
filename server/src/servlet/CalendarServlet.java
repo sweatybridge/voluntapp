@@ -13,11 +13,14 @@ import req.CalendarRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
+import resp.SuccessResponse;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
 import db.InviteCodeGenerator;
+import exception.CalendarNotFoundException;
+import exception.InconsistentDataException;
 
 
 @WebServlet
@@ -109,7 +112,8 @@ public class CalendarServlet extends HttpServlet {
   }
 
   /**
-   * Given the calendar ID, remove the corresponding calendar form the database.
+   * Given the calendar ID, remove the corresponding calendar form the database
+   * (set the active field to false).
    */
   @Override
   protected void doDelete(HttpServletRequest request,
@@ -122,9 +126,20 @@ public class CalendarServlet extends HttpServlet {
       return;
     }
     
-    db.deleteCalendar(Integer.parseInt(id));
-    request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-        "Error - DELETE method of the calendar servlet not supported."));
+    Response result = null;
+    try {
+      db.deleteCalendar(Integer.parseInt(id));
+      result = new SuccessResponse("Calendar was successfully deleted.");
+    } catch (NumberFormatException e) {
+      result = new ErrorResponse("One of the specified dates was incorrectly formatted.");
+    } catch (SQLException e) {
+      result = new ErrorResponse("Database error occured while deleting the calendar.");
+    } catch (InconsistentDataException e) {
+      result = new ErrorResponse(e.getMessage());
+    } catch (CalendarNotFoundException e) {
+      result = new ErrorResponse(e.getMessage());
+    } 
+    request.setAttribute(Response.class.getSimpleName(), result);
   }
 
   /**

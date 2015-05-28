@@ -13,7 +13,7 @@ import sql.SQLQuery;
 /**
  * A successful response to a calendar request.
  */
-public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
+public class CalendarResponse extends Response {
 
   public static String CID_COLUMN = "ID";
   public static String CNAME_COLUMN = "NAME";
@@ -75,6 +75,12 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
         CREATOR_COLUMN, CREATED_COLUMN, JOIN_ENABLED_COLUMN, JOIN_CODE_COLUMN, 
         ACTIVE_COLUMN, calendarId, ACTIVE_COLUMN);
   }
+  
+  @Override 
+  public String getSQLDelete() {
+    return String.format("UPDATE \"CALENDAR\" SET \"%s\"=false WHERE \"%s\"=%d;",
+        ACTIVE_COLUMN, CID_COLUMN, calendarId);
+  }
 
   public List<EventResponse> getCalendarEvents() {
     return events;
@@ -115,7 +121,7 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   }
 
   public static void main(String[] args) {
-    CalendarResponse resp = new CalendarResponse(123);
-    System.out.println(resp.getSQLQuery());
+    CalendarResponse resp = new CalendarResponse(4);
+    System.out.println(resp.getSQLDelete());
   }
 }

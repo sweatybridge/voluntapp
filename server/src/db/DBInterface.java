@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
@@ -19,16 +18,18 @@ import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.CalendarResponse;
+import resp.CalendarSubscriptionResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
-import resp.CalendarSubscriptionResponse;
 import resp.UserResponse;
+import sql.SQLDelete;
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
 import utils.PasswordUtils;
+import exception.CalendarNotFoundException;
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
@@ -249,10 +250,21 @@ public class DBInterface {
    * TODO: implement this
    * @param calendarId
    * @return
+   * @throws SQLException 
+   * @throws InconsistentDataException 
+   * @throws CalendarNotFoundException 
    */
-  public boolean deleteCalendar(int calendarId) {
-    return false;
-    //CalendarResponse
+  public boolean deleteCalendar(int calendarId) 
+      throws SQLException, InconsistentDataException, CalendarNotFoundException {
+    CalendarResponse cr = new CalendarResponse(calendarId);
+    int deletedRows = delete(cr);
+    if (deletedRows > 1) {
+      throw new InconsistentDataException("More than one calendar was deleted.");
+    }
+    if (deletedRows == 0) {
+      throw new CalendarNotFoundException("No calendar with the specified ID was found.");
+    }
+    return true;
   }
 
   /**
@@ -550,6 +562,21 @@ public class DBInterface {
       conn.close();
     }
     // The query is pointless, return 1 to signal success
+    return 1;
+  }
+  
+  private int delete(SQLDelete query) throws SQLException {
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      String q = query.getSQLDelete();
+      if (q != null) {
+        int result = stmt.executeUpdate(q);
+        return result;
+      }
+    } finally {
+      conn.close();
+    }
     return 1;
   }
 
