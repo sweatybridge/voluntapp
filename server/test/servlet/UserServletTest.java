@@ -172,6 +172,25 @@ public class UserServletTest extends ServletTest {
   }
 
   @Test
+  public void postFailsRegistrationWhenPasswordWontHash() throws IOException,
+      SQLException, ServletException, PasswordHashFailureException {
+    // Reader returns valid payload
+    when(req.getReader()).thenReturn(
+        new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
+            "email", TEST_EMAIL, "password", TEST_PASSWORD, "firstName",
+            TEST_FIRST_NAME, "lastName", TEST_LAST_NAME)))));
+
+    // Database throws exception for duplicate email
+    when(db.putUser(any(RegisterRequest.class))).thenThrow(
+        new PasswordHashFailureException(TEST_PASSWORD));
+
+    // Method under test
+    servlet.doPost(req, resp);
+
+    validateErrorResponse();
+  }
+
+  @Test
   public void putSucceedsUserUpdateWhenInformationIsValid() {
     // TODO: complete implementation
     servlet.doPut(req, resp);

@@ -267,13 +267,16 @@ public class DBInterface {
    * @return event ID
    * @throws SQLException
    */
-  public int putEvent(EventRequest ereq) throws SQLException {
+  public EventResponse putEvent(EventRequest ereq) throws SQLException {
     // TODO: why convert max to string?
-    EventResponse eresp = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
-        ereq.getStartDate(), ereq.getDuration(),
-        Integer.toString(ereq.getMax()), -1, ereq.getCalendarId());
-    return getID(eresp, EventResponse.EID_COLUMN);
+    EventResponse eresp =
+        new EventResponse(ereq.getTitle(), ereq.getDescription(),
+            ereq.getLocation(), ereq.getStartTime(), ereq.getStartDate(),
+            ereq.getDuration(), Integer.toString(ereq.getMax()), -1,
+            ereq.getCalendarId());
+    int id = getID(eresp, EventResponse.EID_COLUMN);
+    eresp.setEventId(id);
+    return eresp;
   }
 
   /**

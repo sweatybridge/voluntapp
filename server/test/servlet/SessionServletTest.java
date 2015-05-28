@@ -49,7 +49,7 @@ public class SessionServletTest extends ServletTest {
   @Test
   public void postSucceedsLoginWhenEmailAndPasswordAreValid()
       throws IOException, SQLException, UserNotFoundException,
-			InconsistentDataException, PasswordHashFailureException {
+      InconsistentDataException, PasswordHashFailureException {
 
     prepareValidLogin();
 
@@ -91,6 +91,22 @@ public class SessionServletTest extends ServletTest {
     assertEquals(TEST_SESSION_ID, session.getSessionId());
 
     validateCookie();
+  }
+
+  @Test
+  public void postFailsLoginWhenForwardedRequestCannotStartSession()
+      throws IOException, SQLException, UserNotFoundException,
+      InconsistentDataException {
+    // UserId is installed on request
+    when(req.getAttribute("userId")).thenReturn(TEST_USER_ID);
+
+    // Session manager fails to insert into database
+    when(sm.startSession(any(Integer.class))).thenThrow(new SQLException());
+
+    // Method under test
+    servlet.doPost(req, resp);
+
+    validateErrorResponse();
   }
 
   @Test
@@ -201,9 +217,25 @@ public class SessionServletTest extends ServletTest {
   }
 
   @Test
+  public void deleteFailsLogoutWhenSessionCannotBeClosed() throws IOException {
+    // Header contains valid session id
+    when(req.getHeader("Authorization")).thenReturn(TEST_SESSION_ID);
+
+    // Session manager successfully closes session
+    when(sm.closeSession(TEST_SESSION_ID)).thenReturn(false);
+
+    // Method under test
+    servlet.doDelete(req, resp);
+
+    // Success response is installed as attribute
+    verify(req).setAttribute(eq(Response.class.getSimpleName()),
+        any(SuccessResponse.class));
+  }
+
+  @Test
   public void shouldAddCookieWhenLoginSucceeds() throws IOException,
-			SQLException, UserNotFoundException, InconsistentDataException,
-			PasswordHashFailureException {
+      SQLException, UserNotFoundException, InconsistentDataException,
+      PasswordHashFailureException {
 
     prepareValidLogin();
 
@@ -214,8 +246,8 @@ public class SessionServletTest extends ServletTest {
   }
 
   private void prepareValidLogin() throws IOException, SQLException,
-			UserNotFoundException, InconsistentDataException,
-			PasswordHashFailureException {
+      UserNotFoundException, InconsistentDataException,
+      PasswordHashFailureException {
     // Reader returns valid payload
     when(req.getReader()).thenReturn(
         new BufferedReader(new StringReader(gson.toJson(ImmutableMap.of(
@@ -223,8 +255,9 @@ public class SessionServletTest extends ServletTest {
 
     // Database returns valid user
     when(db.getUser(any(UserRequest.class))).thenReturn(
-        new UserResponse(TEST_EMAIL, PasswordUtils.getPasswordHash(TEST_PASSWORD), TEST_USER_ID,
-            TEST_FIRST_NAME, TEST_LAST_NAME));
+        new UserResponse(TEST_EMAIL, PasswordUtils
+            .getPasswordHash(TEST_PASSWORD), TEST_USER_ID, TEST_FIRST_NAME,
+            TEST_LAST_NAME));
 
     // Session manager returns valid session
     when(sm.startSession(TEST_USER_ID)).thenReturn(TEST_SESSION_ID);

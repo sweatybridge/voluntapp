@@ -23,15 +23,15 @@ public class EventResponse extends Response {
   public static String ACTIVE_COLUMN = "ACTIVE";
 
   /**
-   * Event details returned to the client.
+   * Event details returned to the client. Always in UTC.
    */
   private int eventId;
   private String title;
   private String description;
   private String location;
-  private String time; // HH:MM
-  private String date; // YY-MM-DD
-  private String duration;
+  private String startTime; // HH:mm
+  private String startDate; // YYYY-MM-DD
+  private String duration; // HH:mm:ss
   private int max = -1;
 
   /**
@@ -72,8 +72,8 @@ public class EventResponse extends Response {
     this.description = description;
     this.location = location;
     this.duration = duration;
-    this.time = time;
-    this.date = date;
+    this.startTime = time;
+    this.startDate = date;
     this.eventId = eventId;
     this.calendarId = calendarId;
     if (max == null) {
@@ -118,10 +118,10 @@ public class EventResponse extends Response {
             + DESC_COLUMN + "\"='" + description + "',")
         + ((location == null || found++ == Integer.MIN_VALUE) ? "" : "\""
             + LOCATION_COLUMN + "\"='" + location + "',")
-        + ((date == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DATE_COLUMN + "\"='" + date + "',")
-        + ((time == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + TIME_COLUMN + "\"='" + time + "',")
+        + ((startDate == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + DATE_COLUMN + "\"='" + startDate + "',")
+        + ((startTime == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + TIME_COLUMN + "\"='" + startTime + "',")
         + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
             + DURATION_COLUMN + "\"='" + duration + "',")
         + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
@@ -143,9 +143,9 @@ public class EventResponse extends Response {
     return String
         .format(
             "WITH x AS (INSERT INTO public.\"EVENT\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;",
-            title, description, location, date, (time == null) ? "DEFAULT"
-                : time, (duration == null) ? "DEFAULT" : duration, max,
-            calendarId);
+            title, description, location, startDate,
+            (startTime == null) ? "DEFAULT" : startTime,
+            (duration == null) ? "DEFAULT" : duration, max, calendarId);
   }
 
   @Override
@@ -164,5 +164,49 @@ public class EventResponse extends Response {
       System.err.println("Error getting the result");
       return;
     }
+  }
+
+  /**
+   * Getters for unit test.
+   */
+  public int getEventId() {
+    return eventId;
+  }
+
+  public int getMax() {
+    return max;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public String getLocation() {
+    return location;
+  }
+
+  public String getStartTime() {
+    return startTime;
+  }
+
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public String getDuration() {
+    return duration;
+  }
+
+  /**
+   * Used to update response object of put event.
+   * 
+   * @param eventId
+   */
+  public void setEventId(int eventId) {
+    this.eventId = eventId;
   }
 }
