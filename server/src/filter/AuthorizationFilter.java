@@ -43,8 +43,8 @@ public class AuthorizationFilter implements Filter {
     HttpServletRequest request = (HttpServletRequest) req;
 
     // Allow user registration
-    if (request.getRequestURI().equals("/api/user")
-        && request.getMethod().equals("POST")) {
+    if ("/api/user".equals(request.getRequestURI())
+        && "POST".equals(request.getMethod())) {
       // Attach a dummy session response
       req.setAttribute(SessionResponse.class.getSimpleName(),
           new SessionResponse());
@@ -53,8 +53,8 @@ public class AuthorizationFilter implements Filter {
     }
 
     // Allow user login
-    if (request.getRequestURI().equals("/api/session")
-        && request.getMethod().equals("POST")) {
+    if ("/api/session".equals(request.getRequestURI())
+        && "POST".equals(request.getMethod())) {
       // Attach a dummy session response
       req.setAttribute(SessionResponse.class.getSimpleName(),
           new SessionResponse());
