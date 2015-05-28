@@ -10,7 +10,7 @@ public class EventSubscriptionResponse extends Response {
   public static String EID_COLUMN = "EID";
   public static String UID_COLUMN = "UID";
 
-  private int attendees;
+  private List<UserResponse> attendees;
   /**
    * Fields excluded from serialisation.
    */
@@ -31,6 +31,10 @@ public class EventSubscriptionResponse extends Response {
   public EventSubscriptionResponse(int eventId, int userId) {
     this.eventId = eventId;
     this.userId = userId;
+  }
+
+  public void setAttenendees(List<UserResponse> attendees) {
+    this.attendees = attendees;
   }
 
   @Override
@@ -70,10 +74,11 @@ public class EventSubscriptionResponse extends Response {
 
   @Override
   public void setResult(ResultSet result) {
+    // TODO: Do we need this?
     rs = result;
     try {
       if (rs.next()) {
-        attendees = rs.getInt("TOTAL");
+        // attendees = rs.getInt("TOTAL");
       }
     } catch (SQLException e) {
       System.err.println("Error while querring the EVENT_USER table.");

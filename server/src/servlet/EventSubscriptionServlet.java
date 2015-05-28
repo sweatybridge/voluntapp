@@ -29,6 +29,8 @@ public class EventSubscriptionServlet extends HttpServlet {
     this.gson = gson;
     this.db = db;
   }
+  
+  // TODO: THIS IS ALL UNTESTED 
 
   /**
    * Given the ID of an event, return the number of people attending the event.

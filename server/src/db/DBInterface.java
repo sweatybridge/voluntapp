@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
@@ -303,16 +305,28 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown where there was an error when interacting with the
    *           database.
+   * @throws InconsistentDataException
+   *           Thrown when the data in the database is shown to be impossible
+   * @throws UserNotFoundException
+   *           Thrown if the user was deleted between the issuing of the request
+   *           and the response
    */
   public EventSubscriptionResponse getEventSubsciption(
-      EventSubscriptionRequest esr) throws SQLException {
+      EventSubscriptionRequest esr) throws SQLException, UserNotFoundException,
+      InconsistentDataException {
     // Untested
+    List<UserResponse> userResponses = new ArrayList<>();
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId());
     Connection conn = source.getConnection();
     try {
       Statement stmt = conn.createStatement();
       response.setResult(stmt.executeQuery(response.getSQLUserCount()));
+      List<Integer> users = response.getSubscriberList();
+      for (Integer user : users) {
+        userResponses.add(getUser(new UserRequest(user)));
+      }
+      response.setAttenendees(userResponses);
     } finally {
       conn.close();
     }
