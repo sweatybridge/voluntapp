@@ -73,6 +73,12 @@ $(function() {
     e.preventDefault()
     submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendar(); }, $("#calendar_create_errors"));
   });
+  
+  // Bind calendar joining form
+  $("#calendar_follow_form").submit(function(e) {
+    e.preventDefault()
+    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); refreshCalendar(); }, $("#calendar_follow_errors"));
+  });
 
   // Sets up request headers for all subsequent ajax calls
   $.ajaxSetup({
@@ -236,14 +242,12 @@ function yesterday() {
 
 // Update user profile information on view
 function refreshUser() {
-  $.ajax("/api/user", {
-    method: "GET",
-    success: function(data) {
-        $("[data-bind='email']").text(data.email);
-        $("[data-bind='firstName']").text(data.firstName);
-        $("[data-bind='lastName']").text(data.lastName);
-        $("[data-bind='lastSeen']").text(data.lastSeen);
-      }
+  $.get("/api/user",
+    function(data) {
+      $("[data-bind='email']").text(data.email);
+      $("[data-bind='firstName']").text(data.firstName);
+      $("[data-bind='lastName']").text(data.lastName);
+      $("[data-bind='lastSeen']").text(data.lastSeen);
   });
 }
 
@@ -255,17 +259,14 @@ function refreshCalendar() {
     }
     $("#user_calendars").empty();
     $("#select_calendar").empty();
-    $.each(data.calendarIds, function(index, calendarId) {
-      // For every calendar get calendar data
-      var d_json = "{'calendarId':" + calendarId + "}";
-      $.get("/api/calendar", { data: d_json }, function(data) {
-        // TODO: update global variable with calendar data
-        $('#select_calendar')
-         .append($("<option></option>")
-         .attr("value",calendarId)
-         .text(data.name));
-        $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+data.name)).appendTo("#user_calendars");
-      });
+    $.each(data, function(index, calendar) {
+      // TODO: update global variable with calendar data
+      app.calendars = data;
+      $('#select_calendar')
+       .append($("<option></option>")
+       .attr("value",calendar.calendarId)
+       .text(calendar.name));
+      $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+calendar.name)).appendTo("#user_calendars");
     });
   });
 }
