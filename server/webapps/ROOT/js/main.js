@@ -159,7 +159,10 @@ function refreshCalendars() {
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
        .text(calendar.name));
-      $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+calendar.name)).appendTo("#user_calendars");
+       var checkbox = $("<input>").attr("type", "checkbox").attr("checked", "checked").attr("data-calid", calendar.calendarId);
+       // Bind event rendering
+       checkbox.change(function() { renderEvents(); });
+      $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name)).appendTo("#user_calendars");
     });
     // Refresh events for the calendars
     refreshEvents();
@@ -174,6 +177,10 @@ function refreshEvents() {
     $.ajax("/api/calendar/"+calendar.calendarId, {
       data: {startDate: app.current_start_date.toJSON().substring(0, 19).replace('T',' ')},
       success: function(data) {
+        // Add the calendarId because back-end doesn't provide it
+        $.each(data.events, function(index, event) {
+          event.calendarId = calendar.calendarId;
+        });
         app.events.push.apply(app.events, data.events);
         updateCalendarDates(app.current_start_date);
         renderEvents();
@@ -188,8 +195,23 @@ function refreshEvents() {
 
 // Render events
 function renderEvents() {
+  var active_calendars = [];
+  $("#calendars_collapse input").each(function(index) {
+    if ($(this).is(":checked")) {
+      active_calendars.push($(this).data("calid"));
+    }
+  });
+  
+  // Clear any existing events
+  $("#t_calendar_body").children().each(function(index) {
+    $(this).empty();
+  });
+  
+  // Rerender active calendars' events
   $.each(app.events, function(index, event) {
-    createEventView(event);
+    if (active_calendars.indexOf(event.calendarId) >= 0) {
+      createEventView(event);
+    }
   });
 }
 
@@ -252,9 +274,6 @@ function updateCalendarDates(startDate) {
     } else {
       heading.addClass("th_weekday");
     }
-
-    // clear all current events visible on this day
-    $(elem).empty();
 
     // increment date
     startDate.setDate(startDate.getDate() + 1);

@@ -63,12 +63,12 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingOne">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="true" aria-controls="collapseOne">
                     My calendars
                   </a>
                 </h4>
               </div>
-              <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                 <div id="user_calendars" class="panel-body">
                   It seems like you haven't joined to or created any calendars...
                 </div>
@@ -174,7 +174,7 @@
                 <form class="form-centre" role="form" id="event_form" action="/api/event" method="post" autocomplete="off">
                   <div class="form-group">
                   <select id="select_calendar" class="form-control" name="calendarId">
-                    <option value="32">Bob Calendar</option>
+                    <option value="-1">[None]</option>
                   </select>
                   <input type="text" name="title" class="form-control" placeholder="Title" required>
                   <input type="text" name="startDate" class="form-control datetimepicker" placeholder="Start date time" required>
