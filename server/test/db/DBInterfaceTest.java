@@ -22,12 +22,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.postgresql.ds.PGConnectionPoolDataSource;
+import org.postgresql.osgi.PGDataSourceFactory;
 
 import req.EventRequest;
+import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.EventResponse;
+import resp.EventSubscriptionResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
 import utils.PasswordUtils;
@@ -740,5 +743,21 @@ public class DBInterfaceTest {
     } catch (Exception e) {
       fail("Unexpected Exception: " + e.getMessage());
     }
+  }
+
+  @Test
+  public void test() throws SQLException, InconsistentDataException,
+      UserNotFoundException {
+    PGConnectionPoolDataSource source = new PGConnectionPoolDataSource();
+    source.setUrl("jdbc:postgresql://db.doc.ic.ac.uk/");
+    source.setUser("g1427134_u");
+    source.setPassword("TRLzYYiVbD");
+    source.setSsl(true);
+    source.setSslfactory("org.postgresql.ssl.NonValidatingFactory");
+    DBInterface db = new DBInterface(source);
+    EventSubscriptionRequest esr = new EventSubscriptionRequest();
+    esr.setEventId(12);
+    db.getEventSubscription(esr);
+    System.out.println(db.getEventSubscription(esr).getAttenendees());
   }
 }

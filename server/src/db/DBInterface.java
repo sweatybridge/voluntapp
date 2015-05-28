@@ -311,7 +311,7 @@ public class DBInterface {
    *           Thrown if the user was deleted between the issuing of the request
    *           and the response
    */
-  public EventSubscriptionResponse getEventSubsciption(
+  public EventSubscriptionResponse getEventSubscription(
       EventSubscriptionRequest esr) throws SQLException, UserNotFoundException,
       InconsistentDataException {
     // Untested

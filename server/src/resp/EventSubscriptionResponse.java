@@ -37,6 +37,10 @@ public class EventSubscriptionResponse extends Response {
     this.attendees = attendees;
   }
 
+  public List<UserResponse> getAttenendees() {
+    return attendees;
+  }
+
   @Override
   public String getSQLQuery() {
     return String.format(

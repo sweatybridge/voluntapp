@@ -69,6 +69,6 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery, 
     		"INSERT INTO \"USER_CALENDAR\"(\"%s\",\"%s\") SELECT %d, \"ID\" " +
     		"FROM \"CALENDAR\" WHERE \"%s\"='%s';", 
     		UID_COLUMN, CID_COLUMN, userId, CalendarResponse.JOIN_CODE_COLUMN, 
-    		joinCode);
+    		joinCode.replace("\'", "\'\'"));
   }
 }

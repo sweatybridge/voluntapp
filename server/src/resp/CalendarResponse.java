@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import sql.SQLInsert;
 import sql.SQLQuery;
 
@@ -12,14 +14,14 @@ import sql.SQLQuery;
  * A successful response to a calendar request.
  */
 public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
-  
+
   public static String CID_COLUMN = "ID";
   public static String CNAME_COLUMN = "NAME";
   public static String CREATOR_COLUMN = "CREATOR";
   public static String CREATED_COLUMN = "CREATED";
   public static String JOIN_ENABLED_COLUMN = "JOIN_ENABLED";
   public static String JOIN_CODE_COLUMN = "JOIN_CODE";
-  
+
   /**
    * Calendar details returned to client.
    */
@@ -38,13 +40,14 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public CalendarResponse() {}
+  public CalendarResponse() {
+  }
 
   public CalendarResponse(int calendarId) {
     this.calendarId = calendarId;
   }
-  
-  public CalendarResponse(String name, boolean joinEnabled, int userId, 
+
+  public CalendarResponse(String name, boolean joinEnabled, int userId,
       String joinCode) {
     this.name = name;
     this.joinEnabled = joinEnabled;
@@ -58,23 +61,22 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
 
   @Override
   public String getSQLInsert() {
-    return String.format("INSERT INTO public.\"CALENDAR\" VALUES " +
-    		"(DEFAULT, '%s', '%d', DEFAULT, %b, '%s');", name, userId, joinEnabled, 
-    		joinCode);
+    return String.format("INSERT INTO public.\"CALENDAR\" VALUES "
+        + "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s');",
+        name.replace("\'", "\'\'"), userId, joinEnabled, joinCode.replace("\'", "\'\'"));
   }
-  
+
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM " +
-    		"\"CALENDAR\" WHERE \"ID\"='%d';", 
-    		CNAME_COLUMN, CREATOR_COLUMN, CREATED_COLUMN, JOIN_ENABLED_COLUMN, 
-    		JOIN_CODE_COLUMN, calendarId);
+    return String.format("SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM "
+        + "\"CALENDAR\" WHERE \"ID\"='%d';", CNAME_COLUMN, CREATOR_COLUMN,
+        CREATED_COLUMN, JOIN_ENABLED_COLUMN, JOIN_CODE_COLUMN, calendarId);
   }
-  
+
   public List<EventResponse> getCalendarEvents() {
     return events;
   }
-  
+
   @Override
   public void setResult(ResultSet result) {
     this.rs = result;
@@ -82,8 +84,8 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
       rs.next();
       setCalendarResponse();
     } catch (SQLException e) {
-      System.err.println("Error getting the result while creating " +
-      		"calendarResponse object.");
+      System.err.println("Error getting the result while creating "
+          + "calendarResponse object.");
       return;
     }
   }
@@ -99,15 +101,15 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   public void setCalendarID(int id) {
     this.calendarId = id;
   }
-  
+
   public void setEvents(List<EventResponse> events) {
     this.events = events;
   }
-  
+
   public void addEvent(EventResponse event) {
     events.add(event);
   }
-  
+
   public static void main(String[] args) {
     CalendarResponse resp = new CalendarResponse(123);
     System.out.println(resp.getSQLQuery());
