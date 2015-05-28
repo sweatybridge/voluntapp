@@ -140,6 +140,7 @@ $(function() {
   $.ajax("/json/calendar.json", {
     success: function(data) {
       app.events = data.events;
+      app.joined = [];
       $.each(app.events, function(index, event) {
         createEventView(event);
       });
@@ -171,23 +172,38 @@ function getCookie(name) {
 
 // Render a new event on the calendar
 function createEventView(model) {
+  // expand description on hover
   // find the cell corresponding to start date
+  var temp =
+  '<div data-event-id="{{eventId}}" class="event">'+
+    '<div class="time">'+
+      '<dd>{{startDate}}</dd>'+
+      '<dd>{{startTime}}</dd>'+
+    '</div>'+
+    '<div class="header">'+
+      '<span class="label label-warning count">{{max}}</span>'+
+    '</div>'+
+    '<div class="title">{{title}}</div>'+
+    '<div class="desc">{{description}}</div>'+
+    '<div class="location">'+
+      '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
+    '</div>'+
+    '<div class="join">'+
+      '<a class="badge" onclick=joinEvent(this)>Join</a>'+
+    '</div>'+
+  '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).attr("data-date") === model.startDate) {
+    if ($(elem).data("date") === model.startDate) {
+      var readableDate = formatDate(new Date(model.startDate)).split(" ").reverse().join(" ");
       // append event div
-      $("<div/>", {
-        "data-eventId": model.eventId,
-        class: "event"
-      }).append($("<p/>", {
-        class: "e_title",
-        text: model.title
-      })).append($("<span/>", {
-        class: "e_time",
-        text: model.startTime
-      })).append($("<p/>", {
-        class: "e_desc",
-        text: model.description
-      })).appendTo(elem);
+      $(elem).append(temp
+          .replace('{{eventId}}', model.eventId)
+          .replace('{{startDate}}', readableDate)
+          .replace('{{startTime}}', model.startTime)
+          .replace('{{max}}', model.max - model.attendees)
+          .replace('{{title}}', model.title)
+          .replace('{{description}}', model.description)
+          .replace('{{location}}', model.location));
     }
     // if event not in view, don't render
   });
@@ -202,7 +218,7 @@ function updateCalendarDates(startDate) {
   $("#t_calendar_body").children().each(function(k, elem) {
     // update data fields
     var date = startDate.toJSON().split("T")[0];
-    $(elem).attr("data-date", date);
+    $(elem).data("date", date);
 
     // update heading text
     var heading = $($("#t_calendar_heading").children()[k]);
@@ -302,8 +318,37 @@ function getWeekDay(date) {
   return str.substring(0, str.indexOf(' '));
 }
 
+// Renders all events within the displayed date range
 function renderCalendar() {
   $.each(app.events, function(index, event) {
     createEventView(event);
+  });
+}
+
+// Join an event
+function joinEvent(elem) {
+  var view = $(elem).closest(".event");
+  var eid = view.data("eventId");
+  $.ajax("/api/subscription/event", {
+    method: "POST",
+    data: JSON.stringify({eventId: eid}),
+    success: function(data) {
+      toastr.error(data.message);
+      // add event to joined list
+      $.each(app.events, function(k, event) {
+        if (event.eventId === eid) {
+          app.joined.push(event);
+          // update attendees count
+          event.attendees++;
+          view.children(".count").text(event.max - event.attendees);
+          return false;
+        }
+      });
+      // update badge
+      $(elem).addClass("progress-bar-success").text("Joined");
+    },
+    error: function(data) {
+      toastr.error("Cannot join event: " + data.responseJSON.message);
+    }
   });
 }
