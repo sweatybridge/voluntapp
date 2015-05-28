@@ -21,6 +21,7 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   public static String CREATED_COLUMN = "CREATED";
   public static String JOIN_ENABLED_COLUMN = "JOIN_ENABLED";
   public static String JOIN_CODE_COLUMN = "JOIN_CODE";
+  public static String ACTIVE_COLUMN = "ACTIVE";
 
   /**
    * Calendar details returned to client.
@@ -36,6 +37,7 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   private transient ResultSet rs;
   private transient Timestamp creationDate;
   private transient int userId;
+  private transient boolean active;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -62,15 +64,16 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
   @Override
   public String getSQLInsert() {
     return String.format("INSERT INTO public.\"CALENDAR\" VALUES "
-        + "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s');",
+        + "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s', DEFAULT);",
         name.replace("\'", "\'\'"), userId, joinEnabled, joinCode.replace("\'", "\'\'"));
   }
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM "
-        + "\"CALENDAR\" WHERE \"ID\"='%d';", CNAME_COLUMN, CREATOR_COLUMN,
-        CREATED_COLUMN, JOIN_ENABLED_COLUMN, JOIN_CODE_COLUMN, calendarId);
+    return String.format("SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM "
+        + "\"CALENDAR\" WHERE \"ID\"='%d' AND \"%s\"=true;", CNAME_COLUMN, 
+        CREATOR_COLUMN, CREATED_COLUMN, JOIN_ENABLED_COLUMN, JOIN_CODE_COLUMN, 
+        ACTIVE_COLUMN, calendarId, ACTIVE_COLUMN);
   }
 
   public List<EventResponse> getCalendarEvents() {
@@ -96,6 +99,7 @@ public class CalendarResponse extends Response implements SQLInsert, SQLQuery {
     creationDate = rs.getTimestamp(CREATED_COLUMN);
     joinEnabled = rs.getBoolean(JOIN_ENABLED_COLUMN);
     joinCode = rs.getString(JOIN_CODE_COLUMN);
+    active = rs.getBoolean(ACTIVE_COLUMN);
   }
 
   public void setCalendarID(int id) {
