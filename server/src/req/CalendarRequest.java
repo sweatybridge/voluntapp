@@ -132,8 +132,8 @@ public class CalendarRequest implements Request {
               rs.getString(EventResponse.TITLE_COLUMN), rs
                   .getString(EventResponse.DESC_COLUMN), rs
                   .getString(EventResponse.LOCATION_COLUMN), rs
-                  .getString(EventResponse.DATE_COLUMN), rs
                   .getString(EventResponse.TIME_COLUMN), rs
+                  .getString(EventResponse.DATE_COLUMN), rs
                   .getString(EventResponse.DURATION_COLUMN), rs
                   .getString(EventResponse.MAX_ATTEDEE_COLUMN), rs
                   .getInt(EventResponse.EID_COLUMN), calendarId));
