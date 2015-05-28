@@ -11,11 +11,13 @@ import req.CalendarRequest;
 import req.CalendarRequest.CalendarEventsQuery;
 import req.CalendarSubscriptionRequest;
 import req.EventRequest;
+import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
+import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.CalendarSubscriptionResponse;
@@ -39,7 +41,7 @@ import exception.UserNotFoundException;
 public class DBInterface {
 
   private PGConnectionPoolDataSource source;
-  
+
   /**
    * Builds the interface with the given data source.
    * 
@@ -101,9 +103,9 @@ public class DBInterface {
    * @param calendarId
    *          CalendarRequest
    * @return CalendarResponse
-   * @throws SQLException 
+   * @throws SQLException
    */
-  public CalendarResponse getCalendar(CalendarRequest request) 
+  public CalendarResponse getCalendar(CalendarRequest request)
       throws SQLException {
     CalendarResponse result = new CalendarResponse(request.getCalendarId());
     query(result);
@@ -126,38 +128,40 @@ public class DBInterface {
     // TODO: implement this
     return new EventResponse();
   }
-  
+
   /**
    * Get IDs of all calendars to which the user subscribed.
    * 
-   * @param  userId
-   *         ID of the user whose calendars are supposed to be retrieved.
-   * @return SubscriptionResponse
-   *         Object whose calendarIds field is set to IDs of all calendars 
-   *         to which a user subscribed.
-   * @throws SQLException 
+   * @param userId
+   *          ID of the user whose calendars are supposed to be retrieved.
+   * @return SubscriptionResponse Object whose calendarIds field is set to IDs
+   *         of all calendars to which a user subscribed.
+   * @throws SQLException
    */
-  public CalendarSubscriptionResponse getUsersCalendars(int userId) 
+  public CalendarSubscriptionResponse getUsersCalendars(int userId)
       throws SQLException {
-    CalendarSubscriptionResponse resp = 
-        new CalendarSubscriptionResponse(userId);
+    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
     query(resp);
     return resp;
   }
-  
+
   /**
-   * Given the join code of a calendar and the ID of a user, register user's 
+   * Given the join code of a calendar and the ID of a user, register user's
    * subscription to a given calendar.
    * 
-   * @param SubscriptionRequest containing the user ID and calendar join code
+   * @param SubscriptionRequest
+   *          containing the user ID and calendar join code
    * @return
-   * @throws SQLException 
+   * @throws SQLException
    */
-  public Response putCalendarSubscription(CalendarSubscriptionRequest subReq) 
+  public Response putCalendarSubscription(CalendarSubscriptionRequest subReq)
       throws SQLException {
-    /* TODO: Register calendar subscription only when the join enable field was checked. */
+    /*
+     * TODO: Register calendar subscription only when the join enable field was
+     * checked.
+     */
     CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
-            subReq.getUserId(), subReq.getJoinCode());
+        subReq.getUserId(), subReq.getJoinCode());
     insert(subResp);
     return subResp;
   }
@@ -263,12 +267,49 @@ public class DBInterface {
    */
   public int putEvent(EventRequest ereq) throws SQLException {
     // TODO: why convert max to string?
-    EventResponse eresp =
-        new EventResponse(ereq.getTitle(), ereq.getDescription(),
-            ereq.getLocation(), ereq.getStartTime(), ereq.getStartDate(),
-            ereq.getDuration(), Integer.toString(ereq.getMax()), -1,
-            ereq.getCalendarId());
+    EventResponse eresp = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
+        ereq.getStartDate(), ereq.getDuration(),
+        Integer.toString(ereq.getMax()), -1, ereq.getCalendarId());
     return getID(eresp, EventResponse.EID_COLUMN);
+  }
+
+  /**
+   * Adds an event subscription.
+   * 
+   * @param esr
+   *          The request object of the new event subscription.
+   * @return Whether the insertion was successful or not.
+   * @throws SQLException
+   *           Thrown when there was an error interacting with the database.
+   */
+  public boolean putEventSubscription(EventSubscriptionRequest esr)
+      throws SQLException {
+    EventSubscriptionResponse response = new EventSubscriptionResponse(
+        esr.getEventId(), esr.getUserId());
+    return insert(response);
+  }
+
+  /**
+   * Deletes an event subscription.
+   * 
+   * @param esr
+   *          The request object of the event to be deleted.
+   * @return (0) if the event subscription was not found or (1) if it was
+   *         successfully deleted.
+   * @throws SQLException
+   * @throws InconsistentDataException
+   */
+  public int deleteEventSubscription(EventSubscriptionRequest esr)
+      throws SQLException, InconsistentDataException {
+    EventSubscriptionResponse response = new EventSubscriptionResponse(
+        esr.getEventId(), esr.getUserId());
+    int rows = update(response);
+    if (rows > 1) {
+      throw new InconsistentDataException(
+          "Deleteing an event subscription removed more than one row");
+    }
+    return rows;
   }
 
   /**
@@ -323,10 +364,10 @@ public class DBInterface {
   public boolean updateEvent(int eventId, EventRequest ereq)
       throws SQLException, EventNotFoundException, InconsistentDataException {
     // TODO: why convert max to string?
-    EventResponse er =
-        new EventResponse(ereq.getTitle(), ereq.getDescription(),
-            ereq.getLocation(), ereq.getStartTime(), ereq.getStartDate(),
-            ereq.getDuration(), Integer.toString(ereq.getMax()), eventId, -1);
+    EventResponse er = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
+        ereq.getStartDate(), ereq.getDuration(),
+        Integer.toString(ereq.getMax()), eventId, -1);
     return updateRowCheckHelper(er);
   }
 
