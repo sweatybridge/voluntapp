@@ -12,8 +12,8 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
     SQLInsert {
 
   /* Columns of the USER_CALENDAR table. */
-  private static final String UID_COLUMN = "UID";
-  private static final String CID_COLUMN = "CID";
+  public static final String UID_COLUMN = "UID";
+  public static final String CID_COLUMN = "CID";
 
   private List<CalendarResponse> calendars = new ArrayList<>();
   private String joinCode;
