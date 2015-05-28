@@ -8,7 +8,9 @@
                 - Delete | Deletes a given event (given by ID)
 /api/event      - Post   | Creates a new event with the payload details
 
-/api/calendar/<ID> - Get    | Returns the information about the calendar from the given ID
+/api/calendar/<ID> - Get    | Returns the information about the calendar from the given ID.
+                              If the startdate parameter is set it returns a list of events
+                              from the calendar for the next two weeks
                    - Put    | Update the calendar information about the given ID
                    - Delete | Deletes a given calendar (given by ID)
 /api/calendar      - Post   | Creates a new calendar with the payload details
