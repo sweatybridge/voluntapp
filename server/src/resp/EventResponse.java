@@ -32,6 +32,7 @@ public class EventResponse extends Response {
   private String startTime; // HH:mm
   private String startDate; // YYYY-MM-DD
   private String duration; // HH:mm:ss
+  private int currentCount = -1;
   private int max = -1;
 
   /**
@@ -211,5 +212,13 @@ public class EventResponse extends Response {
    */
   public void setEventId(int eventId) {
     this.eventId = eventId;
+  }
+  
+  public void setCurrentCount(String currentCount) {
+    if (currentCount != null) {
+      this.currentCount = Integer.parseInt(currentCount);
+    } else {
+      this.currentCount = 0;
+    }
   }
 }

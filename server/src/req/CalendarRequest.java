@@ -6,7 +6,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import resp.CalendarSubscriptionResponse;
 import resp.EventResponse;
+import resp.EventSubscriptionResponse;
 import sql.SQLQuery;
 
 /**
@@ -115,12 +117,24 @@ public class CalendarRequest implements Request {
       Timestamp endDate = new Timestamp(startDate.getTime() + TIME_INTERVAL);
       return String
           .format(
-              "SELECT * FROM \"EVENT\" "
+              "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")" + 
+              "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\"" +
+              "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS ('%s', '%s') "
                   + "AND "
-                  + "\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=%d);",
-              startDate, endDate, calendarId);
+                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=%d);",
+                  EventSubscriptionResponse.EID_COLUMN, 
+                  EventSubscriptionResponse.EID_COLUMN,
+                  EventResponse.TITLE_COLUMN,
+                  EventResponse.DESC_COLUMN,
+                  EventResponse.LOCATION_COLUMN,
+                  EventResponse.DATE_COLUMN,
+                  EventResponse.TIME_COLUMN,
+                  EventResponse.DURATION_COLUMN,
+                  EventResponse.MAX_ATTEDEE_COLUMN,
+                  EventSubscriptionResponse.EID_COLUMN, 
+                  EventResponse.EID_COLUMN, startDate, endDate, calendarId);
     }
 
     @Override
@@ -128,15 +142,18 @@ public class CalendarRequest implements Request {
       this.rs = result;
       try {
         while (rs.next()) {
-          events.add(new EventResponse(
-              rs.getString(EventResponse.TITLE_COLUMN), rs
-                  .getString(EventResponse.DESC_COLUMN), rs
-                  .getString(EventResponse.LOCATION_COLUMN), rs
-                  .getString(EventResponse.TIME_COLUMN), rs
-                  .getString(EventResponse.DATE_COLUMN), rs
-                  .getString(EventResponse.DURATION_COLUMN), rs
-                  .getString(EventResponse.MAX_ATTEDEE_COLUMN), rs
-                  .getInt(EventResponse.EID_COLUMN), calendarId));
+          EventResponse resp = new EventResponse(
+              rs.getString(EventResponse.TITLE_COLUMN), 
+              rs.getString(EventResponse.DESC_COLUMN), 
+              rs.getString(EventResponse.LOCATION_COLUMN), 
+              rs.getString(EventResponse.TIME_COLUMN), 
+              rs.getString(EventResponse.DATE_COLUMN), 
+              rs.getString(EventResponse.DURATION_COLUMN), 
+              rs.getString(EventResponse.MAX_ATTEDEE_COLUMN), 
+              rs.getInt(EventResponse.EID_COLUMN), 
+              calendarId);
+          resp.setCurrentCount(rs.getString("count"));
+          events.add(resp);
         }
       } catch (SQLException e) {
         System.err.println("Error getting the result while creating "
@@ -157,4 +174,9 @@ public class CalendarRequest implements Request {
    * CalendarRequest(new Timestamp(94, 3, 14, 1, 1, 1, 1));
    * System.out.println(req.getCalendarEventsQuery().getSQLQuery()); }
    */
+  
+  public static void main(String[] args) {
+    CalendarRequest req = new CalendarRequest(new Timestamp(94, 3, 14, 1, 1, 1, 1), 4);
+    System.out.println(req.getCalendarEventsQuery().getSQLQuery());
+  }
 }
