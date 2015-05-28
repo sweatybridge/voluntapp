@@ -57,7 +57,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
    * @throws IOException
    */
   @Override
-  public void doPut(HttpServletRequest request, HttpServletResponse response)
+  public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     // TODO: To keep servlets consistent this may be better being changed to
     // post?
