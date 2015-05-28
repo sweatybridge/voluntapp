@@ -283,11 +283,40 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there was an error interacting with the database.
    */
-  public boolean putEventSubscription(EventSubscriptionRequest esr)
+  public Response putEventSubscription(EventSubscriptionRequest esr)
       throws SQLException {
+    // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());
-    return insert(response);
+    insert(response);
+    return response;
+  }
+
+  /**
+   * Gets the list of users that have signed up to an event.
+   * 
+   * @param esr
+   *          The request object of the event in question (only the event ID is
+   *          needed).
+   * @return An EventSubscriptionResponse, you can get the list of users by
+   *         calling getSubscriberList() on this.
+   * @throws SQLException
+   *           Thrown where there was an error when interacting with the
+   *           database.
+   */
+  public EventSubscriptionResponse getEventSubsciption(
+      EventSubscriptionRequest esr) throws SQLException {
+    // Untested
+    EventSubscriptionResponse response = new EventSubscriptionResponse(
+        esr.getEventId());
+    Connection conn = source.getConnection();
+    try {
+      Statement stmt = conn.createStatement();
+      response.setResult(stmt.executeQuery(response.getSQLUserCount()));
+    } finally {
+      conn.close();
+    }
+    return response;
   }
 
   /**
@@ -301,6 +330,7 @@ public class DBInterface {
    * @throws InconsistentDataException
    */
   public int deleteEventSubscription(EventSubscriptionRequest esr)
+  // Untested
       throws SQLException, InconsistentDataException {
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());

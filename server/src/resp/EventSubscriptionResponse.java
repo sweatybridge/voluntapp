@@ -2,6 +2,8 @@ package resp;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EventSubscriptionResponse extends Response {
 
@@ -50,6 +52,20 @@ public class EventSubscriptionResponse extends Response {
     return String.format(
         "DELETE FROM \"EVENT_USER\" WHERE \"EID\"=%d AND \"UID\"=%d;", eventId,
         userId);
+  }
+
+  public String getSQLUserCount() {
+    return String.format(
+        "SELECT (\"UID\") FROM \"EVENT_USER\" WHERE \"EID\" = %d;", eventId);
+  }
+
+  public List<Integer> getSubscriberList() throws SQLException {
+    // Untested
+    List<Integer> users = new ArrayList<>();
+    while (rs.next()) {
+      users.add(rs.getInt(UID_COLUMN));
+    }
+    return users;
   }
 
   @Override

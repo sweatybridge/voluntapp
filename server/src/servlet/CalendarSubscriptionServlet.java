@@ -58,6 +58,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   @Override 
   public void doPut(HttpServletRequest request, HttpServletResponse response) 
       throws IOException {
+    // TODO: To keep servlets consistent this may be better being changed to post?
     int userId = getUserId(request);
     if (userId == 0) {
       return;
