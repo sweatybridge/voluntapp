@@ -173,23 +173,38 @@ function getCookie(name) {
 function createEventView(model) {
   // expand description on hover
   // find the cell corresponding to start date
-  //<div data-eventid="11" class="event"><div class="e_time"><dd>1 Jun</dd><dd>14:00</dd></div><div class="e_decor"><span class="label label-warning" style="margin: 3px;">24/50</span></div><div class="e_title">Campus Tour</div><div class="e_desc"><span class="glyphicon glyphicon-map-marker"></span> 99 High Street Kensington</div><div class="e_join"><span class="badge">Join</span></div></div>
+  var temp =
+  '<div data-eventId="{{eventId}}" class="event">'+
+    '<div class="time">'+
+      '<dd>{{startDate}}</dd>'+
+      '<dd>{{startTime}}</dd>'+
+    '</div>'+
+    '<div class="header">'+
+      '<span class="label label-warning" style="margin: 3px;">{{attendees}}/{{max}}</span>'+
+    '</div>'+
+    '<div class="title">{{title}}</div>'+
+    '<div class="desc">{{description}}</div>'+
+    '<div class="location">'+
+      '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
+    '</div>'+
+    '<div class="join" onclick=joinEvent({{eventId}})>'+
+      '<a class="badge">Join</a>'+
+    '</div>'+
+  '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
     if ($(elem).attr("data-date") === model.startDate) {
+      var readableDate = formatDate(new Date(model.startDate)).split(" ").reverse().join(" ");
       // append event div
-      $("<div/>", {
-        "data-eventId": model.eventId,
-        class: "event"
-      }).append($("<p/>", {
-        class: "e_title",
-        text: model.title
-      })).append($("<span/>", {
-        class: "e_time",
-        text: model.startTime
-      })).append($("<p/>", {
-        class: "e_desc",
-        text: model.description
-      })).appendTo(elem);
+      $(elem).append(temp
+          .replace('{{eventId}}', model.eventId)
+          .replace('{{eventId}}', model.eventId)
+          .replace('{{startDate}}', readableDate)
+          .replace('{{startTime}}', model.startTime)
+          .replace('{{max}}', model.max)
+          .replace('{{attendees}}', model.attendees)
+          .replace('{{title}}', model.title)
+          .replace('{{description}}', model.description)
+          .replace('{{location}}', model.location));
     }
     // if event not in view, don't render
   });
@@ -304,8 +319,33 @@ function getWeekDay(date) {
   return str.substring(0, str.indexOf(' '));
 }
 
+// Renders all events within the displayed date range
 function renderCalendar() {
   $.each(app.events, function(index, event) {
     createEventView(event);
+  });
+}
+
+// Join an event
+function joinEvent(eventId) {
+  $.ajax("/api/subscription/event", {
+    method: "POST",
+    data: JSON.stringify({"eventId": eventId}),
+    success: function(data) {
+      toastr.error(data.message);
+      // add event to joined list
+      $.each(app.events, function(k, event) {
+        if (event.eventId === eventId) {
+          app.joined.push(event);
+          event.attendees++;
+          return false;
+        }
+      });
+      // update badge and count
+      
+    },
+    error: function(data) {
+      toastr.error(data.responseJSON.message);
+    }
   });
 }
