@@ -190,7 +190,7 @@
               <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
                 <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
                 <form class="form-centre" role="form" id="calendar_follow_form" action="/api/subscription/calendar" method="post" autocomplete="off">
-                  <div class="form-group"><input type="text" name="token" class="form-control" placeholder="Token" autofocus required></div>
+                  <div class="form-group"><input type="text" name="joinCode" class="form-control" placeholder="Join code" autofocus required></div>
                   <input class="btn btn-primary" type="submit" value="Follow">
                   <p class="form-error" id="calendar_follow_errors"></p>
                 </form>
