@@ -46,6 +46,10 @@ $(function() {
   $("#event_form").submit(function(e) {
     e.preventDefault();
     // Seperate datetime into date and time
+    if ($("#event_form select").val() < 0) {
+      $("#event_create_errors").text("You must create a calendar first.");
+      return;
+    }
     var form = $(this);
     var formObj = getFormObj(form);
     var regex = new RegExp('/', "g");
@@ -183,7 +187,6 @@ function refreshEvents() {
           event.calendarId = calendar.calendarId;
         });
         app.events.push.apply(app.events, data.events);
-        updateCalendarDates(app.current_start_date);
         renderEvents();
       },
       error: function(data) {
