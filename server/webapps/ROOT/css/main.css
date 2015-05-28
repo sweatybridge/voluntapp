@@ -15,26 +15,24 @@
 }
 
 .event {
-  border-style: solid;
-  border-radius: 10px;
-  border-width: 1px;
   padding: 8px;
   margin: 5px;
   background-color: #66FF66;
   transition: all 0.3s ease;
 }
 
-.event:hover {
-  transform: scale(1.3);
-  background:#53a7ea;
-  border-radius: 0px;
-}
-
 .event .e_title {
-  font-size: 1.2em;
+  padding: 8px;
+  font-size: 17px;
+  background-color: rgb(255, 255, 255);
+  font-family: 'Benton Sans', 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
+  font-weight: 700;
 }
 
 .event .e_desc {
+  padding: 8px;
+  color: rgb(102, 102, 102);
+  font-size: 13px;
 }
 
 .event button {
@@ -42,3 +40,24 @@
   width: 100%;
 }
 
+.event .e_time {
+  padding: 8px;
+  float: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  font-family: "Benton Sans","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
+  text-transform: uppercase;
+  line-height: 17px;
+  letter-spacing: 0.5px;
+}
+
+.event .e_decor {
+  background-color: rgb(108, 167, 234);
+  height: 50px;
+}
+
+.event .e_join {
+  text-align: right;
+  padding: 8px;
+}

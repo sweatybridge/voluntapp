@@ -230,7 +230,9 @@ function updateMainCol() {
 
 // Render a new event on the calendar
 function createEventView(model) {
+  // expand description on hover
   // find the cell corresponding to start date
+  //<div data-eventid="11" class="event"><div class="e_time"><dd>1 Jun</dd><dd>14:00</dd></div><div class="e_decor"><span class="label label-warning" style="margin: 3px;">24/50</span></div><div class="e_title">Campus Tour</div><div class="e_desc"><span class="glyphicon glyphicon-map-marker"></span> 99 High Street Kensington</div><div class="e_join"><span class="badge">Join</span></div></div>
   $("#t_calendar_body").children().each(function(k, elem) {
     if ($(elem).attr("data-date") === model.startDate) {
       // append event div
