@@ -63,8 +63,8 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
   @Override
   public String getSQLUpdate() {
     StringBuilder builder = new StringBuilder();
-    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='").append(sessionId)
-        .append("';");
+    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='")
+        .append(sessionId.replace("\'", "\'\'")).append("';");
     return builder.toString();
   }
 
@@ -81,7 +81,7 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
   public String getSQLQuery() {
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT * FROM \"SESSION\" WHERE " + "\"SID\"='")
-        .append(sessionId).append("';");
+        .append(sessionId.replace("\'", "\'\'")).append("';");
     return builder.toString();
   }
 
@@ -105,13 +105,14 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
 
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO \"SESSION\" VALUES ('" + sessionId + "', " + userId
-        + ", DEFAULT);";
+    return "INSERT INTO \"SESSION\" VALUES ('"
+        + sessionId.replace("\'", "\'\'") + "', " + userId + ", DEFAULT);";
   }
 
   public String getSQLRefresh() {
-    return String.format(
-        "UPDATE \"SESSION\" SET \"SID\"='%s', \"START_TIME\"=now() WHERE \"USER\"=%d;", sessionId,
-        userId);
+    return String
+        .format(
+            "UPDATE \"SESSION\" SET \"SID\"='%s', \"START_TIME\"=now() WHERE \"USER\"=%d;",
+            sessionId.replace("\'", "\'\'"), userId);
   }
 }

@@ -14,7 +14,8 @@ import sql.SQLUpdate;
 /**
  * A successful response to a user request.
  */
-public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLInsert {
+public class UserResponse extends Response implements SQLQuery, SQLUpdate,
+    SQLInsert {
 
   private static final String EMAIL_COLUMN = "EMAIL";
   private static final String PASSWORD_COLUMN = "PASSWORD";
@@ -78,26 +79,29 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
   public String getSQLQuery() {
     return String.format("SELECT * FROM public.\"USER\" WHERE \"%s\"='%s';",
         (email == null) ? ID_COLUMN : EMAIL_COLUMN, (email == null) ? userId
-            : email);
+            : email.replace("\'", "\'\'"));
   }
-  
+
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO public.\"USER\" VALUES(DEFAULT, '" + email + "','" 
-        + hashedPassword + "','" + firstName + "','" + lastName + "', DEFAULT);";
+    return "INSERT INTO public.\"USER\" VALUES(DEFAULT, '"
+        + email.replace("\'", "\'\'") + "','"
+        + hashedPassword.replace("\'", "\'\'") + "','"
+        + firstName.replace("\'", "\'\'") + "','"
+        + lastName.replace("\'", "\'\'") + "', DEFAULT);";
   }
-  
+
   @Override
   public String getSQLUpdate() {
     int found = 0;
     String formatString = ((email == null || found++ == Integer.MIN_VALUE) ? ""
-        : "\"EMAIL\"='" + email + "',")
+        : "\"EMAIL\"='" + email.replace("\'", "\'\'") + "',")
         + ((firstName == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"FIRST_NAME\"='" + firstName + "',")
+            : "\"FIRST_NAME\"='" + firstName.replace("\'", "\'\'") + "',")
         + ((lastName == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"LAST_NAME\"='" + lastName + "',")
+            : "\"LAST_NAME\"='" + lastName.replace("\'", "\'\'") + "',")
         + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"PASSWORD\"='" + hashedPassword + "',");
+            : "\"PASSWORD\"='" + hashedPassword.replace("\'", "\'\'") + "',");
     return (found == 0) ? null : String.format(
         "UPDATE public.\"USER\" SET %s WHERE \"ID\"=%d",
         formatString.substring(0, formatString.length() - 1), userId);
@@ -131,12 +135,14 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate, SQLIn
       return;
     }
   }
-  
-  public void checkResult() throws UserNotFoundException, InconsistentDataException, SQLException {
-    if(found == false) {
-      throw new UserNotFoundException("The users information could not be found");
+
+  public void checkResult() throws UserNotFoundException,
+      InconsistentDataException, SQLException {
+    if (found == false) {
+      throw new UserNotFoundException(
+          "The users information could not be found");
     }
-    if(rs.next() == true) {
+    if (rs.next() == true) {
       throw new InconsistentDataException("The database is dead!");
     }
   }
