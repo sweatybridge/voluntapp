@@ -187,6 +187,7 @@ function refreshEvents() {
           event.calendarId = calendar.calendarId;
         });
         app.events.push.apply(app.events, data.events);
+        updateCalendarDates(app.current_start_date);
         renderEvents();
       },
       error: function(data) {
