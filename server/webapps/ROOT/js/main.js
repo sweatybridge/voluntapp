@@ -187,7 +187,7 @@ function refreshEvents() {
   // Get event data for the active calendars then render
   $.each(active_calendars, function(index, id) {
     $.ajax("/api/calendar/"+id, {
-      data: {startDate: app.current_start_date.toJSON().substring(0, 19).replace('T',' ')},
+      data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
       success: function(data) {
         // Add the calendarId because back-end doesn't provide it
         $.each(data.events, function(index, event) {
