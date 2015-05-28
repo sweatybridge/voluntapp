@@ -72,13 +72,13 @@ $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendar(); }, $("#calendar_create_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendars(); }, $("#calendar_create_errors"));
   });
   
   // Bind calendar joining form
   $("#calendar_follow_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); refreshCalendar(); }, $("#calendar_follow_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); refreshCalendars(); }, $("#calendar_follow_errors"));
   });
 
   // Sets up request headers for all subsequent ajax calls
@@ -127,14 +127,11 @@ $(function() {
     refreshEvents();
   });
   
-  // Request calendar information
-  refreshCalendar();
-
   // Request user profile information
   refreshUser();
   
-  // Request events
-  refreshEvents();
+  // Request calendar information
+  refreshCalendars();
 }); // End of document ready
 
 // Update user profile information on view
@@ -149,37 +146,42 @@ function refreshUser() {
 }
 
 // Update calendars
-function refreshCalendar() {
+function refreshCalendars() {
   $.get("/api/subscription/calendar", function(data) {
+    app.calendars = data.calendars;
     if (data.calendars.length < 1) {
       return;
     }
     $("#user_calendars").empty();
     $("#select_calendar").empty();
     $.each(data.calendars, function(index, calendar) {
-      // TODO: update global variable with calendar data
-      app.calendars = calendar;
       $('#select_calendar')
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
        .text(calendar.name));
       $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+calendar.name)).appendTo("#user_calendars");
     });
+    // Refresh events for the calendars
+    refreshEvents();
   });
 }
 
 // Update Events
 function refreshEvents() {
   // Retrieve and render calendar events
-  $.ajax("/json/events.json", {
-    success: function(data) {
-      app.events = data;
-      updateCalendarDates(app.current_start_date);
-      renderEvents();
-    },
-    error: function(data) {
-      console.log("Failed to retrieve calendar events.");
-    }
+  app.events = [];
+  $.each(app.calendars, function(index, calendar) {
+    $.ajax("/api/calendar/"+calendar.calendarId, {
+      data: {startDate: app.current_start_date.toJSON().substring(0, 19).replace('T',' ')},
+      success: function(data) {
+        app.events.push.apply(app.events, data.events);
+        updateCalendarDates(app.current_start_date);
+        renderEvents();
+      },
+      error: function(data) {
+        toastr.error("Failed to get events for " + calendar.name);
+      }
+    });
   });
   
 }
