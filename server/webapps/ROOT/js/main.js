@@ -64,6 +64,7 @@ $(function() {
       method: form.attr("method"),
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
+        refreshEvents();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -162,7 +163,7 @@ function refreshCalendars() {
        var checkbox = $("<input>").attr("type", "checkbox").attr("checked", "checked").attr("data-calid", calendar.calendarId);
        // Bind event rendering
        checkbox.change(function() { renderEvents(); });
-      $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name)).appendTo("#user_calendars");
+      $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)).appendTo("#user_calendars");
     });
     // Refresh events for the calendars
     refreshEvents();
