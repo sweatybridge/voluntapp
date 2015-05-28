@@ -15,11 +15,12 @@
 }
 
 .event {
-  margin: 5px;
+  margin: 4px;
   background-color: white;
   font-family: "Benton Sans","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+  border-radius: 6px;
+  box-shadow: 1px 1px 2px #888888;
+  /*transition: all 0.3s ease;*/
 }
 
 .event > div {
@@ -49,8 +50,10 @@
 }
 
 .event .header {
+  height: 45px;
   background-color: rgb(108, 167, 234);
-  height: 50px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
 }
 
 .event .join {
@@ -65,4 +68,9 @@
 
 .event:hover .desc {
   display: block;
+}
+
+.event .count {
+  line-height: 1.8;
+  font-size: 13px;
 }
