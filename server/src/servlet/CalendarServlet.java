@@ -21,13 +21,13 @@ import db.InviteCodeGenerator;
 
 @WebServlet
 public class CalendarServlet extends HttpServlet {
-  
+
   private final Gson gson;
   private final DBInterface db;
   private final InviteCodeGenerator generator = new InviteCodeGenerator();
 
   private static final long serialVersionUID = 1L;
-  
+
   /**
    * Constructs a calendar servlet with injected dependencies.
    * 
@@ -37,24 +37,30 @@ public class CalendarServlet extends HttpServlet {
   public CalendarServlet(Gson gson, DBInterface db) {
     this.gson = gson;
     this.db = db;
-  }  
-  
+  }
+
   /**
    * Get method, given the ID of the calendar, returns the remaining data about
-   * the calendar:
-   * - name
-   * - creator (ID)
-   * - join enabled flag 
-   * - join code
+   * the calendar: - name - creator (ID) - join enabled flag - join code
    * 
-   * If start_date field in the request is set, all the events in the time 
+   * If start_date field in the request is set, all the events in the time
    * interval from the specified date up to two weeks later are added to the
    * response.
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
+    String id = request.getPathInfo();
+    if (id == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Request not RESTful enough."));
+      return;
+    }
+
+    int calendarId = Integer.parseInt(id.substring(1));
+
     CalendarRequest calendarRequest = initCalendarRequest(request);
     // Check if calendar ID was provided.
     if (calendarRequest.getCalendarId() == null) {
@@ -62,86 +68,88 @@ public class CalendarServlet extends HttpServlet {
           "Calendar request is invalid, no calendar ID was specified."));
       return;
     }
-    
+
     try {
-      request.setAttribute(Response.class.getSimpleName(), 
+      request.setAttribute(Response.class.getSimpleName(),
           db.getCalendar(calendarRequest));
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Error while retireving the calendar information from the " +
-          "database."));
-    } 
+          "Error while retireving the calendar information from the "
+              + "database."));
+    }
   }
-  
+
   /**
    * Post method adds a new calendar to the database.
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
   @Override
-  protected void doPost(HttpServletRequest request, 
-      HttpServletResponse response) throws IOException {
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
     CalendarRequest calendarRequest = initCalendarRequest(request);
     calendarRequest.setInviteCode(generator.getInviteCode());
-    
+
     if (!calendarRequest.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Calendar request is invalid."));
       return;
     }
-    
+
     // Put calendar into the database and record the response.
     try {
-      request.setAttribute(Response.class.getSimpleName(), 
+      request.setAttribute(Response.class.getSimpleName(),
           db.putCalendar(calendarRequest));
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error while saving the calendar to the data base."));
     }
   }
-  
+
   /**
-   * Given the calendar ID, remove the corresponding calendar form the 
-   * database.
+   * Given the calendar ID, remove the corresponding calendar form the database.
    */
   @Override
-  protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
+  protected void doDelete(HttpServletRequest request,
+      HttpServletResponse response) {
     request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
         "Error - DELETE method of the calendar servlet not supported."));
   }
-  
+
   /**
-   * Given the calendar ID and new calendar data, update the database.  
+   * Given the calendar ID and new calendar data, update the database.
    */
-  @Override 
+  @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response) {
     request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
         "Error - DPUT method of the calendar servlet not supported."));
   }
-  
+
   /**
-   * Serialise and initialise the calendar request object 
+   * Serialise and initialise the calendar request object
    * 
    * @param HttpServletRequest request
    * @return CalendarRequest
    * @throws IOException
    */
-  private CalendarRequest initCalendarRequest(HttpServletRequest request) 
+  private CalendarRequest initCalendarRequest(HttpServletRequest request)
       throws IOException {
-    SessionResponse sessionResponse = (SessionResponse) request.getAttribute(
-        SessionResponse.class.getSimpleName());
-    
+    SessionResponse sessionResponse =
+        (SessionResponse) request.getAttribute(SessionResponse.class
+            .getSimpleName());
+
     CalendarRequest calendarRequest;
     if (request.getMethod().equals("GET")) {
-      calendarRequest = gson.fromJson(request.getParameter("data"), 
-          CalendarRequest.class);
+      calendarRequest =
+          gson.fromJson(request.getParameter("data"), CalendarRequest.class);
     } else {
-      calendarRequest = gson.fromJson(request.getReader(), 
-          CalendarRequest.class);
+      calendarRequest =
+          gson.fromJson(request.getReader(), CalendarRequest.class);
     }
-    
-    // Set userID of calendar creator. 
+
+    // Set userID of calendar creator.
     calendarRequest.setUserId(sessionResponse.getUserId());
-    
+
     return calendarRequest;
   }
 

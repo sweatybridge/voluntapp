@@ -16,11 +16,6 @@ import sql.SQLQuery;
 public class CalendarRequest implements Request {
 
   /**
-   * Invalid register request object to replace null checks.
-   */
-  public static final CalendarRequest INVALID = new CalendarRequest();
-  
-  /**
    * Length of time interval (in miliseconds). Events in the specified time
    * interval [startDate, startDate + TIME_INTERVAL] are going to be returned
    * on calendar query. 
