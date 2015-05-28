@@ -156,6 +156,44 @@ $(function() {
   });
 }); // End of document ready
 
+// Update user profile information on view
+function refreshUser() {
+  $.get("/api/user",
+    function(data) {
+      $("[data-bind='email']").text(data.email);
+      $("[data-bind='firstName']").text(data.firstName);
+      $("[data-bind='lastName']").text(data.lastName);
+      $("[data-bind='lastSeen']").text(data.lastSeen);
+  });
+}
+
+// Update calendars
+function refreshCalendar() {
+  $.get("/api/subscription/calendar", function(data) {
+    if (data.calendarIds.length < 1) {
+      return;
+    }
+    $("#user_calendars").empty();
+    $("#select_calendar").empty();
+    $.each(data, function(index, calendar) {
+      // TODO: update global variable with calendar data
+      app.calendars = data;
+      $('#select_calendar')
+       .append($("<option></option>")
+       .attr("value",calendar.calendarId)
+       .text(calendar.name));
+      $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+calendar.name)).appendTo("#user_calendars");
+    });
+  });
+}
+
+// Render events
+function renderEvents() {
+  $.each(app.events, function(index, event) {
+    createEventView(event);
+  });
+}
+
 // Update main column class whether sizebars are hidden or not
 function updateMainCol() {
   var size = 8;
@@ -166,13 +204,6 @@ function updateMainCol() {
     size += 2;
   }
   $("#d_main_col").attr("class", "col-sm-" + size);
-}
-
-// Temporary function to get auth token from cookie
-function getCookie(name) {
-  var value = "; " + document.cookie;
-  var parts = value.split("; " + name + "=");
-  if (parts.length == 2) return parts.pop().split(";").shift();
 }
 
 // Render a new event on the calendar
@@ -233,44 +264,6 @@ function updateCalendarDates(startDate) {
   $("#next_day").prev().text(formatDate(startDate));
 }
 
-// Get yesterday as date object
-function yesterday() {
-  var today = new Date();
-  today.setDate(today.getDate() - 1);
-  return today;
-}
-
-// Update user profile information on view
-function refreshUser() {
-  $.get("/api/user",
-    function(data) {
-      $("[data-bind='email']").text(data.email);
-      $("[data-bind='firstName']").text(data.firstName);
-      $("[data-bind='lastName']").text(data.lastName);
-      $("[data-bind='lastSeen']").text(data.lastSeen);
-  });
-}
-
-// Update calendars
-function refreshCalendar() {
-  $.get("/api/subscription/calendar", function(data) {
-    if (data.calendarIds.length < 1) {
-      return;
-    }
-    $("#user_calendars").empty();
-    $("#select_calendar").empty();
-    $.each(data, function(index, calendar) {
-      // TODO: update global variable with calendar data
-      app.calendars = data;
-      $('#select_calendar')
-       .append($("<option></option>")
-       .attr("value",calendar.calendarId)
-       .text(calendar.name));
-      $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+calendar.name)).appendTo("#user_calendars");
-    });
-  });
-}
-
 // Validation of update form
 function validateUpdate($form) {
   var form = $form[0];
@@ -289,22 +282,4 @@ function validateUpdate($form) {
     return true;
   }
   return false;
-}
-
-// Format date string to May 15
-function formatDate(date) {
-  var str = date.toDateString();
-  return str.substring(str.indexOf(' ') + 1, str.lastIndexOf(' '));
-}
-
-// Format day of week, TODO: put this into date prototype
-function getWeekDay(date) {
-  var str = date.toDateString();
-  return str.substring(0, str.indexOf(' '));
-}
-
-function renderCalendar() {
-  $.each(app.events, function(index, event) {
-    createEventView(event);
-  });
 }
