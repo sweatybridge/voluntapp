@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -61,7 +62,14 @@ public class CalendarServlet extends HttpServlet {
       return;
     }
     
-    CalendarRequest calendarRequest = new CalendarRequest(Integer.parseInt(id));
+    CalendarRequest calendarRequest;
+    String startDate = request.getParameter("startDate");
+    if (startDate != null) {
+      calendarRequest = new CalendarRequest(
+          Timestamp.valueOf(startDate), Integer.parseInt(id));
+    } else {
+      calendarRequest = new CalendarRequest(Integer.parseInt(id));
+    }
 
     try {
       request.setAttribute(Response.class.getSimpleName(),
@@ -106,6 +114,15 @@ public class CalendarServlet extends HttpServlet {
   @Override
   protected void doDelete(HttpServletRequest request,
       HttpServletResponse response) {
+    String id = request.getPathInfo().substring(1);
+    
+    if (id == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No calendar ID specified."));
+      return;
+    }
+    
+    db.deleteCalendar(Integer.parseInt(id));
     request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
         "Error - DELETE method of the calendar servlet not supported."));
   }

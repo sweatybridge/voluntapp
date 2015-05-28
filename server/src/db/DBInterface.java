@@ -244,6 +244,16 @@ public class DBInterface {
     cr.setCalendarID(getID(cr, CalendarResponse.CID_COLUMN));
     return cr;
   }
+  
+  /**
+   * TODO: implement this
+   * @param calendarId
+   * @return
+   */
+  public boolean deleteCalendar(int calendarId) {
+    return false;
+    //CalendarResponse
+  }
 
   /**
    * Utility method which retrieves the ID of the inserted database record.
