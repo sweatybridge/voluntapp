@@ -164,9 +164,9 @@ function refreshCalendars() {
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
        .text(calendar.name));
-       var checkbox = $("<input>").attr("type", "checkbox").attr("checked", "checked").attr("data-calid", calendar.calendarId);
+       var checkbox = $("<input>").attr("type", "checkbox").attr("data-calid", calendar.calendarId);
        // Bind event rendering
-       checkbox.change(function() { renderEvents(); });
+       checkbox.change(function() { refreshEvents(); });
       $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)).appendTo("#user_calendars");
     });
     // Refresh events for the calendars
@@ -178,20 +178,27 @@ function refreshCalendars() {
 function refreshEvents() {
   // Retrieve and render calendar events
   app.events = [];
-  $.each(app.calendars, function(index, calendar) {
-    $.ajax("/api/calendar/"+calendar.calendarId, {
+  var active_calendars = getActiveCalendarIds();
+  // Just re-render if there are no active calendars
+  if (active_calendars.length < 1) {
+    updateCalendarDates(app.current_start_date);
+    renderEvents();
+  }
+  // Get event data for the active calendars then render
+  $.each(active_calendars, function(index, id) {
+    $.ajax("/api/calendar/"+id, {
       data: {startDate: app.current_start_date.toJSON().substring(0, 19).replace('T',' ')},
       success: function(data) {
         // Add the calendarId because back-end doesn't provide it
         $.each(data.events, function(index, event) {
-          event.calendarId = calendar.calendarId;
+          event.calendarId = id;
         });
         app.events.push.apply(app.events, data.events);
         updateCalendarDates(app.current_start_date);
         renderEvents();
       },
       error: function(data) {
-        toastr.error("Failed to get events for " + calendar.name);
+        toastr.error("Failed to get events for " + id);
       }
     });
   });
@@ -200,13 +207,7 @@ function refreshEvents() {
 
 // Render events
 function renderEvents() {
-  var active_calendars = [];
-  $("#calendars_collapse input").each(function(index) {
-    if ($(this).is(":checked")) {
-      active_calendars.push($(this).data("calid"));
-    }
-  });
-  
+  var active_calendars = getActiveCalendarIds();
   // Clear any existing events
   $("#t_calendar_body").children().each(function(index) {
     $(this).empty();
@@ -307,4 +308,15 @@ function validateUpdate($form) {
     return true;
   }
   return false;
+}
+
+// Get active_calendar ids
+function getActiveCalendarIds() {
+  var active_calendars = [];
+  $("#calendars_collapse input").each(function(index) {
+    if ($(this).is(":checked")) {
+      active_calendars.push($(this).data("calid"));
+    }
+  });
+  return active_calendars;
 }
