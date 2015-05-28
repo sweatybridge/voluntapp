@@ -565,6 +565,16 @@ public class DBInterface {
     return 1;
   }
   
+  /**
+   * Function to run the SQLDelete on the database, used for delete operation.
+   * Returns 1 if the query is skipped due to having no effect.
+   * 
+   * @param query
+   *          The query to be executed.
+   * @return How many rows were deleted.
+   * @throws SQLException
+   *           Thrown when there is an error with the database interaction.
+   */
   private int delete(SQLDelete query) throws SQLException {
     Connection conn = source.getConnection();
     try {
