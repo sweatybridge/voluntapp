@@ -143,9 +143,9 @@ $(function() {
   });
 
   // Retrieve and render calendar events
-  $.ajax("/json/calendar.json", {
+  $.ajax("/json/events.json", {
     success: function(data) {
-      app.events = data.events;
+      app.events = data;
       $.each(app.events, function(index, event) {
         createEventView(event);
       });
@@ -169,8 +169,8 @@ function refreshUser() {
 
 // Update calendars
 function refreshCalendar() {
-  $.get("/api/subscription/calendar", function(data) {
-    if (data.calendarIds.length < 1) {
+  $.get("/json/calendar.json", function(data) {
+    if (data.length < 1) {
       return;
     }
     $("#user_calendars").empty();
@@ -185,6 +185,11 @@ function refreshCalendar() {
       $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+calendar.name)).appendTo("#user_calendars");
     });
   });
+}
+
+// Update Events
+function refreshEvents() {
+  
 }
 
 // Render events
