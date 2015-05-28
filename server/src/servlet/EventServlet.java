@@ -55,14 +55,7 @@ public class EventServlet extends HttpServlet {
     }
     
     try {
-      int eventId = db.putEvent(eventReq);
-      EventResponse resp =
-          new EventResponse(eventReq.getTitle(), eventReq.getDescription(),
-              eventReq.getLocation(), eventReq.getStartTime(),
-              eventReq.getStartDate(), eventReq.getDuration(),
-              Integer.toString(eventReq.getMax()), eventId,
-              eventReq.getCalendarId());
-      
+      EventResponse resp = db.putEvent(eventReq);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(

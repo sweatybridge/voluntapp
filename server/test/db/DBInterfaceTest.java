@@ -29,7 +29,6 @@ import req.UserRequest;
 import resp.EventResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
-import utils.PasswordUtils;
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
@@ -620,7 +619,17 @@ public class DBInterfaceTest {
 					TEST_PUT_EVENT_1_DATE_TIME, TEST_PUT_EVENT_1_END_DATE_TIME,
 					TEST_PUT_EVENT_1_TIMEZONE, TEST_PUT_EVENT_1_MAX,
 					TEST_PUT_EVENT_1_CALID);
-			assertEquals(TEST_PUT_EVENT_1_EID, db.putEvent(er));
+
+			EventResponse eresp = db.putEvent(er);
+			assertEquals(TEST_PUT_EVENT_1_EID, eresp.getEventId());
+			assertEquals(TEST_PUT_EVENT_1_TITLE, eresp.getTitle());
+			assertEquals(TEST_PUT_EVENT_1_DESC, eresp.getDescription());
+			assertEquals(TEST_PUT_EVENT_1_LOCATION, eresp.getLocation());
+			assertEquals(TEST_PUT_EVENT_1_DATE, eresp.getStartDate());
+			assertEquals(TEST_PUT_EVENT_1_TIME, eresp.getStartTime());
+			assertEquals(TEST_PUT_EVENT_1_DURATION, eresp.getDuration());
+			assertEquals(TEST_PUT_EVENT_1_MAX, eresp.getMax());
+
 			verify(stmt, times(1)).executeUpdate(TEST_PUT_EVENT_1_QUERY,
 					Statement.RETURN_GENERATED_KEYS);
 		} catch (SQLException e) {
