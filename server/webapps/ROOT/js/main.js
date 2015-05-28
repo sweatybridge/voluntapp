@@ -64,8 +64,6 @@ $(function() {
       method: form.attr("method"),
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
-        app.events.push(formObj);
-        createEventView(formObj);
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
