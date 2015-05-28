@@ -151,7 +151,7 @@ public class DBInterface {
       ResultSet result = stmt.executeQuery(resp.getSQLQuery());
       while (result.next()) {
         cals.add(getCalendar(new CalendarRequest(result
-            .getInt(CalendarResponse.CID_COLUMN))));
+            .getInt(CalendarSubscriptionResponse.CID_COLUMN))));
       }
     } finally {
       conn.close();
