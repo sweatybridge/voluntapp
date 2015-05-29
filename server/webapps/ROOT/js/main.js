@@ -43,6 +43,70 @@ $(function() {
   // Bind datetime picker
   $(".datetimepicker").datetimepicker();
 
+  // Bind edit event buttons
+  $("#btn_event_save").click(function() {
+    // Retrieve form data
+    var form = $("#event_form");
+    var formObj = getFormObj(form);
+    if (!formObj.eventId) {
+      toastr.error("Failed to read event id. Please select the event again or refresh the app.");
+      return;
+    }
+
+    // validate form
+    formatEventForm(formObj);
+    console.log(formObj);
+
+    // ajax put
+    $.ajax(form.attr("action") +"/"+formObj.eventId, {
+      method: "PUT",
+      data: JSON.stringify(formObj),
+      success: function(data) {
+        toastr.success("Saved chanages to " + formObj["title"]);
+        refreshEvents();
+        form.trigger("reset");
+        $("#btn_event_create").show();
+        $("#btn_event_save").hide();
+        $("#btn_event_delete").hide();
+        $("#btn_event_cancel").hide();
+      },
+      error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
+    })
+  });
+
+  $("#btn_event_cancel").click(function() {
+    $("#event_form").trigger("reset");
+    $("#btn_event_create").show();
+    $("#btn_event_save").hide();
+    $("#btn_event_delete").hide();
+    $("#btn_event_cancel").hide();
+  });
+
+  $("#btn_event_delete").click(function() {
+    // Retrieve form data
+    var form = $("#event_form");
+    var formObj = getFormObj(form);
+    if (!formObj.eventId) {
+      toastr.error("Failed to read event id. Please select the event again or refresh the app.");
+      return;
+    }
+
+    // ajax delete
+    $.ajax(form.attr("action") +"/"+formObj.eventId, {
+      method: "DELETE",
+      success: function(data) {
+        toastr.success("Saved chanages to " + formObj["title"]);
+        refreshEvents();
+        form.trigger("reset");
+        $("#btn_event_create").show();
+        $("#btn_event_save").hide();
+        $("#btn_event_delete").hide();
+        $("#btn_event_cancel").hide();
+      },
+      error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
+    });
+  });
+
   // Bind event creation form
   $("#event_form").submit(function(e) {
     e.preventDefault();
@@ -53,23 +117,16 @@ $(function() {
     }
     var form = $(this);
     var formObj = getFormObj(form);
-    var regex = new RegExp('/', "g");
-    formObj["startTime"] = formObj["startDate"].split(" ")[1];
-    formObj["startDate"] = formObj["startDate"].split(" ")[0].replace(regex, '-');
-    formObj["endTime"] = formObj["endDate"].split(" ")[1];
-    formObj["endDate"] = formObj["endDate"].split(" ")[0].replace(regex, '-');
-    console.log(formObj);
-    formObj["timezone"] = jstz.determine().name();
+    formatEventForm(formObj);
     
     // Submit form
     $.ajax(form.attr("action"), {
       data: JSON.stringify(formObj),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
       method: form.attr("method"),
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
         refreshEvents();
+        form.trigger("reset");
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -252,7 +309,7 @@ function createEventView(event) {
       '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
     '</div>'+
-    '<div class="header progress-bar-info">'+
+    '<div class="header progress-bar-info" onclick="editEvent(this)">'+
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
@@ -261,7 +318,7 @@ function createEventView(event) {
       '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
     '</div>'+
     '<div class="join">'+
-      '<a class="badge" onclick=joinEvent(this)>Join</a>'+
+      '<a class="badge" onclick="joinEvent(this)">Join</a>'+
     '</div>'+
   '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
@@ -407,4 +464,40 @@ function joinEvent(elem) {
       }
     });
   }
+}
+
+// Handler for editing event
+function editEvent(elem) {
+  var view = $(elem).closest(".event");
+  var eid = view.data("eventId");
+  var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
+
+  // update event editor
+  $("#btn_event_create").hide();
+  $("#btn_event_save").show();
+  $("#btn_event_delete").show();
+  $("#btn_event_cancel").show();
+
+  // unformat and populate
+  var startDateTime = event.startDate.replace("-", "/") + " " + event.startTime;
+  //console.log(event);
+
+  var form = $("#event_form");
+  form.find('input[name="title"]').val(event.title);
+  form.find('input[name="description"]').val(event.description);
+  form.find('input[name="startDate"]').val(startDateTime);
+  //form.find('input[name="endDate"]').val(event.endDate);
+  form.find('input[name="location"]').val(event.location);
+  form.find('input[name="max"]').val(event.max);
+  form.find('input[name="eventId"]').val(event.eventId);
+  form.find('select[name="calendarId"]').val(event.calendarId);
+}
+
+function formatEventForm(formObj) {
+  var regex = new RegExp('/', "g");
+  formObj["startTime"] = formObj["startDate"].split(" ")[1];
+  formObj["startDate"] = formObj["startDate"].split(" ")[0].replace(regex, '-');
+  formObj["endTime"] = formObj["endDate"].split(" ")[1];
+  formObj["endDate"] = formObj["endDate"].split(" ")[0].replace(regex, '-');
+  formObj["timezone"] = jstz.determine().name();
 }
