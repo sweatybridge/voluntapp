@@ -45,3 +45,35 @@ function yesterday() {
   today.setDate(today.getDate() - 1);
   return today;
 }
+
+// Validation of update form
+function validateUpdate(form) {
+  var form = form[0];
+  var pass_val = form["password"].value;
+  
+  // Check password length
+  if (pass_val.length < 6) {
+    $("#profile_errors").text("New password must be at least 6 characters long");
+    return true;
+  }
+  
+  // Check confirmation
+  var conf_pass_val = form["confPassword"].value;
+  if (pass_val !== conf_pass_val) {
+    $("#profile_errors").text("Password must match");
+    return true;
+  }
+
+  // Check name only contains alphabet
+  if (hasError(form["firstName"].value) || hasError(form["lastName"].value)) {
+    $("#profile_errors").text("Name must only contain alphabetic characters.");
+    return true;
+  }
+
+  return false;
+}
+
+// TODO: support more languages
+function hasError(name) {
+  return (name.search(/[^A-Za-z\s]/) != -1);
+}

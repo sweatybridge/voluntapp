@@ -326,26 +326,6 @@ function updateCalendarDates(startDate) {
   $("#next_day").prev().text(formatDate(startDate));
 }
 
-// Validation of update form
-function validateUpdate($form) {
-  var form = $form[0];
-  var pass_val = form["newPassword"].value;
-  
-  // Check password length
-  if (pass_val.length < 6) {
-    $("#profile_errors").text("New password must be at least 6 characters long");
-    return true;
-  }
-  
-  // Check confirmation
-  var conf_pass_val = form["confPassword"].value;
-  if (pass_val !== conf_pass_val) {
-    $("#profile_errors").text("Password must match");
-    return true;
-  }
-  return false;
-}
-
 // Get active_calendar ids
 function getActiveCalendarIds() {
   var active_calendars = [];
