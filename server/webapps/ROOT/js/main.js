@@ -242,7 +242,7 @@ function updateMainCol() {
 }
 
 // Render a new event on the calendar
-function createEventView(model) {
+function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
@@ -264,23 +264,31 @@ function createEventView(model) {
     '</div>'+
   '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).data("date") === model.startDate) {
-      var startDateTime = new Date(model.startDate + "T" + model.startTime.split("+")[0]);
+    if ($(elem).data("date") === event.startDate) {
+      var startDateTime = new Date(event.startDate + "T" + event.startTime.split("+")[0]);
       var readableDate = formatDate(startDateTime).split(" ").reverse().join(" ");
       var readableTime = startDateTime.toLocaleTimeString().substring(0, 5);
       // append event div
-      var view = $(temp
-        .replace('{{eventId}}', model.eventId)
+      temp = temp
+        .replace('{{eventId}}', event.eventId)
         .replace('{{startDate}}', readableDate)
         .replace('{{startTime}}', readableTime)
-        .replace('{{remaining}}', model.max - model.currentCount)
-        .replace('{{title}}', model.title)
-        .replace('{{description}}', model.description)
-        .replace('{{location}}', model.location)
-      ).appendTo(elem);
-      if (model.hasJoined) {
+        .replace('{{title}}', event.title)
+        .replace('{{description}}', event.description)
+        .replace('{{location}}', event.location);
+      
+      if (event.max == -1) {
+        temp = temp.replace('{{remaining}}', "&infin;");
+      } else {
+        temp = temp.replace('{{remaining}}', event.max - event.currentCount);
+      }
+      var view = $(temp);
+      $(elem).append(view);
+      if (event.hasJoined) {
         // update joined badge
         view.find(".badge").addClass("progress-bar-success").text("Joined");
+      } else if (event.max - event.currentCount == 0) {
+        view.find(".badge").css("visibility", "hidden");
       }
     }
     // if event not in view, don't render
@@ -364,20 +372,27 @@ function joinEvent(elem) {
       success: function(data) {
         event.hasJoined = false;
         toastr.warning("Unjoined event " + event.title);
-        // update remaining spots
-        event.currentCount -= 1;
-        view.find(".count").text(event.max - event.currentCount);
+        if (event.max > -1) {
+          // update remaining spots
+          event.currentCount -= 1;
+          view.find(".count").text(event.max - event.currentCount);
+        }
         // update badge
         $(elem).removeClass("progress-bar-success").text("Join");
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
+        refreshEvents();
       }
     });
   } else {
     // join an event if there are spaces left
-    if ( event.max - event.currentCount < 1) {
+    if ( event.max > 0 && event.max - event.currentCount < 1) {
       toastr.error(event.title + " is full");
+      return;
+    }
+    if (event.max == 0) {
+      toastr.error("Joining for " + event.title + " is disabled");
       return;
     }
     $.ajax("/api/subscription/event", {
@@ -389,12 +404,15 @@ function joinEvent(elem) {
         event.hasJoined = true;
         // update remaining spots
         event.currentCount += 1;
-        view.find(".count").text(event.max - event.currentCount);
+        if (event.max > -1) {
+          view.find(".count").text(event.max - event.currentCount);
+        }
         // update badge
         $(elem).addClass("progress-bar-success").text("Joined");
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
+        refreshEvents();
       }
     });
   }
