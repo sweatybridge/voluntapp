@@ -14,6 +14,7 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
   /* Columns of the USER_CALENDAR table. */
   public static final String UID_COLUMN = "UID";
   public static final String CID_COLUMN = "CID";
+  public static final String ROLE_COLUMN = "ROLE";
 
   private List<CalendarResponse> calendars = new ArrayList<>();
   private String joinCode;

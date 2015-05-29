@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -11,10 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarRequest;
 import req.SessionRequest;
+import resp.CalendarSubscriptionResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
+import sql.SQLQuery;
 
 import com.google.gson.Gson;
 
@@ -233,6 +236,52 @@ public class CalendarServlet extends HttpServlet {
       return 0;
     }
     return sessionResponse.getUserId();
+  }
+  
+  private boolean authoriseUser(int userId, int calendarId) {
+    CalendarAuthorisationQuery query 
+      = new CalendarAuthorisationQuery(userId, calendarId);
+    //db.authorize calendar access
+    return true;
+  }
+  
+  private class CalendarAuthorisationQuery implements SQLQuery {
+    
+    private int userId;
+    private int calendarId;
+    private String accessPrivilege;
+    
+    public CalendarAuthorisationQuery(int userId, int calendarId) {
+      this.userId = userId;
+      this.calendarId = calendarId;
+    }
+
+    @Override
+    public String getSQLQuery() {
+      return String.format(
+          "SELECT \"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=%d AND \"%s\"=%d",
+          CalendarSubscriptionResponse.ROLE_COLUMN,
+          CalendarSubscriptionResponse.UID_COLUMN,
+          userId,
+          CalendarSubscriptionResponse.CID_COLUMN,
+          calendarId);
+    }
+
+    @Override
+    public void setResult(ResultSet result) {
+      try {
+        if (result.next()) {
+          accessPrivilege = result.getString(CalendarSubscriptionResponse.ROLE_COLUMN);
+        }
+      } catch (SQLException e) {
+        System.err.println("Database error occurred wile authorising user's access to a calendar / " +
+        		"user not registered to a calendar.");
+      }  
+    }
+    
+    private String getAccessPrivilege() {
+      return accessPrivilege;
+    }
   }
 
 }
