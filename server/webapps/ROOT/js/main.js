@@ -160,6 +160,19 @@ function refreshUser() {
 
 // Update calendars
 function refreshCalendars() {
+  var cal_html = '<div data-calid="{{id}}" class="calendar"> \
+  <div class="checkbox"> \
+    <label> \
+      <input type="checkbox"> {{name}} \
+    </label> \
+  </div> \
+  <div class="calendar_extras"> \
+    <p>Join code: <strong>{{joinCode}}</strong></p> \
+    <p>Join enabled: <strong>{{joinEnabled}}</strong></p> \
+    <button type="button" class="btn btn-info">Edit</button> \
+    <button type="button" class="btn btn-danger">Delete</button> \
+  </div> \
+</div>';
   $.get("/api/subscription/calendar", function(data) {
     app.calendars = data.calendars;
     if (data.calendars.length < 1) {
@@ -172,10 +185,18 @@ function refreshCalendars() {
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
        .text(calendar.name));
+       
+       $(cal_html.replace("{{id}}", calendar.calendarId)
+         .replace("{{name}}", calendar.name)
+         .replace("{{joinCode}}", calendar.joinCode)
+         .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#user_calendars");
        var checkbox = $("<input>").attr("type", "checkbox").attr("data-calid", calendar.calendarId);
        // Bind event rendering
-       checkbox.change(function() { refreshEvents(); });
-      $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)).appendTo("#user_calendars");
+       /*checkbox.change(function() { refreshEvents(); });
+      $("<div>").addClass("checkbox").append(
+        $("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)
+          .append($("<button>").click(function() { console.log(calendar.calendarId); }))
+      ).appendTo("#user_calendars");*/
     });
     // Refresh events for the calendars
     $("#user_calendars input").first().prop("checked", "checked");
@@ -334,8 +355,8 @@ function updateCalendarDates(startDate) {
 // Get active_calendar ids
 function getActiveCalendarIds() {
   var active_calendars = [];
-  $("#calendars_collapse input").each(function(index) {
-    if ($(this).is(":checked")) {
+  $("#calendars_collapse .calendar").each(function(index) {
+    if ($(this).find("input").is(":checked")) {
       active_calendars.push($(this).data("calid"));
     }
   });
