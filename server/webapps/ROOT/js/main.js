@@ -291,6 +291,10 @@ function createEventView(event) {
       } else if (event.max - event.currentCount == 0) {
         view.find(".badge").css("visibility", "hidden");
       }
+      // hide location if it is not set
+      if (!event.location) {
+        view.find(".location").hide();
+      }
     }
     // if event not in view, don't render
   });
