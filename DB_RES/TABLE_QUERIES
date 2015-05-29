@@ -147,6 +147,18 @@ WITH (
   OIDS=FALSE
 );
 
+---------------------------------------------------------------------------------------------------
+
+/* Function for checking the max for an event is not excced */
+
+CREATE OR REPLACE FUNCTION checkmax()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+  IF (SELECT COUNT(*) FROM "EVENT_USER" WHERE "EVENT_USER"."EID"=OLD."EID" GROUP BY "EVENT_USER"."EID") >= (SELECT "MAX_ATTENDEES" FROM "EVENTS" WHERE "EID"=OLD."EID") THEN RETURN NULL; ELSE RETURN NEW; END IF;
+END;
+$BODY$
+  LANGUAGE plpgsql;
 
 
 
