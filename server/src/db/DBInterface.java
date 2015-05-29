@@ -32,6 +32,7 @@ import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
+import exception.InvalidActionException;
 import exception.PasswordHashFailureException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
@@ -245,24 +246,26 @@ public class DBInterface {
     cr.setCalendarID(getID(cr, CalendarResponse.CID_COLUMN));
     return cr;
   }
-  
+
   /**
    * TODO: implement this
+   * 
    * @param calendarId
    * @return
-   * @throws SQLException 
-   * @throws InconsistentDataException 
-   * @throws CalendarNotFoundException 
+   * @throws SQLException
+   * @throws InconsistentDataException
+   * @throws CalendarNotFoundException
    */
-  public boolean deleteCalendar(int calendarId) 
-      throws SQLException, InconsistentDataException, CalendarNotFoundException {
+  public boolean deleteCalendar(int calendarId) throws SQLException,
+      InconsistentDataException, CalendarNotFoundException {
     CalendarResponse cr = new CalendarResponse(calendarId);
     int deletedRows = delete(cr);
     if (deletedRows > 1) {
       throw new InconsistentDataException("More than one calendar was deleted.");
     }
     if (deletedRows == 0) {
-      throw new CalendarNotFoundException("No calendar with the specified ID was found.");
+      throw new CalendarNotFoundException(
+          "No calendar with the specified ID was found.");
     }
     return true;
   }
@@ -282,7 +285,8 @@ public class DBInterface {
     int id;
     try {
       Statement stmt = conn.createStatement();
-      int rows = stmt.executeUpdate(insert.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+      int rows = stmt.executeUpdate(insert.getSQLInsert(),
+          Statement.RETURN_GENERATED_KEYS);
       ResultSet rs = stmt.getGeneratedKeys();
       if (rows == 0 || !rs.next()) {
         throw new SQLException();
@@ -321,13 +325,16 @@ public class DBInterface {
    * @return Whether the insertion was successful or not.
    * @throws SQLException
    *           Thrown when there was an error interacting with the database.
+   * @throws InvalidActionException
    */
   public Response putEventSubscription(EventSubscriptionRequest esr)
-      throws SQLException {
+      throws SQLException, InvalidActionException {
     // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());
-    insert(response);
+    if (!insert(response)) {
+      throw new InvalidActionException("Tried to join a full event");
+    }
     return response;
   }
 
@@ -529,13 +536,14 @@ public class DBInterface {
    */
   private boolean insert(SQLInsert insertion) throws SQLException {
     Connection conn = source.getConnection();
+    int rows = 0;
     try {
       Statement stmt = conn.createStatement();
-      stmt.executeUpdate(insertion.getSQLInsert());
+      rows = stmt.executeUpdate(insertion.getSQLInsert());
     } finally {
       conn.close();
     }
-    return true;
+    return rows == 1;
   }
 
   /**
@@ -564,7 +572,7 @@ public class DBInterface {
     // The query is pointless, return 1 to signal success
     return 1;
   }
-  
+
   /**
    * Function to run the SQLDelete on the database, used for delete operation.
    * Returns 1 if the query is skipped due to having no effect.
