@@ -74,11 +74,11 @@
                   It seems like you haven't joined to or created any calendars...
                 </div>
                 <div id="d_edit_calendar" class="panel-body" style="display: none;">
-                  <p>Here you can edit your calendar settings, promote or demote users and update calendar information. Deleting a calendar will delete all corresponding events as well.</p>
+                  <p>Here you can edit your calendar settings, promote or demote users and update calendar information. Deleting a calendar will delete all corresponding events as well. Click CANCEL to close this window.</p>
                   <button id="b_delete_calendar" type="button" class="btn btn-danger">Delete this calendar</button>
-                  <form role="form" id="user_promotion_form" action="/api/calendar" method="patch" autocomplete="off">
+                  <form role="form" id="user_promotion_form" action="/api/subscription/calendar" method="patch" autocomplete="off">
                     <p>Enter the user email that you want the perform the action. Remember that the user must be part of this calendar by joining.</p>
-                    <div class="form-group"><input id="user-email" type="email" class="form-control" name="userEmail" placeholder="User email">
+                    <div class="form-group"><input id="user-email" type="email" class="form-control" name="userEmail" placeholder="User email" required>
                     <select id="select_user_action" class="form-control" name="action">
                       <option value="make_admin">Make Admin</option>
                       <option value="make_editor">Make Editor</option>
@@ -89,6 +89,7 @@
                     <p class="form-error" id="user_promotion_errors"></p>
                   </form>
                   <form role="form" id="calendar_edit_form" action="/api/calendar" method="put" autocomplete="off">
+                    <p>You can change the name of the calendar, as well as enable or disable joining. The join code of a calendar is unique and cannot be changed.</p>
                     <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Name" required></div>
                     <div class="checkbox"><label><input type="checkbox" name="allowJoin">Allow Join</label></div>
                     <div class="form-group">

@@ -143,6 +143,16 @@ $(function() {
       });
     }
   });
+  
+  $("#user_promotion_form").submit(function(e) {
+    e.preventDefault()
+    submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#user_promotion_errors"));
+  });
+  
+  $("#calendar_edit_form").submit(function(e) {
+    e.preventDefault()
+    submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#calendar_edit_errors"));
+  });
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
@@ -217,6 +227,7 @@ function refreshCalendars() {
       cal_div.find("input").change(refreshEvents);
       cal_div.find("button").click(function() {
         var calid = $(this).parent().parent().data("calid");
+        $("#d_edit_calendar input[name='name']").val(calendar.name);
         $("#d_user_calendars").toggle();
         $("#d_edit_calendar").data("calid", calid).toggle();
       });
