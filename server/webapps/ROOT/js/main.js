@@ -178,6 +178,7 @@ function refreshCalendars() {
       $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)).appendTo("#user_calendars");
     });
     // Refresh events for the calendars
+    $("#user_calendars input").first().prop("checked", "checked");
     refreshEvents();
   });
 }
