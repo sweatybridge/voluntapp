@@ -130,7 +130,7 @@ public class UserServlet extends HttpServlet {
 
       // Forward to session servlet
       request.setAttribute("userId", userId);
-      getServletContext().getRequestDispatcher("/session").forward(request,
+      getServletContext().getRequestDispatcher("/api/session").forward(request,
           response);
 
     } catch (SQLException e) {
