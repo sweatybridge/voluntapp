@@ -252,7 +252,7 @@ function createEventView(event) {
       '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
     '</div>'+
-    '<div class="header">'+
+    '<div class="header progress-bar-info">'+
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
@@ -289,10 +289,9 @@ function createEventView(event) {
         // update joined badge
         view.find(".badge").addClass("progress-bar-danger").text("Unjoin");
         // update header
-        view.find(".header").addClass("progress-bar-success");
+        view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
       } else if (event.max - event.currentCount == 0) {
         view.find(".badge").css("visibility", "hidden");
-        view.find(".header").addClass("progress-bar-info");
       }
       // hide location if it is not set
       if (!event.location) {
