@@ -28,7 +28,7 @@ public class CalendarResponse extends Response {
    */
   private int calendarId;
   private String name;
-  private boolean joinEnabled;
+  private Boolean joinEnabled;
   private String joinCode;
   private List<EventResponse> events;
   /**
@@ -37,7 +37,7 @@ public class CalendarResponse extends Response {
   private transient ResultSet rs;
   private transient Timestamp creationDate;
   private transient int userId;
-  private transient boolean active;
+  private transient Boolean active;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -47,6 +47,12 @@ public class CalendarResponse extends Response {
 
   public CalendarResponse(int calendarId) {
     this.calendarId = calendarId;
+  }
+  
+  /* Constructor used for deleting calendars from the database. */
+  public CalendarResponse(int calendarId, Boolean active) {
+    this.calendarId = calendarId;
+    this.active = active;
   }
 
   public CalendarResponse(String name, boolean joinEnabled, int userId,
@@ -76,10 +82,24 @@ public class CalendarResponse extends Response {
         ACTIVE_COLUMN, calendarId, ACTIVE_COLUMN);
   }
   
-  @Override 
-  public String getSQLDelete() {
-    return String.format("UPDATE \"CALENDAR\" SET \"%s\"=false WHERE \"%s\"=%d;",
-        ACTIVE_COLUMN, CID_COLUMN, calendarId);
+  @Override
+  public String getSQLUpdate() {
+    StringBuilder setUpdate = new StringBuilder();
+    
+    setUpdate.append(name != null ? 
+        "\"" + CNAME_COLUMN + "\"=" + "\'" + name + "\', " : "");
+    setUpdate.append(joinEnabled != null ? 
+        "\"" + JOIN_ENABLED_COLUMN + "\"=" + joinEnabled.toString() + ", " : "");
+    setUpdate.append(active != null ? 
+        "\"" + ACTIVE_COLUMN + "\"=" + active.toString() + ", " : "");
+    
+    String update = setUpdate.toString();
+    if (!update.isEmpty()) {
+      System.out.println("chuj");
+      update = update.substring(0, update.length() - 2);
+    }
+    return String.format("UPDATE \"CALENDAR\" SET " + update + " WHERE \"%s\"=%d;", 
+        CID_COLUMN, calendarId);
   }
 
   public List<EventResponse> getCalendarEvents() {
@@ -121,7 +141,7 @@ public class CalendarResponse extends Response {
   }
 
   public static void main(String[] args) {
-    CalendarResponse resp = new CalendarResponse(4);
-    System.out.println(resp.getSQLDelete());
+    CalendarResponse resp = new CalendarResponse("dupa", true, 123, "acd");
+    System.out.println(resp.getSQLUpdate());
   }
 }

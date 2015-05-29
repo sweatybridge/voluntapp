@@ -258,8 +258,8 @@ public class DBInterface {
    */
   public boolean deleteCalendar(int calendarId) throws SQLException,
       InconsistentDataException, CalendarNotFoundException {
-    CalendarResponse cr = new CalendarResponse(calendarId);
-    int deletedRows = delete(cr);
+    CalendarResponse cr = new CalendarResponse(calendarId, false);
+    int deletedRows = update(cr);
     if (deletedRows > 1) {
       throw new InconsistentDataException("More than one calendar was deleted.");
     }
@@ -570,31 +570,6 @@ public class DBInterface {
       conn.close();
     }
     // The query is pointless, return 1 to signal success
-    return 1;
-  }
-
-  /**
-   * Function to run the SQLDelete on the database, used for delete operation.
-   * Returns 1 if the query is skipped due to having no effect.
-   * 
-   * @param query
-   *          The query to be executed.
-   * @return How many rows were deleted.
-   * @throws SQLException
-   *           Thrown when there is an error with the database interaction.
-   */
-  private int delete(SQLDelete query) throws SQLException {
-    Connection conn = source.getConnection();
-    try {
-      Statement stmt = conn.createStatement();
-      String q = query.getSQLDelete();
-      if (q != null) {
-        int result = stmt.executeUpdate(q);
-        return result;
-      }
-    } finally {
-      conn.close();
-    }
     return 1;
   }
 

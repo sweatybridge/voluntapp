@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import req.CalendarSubscriptionRequest;
 import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
