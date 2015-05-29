@@ -1,6 +1,7 @@
 package servlet;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.sql.SQLException;
 
 import javax.servlet.http.HttpServlet;
@@ -18,6 +19,7 @@ import com.google.gson.Gson;
 
 import db.DBInterface;
 import exception.InconsistentDataException;
+import exception.InvalidActionException;
 
 public class EventSubscriptionServlet extends HttpServlet {
 
@@ -29,15 +31,15 @@ public class EventSubscriptionServlet extends HttpServlet {
     this.gson = gson;
     this.db = db;
   }
-  
-  // TODO: THIS IS ALL UNTESTED 
+
+  // TODO: THIS IS ALL UNTESTED
 
   /**
    * Given the ID of an event, return the number of people attending the event.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    
+
   }
 
   /**
@@ -62,7 +64,10 @@ public class EventSubscriptionServlet extends HttpServlet {
       subResp = db.putEventSubscription(subReq);
     } catch (SQLException e) {
       subResp = new ErrorResponse("Error while registering event subscription");
+    } catch (InvalidActionException e) {
+      subResp = new ErrorResponse("Tried to join a full event!");
     }
+    response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     request.setAttribute(Response.class.getSimpleName(), subResp);
   }
 
