@@ -287,9 +287,12 @@ function createEventView(event) {
       $(elem).append(view);
       if (event.hasJoined) {
         // update joined badge
-        view.find(".badge").addClass("progress-bar-success").text("Joined");
+        view.find(".badge").addClass("progress-bar-danger").text("Unjoin");
+        // update header
+        view.find(".header").addClass("progress-bar-success");
       } else if (event.max - event.currentCount == 0) {
         view.find(".badge").css("visibility", "hidden");
+        view.find(".header").addClass("progress-bar-info");
       }
       // hide location if it is not set
       if (!event.location) {
@@ -363,7 +366,9 @@ function joinEvent(elem) {
           view.find(".count").text(event.max - event.currentCount);
         }
         // update badge
-        $(elem).removeClass("progress-bar-success").text("Join");
+        $(elem).removeClass("progress-bar-danger").text("Join");
+        // update header
+        view.find(".header").removeClass("progress-bar-success").addClass("progress-bar-info");
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
@@ -393,10 +398,12 @@ function joinEvent(elem) {
           view.find(".count").text(event.max - event.currentCount);
         }
         // update badge
-        $(elem).addClass("progress-bar-success").text("Joined");
+        $(elem).addClass("progress-bar-danger").text("Unjoin");
+        // update header
+        view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
       },
       error: function(data) {
-        toastr.error("Cannot join event: " + data.responseJSON.message);
+        toastr.error("Cannot unjoin event: " + data.responseJSON.message);
         refreshEvents();
       }
     });
