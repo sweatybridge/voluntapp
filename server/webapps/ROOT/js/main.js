@@ -140,7 +140,7 @@ $(function() {
   $.ajax("/json/calendar.json", {
     success: function(data) {
       app.events = data.events;
-      app.joined = [];
+      app.joined = {};
       $.each(app.events, function(index, event) {
         createEventView(event);
       });
@@ -196,14 +196,19 @@ function createEventView(model) {
     if ($(elem).data("date") === model.startDate) {
       var readableDate = formatDate(new Date(model.startDate)).split(" ").reverse().join(" ");
       // append event div
-      $(elem).append(temp
-          .replace('{{eventId}}', model.eventId)
-          .replace('{{startDate}}', readableDate)
-          .replace('{{startTime}}', model.startTime)
-          .replace('{{max}}', model.max - model.attendees)
-          .replace('{{title}}', model.title)
-          .replace('{{description}}', model.description)
-          .replace('{{location}}', model.location));
+      var view = $(temp
+        .replace('{{eventId}}', model.eventId)
+        .replace('{{startDate}}', readableDate)
+        .replace('{{startTime}}', model.startTime)
+        .replace('{{max}}', model.max - model.attendees)
+        .replace('{{title}}', model.title)
+        .replace('{{description}}', model.description)
+        .replace('{{location}}', model.location)
+      ).appendTo(elem);
+      if (model.eventId in app.joined) {
+        // update joined badge
+        view.find(".badge").addClass("progress-bar-success").text("Joined");
+      }
     }
     // if event not in view, don't render
   });
@@ -329,26 +334,56 @@ function renderCalendar() {
 function joinEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-  $.ajax("/api/subscription/event", {
-    method: "POST",
-    data: JSON.stringify({eventId: eid}),
-    success: function(data) {
-      toastr.error(data.message);
-      // add event to joined list
-      $.each(app.events, function(k, event) {
-        if (event.eventId === eid) {
-          app.joined.push(event);
-          // update attendees count
-          event.attendees++;
-          view.children(".count").text(event.max - event.attendees);
-          return false;
+
+  // determine wether to join or unjoin
+  if (eid in app.joined) {
+    // unjoin an event
+    $.ajax("/api/subscription/event", {
+      method: "DELETE",
+      data: JSON.stringify({eventId: eid}),
+      success: function(data) {
+        var event = app.joined[eid];
+        if (event === undefined) {
+          // suppress duplicate unjoin
+          return;
         }
-      });
-      // update badge
-      $(elem).addClass("progress-bar-success").text("Joined");
-    },
-    error: function(data) {
-      toastr.error("Cannot join event: " + data.responseJSON.message);
-    }
-  });
+        toastr.success("Unjoined event " + event.title);
+        // update attendees count
+        event.attendees -= 1;
+        view.find(".count").text(event.max - event.attendees);
+        // remove event from joined list
+        delete app.joined[eid];
+        // update badge
+        $(elem).removeClass("progress-bar-success").text("Join");
+      },
+      error: function(data) {
+        toastr.error("Cannot join event: " + data.responseJSON.message);
+      }
+    });
+  } else {
+    // join an event
+    $.ajax("/api/subscription/event", {
+      method: "POST",
+      data: JSON.stringify({eventId: eid}),
+      success: function(data) {
+        // add event to joined list
+        $.each(app.events, function(k, event) {
+          if (event.eventId === eid) {
+            toastr.success("Joined event " + event.title);
+            // use dictionary to prevent duplicates
+            app.joined[eid] = event;
+            // update attendees count
+            event.attendees += 1;
+            view.find(".count").text(event.max - event.attendees);
+            // update badge
+            $(elem).addClass("progress-bar-success").text("Joined");
+            return false;
+          }
+        });
+      },
+      error: function(data) {
+        toastr.error("Cannot join event: " + data.responseJSON.message);
+      }
+    });
+  }
 }
