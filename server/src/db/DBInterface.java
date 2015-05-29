@@ -457,6 +457,26 @@ public class DBInterface {
         Integer.toString(ereq.getMax()), eventId, -1);
     return updateRowCheckHelper(er);
   }
+  
+  public boolean updateCalendar(int calendarId, CalendarRequest creq) 
+      throws SQLException, InconsistentDataException, CalendarNotFoundException {
+    if (creq == null) {
+      return true;
+    }
+    
+    CalendarResponse cr = 
+        new CalendarResponse(calendarId, creq.getName(), creq.isJoinEnabled());
+    int rows = update(cr);
+    if (rows > 1) {
+      throw new InconsistentDataException(
+          "Calendar update affected more than one calendar.");
+    }
+    if (rows == 0) {
+      throw new CalendarNotFoundException(
+          "No calendar with the specified ID was found.");
+    }
+    return rows == 1;
+  }
 
   /**
    * Deletes an event (marks as inactive) from (in) the database.

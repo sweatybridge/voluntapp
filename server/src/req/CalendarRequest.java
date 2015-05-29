@@ -32,13 +32,13 @@ public class CalendarRequest implements Request {
    * Calendar details sent by the client.
    */
   private String name;
-  private Integer calendarId;
   private boolean joinEnabled;
   private Timestamp startDate;
 
   /**
    * Fields excluded from deserialisation.
    */
+  private transient Integer calendarId;
   private transient String inviteCode;
   private transient int userId;
 

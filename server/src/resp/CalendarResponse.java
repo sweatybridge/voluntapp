@@ -44,7 +44,8 @@ public class CalendarResponse extends Response {
    */
   public CalendarResponse() {
   }
-
+  
+  /* Constructor used for querying calendar information. */
   public CalendarResponse(int calendarId) {
     this.calendarId = calendarId;
   }
@@ -53,6 +54,13 @@ public class CalendarResponse extends Response {
   public CalendarResponse(int calendarId, Boolean active) {
     this.calendarId = calendarId;
     this.active = active;
+  }
+  
+  /* Constructor used for updating calendar data (name and join enabled). */
+  public CalendarResponse(int calendarId, String name, Boolean joinEnabled) {
+    this.calendarId = calendarId;
+    this.name = name;
+    this.joinEnabled = joinEnabled;
   }
 
   public CalendarResponse(String name, boolean joinEnabled, int userId,

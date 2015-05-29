@@ -152,11 +152,37 @@ public class CalendarServlet extends HttpServlet {
 
   /**
    * Given the calendar ID and new calendar data, update the database.
+   * @throws IOException 
    */
   @Override
-  protected void doPut(HttpServletRequest request, HttpServletResponse response) {
-    request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-        "Error - PUT method of the calendar servlet not supported."));
+  protected void doPut(HttpServletRequest request, HttpServletResponse response) 
+      throws IOException {
+    String id = request.getPathInfo().substring(1);
+    
+    if (id == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No calendar ID specified."));
+      return;
+    }
+    
+    CalendarRequest calendarRequest = 
+        gson.fromJson(request.getReader(), CalendarRequest.class);
+    
+    Response result = null;
+    try {
+      db.updateCalendar(Integer.parseInt(id), calendarRequest);
+      result = new SuccessResponse("Calendar data was successfully updated.");
+    } catch (NumberFormatException e) {
+      result = new ErrorResponse("One of the specified dates was invalid."); 
+    } catch (SQLException e) {
+      result = new ErrorResponse(
+          "Database error occured while updating the calendar.");
+    } catch (InconsistentDataException e) {
+      result = new ErrorResponse(e.getMessage());
+    } catch (CalendarNotFoundException e) {
+      result = new ErrorResponse(e.getMessage());
+    }    
+    request.setAttribute(Response.class.getSimpleName(), result);
   }
 
   /**
