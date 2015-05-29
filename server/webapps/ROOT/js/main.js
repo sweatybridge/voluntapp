@@ -144,6 +144,7 @@ $(function() {
 function refreshUser() {
   $.get("/api/user",
     function(data) {
+      app.user = data;
       $("[data-bind='email']").text(data.email);
       $("[data-bind='firstName']").text(data.firstName);
       $("[data-bind='lastName']").text(data.lastName);
