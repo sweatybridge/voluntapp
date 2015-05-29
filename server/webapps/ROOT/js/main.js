@@ -5,12 +5,16 @@ $(function() {
   // Render calendar from yesterday
   updateCalendarDates(yesterday());
 
+  // Bind refresh button
+  $("#b_refresh").click(refreshEvents);
+  
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
     var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
     console.log(sat_index);
     var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
+    $(this).parent().toggleClass("active");
     $(selector).toggle();
   });
 
@@ -27,22 +31,17 @@ $(function() {
     updateMainCol();        
   });
   
-  // Bind event description show button
-  $(".event button").click(function() {
-    $(this).next(".e_desc").toggle(500);
-  });
-  
-  // Bind datetime picker
-  $(".datetimepicker").datetimepicker();
-
   // Bind logout button
-  $("#btn_logout").click(function() {
+  $("#b_logout").click(function() {
     $.ajax("/api/session", {
       method: "DELETE",
       success: function(data) { window.location.reload(); },
       error: function(data) { alert(data.responseJSON.message); }
     });
   });
+  
+  // Bind datetime picker
+  $(".datetimepicker").datetimepicker();
 
   // Bind event creation form
   $("#event_form").submit(function(e) {
@@ -330,18 +329,6 @@ function validateUpdate($form) {
     return true;
   }
   return false;
-}
-
-// Format date string to May 15
-function formatDate(date) {
-  var str = date.toDateString();
-  return str.substring(str.indexOf(' ') + 1, str.lastIndexOf(' '));
-}
-
-// Format day of week, TODO: put this into date prototype
-function getWeekDay(date) {
-  var str = date.toDateString();
-  return str.substring(0, str.indexOf(' '));
 }
 
 // Get active_calendar ids
