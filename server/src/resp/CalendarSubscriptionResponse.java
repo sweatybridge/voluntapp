@@ -45,8 +45,11 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
   @Override
   public String getSQLQuery() {
     return String.format(""
-        + "SELECT \"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=%d;", CID_COLUMN,
-        UID_COLUMN, userId);
+        + "SELECT \"%s\" FROM \"USER_CALENDAR\" JOIN \"CALENDAR\" " +
+        "ON \"USER_CALENDAR\".\"%s\" = \"CALENDAR\".\"%s\"  " +
+        "WHERE \"%s\"=%d AND \"%s\" = true;", 
+        CID_COLUMN, CID_COLUMN, CalendarResponse.CID_COLUMN, UID_COLUMN, 
+        userId, CalendarResponse.ACTIVE_COLUMN);
   }
 
   @Override
@@ -72,5 +75,10 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
         + "FROM \"CALENDAR\" WHERE \"%s\"='%s';", UID_COLUMN, CID_COLUMN,
         userId, CalendarResponse.JOIN_CODE_COLUMN,
         joinCode.replace("\'", "\'\'"));
+  }
+  
+  public static void main(String[] args) {
+    CalendarSubscriptionResponse cr = new CalendarSubscriptionResponse(64);
+    System.out.println(cr.getSQLQuery());
   }
 }
