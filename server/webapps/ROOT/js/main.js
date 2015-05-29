@@ -108,7 +108,6 @@ $(function() {
   });
   
   // Bind user profile update form
-  // Bind calendar creation form
   $("#profile_form").submit(function(e) {
     e.preventDefault();
     var form = $(this);
@@ -118,6 +117,31 @@ $(function() {
       return;
     }
     submitAjaxForm(form, function(data) { toastr.success(data.message); }, $("#profile_errors"));
+  });
+  
+  // Bind edit calendar buttons and forms
+  $("#b_cancel_calendar").click(function() {
+    $("#d_edit_calendar").toggle();
+    $("#d_user_calendars").toggle();
+  });
+  
+  $("#b_delete_calendar").click(function() {
+    var calid = $(this).parent().data("calid");
+    var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
+    if(confirm("Are you sure you want to delete "+name+"?")){
+      $.ajax("/api/calendar/"+calid, {
+        method: "DELETE",
+        success: function(data) {
+          toastr.warning("Deleted " + name);
+          $("#b_cancel_calendar").click(); // hide this window again
+          refreshCalendars();
+        },
+        error: function(data) {
+          toastr.error("Could not delete " + name);
+          refreshCalendars();
+        }
+      });
+    }
   });
 
   // Bind previous and next day button
@@ -166,11 +190,10 @@ function refreshCalendars() {
       <input type="checkbox"> {{name}} \
     </label> \
   </div> \
-  <div class="calendar_extras"> \
+  <div class="calendar-extras"> \
     <p>Join code: <strong>{{joinCode}}</strong></p> \
     <p>Join enabled: <strong>{{joinEnabled}}</strong></p> \
     <button type="button" class="btn btn-info">Edit</button> \
-    <button type="button" class="btn btn-danger">Delete</button> \
   </div> \
 </div>';
   $.get("/api/subscription/calendar", function(data) {
@@ -178,7 +201,7 @@ function refreshCalendars() {
     if (data.calendars.length < 1) {
       return;
     }
-    $("#user_calendars").empty();
+    $("#d_user_calendars").empty();
     $("#select_calendar").empty();
     $.each(data.calendars, function(index, calendar) {
       $('#select_calendar')
@@ -186,20 +209,20 @@ function refreshCalendars() {
        .attr("value",calendar.calendarId)
        .text(calendar.name));
        
-       $(cal_html.replace("{{id}}", calendar.calendarId)
+      var cal_div = $(cal_html.replace("{{id}}", calendar.calendarId)
          .replace("{{name}}", calendar.name)
          .replace("{{joinCode}}", calendar.joinCode)
-         .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#user_calendars");
-       var checkbox = $("<input>").attr("type", "checkbox").attr("data-calid", calendar.calendarId);
-       // Bind event rendering
-       /*checkbox.change(function() { refreshEvents(); });
-      $("<div>").addClass("checkbox").append(
-        $("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)
-          .append($("<button>").click(function() { console.log(calendar.calendarId); }))
-      ).appendTo("#user_calendars");*/
+         .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#d_user_calendars");
+      
+      cal_div.find("input").change(refreshEvents);
+      cal_div.find("button").click(function() {
+        var calid = $(this).parent().parent().data("calid");
+        $("#d_user_calendars").toggle();
+        $("#d_edit_calendar").data("calid", calid).toggle();
+      });
     });
     // Refresh events for the calendars
-    $("#user_calendars input").first().prop("checked", "checked");
+    $("#d_user_calendars input").first().prop("checked", "checked");
     refreshEvents();
   });
 }

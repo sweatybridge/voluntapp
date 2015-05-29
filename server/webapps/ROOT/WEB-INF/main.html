@@ -70,8 +70,33 @@
                 </h4>
               </div>
               <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                <div id="user_calendars" class="panel-body">
+                <div id="d_user_calendars" class="panel-body">
                   It seems like you haven't joined to or created any calendars...
+                </div>
+                <div id="d_edit_calendar" class="panel-body" style="display: none;">
+                  <p>Here you can edit your calendar settings, promote or demote users and update calendar information. Deleting a calendar will delete all corresponding events as well.</p>
+                  <button id="b_delete_calendar" type="button" class="btn btn-danger">Delete this calendar</button>
+                  <form role="form" id="user_promotion_form" action="/api/calendar" method="patch" autocomplete="off">
+                    <p>Enter the user email that you want the perform the action. Remember that the user must be part of this calendar by joining.</p>
+                    <div class="form-group"><input id="user-email" type="email" class="form-control" name="userEmail" placeholder="User email">
+                    <select id="select_user_action" class="form-control" name="action">
+                      <option value="make_admin">Make Admin</option>
+                      <option value="make_editor">Make Editor</option>
+                      <option value="make_basic">Make Basic</option>
+                      <option value="remove">Remove</option>
+                    </select></div>
+                    <input class="btn btn-primary" type="submit" value="Update User">
+                    <p class="form-error" id="user_promotion_errors"></p>
+                  </form>
+                  <form role="form" id="calendar_edit_form" action="/api/calendar" method="put" autocomplete="off">
+                    <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Name" required></div>
+                    <div class="checkbox"><label><input type="checkbox" name="allowJoin">Allow Join</label></div>
+                    <div class="form-group">
+                      <input class="btn btn-primary" type="submit" value="Update Calendar">
+                      <input id="b_cancel_calendar" type="button" class="btn btn-danger" value="Cancel">
+                    </div>
+                    <p class="form-error" id="calendar_edit_errors"></p>
+                  </form>
                 </div>
               </div>
             </div>
@@ -180,14 +205,14 @@
                 </form>
               </div>
               <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
-                <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
                 <form class="form-centre" role="form" id="calendar_follow_form" action="/api/subscription/calendar" method="post" autocomplete="off">
+                  <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
                   <div class="form-group"><input type="text" name="joinCode" class="form-control" placeholder="Join code" autofocus required></div>
                   <input class="btn btn-primary" type="submit" value="Join">
                   <p class="form-error" id="calendar_follow_errors"></p>
                 </form>
-                <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
                 <form class="form-centre" role="form" id="calendar_create_form" action="/api/calendar" method="post" autocomplete="off">
+                  <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
                   <input type="text" name="name" class="form-control" placeholder="Title" required>
                   <div class="checkbox">
                     <label><input type="checkbox" name="joinEnabled" value="true" checked>Allow Joining</label>
@@ -203,6 +228,7 @@
         
       </div> <!-- End of row -->
     </div> <!-- /container -->
+    
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 

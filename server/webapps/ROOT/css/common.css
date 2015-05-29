@@ -28,11 +28,11 @@ body {
   margin: auto;
 }
 
-form .form-heading {
+.form-heading {
   margin-bottom: 10px;
 }
 
-form .form-control {
+.form-control {
   position: relative;
   height: auto;
   padding: 10px;
