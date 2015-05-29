@@ -63,7 +63,8 @@ public class EventSubscriptionServlet extends HttpServlet {
     try {
       subResp = db.putEventSubscription(subReq);
     } catch (SQLException e) {
-      subResp = new ErrorResponse("Error while registering event subscription");
+      subResp = new ErrorResponse("Error while registering event subscription "
+          + e.getMessage());
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     } catch (InvalidActionException e) {
       subResp = new ErrorResponse("Tried to join a full event!");
