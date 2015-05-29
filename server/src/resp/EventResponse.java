@@ -34,6 +34,7 @@ public class EventResponse extends Response {
   private String duration; // HH:mm:ss
   private int currentCount = -1;
   private int max = -1;
+  private boolean hasJoined = false;
 
   /**
    * Other variables used by the database interface
@@ -213,12 +214,16 @@ public class EventResponse extends Response {
   public void setEventId(int eventId) {
     this.eventId = eventId;
   }
-  
+
   public void setCurrentCount(String currentCount) {
     if (currentCount != null) {
       this.currentCount = Integer.parseInt(currentCount);
     } else {
       this.currentCount = 0;
     }
+  }
+
+  public void setJoined(boolean hasJoined) {
+    this.hasJoined = hasJoined;
   }
 }

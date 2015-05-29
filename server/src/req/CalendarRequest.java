@@ -160,6 +160,7 @@ public class CalendarRequest implements Request {
               rs.getString(EventResponse.MAX_ATTEDEE_COLUMN),
               rs.getInt(EventResponse.EID_COLUMN), calendarId);
           resp.setCurrentCount(rs.getString("count"));
+          resp.setJoined(rs.getBoolean("exists"));
           events.add(resp);
         }
       } catch (SQLException e) {
