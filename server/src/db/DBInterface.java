@@ -282,9 +282,9 @@ public class DBInterface {
     int id;
     try {
       Statement stmt = conn.createStatement();
-      stmt.executeUpdate(insert.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
+      int rows = stmt.executeUpdate(insert.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
       ResultSet rs = stmt.getGeneratedKeys();
-      if (!rs.next()) {
+      if (rows == 0 || !rs.next()) {
         throw new SQLException();
       }
       id = rs.getInt(ColumnID);
