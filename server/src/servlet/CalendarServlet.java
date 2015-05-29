@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarRequest;
+import req.SessionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
@@ -21,7 +22,6 @@ import db.DBInterface;
 import db.InviteCodeGenerator;
 import exception.CalendarNotFoundException;
 import exception.InconsistentDataException;
-
 
 @WebServlet
 public class CalendarServlet extends HttpServlet {
@@ -35,8 +35,10 @@ public class CalendarServlet extends HttpServlet {
   /**
    * Constructs a calendar servlet with injected dependencies.
    * 
-   * @param gson json serialiser
-   * @param db database interface
+   * @param gson
+   *          json serialiser
+   * @param db
+   *          database interface
    */
   public CalendarServlet(Gson gson, DBInterface db) {
     this.gson = gson;
@@ -53,7 +55,8 @@ public class CalendarServlet extends HttpServlet {
    * 
    * @throws IOException
    * 
-   * TODO: Add verification if a user is allowed to retrieve information about a specific calendar
+   *           TODO: Add verification if a user is allowed to retrieve
+   *           information about a specific calendar
    */
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -64,15 +67,18 @@ public class CalendarServlet extends HttpServlet {
           "Request not RESTful enough."));
       return;
     }
-    
+
     CalendarRequest calendarRequest;
     String startDate = request.getParameter("startDate");
     if (startDate != null) {
-      calendarRequest = new CalendarRequest(
-          Timestamp.valueOf(startDate), Integer.parseInt(id));
+      calendarRequest = new CalendarRequest(Timestamp.valueOf(startDate),
+          Integer.parseInt(id));
     } else {
       calendarRequest = new CalendarRequest(Integer.parseInt(id));
     }
+
+    int userId = getUserId(request);
+    calendarRequest.setUserId(userId);
 
     try {
       request.setAttribute(Response.class.getSimpleName(),
@@ -119,26 +125,28 @@ public class CalendarServlet extends HttpServlet {
   protected void doDelete(HttpServletRequest request,
       HttpServletResponse response) {
     String id = request.getPathInfo().substring(1);
-    
+
     if (id == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No calendar ID specified."));
       return;
     }
-    
+
     Response result = null;
     try {
       db.deleteCalendar(Integer.parseInt(id));
       result = new SuccessResponse("Calendar was successfully deleted.");
     } catch (NumberFormatException e) {
-      result = new ErrorResponse("One of the specified dates was incorrectly formatted.");
+      result = new ErrorResponse(
+          "One of the specified dates was incorrectly formatted.");
     } catch (SQLException e) {
-      result = new ErrorResponse("Database error occured while deleting the calendar.");
+      result = new ErrorResponse(
+          "Database error occured while deleting the calendar.");
     } catch (InconsistentDataException e) {
       result = new ErrorResponse(e.getMessage());
     } catch (CalendarNotFoundException e) {
       result = new ErrorResponse(e.getMessage());
-    } 
+    }
     request.setAttribute(Response.class.getSimpleName(), result);
   }
 
@@ -154,29 +162,51 @@ public class CalendarServlet extends HttpServlet {
   /**
    * Serialise and initialise the calendar request object
    * 
-   * @param HttpServletRequest request
+   * @param HttpServletRequest
+   *          request
    * @return CalendarRequest
    * @throws IOException
    */
   private CalendarRequest initCalendarRequest(HttpServletRequest request)
       throws IOException {
-    SessionResponse sessionResponse =
-        (SessionResponse) request.getAttribute(SessionResponse.class
-            .getSimpleName());
+    SessionResponse sessionResponse = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
 
     CalendarRequest calendarRequest;
     if (request.getMethod().equals("GET")) {
-      calendarRequest =
-          gson.fromJson(request.getParameter("data"), CalendarRequest.class);
+      calendarRequest = gson.fromJson(request.getParameter("data"),
+          CalendarRequest.class);
     } else {
-      calendarRequest =
-          gson.fromJson(request.getReader(), CalendarRequest.class);
+      calendarRequest = gson.fromJson(request.getReader(),
+          CalendarRequest.class);
     }
 
     // Set userID of calendar creator.
     calendarRequest.setUserId(sessionResponse.getUserId());
 
     return calendarRequest;
+  }
+
+  /**
+   * Retrieve the authorization parameters from the request attribute. Generate
+   * an error response when the user ID is invalid.
+   * 
+   * @param request
+   *          sent to the server
+   * @return ID of the user
+   */
+  private int getUserId(HttpServletRequest request) {
+    // TODO: Remove duplicate code
+    SessionResponse sessionResponse = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
+
+    /* No valid userId supplied - added for the sake of debugging. */
+    if (sessionResponse.getUserId() == 0) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Error - no user ID supplied."));
+      return 0;
+    }
+    return sessionResponse.getUserId();
   }
 
 }
