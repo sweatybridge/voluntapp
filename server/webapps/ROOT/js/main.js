@@ -1,4 +1,4 @@
-var app = {};
+var app = {joined:{}};
 
 // DOCUMENT READY
 $(function() {
@@ -180,7 +180,6 @@ function refreshCalendars() {
 function refreshEvents() {
   // Retrieve and render calendar events
   app.events = [];
-  app.joined = {};
   var active_calendars = getActiveCalendarIds();
   // Just re-render if there are no active calendars
   if (active_calendars.length < 1) {
