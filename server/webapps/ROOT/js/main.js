@@ -272,7 +272,7 @@ function createEventView(model) {
         .replace('{{description}}', model.description)
         .replace('{{location}}', model.location)
       ).appendTo(elem);
-      if (model.eventId in app.joined) {
+      if (model.hasJoined) {
         // update joined badge
         view.find(".badge").addClass("progress-bar-success").text("Joined");
       }
@@ -347,25 +347,20 @@ function getActiveCalendarIds() {
 function joinEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-
+  var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
+  
   // determine wether to join or unjoin
-  if (eid in app.joined) {
+  if (event.hasJoined) {
     // unjoin an event
     $.ajax("/api/subscription/event", {
       method: "DELETE",
       data: JSON.stringify({eventId: eid}),
       success: function(data) {
-        var event = app.joined[eid];
-        if (event === undefined) {
-          // suppress duplicate unjoin
-          return;
-        }
-        toastr.success("Unjoined event " + event.title);
+        event.hasJoined = false;
+        toastr.warning("Unjoined event " + event.title);
         // update remaining spots
         event.currentCount -= 1;
         view.find(".count").text(event.max - event.currentCount);
-        // remove event from joined list
-        delete app.joined[eid];
         // update badge
         $(elem).removeClass("progress-bar-success").text("Join");
       },
@@ -379,20 +374,14 @@ function joinEvent(elem) {
       method: "POST",
       data: JSON.stringify({eventId: eid}),
       success: function(data) {
-        // add event to joined list
-        $.each(app.events, function(k, event) {
-          if (event.eventId === eid) {
-            toastr.success("Joined event " + event.title);
-            // use dictionary to prevent duplicates
-            app.joined[eid] = event;
-            // update remaining spots
-            event.currentCount += 1;
-            view.find(".count").text(event.max - event.currentCount);
-            // update badge
-            $(elem).addClass("progress-bar-success").text("Joined");
-            return false;
-          }
-        });
+        toastr.success("Joined event " + event.title);
+        // use dictionary to prevent duplicates
+        event.hasJoined = true;
+        // update remaining spots
+        event.currentCount += 1;
+        view.find(".count").text(event.max - event.currentCount);
+        // update badge
+        $(elem).addClass("progress-bar-success").text("Joined");
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
