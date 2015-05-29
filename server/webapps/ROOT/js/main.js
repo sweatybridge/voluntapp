@@ -133,6 +133,12 @@ $(function() {
     refreshEvents();
   });
   
+  /*toastr.options = {
+    "progressBar": false,
+    "positionClass": "toast-bottom-center",
+    "onclick": null
+  }*/
+  
   // Request user profile information
   refreshUser();
   
@@ -369,7 +375,11 @@ function joinEvent(elem) {
       }
     });
   } else {
-    // join an event
+    // join an event if there are spaces left
+    if ( event.max - event.currentCount < 1) {
+      toastr.error(event.title + " is full");
+      return;
+    }
     $.ajax("/api/subscription/event", {
       method: "POST",
       data: JSON.stringify({eventId: eid}),
