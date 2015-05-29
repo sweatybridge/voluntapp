@@ -82,7 +82,7 @@ public class EventRequest implements Request {
 
   @Override
   public boolean isValid() {
-    return (title != null && !title.isEmpty()) && (max >= 0)
+    return (title != null && !title.isEmpty()) && (max >= -1)
         && (calendarId > 0) && isTimezoneValid() && isStartDateTimeValid()
         && isEndDateTimeValid();
   }

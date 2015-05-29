@@ -47,7 +47,7 @@
             <li class="active"><a id="b_hide_left" href="#">Left sidebar</a></li>
             <li class="active"><a id="b_hide_weekend" href="#">Weekend</a></li>
             <li class="active"><a id="b_hide_right" href="#">Right sidebar</a></li>
-            <li><a id="btn_logout" href="#">Logout</a></li>
+            <li><a id="b_logout" href="#">Logout</a></li>
           </ul>
           <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a data-bind="firstName" href="#account" class="navbar-link">[firstName]</a></p>
         </div>
@@ -95,8 +95,8 @@
                     <div class="form-group"><input type="email" name="email" class="form-control" placeholder="Email" autofocus required></div>
                     <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
                     <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
-                    <div class="form-group"><input type="password" name="password" class="form-control" placeholder="Current password" required></div>
-                    <div class="form-group"><input type="password" name="newPassword" class="form-control" placeholder="New password" required></div>
+                    <div class="form-group"><input type="password" name="curr_password" class="form-control" placeholder="Current password" required></div>
+                    <div class="form-group"><input type="password" name="password" class="form-control" placeholder="New password" required></div>
                     <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm new password" required></div>
                     <div class="form-group">
                       <input class="btn btn-primary" type="submit" value="Update">
@@ -172,7 +172,7 @@
                   <input type="text" name="startDate" class="form-control datetimepicker" placeholder="Start date time" required>
                   <input type="text" name="endDate" class="form-control datetimepicker" placeholder="End date time" required>
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
-                  <input type="number" name="max" class="form-control" min="0" value="0" placeholder="Size" required>
+                  <input type="number" name="max" class="form-control" min="-1" value="0" placeholder="Size" required>
                   <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
                   </div>
                   <input class="btn btn-primary" type="submit" value="Create Event">
@@ -183,7 +183,7 @@
                 <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
                 <form class="form-centre" role="form" id="calendar_follow_form" action="/api/subscription/calendar" method="post" autocomplete="off">
                   <div class="form-group"><input type="text" name="joinCode" class="form-control" placeholder="Join code" autofocus required></div>
-                  <input class="btn btn-primary" type="submit" value="Follow">
+                  <input class="btn btn-primary" type="submit" value="Join">
                   <p class="form-error" id="calendar_follow_errors"></p>
                 </form>
                 <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>

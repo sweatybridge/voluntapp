@@ -5,12 +5,16 @@ $(function() {
   // Render calendar from yesterday
   updateCalendarDates(yesterday());
 
+  // Bind refresh button
+  $("#b_refresh").click(refreshEvents);
+  
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
     var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
     console.log(sat_index);
     var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
+    $(this).parent().toggleClass("active");
     $(selector).toggle();
   });
 
@@ -27,22 +31,17 @@ $(function() {
     updateMainCol();        
   });
   
-  // Bind event description show button
-  $(".event button").click(function() {
-    $(this).next(".e_desc").toggle(500);
-  });
-  
-  // Bind datetime picker
-  $(".datetimepicker").datetimepicker();
-
   // Bind logout button
-  $("#btn_logout").click(function() {
+  $("#b_logout").click(function() {
     $.ajax("/api/session", {
       method: "DELETE",
       success: function(data) { window.location.reload(); },
       error: function(data) { alert(data.responseJSON.message); }
     });
   });
+  
+  // Bind datetime picker
+  $(".datetimepicker").datetimepicker();
 
   // Bind event creation form
   $("#event_form").submit(function(e) {
@@ -134,6 +133,12 @@ $(function() {
     refreshEvents();
   });
   
+  /*toastr.options = {
+    "progressBar": false,
+    "positionClass": "toast-bottom-center",
+    "onclick": null
+  }*/
+  
   // Request user profile information
   refreshUser();
   
@@ -145,6 +150,7 @@ $(function() {
 function refreshUser() {
   $.get("/api/user",
     function(data) {
+      app.user = data;
       $("[data-bind='email']").text(data.email);
       $("[data-bind='firstName']").text(data.firstName);
       $("[data-bind='lastName']").text(data.lastName);
@@ -172,6 +178,7 @@ function refreshCalendars() {
       $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)).appendTo("#user_calendars");
     });
     // Refresh events for the calendars
+    $("#user_calendars input").first().prop("checked", "checked");
     refreshEvents();
   });
 }
@@ -236,7 +243,7 @@ function updateMainCol() {
 }
 
 // Render a new event on the calendar
-function createEventView(model) {
+function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
@@ -258,23 +265,31 @@ function createEventView(model) {
     '</div>'+
   '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).data("date") === model.startDate) {
-      var startDateTime = new Date(model.startDate + "T" + model.startTime.split("+")[0]);
+    if ($(elem).data("date") === event.startDate) {
+      var startDateTime = new Date(event.startDate + "T" + event.startTime.split("+")[0]);
       var readableDate = formatDate(startDateTime).split(" ").reverse().join(" ");
       var readableTime = startDateTime.toLocaleTimeString().substring(0, 5);
       // append event div
-      var view = $(temp
-        .replace('{{eventId}}', model.eventId)
+      temp = temp
+        .replace('{{eventId}}', event.eventId)
         .replace('{{startDate}}', readableDate)
         .replace('{{startTime}}', readableTime)
-        .replace('{{remaining}}', model.max - model.currentCount)
-        .replace('{{title}}', model.title)
-        .replace('{{description}}', model.description)
-        .replace('{{location}}', model.location)
-      ).appendTo(elem);
-      if (model.eventId in app.joined) {
+        .replace('{{title}}', event.title)
+        .replace('{{description}}', event.description)
+        .replace('{{location}}', event.location);
+      
+      if (event.max == -1) {
+        temp = temp.replace('{{remaining}}', "&infin;");
+      } else {
+        temp = temp.replace('{{remaining}}', event.max - event.currentCount);
+      }
+      var view = $(temp);
+      $(elem).append(view);
+      if (event.hasJoined) {
         // update joined badge
         view.find(".badge").addClass("progress-bar-success").text("Joined");
+      } else if (event.max - event.currentCount == 0) {
+        view.find(".badge").css("visibility", "hidden");
       }
     }
     // if event not in view, don't render
@@ -312,38 +327,6 @@ function updateCalendarDates(startDate) {
   $("#next_day").prev().text(formatDate(startDate));
 }
 
-// Validation of update form
-function validateUpdate($form) {
-  var form = $form[0];
-  var pass_val = form["newPassword"].value;
-  
-  // Check password length
-  if (pass_val.length < 6) {
-    $("#profile_errors").text("New password must be at least 6 characters long");
-    return true;
-  }
-  
-  // Check confirmation
-  var conf_pass_val = form["confPassword"].value;
-  if (pass_val !== conf_pass_val) {
-    $("#profile_errors").text("Password must match");
-    return true;
-  }
-  return false;
-}
-
-// Format date string to May 15
-function formatDate(date) {
-  var str = date.toDateString();
-  return str.substring(str.indexOf(' ') + 1, str.lastIndexOf(' '));
-}
-
-// Format day of week, TODO: put this into date prototype
-function getWeekDay(date) {
-  var str = date.toDateString();
-  return str.substring(0, str.indexOf(' '));
-}
-
 // Get active_calendar ids
 function getActiveCalendarIds() {
   var active_calendars = [];
@@ -359,55 +342,58 @@ function getActiveCalendarIds() {
 function joinEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-
+  var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
+  
   // determine wether to join or unjoin
-  if (eid in app.joined) {
+  if (event.hasJoined) {
     // unjoin an event
     $.ajax("/api/subscription/event", {
       method: "DELETE",
       data: JSON.stringify({eventId: eid}),
       success: function(data) {
-        var event = app.joined[eid];
-        if (event === undefined) {
-          // suppress duplicate unjoin
-          return;
+        event.hasJoined = false;
+        toastr.warning("Unjoined event " + event.title);
+        if (event.max > -1) {
+          // update remaining spots
+          event.currentCount -= 1;
+          view.find(".count").text(event.max - event.currentCount);
         }
-        toastr.success("Unjoined event " + event.title);
-        // update remaining spots
-        event.currentCount -= 1;
-        view.find(".count").text(event.max - event.currentCount);
-        // remove event from joined list
-        delete app.joined[eid];
         // update badge
         $(elem).removeClass("progress-bar-success").text("Join");
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
+        refreshEvents();
       }
     });
   } else {
-    // join an event
+    // join an event if there are spaces left
+    if ( event.max > 0 && event.max - event.currentCount < 1) {
+      toastr.error(event.title + " is full");
+      return;
+    }
+    if (event.max == 0) {
+      toastr.error("Joining for " + event.title + " is disabled");
+      return;
+    }
     $.ajax("/api/subscription/event", {
       method: "POST",
       data: JSON.stringify({eventId: eid}),
       success: function(data) {
-        // add event to joined list
-        $.each(app.events, function(k, event) {
-          if (event.eventId === eid) {
-            toastr.success("Joined event " + event.title);
-            // use dictionary to prevent duplicates
-            app.joined[eid] = event;
-            // update remaining spots
-            event.currentCount += 1;
-            view.find(".count").text(event.max - event.currentCount);
-            // update badge
-            $(elem).addClass("progress-bar-success").text("Joined");
-            return false;
-          }
-        });
+        toastr.success("Joined event " + event.title);
+        // use dictionary to prevent duplicates
+        event.hasJoined = true;
+        // update remaining spots
+        event.currentCount += 1;
+        if (event.max > -1) {
+          view.find(".count").text(event.max - event.currentCount);
+        }
+        // update badge
+        $(elem).addClass("progress-bar-success").text("Joined");
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
+        refreshEvents();
       }
     });
   }
