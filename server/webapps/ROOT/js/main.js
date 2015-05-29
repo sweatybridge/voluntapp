@@ -8,17 +8,20 @@ $(function() {
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
-    $("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
+    //$("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
+    //$(this).parent().toggleClass("active");
   });
 
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
     $("#d_left_sidebar").toggleClass("col-hidden col-sm-2");
+    $(this).parent().toggleClass("active");
     updateMainCol();
   });
   
   $("#b_hide_right").click(function() {
     $("#d_right_sidebar").toggleClass("col-hidden col-sm-2");
+    $(this).parent().toggleClass("active");
     updateMainCol();        
   });
   
