@@ -228,12 +228,13 @@ function refreshCalendars() {
       cal_div.find("button").click(function() {
         var calid = $(this).parent().parent().data("calid");
         $("#d_edit_calendar input[name='name']").val(calendar.name);
+        $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
         $("#d_user_calendars").toggle();
         $("#d_edit_calendar").data("calid", calid).toggle();
       });
     });
     // Refresh events for the calendars
-    $("#d_user_calendars input").first().prop("checked", "checked");
+    $("#d_user_calendars input").first().prop("checked", "true");
     refreshEvents();
   });
 }
