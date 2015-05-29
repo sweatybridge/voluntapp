@@ -64,12 +64,12 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingOne">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  <a data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="true" aria-controls="collapseOne">
                     My calendars
                   </a>
                 </h4>
               </div>
-              <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+              <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                 <div id="user_calendars" class="panel-body">
                   It seems like you haven't joined to or created any calendars...
                 </div>
@@ -91,7 +91,7 @@
                     <p>Last Name: <strong data-bind="lastName">[lastName]</strong></p>
                     <button id="b_update_profile" type="button" class="btn btn-info">Update</button>
                   </div>
-                  <form class="form-centre" role="form" id="profile_form" action="/api/user" method="post" autocomplete="on">
+                  <form class="form-centre" role="form" id="profile_form" action="/api/user" method="put" autocomplete="on">
                     <div class="form-group"><input type="email" name="email" class="form-control" placeholder="Email" autofocus required></div>
                     <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
                     <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
@@ -111,7 +111,7 @@
               <div class="panel-heading" role="tab" id="headingThree">
                 <h4 class="panel-title">
                   <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Settings
+                    Help
                   </a>
                 </h4>
               </div>
@@ -166,7 +166,7 @@
                 <form class="form-centre" role="form" id="event_form" action="/api/event" method="post" autocomplete="off">
                   <div class="form-group">
                   <select id="select_calendar" class="form-control" name="calendarId">
-                    <option value="32">Bob Calendar</option>
+                    <option value="-1">[None]</option>
                   </select>
                   <input type="text" name="title" class="form-control" placeholder="Title" required>
                   <input type="text" name="startDate" class="form-control datetimepicker" placeholder="Start date time" required>
@@ -181,10 +181,10 @@
               </div>
               <div role="tabpanel" class="tab-pane fade" id="crt_calendar">
                 <p>To join a calendar, you need the calendar token which the administrators of the calendar usually distribute. If you don't know the calendar token, then contact the calendar administrators, if you do, you can join now by entering the token below.</p>
-                <form class="form-centre" role="form" id="calendar_join_form" action="calendar" method="post" autocomplete="off">
-                  <div class="form-group"><input type="text" name="token" class="form-control" placeholder="Token" autofocus required></div>
-                  <input class="btn btn-primary" type="submit" value="Join">
-                  <p class="form-error" id="calendar_join_errors"></p>
+                <form class="form-centre" role="form" id="calendar_follow_form" action="/api/subscription/calendar" method="post" autocomplete="off">
+                  <div class="form-group"><input type="text" name="joinCode" class="form-control" placeholder="Join code" autofocus required></div>
+                  <input class="btn btn-primary" type="submit" value="Follow">
+                  <p class="form-error" id="calendar_follow_errors"></p>
                 </form>
                 <p>You can create a calendar of which you will be the admin immediately. There isn't any limit on how many calendars you can create. If you want people to start joining your calendar check allow joining. You can change the settings later for your calendar.</p>
                 <form class="form-centre" role="form" id="calendar_create_form" action="/api/calendar" method="post" autocomplete="off">

@@ -1,37 +1,22 @@
-{
+{"calendars": [{
 	"calendarId": 3,
 	"name": "First Calendar",
 	"joinEnabled": true,
-	"joinCode": "XMU6QM",
-	"events": [{
-		"eventId": 11,
-		"title": "Campus Tour",
-		"description": "Regular campus tour showing prospective students and their parents around South Kensington.",
-		"location": "Huxley Building",
-		"startTime": "14:00",
-		"startDate": "2015-05-30",
-		"duration": "02:00:00",
-		"max": 30,
-		"attendees": 5
-	}, {
-		"eventId": 12,
-		"title": "Science Museum Trip",
-		"description": "Guide freshers on a tour to the Science Museum. Complimentary IMAX ticket.",
-		"location": "Science Museum",
-		"startTime": "13:00",
-		"startDate": "2015-06-02",
-		"duration": "01:00:00",
-		"max": 10,
-		"attendees": 8
-	}, {
-		"eventId": 13,
-		"title": "Bar Night",
-		"description": "Annual DoC Soc bar night needs your help!",
-		"location": "Union",
-		"startTime": "20:00",
-		"startDate": "2015-06-02",
-		"duration": "05:00:00",
-		"max": 20,
-		"attendees": 12
-	}]
+	"joinCode": "XMU6QM"
+}, {
+	"calendarId": 4,
+	"name": "Second Calendar",
+	"joinEnabled": true,
+	"joinCode": "XMU6QM"
+}, {
+	"calendarId": 5,
+	"name": "Third Calendar",
+	"joinEnabled": true,
+	"joinCode": "XMU6QM"
+}, {
+	"calendarId": 6,
+	"name": "Fourth Calendar",
+	"joinEnabled": true,
+	"joinCode": "XMU6QM"
+}]
 }

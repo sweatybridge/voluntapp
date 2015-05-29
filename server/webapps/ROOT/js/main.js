@@ -8,8 +8,10 @@ $(function() {
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
-    //$("#t_calendar th:nth-of-type(6), #t_calendar td:nth-of-type(6), #t_calendar th:nth-of-type(7), #t_calendar td:nth-of-type(7)").toggle();
-    //$(this).parent().toggleClass("active");
+    var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
+    console.log(sat_index);
+    var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
+    $(selector).toggle();
   });
 
   // Bind sidebar collapse
@@ -46,6 +48,10 @@ $(function() {
   $("#event_form").submit(function(e) {
     e.preventDefault();
     // Seperate datetime into date and time
+    if ($("#event_form select").val() < 0) {
+      $("#event_create_errors").text("You must create a calendar first.");
+      return;
+    }
     var form = $(this);
     var formObj = getFormObj(form);
     var regex = new RegExp('/', "g");
@@ -64,8 +70,7 @@ $(function() {
       method: form.attr("method"),
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
-        app.events.push(formObj);
-        createEventView(formObj);
+        refreshEvents();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -74,7 +79,13 @@ $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendar(); }, $("#calendar_create_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendars(); }, $("#calendar_create_errors"));
+  });
+  
+  // Bind calendar joining form
+  $("#calendar_follow_form").submit(function(e) {
+    e.preventDefault()
+    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); refreshCalendars(); }, $("#calendar_follow_errors"));
   });
 
   // Sets up request headers for all subsequent ajax calls
@@ -85,12 +96,6 @@ $(function() {
       xhr.setRequestHeader("Authorization", getCookie("token"));
     }
   });
-  
-  // Request calendar information
-  refreshCalendar();
-
-  // Request user profile information
-  refreshUser();
   
   // Bind user profile buttons
   $("#profile_form").hide();
@@ -118,41 +123,106 @@ $(function() {
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
-    // TODO: Retrieve more events from server
-    
-    // get tomorrow's events from local storage
-    
     // advance date by 1
     app.current_start_date.setDate(app.current_start_date.getDate() - 1);
-    updateCalendarDates(app.current_start_date);
-    renderCalendar()
+    refreshEvents();
   });
 
   $("#next_day").click(function() {
-    // TODO retrieve more events from server
-
-    // get yesterday's events from local storage
-
     // shift weekday columns right by one
     app.current_start_date.setDate(app.current_start_date.getDate() + 1);
-    updateCalendarDates(app.current_start_date);
-    renderCalendar();
+    refreshEvents();
   });
+  
+  // Request user profile information
+  refreshUser();
+  
+  // Request calendar information
+  refreshCalendars();
+}); // End of document ready
 
+// Update user profile information on view
+function refreshUser() {
+  $.get("/api/user",
+    function(data) {
+      $("[data-bind='email']").text(data.email);
+      $("[data-bind='firstName']").text(data.firstName);
+      $("[data-bind='lastName']").text(data.lastName);
+      $("[data-bind='lastSeen']").text(data.lastSeen);
+  });
+}
+
+// Update calendars
+function refreshCalendars() {
+  $.get("/api/subscription/calendar", function(data) {
+    app.calendars = data.calendars;
+    if (data.calendars.length < 1) {
+      return;
+    }
+    $("#user_calendars").empty();
+    $("#select_calendar").empty();
+    $.each(data.calendars, function(index, calendar) {
+      $('#select_calendar')
+       .append($("<option></option>")
+       .attr("value",calendar.calendarId)
+       .text(calendar.name));
+       var checkbox = $("<input>").attr("type", "checkbox").attr("data-calid", calendar.calendarId);
+       // Bind event rendering
+       checkbox.change(function() { refreshEvents(); });
+      $("<div>").addClass("checkbox").append($("<label>").append(checkbox).append(calendar.name + ' - ' + calendar.joinCode)).appendTo("#user_calendars");
+    });
+    // Refresh events for the calendars
+    refreshEvents();
+  });
+}
+
+// Update Events
+function refreshEvents() {
   // Retrieve and render calendar events
-  $.ajax("/json/calendar.json", {
-    success: function(data) {
-      app.events = data.events;
-      app.joined = {};
-      $.each(app.events, function(index, event) {
-        createEventView(event);
-      });
-    },
-    error: function(data) {
-      console.log("Failed to retrieve calendar events.");
+  app.events = [];
+  app.joined = {};
+  var active_calendars = getActiveCalendarIds();
+  // Just re-render if there are no active calendars
+  if (active_calendars.length < 1) {
+    updateCalendarDates(app.current_start_date);
+    renderEvents();
+  }
+  // Get event data for the active calendars then render
+  $.each(active_calendars, function(index, id) {
+    $.ajax("/api/calendar/"+id, {
+      data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
+      success: function(data) {
+        // Add the calendarId because back-end doesn't provide it
+        $.each(data.events, function(index, event) {
+          event.calendarId = id;
+        });
+        app.events.push.apply(app.events, data.events);
+        updateCalendarDates(app.current_start_date);
+        renderEvents();
+      },
+      error: function(data) {
+        toastr.error("Failed to get events for " + id);
+      }
+    });
+  });
+  
+}
+
+// Render events
+function renderEvents() {
+  var active_calendars = getActiveCalendarIds();
+  // Clear any existing events
+  $("#t_calendar_body").children().each(function(index) {
+    $(this).empty();
+  });
+  
+  // Rerender active calendars' events
+  $.each(app.events, function(index, event) {
+    if (active_calendars.indexOf(event.calendarId) >= 0) {
+      createEventView(event);
     }
   });
-}); // End of document ready
+}
 
 // Update main column class whether sizebars are hidden or not
 function updateMainCol() {
@@ -166,13 +236,6 @@ function updateMainCol() {
   $("#d_main_col").attr("class", "col-sm-" + size);
 }
 
-// Temporary function to get auth token from cookie
-function getCookie(name) {
-  var value = "; " + document.cookie;
-  var parts = value.split("; " + name + "=");
-  if (parts.length == 2) return parts.pop().split(";").shift();
-}
-
 // Render a new event on the calendar
 function createEventView(model) {
   // expand description on hover
@@ -184,7 +247,7 @@ function createEventView(model) {
       '<dd>{{startTime}}</dd>'+
     '</div>'+
     '<div class="header">'+
-      '<span class="label label-warning count">{{max}}</span>'+
+      '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
     '<div class="desc">{{description}}</div>'+
@@ -197,13 +260,15 @@ function createEventView(model) {
   '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
     if ($(elem).data("date") === model.startDate) {
-      var readableDate = formatDate(new Date(model.startDate)).split(" ").reverse().join(" ");
+      var startDateTime = new Date(model.startDate + "T" + model.startTime.split("+")[0]);
+      var readableDate = formatDate(startDateTime).split(" ").reverse().join(" ");
+      var readableTime = startDateTime.toLocaleTimeString().substring(0, 5);
       // append event div
       var view = $(temp
         .replace('{{eventId}}', model.eventId)
         .replace('{{startDate}}', readableDate)
-        .replace('{{startTime}}', model.startTime)
-        .replace('{{max}}', model.max - model.attendees)
+        .replace('{{startTime}}', readableTime)
+        .replace('{{remaining}}', model.max - model.currentCount)
         .replace('{{title}}', model.title)
         .replace('{{description}}', model.description)
         .replace('{{location}}', model.location)
@@ -241,57 +306,11 @@ function updateCalendarDates(startDate) {
       heading.addClass("th_weekday");
     }
 
-    // clear all current events visible on this day
-    $(elem).empty();
-
     // increment date
     startDate.setDate(startDate.getDate() + 1);
   });
 
   $("#next_day").prev().text(formatDate(startDate));
-}
-
-// Get yesterday as date object
-function yesterday() {
-  var today = new Date();
-  today.setDate(today.getDate() - 1);
-  return today;
-}
-
-// Update user profile information on view
-function refreshUser() {
-  $.ajax("/api/user", {
-    method: "GET",
-    success: function(data) {
-        $("[data-bind='email']").text(data.email);
-        $("[data-bind='firstName']").text(data.firstName);
-        $("[data-bind='lastName']").text(data.lastName);
-        $("[data-bind='lastSeen']").text(data.lastSeen);
-      }
-  });
-}
-
-// Update calendars
-function refreshCalendar() {
-  $.get("/api/subscription/calendar", function(data) {
-    if (data.calendarIds.length < 1) {
-      return;
-    }
-    $("#user_calendars").empty();
-    $("#select_calendar").empty();
-    $.each(data.calendarIds, function(index, calendarId) {
-      // For every calendar get calendar data
-      var d_json = "{'calendarId':" + calendarId + "}";
-      $.get("/api/calendar", { data: d_json }, function(data) {
-        // TODO: update global variable with calendar data
-        $('#select_calendar')
-         .append($("<option></option>")
-         .attr("value",calendarId)
-         .text(data.name));
-        $("<div>").addClass("checkbox").append($("<label>").html('<input type="checkbox" checked>'+data.name)).appendTo("#user_calendars");
-      });
-    });
-  });
 }
 
 // Validation of update form
@@ -326,11 +345,15 @@ function getWeekDay(date) {
   return str.substring(0, str.indexOf(' '));
 }
 
-// Renders all events within the displayed date range
-function renderCalendar() {
-  $.each(app.events, function(index, event) {
-    createEventView(event);
+// Get active_calendar ids
+function getActiveCalendarIds() {
+  var active_calendars = [];
+  $("#calendars_collapse input").each(function(index) {
+    if ($(this).is(":checked")) {
+      active_calendars.push($(this).data("calid"));
+    }
   });
+  return active_calendars;
 }
 
 // Join an event
@@ -351,9 +374,9 @@ function joinEvent(elem) {
           return;
         }
         toastr.success("Unjoined event " + event.title);
-        // update attendees count
-        event.attendees -= 1;
-        view.find(".count").text(event.max - event.attendees);
+        // update remaining spots
+        event.currentCount -= 1;
+        view.find(".count").text(event.max - event.currentCount);
         // remove event from joined list
         delete app.joined[eid];
         // update badge
@@ -375,9 +398,9 @@ function joinEvent(elem) {
             toastr.success("Joined event " + event.title);
             // use dictionary to prevent duplicates
             app.joined[eid] = event;
-            // update attendees count
-            event.attendees += 1;
-            view.find(".count").text(event.max - event.attendees);
+            // update remaining spots
+            event.currentCount += 1;
+            view.find(".count").text(event.max - event.currentCount);
             // update badge
             $(elem).addClass("progress-bar-success").text("Joined");
             return false;

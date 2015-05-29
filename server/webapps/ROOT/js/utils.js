@@ -19,3 +19,29 @@ function submitAjaxForm(form, successCallback, errorDiv) {
     error: function(data) { errorDiv.text(data.responseJSON.message); }
   });
 }
+
+// Temporary function to get auth token from cookie
+function getCookie(name) {
+  var value = "; " + document.cookie;
+  var parts = value.split("; " + name + "=");
+  if (parts.length == 2) return parts.pop().split(";").shift();
+}
+
+// Format date string to May 15
+function formatDate(date) {
+  var str = date.toDateString();
+  return str.substring(str.indexOf(' ') + 1, str.lastIndexOf(' '));
+}
+
+// Format day of week, TODO: put this into date prototype
+function getWeekDay(date) {
+  var str = date.toDateString();
+  return str.substring(0, str.indexOf(' '));
+}
+
+// Get yesterday as date object
+function yesterday() {
+  var today = new Date();
+  today.setDate(today.getDate() - 1);
+  return today;
+}
