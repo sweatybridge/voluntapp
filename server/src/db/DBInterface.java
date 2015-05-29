@@ -24,7 +24,6 @@ import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.UserResponse;
-import sql.SQLDelete;
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
