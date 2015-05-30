@@ -46,7 +46,6 @@ $(function() {
   });
   
   // Bind user profile buttons
-  $("#profile_form").hide();
   $("#b_update_profile").click(function() {
     $("#d_user_profile").toggle();
     $("#profile_form").toggle();
@@ -99,10 +98,10 @@ function refreshUser() {
   $.get("/api/user",
     function(data) {
       app.user = data;
-      $("[data-bind='email']").text(data.email);
-      $("[data-bind='firstName']").text(data.firstName);
-      $("[data-bind='lastName']").text(data.lastName);
-      $("[data-bind='lastSeen']").text(data.lastSeen);
+      $("[data-bind='email']").text(data.email).val(data.email);
+      $("[data-bind='firstName']").text(data.firstName).val(data.firstName);
+      $("[data-bind='lastName']").text(data.lastName).val(data.lastName);
+      $("[data-bind='lastSeen']").text(data.lastSeen).val(data.lastSeen);
   });
 }
 
