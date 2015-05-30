@@ -77,9 +77,4 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
         userId, CalendarResponse.JOIN_CODE_COLUMN,
         joinCode.replace("\'", "\'\'"));
   }
-  
-  public static void main(String[] args) {
-    CalendarSubscriptionResponse cr = new CalendarSubscriptionResponse(64);
-    System.out.println(cr.getSQLQuery());
-  }
 }

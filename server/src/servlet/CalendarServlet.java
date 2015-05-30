@@ -1,7 +1,7 @@
 package servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
+import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -11,13 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarRequest;
-import req.SessionRequest;
-import resp.CalendarSubscriptionResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
-import sql.SQLQuery;
+import utils.ServletUtils;
 
 import com.google.gson.Gson;
 
@@ -72,16 +70,14 @@ public class CalendarServlet extends HttpServlet {
     }
 
     CalendarRequest calendarRequest;
+    int userId = ServletUtils.getUserId(request);
     String startDate = request.getParameter("startDate");
     if (startDate != null) {
-      calendarRequest = new CalendarRequest(Timestamp.valueOf(startDate),
-          Integer.parseInt(id));
+      calendarRequest = new CalendarRequest(userId,
+          Timestamp.valueOf(startDate), Integer.parseInt(id));
     } else {
-      calendarRequest = new CalendarRequest(Integer.parseInt(id));
+      calendarRequest = new CalendarRequest(userId, Integer.parseInt(id));
     }
-
-    int userId = getUserId(request);
-    calendarRequest.setUserId(userId);
 
     try {
       request.setAttribute(Response.class.getSimpleName(),
@@ -136,6 +132,20 @@ public class CalendarServlet extends HttpServlet {
     }
 
     Response result = null;
+
+    // See if the user can access the operation
+    switch (db.authoriseUser(ServletUtils.getUserId(request),
+        Integer.parseInt(id))) {
+    case NONE:
+    case BASIC:
+      result = new ErrorResponse("Operation not allowed (Delete calendar)");
+      response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
+      request.setAttribute(Response.class.getSimpleName(), result);
+      return;
+    default:
+      break;
+    }
+
     try {
       db.deleteCalendar(Integer.parseInt(id));
       result = new SuccessResponse("Calendar was successfully deleted.");
@@ -155,28 +165,43 @@ public class CalendarServlet extends HttpServlet {
 
   /**
    * Given the calendar ID and new calendar data, update the database.
-   * @throws IOException 
+   * 
+   * @throws IOException
    */
   @Override
-  protected void doPut(HttpServletRequest request, HttpServletResponse response) 
+  protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     String id = request.getPathInfo().substring(1);
-    
+
     if (id == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No calendar ID specified."));
       return;
     }
-    
-    CalendarRequest calendarRequest = 
-        gson.fromJson(request.getReader(), CalendarRequest.class);
-    
+
+    CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
+        CalendarRequest.class);
+
     Response result = null;
+
+    // Check that the calendar can be updated by the user
+    switch (db.authoriseUser(ServletUtils.getUserId(request),
+        Integer.parseInt(id))) {
+    case NONE:
+    case BASIC:
+      result = new ErrorResponse("Operation not allowed (Update calendar)");
+      response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
+      request.setAttribute(Response.class.getSimpleName(), result);
+      return;
+    default:
+      break;
+    }
+
     try {
       db.updateCalendar(Integer.parseInt(id), calendarRequest);
       result = new SuccessResponse("Calendar data was successfully updated.");
     } catch (NumberFormatException e) {
-      result = new ErrorResponse("One of the specified dates was invalid."); 
+      result = new ErrorResponse("One of the specified dates was invalid.");
     } catch (SQLException e) {
       result = new ErrorResponse(
           "Database error occured while updating the calendar.");
@@ -184,7 +209,7 @@ public class CalendarServlet extends HttpServlet {
       result = new ErrorResponse(e.getMessage());
     } catch (CalendarNotFoundException e) {
       result = new ErrorResponse(e.getMessage());
-    }    
+    }
     request.setAttribute(Response.class.getSimpleName(), result);
   }
 
@@ -215,73 +240,4 @@ public class CalendarServlet extends HttpServlet {
 
     return calendarRequest;
   }
-
-  /**
-   * Retrieve the authorization parameters from the request attribute. Generate
-   * an error response when the user ID is invalid.
-   * 
-   * @param request
-   *          sent to the server
-   * @return ID of the user
-   */
-  private int getUserId(HttpServletRequest request) {
-    // TODO: Remove duplicate code
-    SessionResponse sessionResponse = (SessionResponse) request
-        .getAttribute(SessionResponse.class.getSimpleName());
-
-    /* No valid userId supplied - added for the sake of debugging. */
-    if (sessionResponse.getUserId() == 0) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Error - no user ID supplied."));
-      return 0;
-    }
-    return sessionResponse.getUserId();
-  }
-  
-  private boolean authoriseUser(int userId, int calendarId) {
-    CalendarAuthorisationQuery query 
-      = new CalendarAuthorisationQuery(userId, calendarId);
-    //db.authorize calendar access
-    return true;
-  }
-  
-  private class CalendarAuthorisationQuery implements SQLQuery {
-    
-    private int userId;
-    private int calendarId;
-    private String accessPrivilege;
-    
-    public CalendarAuthorisationQuery(int userId, int calendarId) {
-      this.userId = userId;
-      this.calendarId = calendarId;
-    }
-
-    @Override
-    public String getSQLQuery() {
-      return String.format(
-          "SELECT \"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=%d AND \"%s\"=%d",
-          CalendarSubscriptionResponse.ROLE_COLUMN,
-          CalendarSubscriptionResponse.UID_COLUMN,
-          userId,
-          CalendarSubscriptionResponse.CID_COLUMN,
-          calendarId);
-    }
-
-    @Override
-    public void setResult(ResultSet result) {
-      try {
-        if (result.next()) {
-          accessPrivilege = result.getString(CalendarSubscriptionResponse.ROLE_COLUMN);
-        }
-      } catch (SQLException e) {
-        System.err.println("Database error occurred wile authorising user's access to a calendar / " +
-        		"user not registered to a calendar.");
-      }  
-    }
-    
-    private String getAccessPrivilege() {
-      return accessPrivilege;
-    }
-  }
-
 }

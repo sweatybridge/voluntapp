@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import resp.CalendarSubscriptionResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import sql.SQLQuery;
@@ -38,7 +37,7 @@ public class CalendarRequest implements Request {
   /**
    * Fields excluded from deserialisation.
    */
-  private transient Integer calendarId;
+  private transient int calendarId;
   private transient String inviteCode;
   private transient int userId;
 
@@ -56,13 +55,19 @@ public class CalendarRequest implements Request {
     this.userId = userId;
   }
 
+  public CalendarRequest(int userId, int calendarId) {
+    this.userId = userId;
+    this.calendarId = calendarId;
+  }
+
   /* Constructor used by GET method of calendar servlet. */
   public CalendarRequest(int calendarId) {
     this.calendarId = calendarId;
   }
 
   /* Constructor added for testing. */
-  public CalendarRequest(Timestamp startDate, int calendarId) {
+  public CalendarRequest(int userId, Timestamp startDate, int calendarId) {
+    this.userId = userId;
     this.startDate = startDate;
     this.calendarId = calendarId;
   }

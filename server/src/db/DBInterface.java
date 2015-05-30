@@ -17,6 +17,7 @@ import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
+import resp.CalendarAuthResponse;
 import resp.CalendarResponse;
 import resp.CalendarSubscriptionResponse;
 import resp.EventResponse;
@@ -27,6 +28,7 @@ import resp.UserResponse;
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
+import utils.AuthLevel;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
 import exception.EventNotFoundException;
@@ -111,7 +113,8 @@ public class DBInterface {
    */
   public CalendarResponse getCalendar(CalendarRequest request)
       throws SQLException {
-    CalendarResponse result = new CalendarResponse(request.getCalendarId());
+    CalendarResponse result = new CalendarResponse(request.getCalendarId(),
+        request.getUserId());
     query(result);
     if (request.getStartDate() != null) {
       CalendarEventsQuery query = request.getCalendarEventsQuery();
@@ -151,7 +154,7 @@ public class DBInterface {
       Statement stmt = conn.createStatement();
       ResultSet result = stmt.executeQuery(resp.getSQLQuery());
       while (result.next()) {
-        cals.add(getCalendar(new CalendarRequest(result
+        cals.add(getCalendar(new CalendarRequest(userId, result
             .getInt(CalendarSubscriptionResponse.CID_COLUMN))));
       }
     } finally {
@@ -457,15 +460,15 @@ public class DBInterface {
         Integer.toString(ereq.getMax()), eventId, -1);
     return updateRowCheckHelper(er);
   }
-  
-  public boolean updateCalendar(int calendarId, CalendarRequest creq) 
+
+  public boolean updateCalendar(int calendarId, CalendarRequest creq)
       throws SQLException, InconsistentDataException, CalendarNotFoundException {
     if (creq == null) {
       return true;
     }
-    
-    CalendarResponse cr = 
-        new CalendarResponse(calendarId, creq.getName(), creq.isJoinEnabled());
+
+    CalendarResponse cr = new CalendarResponse(calendarId, creq.getName(),
+        creq.isJoinEnabled());
     int rows = update(cr);
     if (rows > 1) {
       throw new InconsistentDataException(
@@ -637,4 +640,24 @@ public class DBInterface {
     }
     return true;
   }
+
+  /**
+   * Gets the permissions of a given user for a given calendar.
+   * 
+   * @param uid
+   *          The id of the user to check.
+   * @param cid
+   *          The id of the calendar to check.
+   * @return The AuthLevel of the user.
+   */
+  public AuthLevel authoriseUser(int uid, int cid) {
+    CalendarAuthResponse car = new CalendarAuthResponse(uid, cid);
+    try {
+      query(car);
+    } catch (SQLException e) {
+      return AuthLevel.NONE;
+    }
+    return AuthLevel.getAuth(car.getAccessPrivilege());
+  }
+
 }

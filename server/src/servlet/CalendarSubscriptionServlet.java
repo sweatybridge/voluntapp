@@ -12,6 +12,7 @@ import req.CalendarSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
+import utils.ServletUtils;
 
 import com.google.gson.Gson;
 
@@ -36,7 +37,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    int userId = getUserId(request);
+    int userId = ServletUtils.getUserId(request);
     if (userId == 0) {
       return;
     }
@@ -61,7 +62,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       throws IOException {
     // TODO: To keep servlets consistent this may be better being changed to
     // post?
-    int userId = getUserId(request);
+    int userId = ServletUtils.getUserId(request);
     if (userId == 0) {
       return;
     }
@@ -77,26 +78,5 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           + "subscription.");
     }
     request.setAttribute(Response.class.getSimpleName(), subResp);
-  }
-
-  /**
-   * Retrieve the authorization parameters from the request attribute. Generate
-   * an error response when the user ID is invalid.
-   * 
-   * @param request
-   *          sent to the server
-   * @return ID of the user
-   */
-  private int getUserId(HttpServletRequest request) {
-    SessionResponse sessionResponse = (SessionResponse) request
-        .getAttribute(SessionResponse.class.getSimpleName());
-
-    /* No valid userId supplied - added for the sake of debugging. */
-    if (sessionResponse.getUserId() == 0) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Error - no user ID supplied."));
-      return 0;
-    }
-    return sessionResponse.getUserId();
   }
 }

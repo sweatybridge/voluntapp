@@ -13,6 +13,7 @@ import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
+import utils.ServletUtils;
 
 import com.google.gson.Gson;
 
@@ -38,7 +39,6 @@ public class EventSubscriptionServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-
   }
 
   /**
@@ -50,7 +50,7 @@ public class EventSubscriptionServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     // TODO: Handle exception, should the servlet methods throw them?
-    int userId = getUserId(request);
+    int userId = ServletUtils.getUserId(request);
     if (userId == 0) {
       return;
     }
@@ -85,7 +85,7 @@ public class EventSubscriptionServlet extends HttpServlet {
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     // TODO: Handle exception, should the servlet methods throw them?
-    int userId = getUserId(request);
+    int userId = ServletUtils.getUserId(request);
     if (userId == 0) {
       return;
     }
@@ -106,27 +106,4 @@ public class EventSubscriptionServlet extends HttpServlet {
     }
     request.setAttribute(Response.class.getSimpleName(), subResp);
   }
-
-  /**
-   * Retrieve the authorization parameters from the request attribute. Generate
-   * an error response when the user ID is invalid.
-   * 
-   * @param request
-   *          sent to the server
-   * @return ID of the user
-   */
-  private int getUserId(HttpServletRequest request) {
-    // TODO: Remove duplicate code
-    SessionResponse sessionResponse = (SessionResponse) request
-        .getAttribute(SessionResponse.class.getSimpleName());
-
-    /* No valid userId supplied - added for the sake of debugging. */
-    if (sessionResponse.getUserId() == 0) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Error - no user ID supplied."));
-      return 0;
-    }
-    return sessionResponse.getUserId();
-  }
-
 }
