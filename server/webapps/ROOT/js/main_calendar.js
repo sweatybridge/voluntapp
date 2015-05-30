@@ -47,6 +47,9 @@ $(function() {
     submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#calendar_edit_errors"));
   });
   
+  // Render calendar from yesterday
+  updateCalendarDates(getMonday());
+  
 }); // End of document ready
 
 // Update calendars

@@ -2,9 +2,6 @@ var app = {joined:{}};
 
 // DOCUMENT READY
 $(function() {
-  // Render calendar from yesterday
-  updateCalendarDates(yesterday());
-
   // Bind refresh button
   $("#b_refresh").click(refreshEvents);
   
@@ -75,13 +72,13 @@ $(function() {
   // Bind previous and next day button
   $("#prev_day").click(function() {
     // advance date by 1
-    app.current_start_date.setDate(app.current_start_date.getDate() - 1);
+    app.current_start_date.setDate(app.current_start_date.getDate() - 7);
     refreshEvents();
   });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
-    app.current_start_date.setDate(app.current_start_date.getDate() + 1);
+    app.current_start_date.setDate(app.current_start_date.getDate() + 7);
     refreshEvents();
   });
   

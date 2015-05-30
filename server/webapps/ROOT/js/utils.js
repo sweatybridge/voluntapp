@@ -39,6 +39,14 @@ function getWeekDay(date) {
   return str.substring(0, str.indexOf(' '));
 }
 
+// http://stackoverflow.com/questions/4156434/javascript-get-the-first-day-of-the-week-from-current-date
+function getMonday() {
+  d = new Date();
+  var day = d.getDay(),
+      diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+  return new Date(d.setDate(diff));
+}
+
 // Get yesterday as date object
 function yesterday() {
   var today = new Date();
