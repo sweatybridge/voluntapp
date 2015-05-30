@@ -61,7 +61,7 @@ public class DefaultServletTest extends ServletTest {
 
     // Database contains no session
     when(db.getSession(any(String.class))).thenThrow(
-        new SessionNotFoundException());
+        new SessionNotFoundException(TEST_SESSION_ID));
 
     // Context returns mocked dispatcher
     when(context.getRequestDispatcher(any(String.class)))
