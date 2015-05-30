@@ -132,7 +132,7 @@ public class CalendarRequest implements Request {
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS ('%s', '%s') "
                   + "AND "
-                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=%d);",
+                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=%d) AND \"%s\"=true;",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
               EventResponse.DESC_COLUMN, EventResponse.LOCATION_COLUMN,
@@ -142,7 +142,7 @@ public class CalendarRequest implements Request {
               EventSubscriptionResponse.UID_COLUMN, userId,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              startDate, endDate, calendarId);
+              startDate, endDate, calendarId, EventResponse.ACTIVE_COLUMN);
     }
 
     @Override

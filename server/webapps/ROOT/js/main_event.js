@@ -15,8 +15,6 @@ $(function() {
 
     // validate form
     formatEventForm(formObj);
-    console.log(formObj);
-
     // ajax put
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
       method: "PUT",
@@ -79,6 +77,13 @@ $(function() {
     var formObj = getFormObj(form);
     formatEventForm(formObj);
     
+
+    // Check for the description length
+    if (formObj["description"].length > 255) {
+      $("#event_create_errors").text("Description length is too long.");
+      return;
+    }
+    
     // Submit form
     $.ajax(form.attr("action"), {
       data: JSON.stringify(formObj),
@@ -123,6 +128,19 @@ function refreshEvents() {
     });
   });
   
+}
+
+//
+$(document).ready(function($) {
+    updateCountdown();
+    $('#event_form textarea[name="description"]').change(updateCountdown);
+    $('#event_form textarea[name="description"]').keyup(updateCountdown);
+});
+
+// 
+function updateCountdown() {
+    var remaining = 255 - $('#event_form textarea[name="description"]').val().length;
+    $('.countdown').text(remaining + ' characters remaining.');
 }
 
 // Render events

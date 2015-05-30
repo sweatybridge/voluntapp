@@ -200,7 +200,8 @@
                   <input type="text" name="endDate" class="form-control datetimepicker" placeholder="End date time" required>
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
                   <input type="number" name="max" class="form-control" min="-1" value="0" placeholder="Size" required>
-                  <textarea class="form-control" name="description" rows="5" placeholder="Description"></textarea>
+                  <textarea class="form-control" name="description" rows="5" placeholder="Description" maxlength="255"></textarea>
+                  <span class="countdown"></span>
                   </div>
                   <input class="btn btn-primary" type="submit" value="Create Event" id="btn_event_create">
                   <input class="btn btn-primary" type="button" value="Save" style="display: none;" id="btn_event_save">
