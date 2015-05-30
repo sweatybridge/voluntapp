@@ -27,6 +27,13 @@ function getCookie(name) {
   if (parts.length == 2) return parts.pop().split(";").shift();
 }
 
+// Returns the clients timezone offset
+function getTimezoneOffset() {
+  // Note it is in minutes and UTC - local, so -60 is actually +1
+  // so we divide by -60 to get the human readable offset
+  return new Date().getTimezoneOffset()/-60;
+}
+
 // Format date string to May 15
 function formatDate(date) {
   var str = date.toDateString();
