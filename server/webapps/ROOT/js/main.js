@@ -3,7 +3,7 @@ var app = {joined:{}};
 // DOCUMENT READY
 $(function() {
   // Bind refresh button
-  $("#b_refresh").click(refreshEvents);
+  $("#b_refresh").click(refreshCalendars);
   
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){

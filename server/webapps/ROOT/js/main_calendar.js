@@ -3,13 +3,13 @@ $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendars(); }, $("#calendar_create_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_create_errors"));
   });
   
   // Bind calendar joining form
   $("#calendar_follow_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); refreshCalendars(); }, $("#calendar_follow_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_follow_errors"));
   });
   
   // Bind edit calendar buttons and forms
@@ -38,13 +38,15 @@ $(function() {
   });
   
   $("#user_promotion_form").submit(function(e) {
-    e.preventDefault()
+    e.preventDefault();
     submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#user_promotion_errors"));
   });
   
   $("#calendar_edit_form").submit(function(e) {
-    e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#calendar_edit_errors"));
+    e.preventDefault();
+    var calid = $(this).parent().data("calid");
+    $(this).attr("action", "/api/calendar/"+calid);
+    submitAjaxForm($(this), function(data) { toastr.success("Updated calendar"); $("#b_cancel_calendar").click(); refreshCalendars(); }, $("#calendar_edit_errors"));
   });
   
   // Render calendar from yesterday

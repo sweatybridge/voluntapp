@@ -91,7 +91,7 @@
                   <form role="form" id="calendar_edit_form" action="/api/calendar" method="put" autocomplete="off">
                     <p>You can change the name of the calendar, as well as enable or disable joining. The join code of a calendar is unique and cannot be changed.</p>
                     <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Name" required></div>
-                    <div class="checkbox"><label><input type="checkbox" name="allowJoin">Allow Join</label></div>
+                    <div class="checkbox"><label><input type="checkbox" name="joinEnabled" value="true">Allow Join</label></div>
                     <div class="form-group">
                       <input class="btn btn-primary" type="submit" value="Update Calendar">
                       <input id="b_cancel_calendar" type="button" class="btn btn-danger" value="Cancel">
@@ -181,7 +181,7 @@
         <div id="d_right_sidebar" class="col-sm-2">
           <div id="d_right_sidebar" role="tabpanel">
             <!-- Nav tabs -->
-            <ul class="nav nav-tabs nav-justified" role="tablist">
+            <ul class="nav nav-tabs nav-justified" role="tablist" id="nav_create_tabs">
               <li role="presentation" class="active"><a href="#crt_event" aria-controls="event" role="tab" data-toggle="tab">Event</a></li>
               <li role="presentation"><a href="#crt_calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
             </ul>
