@@ -190,7 +190,7 @@ function createEventView(event) {
       if (event.max == -1) {
         temp = temp.replace('{{remaining}}', "&infin;");
       } else {
-        temp = temp.replace('{{remaining}}', event.max - event.currentCount);
+        temp = temp.replace('{{remaining}}', event.currentCount + "/" + event.max);
       }
       var view = $(temp);
       $(elem).append(view);
@@ -229,7 +229,7 @@ function joinEvent(elem) {
         if (event.max > -1) {
           // update remaining spots
           event.currentCount -= 1;
-          view.find(".count").text(event.max - event.currentCount);
+          view.find(".count").text(event.currentCount + "/" + event.max);
         }
         // update badge
         $(elem).removeClass("progress-bar-danger").text("Join");
@@ -261,7 +261,7 @@ function joinEvent(elem) {
         // update remaining spots
         event.currentCount += 1;
         if (event.max > -1) {
-          view.find(".count").text(event.max - event.currentCount);
+          view.find(".count").text(event.currentCount + "/" + event.max);
         }
         // update badge
         $(elem).addClass("progress-bar-danger").text("Unjoin");
