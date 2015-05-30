@@ -97,6 +97,11 @@ $(function() {
     });
   });
   
+  // Refresh description count
+  $('#event_form textarea[name="description"]').change(updateCountdown);
+  $('#event_form textarea[name="description"]').keyup(updateCountdown);
+  updateCountdown();
+
 }); // End of document ready
 
 // Update Events
@@ -128,19 +133,6 @@ function refreshEvents() {
     });
   });
   
-}
-
-//
-$(document).ready(function($) {
-    updateCountdown();
-    $('#event_form textarea[name="description"]').change(updateCountdown);
-    $('#event_form textarea[name="description"]').keyup(updateCountdown);
-});
-
-// 
-function updateCountdown() {
-    var remaining = 255 - $('#event_form textarea[name="description"]').val().length;
-    $('.countdown').text(remaining + ' characters remaining.');
 }
 
 // Render events
@@ -302,7 +294,7 @@ function editEvent(elem) {
 
   var form = $("#event_form");
   form.find('input[name="title"]').val(event.title);
-  form.find('input[name="description"]').val(event.description);
+  form.find('textarea[name="description"]').val(event.description);
   form.find('input[name="startDate"]').val(startDateTime);
   //form.find('input[name="endDate"]').val(event.endDate);
   form.find('input[name="location"]').val(event.location);
@@ -311,6 +303,7 @@ function editEvent(elem) {
   form.find('select[name="calendarId"]').val(event.calendarId);
 }
 
+// Adds extra fields into event form
 function formatEventForm(formObj) {
   var regex = new RegExp('/', "g");
   formObj["startTime"] = formObj["startDate"].split(" ")[1];
@@ -318,4 +311,10 @@ function formatEventForm(formObj) {
   formObj["endTime"] = formObj["endDate"].split(" ")[1];
   formObj["endDate"] = formObj["endDate"].split(" ")[0].replace(regex, '-');
   formObj["timezone"] = jstz.determine().name();
+}
+
+// Updates description left characters
+function updateCountdown() {
+    var remaining = 255 - $('#event_form textarea[name="description"]').val().length;
+    $('.countdown').text(remaining + ' characters remaining.');
 }

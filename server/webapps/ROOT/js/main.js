@@ -2,9 +2,6 @@ var app = {joined:{}};
 
 // DOCUMENT READY
 $(function() {
-  // Render calendar from yesterday
-  updateCalendarDates(yesterday());
-
   // Bind refresh button
   $("#b_refresh").click(refreshEvents);
   
@@ -12,7 +9,6 @@ $(function() {
   $("#b_hide_weekend").click(function(){
     // TODO: check if this train reck is the only way to do this
     var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
-    console.log(sat_index);
     var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
     $(this).parent().toggleClass("active");
     $(selector).toggle();
@@ -75,13 +71,13 @@ $(function() {
   // Bind previous and next day button
   $("#prev_day").click(function() {
     // advance date by 1
-    app.current_start_date.setDate(app.current_start_date.getDate() - 1);
+    app.current_start_date.setDate(app.current_start_date.getDate() - 7);
     refreshEvents();
   });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
-    app.current_start_date.setDate(app.current_start_date.getDate() + 1);
+    app.current_start_date.setDate(app.current_start_date.getDate() + 7);
     refreshEvents();
   });
   
