@@ -143,6 +143,13 @@ function renderEvents() {
     $(this).empty();
   });
   
+  // Sort events because back-end doesn't
+  // TODO: check sorting
+  app.events.sort(function(a,b) {
+    // Something like
+    var aDate = new Date(a.startDate + ' ' + a.startTime);
+    var bDate = new Date(b.startDate + ' ' + b.startTime);
+  });
   // Rerender active calendars' events
   $.each(app.events, function(index, event) {
     if (active_calendars.indexOf(event.calendarId) >= 0) {
