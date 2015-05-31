@@ -107,7 +107,7 @@ function updateCalendarDates(startDate) {
 
   $("#t_calendar_body").children().each(function(k, elem) {
     // update data fields
-    var date = startDate.toJSON().split("T")[0];
+    var date = startDate.toLocaleDateString();
     $(elem).data("date", date);
 
     // update heading text

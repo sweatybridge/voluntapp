@@ -174,10 +174,10 @@ function createEventView(event) {
     '</div>'+
   '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).data("date") === event.startDate) {
-      var startDateTime = new Date(event.startDate + "T" + event.startTime.split("+")[0]);
-      var readableDate = formatDate(startDateTime).split(" ").reverse().join(" ");
-      var readableTime = startDateTime.toLocaleTimeString().substring(0, 5);
+    var start = new Date(event.startDateTime);
+    if ($(elem).data("date") === start.toLocaleDateString()) {
+      var readableDate = formatDate(start).split(" ").reverse().join(" ");
+      var readableTime = start.toLocaleTimeString().substring(0, 5);
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
