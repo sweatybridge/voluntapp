@@ -12,8 +12,6 @@ import java.util.TimeZone;
 
 import org.postgresql.util.PGInterval;
 
-import com.sun.org.apache.regexp.internal.recompile;
-
 /**
  * A successful response to a event request.
  */
@@ -67,18 +65,14 @@ public class EventResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public EventResponse() {
-  }
+  public EventResponse() {}
 
   /**
    * Constructs a successful event response.
    * 
-   * @param email
-   *          Email of the user response
-   * @param hashedPassword
-   *          Password found in the database
-   * @param userId
-   *          The ID of the user requests
+   * @param email Email of the user response
+   * @param hashedPassword Password found in the database
+   * @param userId The ID of the user requests
    */
   public EventResponse(String title, String description, String location,
       Calendar startDateTime, Calendar endDateTime, String max, int eventId,
@@ -99,14 +93,13 @@ public class EventResponse extends Response {
       long start = startDateTime.getTimeInMillis();
       this.sqlDate = new Date(start);
       this.sqlTime = new Time(start);
-      this.sqlDuration = new PGInterval(
-          0,
-          0,
-          endDateTime.get(Calendar.DATE) - startDateTime.get(Calendar.DATE),
-          endDateTime.get(Calendar.HOUR_OF_DAY)
-              - startDateTime.get(Calendar.HOUR_OF_DAY),
-          endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
-          0);
+      this.sqlDuration =
+          new PGInterval(0, 0, endDateTime.get(Calendar.DATE)
+              - startDateTime.get(Calendar.DATE),
+              endDateTime.get(Calendar.HOUR_OF_DAY)
+                  - startDateTime.get(Calendar.HOUR_OF_DAY),
+              endDateTime.get(Calendar.MINUTE)
+                  - startDateTime.get(Calendar.MINUTE), 0);
     }
 
   }
@@ -137,8 +130,8 @@ public class EventResponse extends Response {
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
 
     // Fill in composite fields
-    java.util.Date start = new java.util.Date(sqlDate.getTime()
-        + sqlTime.getTime());
+    java.util.Date start =
+        new java.util.Date(sqlDate.getTime() + sqlTime.getTime());
     this.startDateTime = UTC_FORMATTER.format(start).concat("Z");
     sqlDuration.add(start);
     this.endDateTime = UTC_FORMATTER.format(start).concat("Z");
@@ -151,22 +144,23 @@ public class EventResponse extends Response {
   @Override
   public String getSQLUpdate() {
     int found = 0;
-    String formatString = ((title == null || found++ == Integer.MIN_VALUE) ? ""
-        : String.format("\"%s\"=?,", TITLE_COLUMN))
-        + ((description == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?,", DESC_COLUMN))
-        + ((location == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?,", LOCATION_COLUMN))
-        + ((sqlDate == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?,", DATE_COLUMN))
-        + ((sqlTime == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?,", TIME_COLUMN))
-        + ((sqlDuration == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?,", DURATION_COLUMN))
-        + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String.format(
-            "\"%s\"=?,", MAX_ATTEDEE_COLUMN))
-        + ((!delete || found++ == Integer.MIN_VALUE) ? "" : String.format(
-            "\"%s\"=false,", ACTIVE_COLUMN));
+    String formatString =
+        ((title == null || found++ == Integer.MIN_VALUE) ? "" : String.format(
+            "\"%s\"=?,", TITLE_COLUMN))
+            + ((description == null || found++ == Integer.MIN_VALUE) ? ""
+                : String.format("\"%s\"=?,", DESC_COLUMN))
+            + ((location == null || found++ == Integer.MIN_VALUE) ? "" : String
+                .format("\"%s\"=?,", LOCATION_COLUMN))
+            + ((sqlDate == null || found++ == Integer.MIN_VALUE) ? "" : String
+                .format("\"%s\"=?,", DATE_COLUMN))
+            + ((sqlTime == null || found++ == Integer.MIN_VALUE) ? "" : String
+                .format("\"%s\"=?,", TIME_COLUMN))
+            + ((sqlDuration == null || found++ == Integer.MIN_VALUE) ? ""
+                : String.format("\"%s\"=?,", DURATION_COLUMN))
+            + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String
+                .format("\"%s\"=?,", MAX_ATTEDEE_COLUMN))
+            + ((!delete || found++ == Integer.MIN_VALUE) ? "" : String.format(
+                "\"%s\"=false,", ACTIVE_COLUMN));
     return (found == 0) ? null : String.format(
         "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=?",
         formatString.substring(0, formatString.length() - 1));

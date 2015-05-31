@@ -8,10 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.EventRequest;
-import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
+import resp.EventAdminResponse;
 import resp.EventResponse;
-import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import utils.ServletUtils;
@@ -35,7 +34,8 @@ public class EventServlet extends HttpServlet {
   }
 
   /**
-   * Given the ID of the event, return event details and all volunteer information.
+   * Given the ID of the event, return event details and all volunteer
+   * information.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -53,12 +53,8 @@ public class EventServlet extends HttpServlet {
     }
     int eventId = Integer.parseInt(eid);
 
-    // create request object
-    EventSubscriptionRequest esr = new EventSubscriptionRequest();
-    esr.setEventId(eventId);
-
     try {
-      EventSubscriptionResponse resp = db.getEventSubscription(esr);
+      EventAdminResponse resp = db.getEventAttendees(eventId);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -74,8 +70,8 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq = gson.fromJson(request.getReader(),
-        EventRequest.class);
+    EventRequest eventReq =
+        gson.fromJson(request.getReader(), EventRequest.class);
 
     if (!eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -101,8 +97,8 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq = gson.fromJson(request.getReader(),
-        EventRequest.class);
+    EventRequest eventReq =
+        gson.fromJson(request.getReader(), EventRequest.class);
 
     if (!eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(),

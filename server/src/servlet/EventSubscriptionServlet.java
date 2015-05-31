@@ -36,10 +36,23 @@ public class EventSubscriptionServlet extends HttpServlet {
   // TODO: THIS IS ALL UNTESTED
 
   /**
-   * Given the ID of an event, return the number of people attending the event.
+   * Given the ID of the user (retrieved from the attribute of the request) get
+   * the IDs of the events to which the user subscribed.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    int userId = ServletUtils.getUserId(request);
+    if (userId == 0) {
+      return;
+    }
+    Response subResp;
+    try {
+      subResp = db.getUsersEvents(userId);
+    } catch (SQLException | InconsistentDataException e) {
+      subResp = new ErrorResponse("Error while retirieving the calendar IDs "
+          + "from the database." + e.getMessage());
+    }
+    request.setAttribute(Response.class.getSimpleName(), subResp);
   }
 
   /**

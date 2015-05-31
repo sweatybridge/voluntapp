@@ -21,6 +21,7 @@ import req.UserRequest;
 import resp.CalendarAuthResponse;
 import resp.CalendarResponse;
 import resp.CalendarSubscriptionResponse;
+import resp.EventAdminResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import resp.Response;
@@ -133,20 +134,6 @@ public class DBInterface {
   }
 
   /**
-   * Retrieve an event by its id.
-   * 
-   * @param er
-   *          EventRequest
-   * @return EventResponse
-   * @throws SQLException
-   */
-  public EventResponse getEvent(int eventId) throws SQLException {
-    EventResponse event = new EventResponse();
-    query(event);
-    return event;
-  }
-
-  /**
    * Get IDs of all calendars to which the user subscribed.
    * 
    * @param userId
@@ -156,7 +143,7 @@ public class DBInterface {
    * @throws SQLException
    * @throws InconsistentDataException
    */
-  public CalendarSubscriptionResponse getUsersCalendars(int userId)
+  public CalendarSubscriptionResponse getUsersEvents(int userId)
       throws SQLException, InconsistentDataException {
     List<CalendarResponse> cals = new ArrayList<>();
     CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
@@ -208,6 +195,45 @@ public class DBInterface {
         subReq.getUserId(), subReq.getJoinCode());
     insert(subResp);
     return subResp;
+  }
+
+  /**
+   * Get all events to which the user subscribed.
+   * 
+   * @throws SQLException
+   * @throws InconsistentDataException
+   */
+  public CalendarSubscriptionResponse getUsersCalendars(int userId)
+      throws SQLException, InconsistentDataException {
+    List<CalendarResponse> cals = new ArrayList<>();
+    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
+    Connection conn = source.getConnection();
+    try {
+      query(resp);
+      ResultSet result = resp.getResultSet();
+      while (result.next()) {
+        CalendarResponse calendar = getCalendar(new CalendarRequest(userId,
+            result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
+
+        // User is subscribed to a calendar that he doesn't have access to
+        if (calendar == CalendarResponse.NO_CALENDAR) {
+          throw new InconsistentDataException(
+              "User is no longer subscribed to this calendar.");
+        }
+
+        // Remove join code if user is not an admin
+        if (calendar.getRole() == AuthLevel.BASIC) {
+          calendar.setJoinEnabled(null);
+          calendar.setJoinCode(null);
+        }
+
+        cals.add(calendar);
+      }
+    } finally {
+      conn.close();
+    }
+    resp.setCalendars(cals);
+    return resp;
   }
 
   /**
@@ -324,7 +350,7 @@ public class DBInterface {
   }
 
   /**
-   * Gets the list of users that have signed up to an event.
+   * Gets the list of events that a user has subscribed to.
    * 
    * @param esr
    *          The request object of the event in question (only the event ID is
@@ -341,18 +367,30 @@ public class DBInterface {
    *           and the response
    */
   public EventSubscriptionResponse getEventSubscription(
-      EventSubscriptionRequest esr) throws SQLException, UserNotFoundException,
-      InconsistentDataException {
-    // Untested
+      EventSubscriptionRequest esr) {
+    return null;
+  }
+
+  /**
+   * Given an event id, returns the list of attendees, should only be called by
+   * admins of this event.
+   * 
+   * @param eventId
+   * @return
+   * @throws SQLException
+   * @throws UserNotFoundException
+   * @throws InconsistentDataException
+   */
+  public EventAdminResponse getEventAttendees(int eventId) throws SQLException,
+      UserNotFoundException, InconsistentDataException {
     List<UserResponse> userResponses = new ArrayList<>();
-    EventSubscriptionResponse response = new EventSubscriptionResponse(
-        esr.getEventId());
+    EventAdminResponse response = new EventAdminResponse(eventId);
     query(response, response.getSQLUserCount());
     List<Integer> users = response.getSubscriberList();
     for (Integer user : users) {
       userResponses.add(getUser(new UserRequest(user)));
     }
-    response.setAttenendees(userResponses);
+    response.setAttendees(userResponses);
     return response;
   }
 

@@ -6,12 +6,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventSubscriptionResponse extends Response {
+public class EventAdminResponse extends Response {
 
   public static String EID_COLUMN = "EID";
   public static String UID_COLUMN = "UID";
 
-  private List<EventResponse> pastEvents;
+  private List<UserResponse> attendees;
 
   /**
    * Fields excluded from serialisation.
@@ -23,19 +23,23 @@ public class EventSubscriptionResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public EventSubscriptionResponse() {}
+  public EventAdminResponse() {}
 
-  public EventSubscriptionResponse(int eventId, int userId) {
+  public EventAdminResponse(int eventId) {
+    this.eventId = eventId;
+  }
+
+  public EventAdminResponse(int eventId, int userId) {
     this.eventId = eventId;
     this.userId = userId;
   }
 
-  public void setPastEvents(List<EventResponse> pastEvents) {
-    this.pastEvents = pastEvents;
+  public void setAttendees(List<UserResponse> attendees) {
+    this.attendees = attendees;
   }
 
-  public List<EventResponse> getPastEvents() {
-    return pastEvents;
+  public List<UserResponse> getAttendees() {
+    return attendees;
   }
 
   @Override

@@ -3,15 +3,13 @@ package resp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
-
-import exception.InconsistentDataException;
-import exception.UserNotFoundException;
 
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
+import exception.InconsistentDataException;
+import exception.UserNotFoundException;
 
 /**
  * A successful response to a user request.
@@ -45,19 +43,15 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public UserResponse() {
-  }
+  public UserResponse() {}
 
   /**
    * Construct a successful user response with the given email, hashed password
    * and userId.
    * 
-   * @param email
-   *          Email of the user response
-   * @param hashedPassword
-   *          Password found in the database
-   * @param userId
-   *          The ID of the user requests
+   * @param email Email of the user response
+   * @param hashedPassword Password found in the database
+   * @param userId The ID of the user requests
    */
   public UserResponse(String email, String hashedPassword, int userId,
       String firstName, String lastName) {
@@ -119,14 +113,15 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   @Override
   public String getSQLUpdate() {
     int found = 0;
-    String formatString = ((email == null || found++ == Integer.MIN_VALUE) ? ""
-        : String.format("\"%s\"=?;", EMAIL_COLUMN))
-        + ((firstName == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?;", FIRST_NAME_COLUMN))
-        + ((lastName == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?;", LAST_NAME_COLUMN))
-        + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
-            : String.format("\"%s\"=?;", PASSWORD_COLUMN));
+    String formatString =
+        ((email == null || found++ == Integer.MIN_VALUE) ? "" : String.format(
+            "\"%s\"=?;", EMAIL_COLUMN))
+            + ((firstName == null || found++ == Integer.MIN_VALUE) ? ""
+                : String.format("\"%s\"=?;", FIRST_NAME_COLUMN))
+            + ((lastName == null || found++ == Integer.MIN_VALUE) ? "" : String
+                .format("\"%s\"=?;", LAST_NAME_COLUMN))
+            + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
+                : String.format("\"%s\"=?;", PASSWORD_COLUMN));
     return (found == 0) ? null : String.format(
         "UPDATE public.\"USER\" SET %s WHERE \"ID\"=?",
         formatString.substring(0, formatString.length() - 1));
