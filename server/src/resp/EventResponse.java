@@ -13,6 +13,8 @@ import java.util.TimeZone;
 import org.apache.commons.validator.routines.CalendarValidator;
 import org.postgresql.util.PGInterval;
 
+import com.sun.org.apache.regexp.internal.recompile;
+
 /**
  * A successful response to a event request.
  */
@@ -42,7 +44,7 @@ public class EventResponse extends Response {
   private String startDateTime;
   private String endDateTime;
   private int currentCount = -1;
-  private int max = -1;
+  private int max = -2;
   private boolean hasJoined = false;
 
   /**
@@ -87,21 +89,26 @@ public class EventResponse extends Response {
     this.eventId = eventId;
     this.calendarId = calendarId;
     if (max == null) {
-      this.max = -1;
+      this.max = -2;
     } else {
       this.max = Integer.parseInt(max);
     }
 
     // Parse calendar to sql date time and pginterval for storage
-    long start = startDateTime.getTimeInMillis();
-    this.sqlDate = new Date(start);
-    this.sqlTime = new Time(start);
-    this.sqlDuration = new PGInterval(0, 0, endDateTime.get(Calendar.DATE)
-        - startDateTime.get(Calendar.DATE),
-        endDateTime.get(Calendar.HOUR_OF_DAY)
-            - startDateTime.get(Calendar.HOUR_OF_DAY),
-        endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
-        0);
+    if (startDateTime != null) {
+      long start = startDateTime.getTimeInMillis();
+      this.sqlDate = new Date(start);
+      this.sqlTime = new Time(start);
+      this.sqlDuration = new PGInterval(
+          0,
+          0,
+          endDateTime.get(Calendar.DATE) - startDateTime.get(Calendar.DATE),
+          endDateTime.get(Calendar.HOUR_OF_DAY)
+              - startDateTime.get(Calendar.HOUR_OF_DAY),
+          endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
+          0);
+    }
+
   }
 
   /**
@@ -145,39 +152,50 @@ public class EventResponse extends Response {
   public String getSQLUpdate() {
     int found = 0;
     String formatString = ((title == null || found++ == Integer.MIN_VALUE) ? ""
-        : "\"" + TITLE_COLUMN + "\"='" + title + "',")
-        + ((description == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DESC_COLUMN + "\"='" + description.replace("\'", "\'\'") + "',")
-        + ((location == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + LOCATION_COLUMN + "\"='" + location.replace("\'", "\'\'") + "',")
-        + ((startDate == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DATE_COLUMN + "\"='" + startDate.replace("\'", "\'\'") + "',")
-        + ((startTime == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + TIME_COLUMN + "\"='" + startTime.replace("\'", "\'\'") + "',")
-        + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DURATION_COLUMN + "\"='" + duration.replace("\'", "\'\'") + "',")
-        + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + MAX_ATTEDEE_COLUMN + "\"=" + max + ",")
-        + ((!delete || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + ACTIVE_COLUMN + "\"" + "=false,");
+        : String.format("\"%s\"=?,", TITLE_COLUMN))
+        + ((description == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?,", DESC_COLUMN))
+        + ((location == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?,", LOCATION_COLUMN))
+        + ((sqlDate == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?,", DATE_COLUMN))
+        + ((sqlTime == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?,", TIME_COLUMN))
+        + ((sqlDuration == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?,", DURATION_COLUMN))
+        + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String.format(
+            "\"%s\"=?,", MAX_ATTEDEE_COLUMN))
+        + ((!delete || found++ == Integer.MIN_VALUE) ? "" : String.format(
+            "\"%s\"=false,", ACTIVE_COLUMN));
     return (found == 0) ? null : String.format(
-        "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=%d",
-        formatString.substring(0, formatString.length() - 1), eventId);
+        "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=?",
+        formatString.substring(0, formatString.length() - 1));
+  }
+
+  @Override
+  public void formatSQLUpdate(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    if (title != null)
+      prepared.setString(i++, escape(title));
+    if (description != null)
+      prepared.setString(i++, escape(description));
+    if (location != null)
+      prepared.setString(i++, escape(location));
+    if (sqlDate != null)
+      prepared.setDate(i++, sqlDate);
+    if (sqlTime != null)
+      prepared.setTime(i++, sqlTime);
+    if (sqlDuration != null)
+      prepared.setObject(i++, sqlDuration);
+    if (max != -2)
+      prepared.setInt(i++, max);
+    prepared.setInt(i++, eventId);
   }
 
   @Override
   public void checkResult(int rowsAffected) {
     // TODO Auto-generated method stub
   }
-
-  /*
-   * @Override public String getSQLInsert() { return String .format(
-   * "WITH x AS (INSERT INTO public.\"EVENT\" VALUES (DEFAULT, '%s', '%s', '%s', '%s', '%s', '%s', %s, true) RETURNING \"EID\") INSERT INTO public.\"CALENDAR_EVENT\" SELECT %d,\"EID\" FROM x;"
-   * , title.replace("\'", "\'\'"), description.replace("\'", "\'\'"),
-   * location.replace("\'", "\'\'"), startDate.replace("\'", "\'\'"), (startTime
-   * == null) ? "DEFAULT" : startTime.replace("\'", "\'\'"), (duration == null)
-   * ? "DEFAULT" : duration.replace("\'", "\'\'"), max, calendarId); }
-   */
 
   @Override
   public String getSQLInsert() {
@@ -190,29 +208,17 @@ public class EventResponse extends Response {
 
   @Override
   public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
-    prepared.setString(1, escape(title));
-    prepared.setString(2, escape(description));
-    prepared.setString(3, escape(location));
     Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    prepared.setDate(4, sqlDate, utc);
-    // TODO: might want to support event without start time (whole day event)
-    if (sqlTime == null) {
-      if (sqlDuration == null) {
-        prepared.setInt(5, max);
-      } else {
-        prepared.setObject(5, sqlDuration);
-        prepared.setInt(6, max);
-      }
-    } else {
-      if (sqlDuration == null) {
-        prepared.setTime(5, sqlTime, utc);
-        prepared.setInt(6, max);
-      } else {
-        prepared.setTime(5, sqlTime, utc);
-        prepared.setObject(6, sqlDuration);
-        prepared.setInt(7, max);
-      }
-    }
+    int i = 1;
+    prepared.setString(i++, escape(title));
+    prepared.setString(i++, escape(description));
+    prepared.setString(i++, escape(location));
+    prepared.setDate(i++, sqlDate, utc);
+    if (sqlTime != null)
+      prepared.setTime(i++, sqlTime, utc);
+    if (sqlDuration != null)
+      prepared.setObject(i++, sqlDuration);
+    prepared.setInt(i++, max);
   }
 
   @Override

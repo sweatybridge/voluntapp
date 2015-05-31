@@ -203,6 +203,7 @@ public class CalendarServlet extends HttpServlet {
     } catch (NumberFormatException e) {
       result = new ErrorResponse("One of the specified dates was invalid.");
     } catch (SQLException e) {
+      e.printStackTrace();
       result = new ErrorResponse(
           "Database error occured while updating the calendar.");
     } catch (InconsistentDataException e) {

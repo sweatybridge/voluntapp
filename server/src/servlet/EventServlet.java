@@ -136,6 +136,7 @@ public class EventServlet extends HttpServlet {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "No event with specified event ID exists in the database."));
       } catch (SQLException e) {
+        e.printStackTrace();
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "Error while deleting the data from the database."));
       } catch (InconsistentDataException e) {

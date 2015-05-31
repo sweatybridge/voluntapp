@@ -44,15 +44,6 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
     this.calendars = calendars;
   }
 
-  /*
-   * @Override public String getSQLQuery() { return String.format("" +
-   * "SELECT \"%s\" FROM \"USER_CALENDAR\" JOIN \"CALENDAR\" " +
-   * "ON \"USER_CALENDAR\".\"%s\" = \"CALENDAR\".\"%s\"  " +
-   * "WHERE \"%s\"=%d AND \"%s\" = true;", CID_COLUMN, CID_COLUMN,
-   * CalendarResponse.CID_COLUMN, UID_COLUMN, userId,
-   * CalendarResponse.ACTIVE_COLUMN); }
-   */
-
   @Override
   public String getSQLQuery() {
     return String
@@ -79,13 +70,6 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
   public List<CalendarResponse> getCalendars() {
     return calendars;
   }
-
-  /*
-   * public String getSQLInsert() { return String.format("" +
-   * "INSERT INTO \"USER_CALENDAR\"(\"%s\",\"%s\") SELECT %d, \"ID\" " +
-   * "FROM \"CALENDAR\" WHERE \"%s\"='%s';", UID_COLUMN, CID_COLUMN, userId,
-   * CalendarResponse.JOIN_CODE_COLUMN, joinCode.replace("\'", "\'\'")); }
-   */
 
   @Override
   public String getSQLInsert() {

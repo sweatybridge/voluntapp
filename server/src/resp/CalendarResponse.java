@@ -132,21 +132,32 @@ public class CalendarResponse extends Response {
   @Override
   public String getSQLUpdate() {
     StringBuilder setUpdate = new StringBuilder();
-
-    setUpdate.append(name != null ? "\"" + CNAME_COLUMN + "\"=" + "\'" + name
-        + "\', " : "");
-    setUpdate.append(joinEnabled != null ? "\"" + JOIN_ENABLED_COLUMN + "\"="
-        + joinEnabled.toString() + ", " : "");
-    setUpdate.append(active != null ? "\"" + ACTIVE_COLUMN + "\"="
-        + active.toString() + ", " : "");
+    setUpdate.append(name != null ? String.format("\"%s\"=?,", CNAME_COLUMN)
+        : "");
+    setUpdate.append(joinEnabled != null ? String.format("\"%s\"=?,",
+        JOIN_ENABLED_COLUMN) : "");
+    setUpdate.append(active != null ? String.format("\"%s\"=?,", ACTIVE_COLUMN)
+        : "");
 
     String update = setUpdate.toString();
-    if (!update.isEmpty()) {
-      System.out.println("chuj");
-      update = update.substring(0, update.length() - 2);
+    if (update.isEmpty()) {
+      return null;
     }
+    update = update.substring(0, update.length() - 1);
     return String.format("UPDATE \"CALENDAR\" SET " + update
-        + " WHERE \"%s\"=%d;", CID_COLUMN, calendarId);
+        + " WHERE \"%s\"=?;", CID_COLUMN);
+  }
+
+  @Override
+  public void formatSQLUpdate(PreparedStatement prepare) throws SQLException {
+    int i = 1;
+    if (name != null)
+      prepare.setString(i++, escape(name));
+    if (joinEnabled != null)
+      prepare.setBoolean(i++, joinEnabled);
+    if (active != null)
+      prepare.setBoolean(i++, active);
+    prepare.setInt(i++, calendarId);
   }
 
   public List<EventResponse> getCalendarEvents() {

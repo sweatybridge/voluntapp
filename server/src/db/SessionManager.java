@@ -148,6 +148,7 @@ public class SessionManager {
     try {
       return db.deleteSession(sessionId);
     } catch (SQLException e) {
+      e.printStackTrace();
       return false;
     }
   }

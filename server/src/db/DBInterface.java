@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.RowSet;
+
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
 import req.CalendarRequest;
@@ -26,6 +28,7 @@ import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.UserResponse;
+import sql.SQLDelete;
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
@@ -323,18 +326,12 @@ public class DBInterface {
     List<UserResponse> userResponses = new ArrayList<>();
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId());
-    Connection conn = source.getConnection();
-    try {
-      Statement stmt = conn.createStatement();
-      response.setResult(stmt.executeQuery(response.getSQLUserCount()));
-      List<Integer> users = response.getSubscriberList();
-      for (Integer user : users) {
-        userResponses.add(getUser(new UserRequest(user)));
-      }
-      response.setAttenendees(userResponses);
-    } finally {
-      conn.close();
+    query(response, response.getSQLUserCount());
+    List<Integer> users = response.getSubscriberList();
+    for (Integer user : users) {
+      userResponses.add(getUser(new UserRequest(user)));
     }
+    response.setAttenendees(userResponses);
     return response;
   }
 
@@ -353,7 +350,7 @@ public class DBInterface {
       throws SQLException, InconsistentDataException {
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());
-    int rows = update(response);
+    int rows = delete(response);
     if (rows > 1) {
       throw new InconsistentDataException(
           "Deleteing an event subscription removed more than one row");
@@ -498,7 +495,7 @@ public class DBInterface {
    */
   public boolean deleteSession(String sid) throws SQLException {
     SessionResponse sr = new SessionResponse(sid, UserResponse.INVALID_USER_ID);
-    int rowsChanged = update(sr);
+    int rowsChanged = delete(sr);
     // If this it not 1 we may have a problem and wish to log it/
     return rowsChanged == 1;
   }
@@ -547,14 +544,21 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private int update(SQLUpdate query) throws SQLException {
+  private int update(SQLUpdate update, String override) throws SQLException {
     Connection conn = source.getConnection();
+    int result = 0;
     try {
-      Statement stmt = conn.createStatement();
-      String q = query.getSQLUpdate();
+      String q;
+      if (override == null) {
+        q = update.getSQLUpdate();
+      } else {
+        q = override;
+      }
       if (q != null) {
-        int result = stmt.executeUpdate(q);
-        query.checkResult(result);
+        PreparedStatement stmt = conn.prepareStatement(q);
+        update.formatSQLUpdate(stmt);
+        result = stmt.executeUpdate();
+        update.checkResult(result);
         return result;
       }
     } finally {
@@ -562,6 +566,23 @@ public class DBInterface {
     }
     // The query is pointless, return 1 to signal success
     return 1;
+  }
+
+  private int update(SQLUpdate update) throws SQLException {
+    return update(update, null);
+  }
+
+  private int delete(SQLDelete delete) throws SQLException {
+    Connection conn = source.getConnection();
+    int result = 0;
+    try {
+      PreparedStatement stmt = conn.prepareStatement(delete.getSQLDelete());
+      delete.formatSQLDelete(stmt);
+      result = stmt.executeUpdate();
+    } finally {
+      conn.close();
+    }
+    return result;
   }
 
   /**
@@ -576,11 +597,17 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private boolean query(SQLQuery query) throws SQLException {
+  private boolean query(SQLQuery query, String override) throws SQLException {
     Connection conn = source.getConnection();
     ResultSet result = null;
     try {
-      PreparedStatement stmt = conn.prepareStatement(query.getSQLQuery());
+      String q;
+      if (override == null) {
+        q = query.getSQLQuery();
+      } else {
+        q = override;
+      }
+      PreparedStatement stmt = conn.prepareStatement(q);
       query.formatSQLQuery(stmt);
       result = stmt.executeQuery();
       query.setResult(result);
@@ -588,6 +615,10 @@ public class DBInterface {
       conn.close();
     }
     return true;
+  }
+
+  private boolean query(SQLQuery query) throws SQLException {
+    return query(query, null);
   }
 
   /**
@@ -602,14 +633,8 @@ public class DBInterface {
   public boolean updateSession(int userId, String sessionId)
       throws SQLException {
     SessionResponse sr = new SessionResponse(sessionId, userId);
-    Connection conn = source.getConnection();
-    try {
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(sr.getSQLRefresh());
-    } finally {
-      conn.close();
-    }
-    return true;
+    int rows = update(sr, sr.getSQLRefresh());
+    return rows == 1;
   }
 
   /**

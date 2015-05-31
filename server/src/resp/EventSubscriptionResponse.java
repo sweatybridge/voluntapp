@@ -71,12 +71,18 @@ public class EventSubscriptionResponse extends Response {
     prepared.setInt(2, userId);
   }
 
-  // TODO: WE REALLY NEED A DELETE ONE ???
   @Override
-  public String getSQLUpdate() {
+  public String getSQLDelete() {
     return String.format(
-        "DELETE FROM \"EVENT_USER\" WHERE \"EID\"=%d AND \"UID\"=%d;", eventId,
-        userId);
+        "DELETE FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=?;", EID_COLUMN,
+        UID_COLUMN);
+  }
+
+  @Override
+  public void formatSQLDelete(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    prepared.setInt(i++, eventId);
+    prepared.setInt(i++, userId);
   }
 
   public String getSQLUserCount() {
@@ -93,17 +99,13 @@ public class EventSubscriptionResponse extends Response {
     return users;
   }
 
+  public ResultSet getResultSet() {
+    return rs;
+  }
+
   @Override
   public void setResult(ResultSet result) {
-    // TODO: Do we need this?
     rs = result;
-    try {
-      if (rs.next()) {
-        // attendees = rs.getInt("TOTAL");
-      }
-    } catch (SQLException e) {
-      System.err.println("Error while querring the EVENT_USER table.");
-    }
   }
 
   public static void main(String[] args) {

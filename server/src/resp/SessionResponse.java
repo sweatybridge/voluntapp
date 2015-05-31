@@ -62,11 +62,14 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
   }
 
   @Override
-  public String getSQLUpdate() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='")
-        .append(sessionId.replace("\'", "\'\'")).append("';");
-    return builder.toString();
+  public String getSQLDelete() {
+    return String.format("DELETE FROM \"SESSION\" WHERE \"SID\"=?;");
+  }
+
+  @Override
+  public void formatSQLDelete(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    prepared.setString(i++, escape(sessionId));
   }
 
   public boolean isFound() {

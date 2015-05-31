@@ -120,16 +120,30 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   public String getSQLUpdate() {
     int found = 0;
     String formatString = ((email == null || found++ == Integer.MIN_VALUE) ? ""
-        : "\"EMAIL\"='" + email.replace("\'", "\'\'") + "',")
-        + ((firstName == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"FIRST_NAME\"='" + firstName.replace("\'", "\'\'") + "',")
-        + ((lastName == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"LAST_NAME\"='" + lastName.replace("\'", "\'\'") + "',")
+        : String.format("\"%s\"=?;", EMAIL_COLUMN))
+        + ((firstName == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?;", FIRST_NAME_COLUMN))
+        + ((lastName == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?;", LAST_NAME_COLUMN))
         + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"PASSWORD\"='" + hashedPassword.replace("\'", "\'\'") + "',");
+            : String.format("\"%s\"=?;", PASSWORD_COLUMN));
     return (found == 0) ? null : String.format(
-        "UPDATE public.\"USER\" SET %s WHERE \"ID\"=%d",
-        formatString.substring(0, formatString.length() - 1), userId);
+        "UPDATE public.\"USER\" SET %s WHERE \"ID\"=?",
+        formatString.substring(0, formatString.length() - 1));
+  }
+
+  @Override
+  public void formatSQLUpdate(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    if (email != null)
+      prepared.setString(i++, escape(email));
+    if (firstName != null)
+      prepared.setString(i++, escape(firstName));
+    if (lastName != null)
+      prepared.setString(i++, lastName);
+    if (hashedPassword != null)
+      prepared.setString(i++, escape(hashedPassword));
+    prepared.setInt(i++, userId);
   }
 
   public String getEmail() {
