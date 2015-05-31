@@ -71,6 +71,7 @@ function refreshCalendars() {
   $.get("/api/subscription/calendar", function(data) {
     app.calendars = data.calendars;
     if (data.calendars.length < 1) {
+      $('#nav_create_tabs a:last').tab('show');
       return;
     }
     $("#d_user_calendars").empty();
