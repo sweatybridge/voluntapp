@@ -70,12 +70,19 @@ function refreshCalendars() {
 </div>';
   $.get("/api/subscription/calendar", function(data) {
     app.calendars = data.calendars;
+    // Clean current visible data
+    $("#d_user_calendars").html("It seems like you haven't joined to or created any calendars...");
+    $("#select_calendar").empty();
+    
+    // Check if there is any calendars returned
     if (data.calendars.length < 1) {
       $('#nav_create_tabs a:last').tab('show');
       return;
     }
+    
+    // We got calendars, clear division to repopulate
     $("#d_user_calendars").empty();
-    $("#select_calendar").empty();
+    // If there is any, create calendar elements
     $.each(data.calendars, function(index, calendar) {
       var cal_div = $(cal_html.replace("{{id}}", calendar.calendarId)
          .replace("{{name}}", calendar.name)
@@ -107,7 +114,7 @@ function refreshCalendars() {
       }
     });
     // Refresh events for the calendars
-    $("#d_user_calendars input").first().prop("checked", "true");
+    $("#d_user_calendars input").first().prop("checked", "true").change();
     refreshEvents();
   });
 }
