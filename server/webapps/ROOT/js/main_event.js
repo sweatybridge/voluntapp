@@ -289,14 +289,16 @@ function editEvent(elem) {
   $("#btn_event_cancel").show();
 
   // unformat and populate
-  var startDateTime = event.startDate.replace("-", "/") + " " + event.startTime;
-  //console.log(event);
+  var start = new Date(event.startDateTime);
+  var pickerStart = start.toLocaleDateString() + " " + start.toLocaleTimeString().substr(0,5);
+  var end = new Date(event.endDateTime);
+  var pickerEnd = end.toLocaleDateString() + " " + end.toLocaleTimeString().substr(0,5);
 
   var form = $("#event_form");
   form.find('input[name="title"]').val(event.title);
   form.find('textarea[name="description"]').val(event.description);
-  form.find('input[name="startDate"]').val(startDateTime);
-  //form.find('input[name="endDate"]').val(event.endDate);
+  form.find('input[name="startDate"]').val(pickerStart);
+  form.find('input[name="endDate"]').val(pickerEnd);
   form.find('input[name="location"]').val(event.location);
   form.find('input[name="max"]').val(event.max);
   form.find('input[name="eventId"]').val(event.eventId);
