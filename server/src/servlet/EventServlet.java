@@ -8,16 +8,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.EventRequest;
+import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.EventResponse;
+import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SuccessResponse;
+import utils.ServletUtils;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
+import exception.UserNotFoundException;
 
 public class EventServlet extends HttpServlet {
 
@@ -35,16 +39,31 @@ public class EventServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    int eventId = Integer.parseInt(request.getPathInfo().substring(1));
-
-    Response resp;
-    try {
-      resp = db.getEvent(eventId);
-    } catch (SQLException e) {
-      resp = new ErrorResponse("Error retrieving event data.");
+    int userId = ServletUtils.getUserId(request);
+    if (userId == 0) {
+      return;
     }
 
-    request.setAttribute(Response.class.getSimpleName(), resp);
+    // Retrieve event id
+    String eid = request.getPathInfo().substring(1);
+    if (eid == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Request must follow REST convention."));
+      return;
+    }
+    int eventId = Integer.parseInt(eid);
+
+    // create request object
+    EventSubscriptionRequest esr = new EventSubscriptionRequest();
+    esr.setEventId(eventId);
+
+    try {
+      EventSubscriptionResponse resp = db.getEventSubscription(esr);
+      request.setAttribute(Response.class.getSimpleName(), resp);
+    } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Request must follow REST convention."));
+    }
   }
 
   /**

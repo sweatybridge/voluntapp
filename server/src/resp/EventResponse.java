@@ -223,8 +223,8 @@ public class EventResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    // TODO Auto-generated method stub
-    return null;
+    return String.format("SELECT * FROM \"EVENT_USER\" WHERE \"%s\"=?;",
+        EID_COLUMN);
   }
 
   @Override

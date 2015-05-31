@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
+import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import utils.ServletUtils;
@@ -19,6 +20,7 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import exception.InconsistentDataException;
 import exception.InvalidActionException;
+import exception.UserNotFoundException;
 
 public class EventSubscriptionServlet extends HttpServlet {
 
