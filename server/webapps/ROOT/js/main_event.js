@@ -1,7 +1,10 @@
 // Document Ready
 $(function() {
   // Bind datetime picker
-  $(".datetimepicker").datetimepicker();
+  // http://xdsoft.net/jqplugins/datetimepicker/
+  $(".datetimepicker").datetimepicker({
+    format: "Y-m-d H:i"
+  });
 
   // Bind edit event buttons
   $("#btn_event_save").click(function() {

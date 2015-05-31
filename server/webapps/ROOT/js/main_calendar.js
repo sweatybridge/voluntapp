@@ -76,11 +76,6 @@ function refreshCalendars() {
     $("#d_user_calendars").empty();
     $("#select_calendar").empty();
     $.each(data.calendars, function(index, calendar) {
-      $('#select_calendar')
-       .append($("<option></option>")
-       .attr("value",calendar.calendarId)
-       .text(calendar.name));
-       
       var cal_div = $(cal_html.replace("{{id}}", calendar.calendarId)
          .replace("{{name}}", calendar.name)
          .replace("{{joinCode}}", calendar.joinCode)
@@ -95,6 +90,12 @@ function refreshCalendars() {
       
       // Check calendar rights
       if (calendar.role === "admin" || calendar.role === "owner") {
+        // Update event calendar selection box
+        $('#select_calendar')
+         .append($("<option></option>")
+         .attr("value",calendar.calendarId)
+         .text(calendar.name));
+       
         cal_div.find("button").click(function() {
           var calid = $(this).parent().parent().data("calid");
           $("#d_edit_calendar input[name='name']").val(calendar.name);
