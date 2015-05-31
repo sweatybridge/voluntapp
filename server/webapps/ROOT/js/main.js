@@ -2,8 +2,17 @@ var app = {joined:{}};
 
 // DOCUMENT READY
 $(function() {
+  // Sets up request headers for all subsequent ajax calls
+  $.ajaxSetup({
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader("Authorization", getCookie("token"));
+    }
+  });
+  
   // Bind refresh button
-  $("#b_refresh").click(refreshEvents);
+  $("#b_refresh").click(refreshCalendars);
   
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
@@ -35,18 +44,8 @@ $(function() {
       error: function(data) { alert(data.responseJSON.message); }
     });
   });
-
-  // Sets up request headers for all subsequent ajax calls
-  $.ajaxSetup({
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader("Authorization", getCookie("token"));
-    }
-  });
   
   // Bind user profile buttons
-  $("#profile_form").hide();
   $("#b_update_profile").click(function() {
     $("#d_user_profile").toggle();
     $("#profile_form").toggle();
@@ -93,17 +92,6 @@ $(function() {
   // Request calendar information
   refreshCalendars();
 
-  // bind click to empty space on calendar
-  $("#t_calendar_body").children().click(function() {
-    // update create event form
-    var start = $(this).data("date")
-    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
-
-    $("#btn_event_create").show();
-    $("#btn_event_save").hide();
-    $("#btn_event_delete").hide();
-    $("#btn_event_cancel").hide();
-  });
 }); // End of document ready
 
 // Update user profile information on view
@@ -111,10 +99,10 @@ function refreshUser() {
   $.get("/api/user",
     function(data) {
       app.user = data;
-      $("[data-bind='email']").text(data.email);
-      $("[data-bind='firstName']").text(data.firstName);
-      $("[data-bind='lastName']").text(data.lastName);
-      $("[data-bind='lastSeen']").text(data.lastSeen);
+      $("[data-bind='email']").text(data.email).val(data.email);
+      $("[data-bind='firstName']").text(data.firstName).val(data.firstName);
+      $("[data-bind='lastName']").text(data.lastName).val(data.lastName);
+      $("[data-bind='lastSeen']").text(data.lastSeen).val(data.lastSeen);
   });
 }
 

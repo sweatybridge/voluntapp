@@ -91,7 +91,7 @@
                   <form role="form" id="calendar_edit_form" action="/api/calendar" method="put" autocomplete="off">
                     <p>You can change the name of the calendar, as well as enable or disable joining. The join code of a calendar is unique and cannot be changed.</p>
                     <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Name" required></div>
-                    <div class="checkbox"><label><input type="checkbox" name="allowJoin">Allow Join</label></div>
+                    <div class="checkbox"><label><input type="checkbox" name="joinEnabled" value="true">Allow Join</label></div>
                     <div class="form-group">
                       <input class="btn btn-primary" type="submit" value="Update Calendar">
                       <input id="b_cancel_calendar" type="button" class="btn btn-danger" value="Cancel">
@@ -117,11 +117,12 @@
                     <p>Last Name: <strong data-bind="lastName">[lastName]</strong></p>
                     <button id="b_update_profile" type="button" class="btn btn-info">Update</button>
                   </div>
-                  <form class="form-centre" role="form" id="profile_form" action="/api/user" method="put" autocomplete="on">
-                    <div class="form-group"><input type="email" name="email" class="form-control" placeholder="Email" autofocus required></div>
-                    <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
-                    <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
-                    <div class="form-group"><input type="password" name="curr_password" class="form-control" placeholder="Current password" required></div>
+                  <form class="form-centre" style="display: none;" role="form" id="profile_form" action="/api/user" method="put" autocomplete="on">
+                    <p>You have to change your password even if you want to only update your email or name as an extra security measure.</p>
+                    <div class="form-group"><input type="email" name="email" data-bind="email" class="form-control" placeholder="Email" autofocus required></div>
+                    <div class="form-group"><input type="text" name="firstName" data-bind="firstName" class="form-control" placeholder="First name" required></div>
+                    <div class="form-group"><input type="text" name="lastName" data-bind="lastName" class="form-control" placeholder="Last name (optional)"></div>
+                    <div class="form-group"><input type="password" name="currentPassword" class="form-control" placeholder="Current password" required></div>
                     <div class="form-group"><input type="password" name="password" class="form-control" placeholder="New password" required></div>
                     <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm new password" required></div>
                     <div class="form-group">
@@ -129,6 +130,8 @@
                       <input id="b_cancel_profile" type="button" class="btn btn-danger" value="Cancel">
                     </div>
                     <p class="form-error" id="profile_errors"></p>
+                    <p>Deleting an account will remove all your calendars and their events if there aren't any other admins on the calendar. If you don't want your calendar to be removed, promote someone to admin first before deleting your account.</p>
+                    <button id="b_delete_account" type="button" class="btn btn-danger">Delete this account</button>
                   </form>
                 </div>
               </div>
@@ -181,7 +184,7 @@
         <div id="d_right_sidebar" class="col-sm-2">
           <div id="d_right_sidebar" role="tabpanel">
             <!-- Nav tabs -->
-            <ul class="nav nav-tabs nav-justified" role="tablist">
+            <ul class="nav nav-tabs nav-justified" role="tablist" id="nav_create_tabs">
               <li role="presentation" class="active"><a href="#crt_event" aria-controls="event" role="tab" data-toggle="tab">Event</a></li>
               <li role="presentation"><a href="#crt_calendar" aria-controls="calendar" role="tab" data-toggle="tab">Calendar</a></li>
             </ul>

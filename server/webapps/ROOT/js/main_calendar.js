@@ -3,13 +3,13 @@ $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); refreshCalendars(); }, $("#calendar_create_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_create_errors"));
   });
   
   // Bind calendar joining form
   $("#calendar_follow_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); refreshCalendars(); }, $("#calendar_follow_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_follow_errors"));
   });
   
   // Bind edit calendar buttons and forms
@@ -21,7 +21,7 @@ $(function() {
   $("#b_delete_calendar").click(function() {
     var calid = $(this).parent().data("calid");
     var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
-    if(confirm("Are you sure you want to delete "+name+"?")){
+    if(confirm("Are you sure you want to delete "+name+"?")) {
       $.ajax("/api/calendar/"+calid, {
         method: "DELETE",
         success: function(data) {
@@ -38,13 +38,15 @@ $(function() {
   });
   
   $("#user_promotion_form").submit(function(e) {
-    e.preventDefault()
+    e.preventDefault();
     submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#user_promotion_errors"));
   });
   
   $("#calendar_edit_form").submit(function(e) {
-    e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#calendar_edit_errors"));
+    e.preventDefault();
+    var calid = $(this).parent().data("calid");
+    $(this).attr("action", "/api/calendar/"+calid);
+    submitAjaxForm($(this), function(data) { toastr.success("Updated calendar"); $("#b_cancel_calendar").click(); refreshCalendars(); }, $("#calendar_edit_errors"));
   });
   
   // Render calendar from yesterday
@@ -60,7 +62,7 @@ function refreshCalendars() {
       <input type="checkbox"> {{name}} \
     </label> \
   </div> \
-  <div class="calendar-extras"> \
+  <div class="calendar-extras" style="display: none;"> \
     <p>Join code: <strong>{{joinCode}}</strong></p> \
     <p>Join enabled: <strong>{{joinEnabled}}</strong></p> \
     <button type="button" class="btn btn-info">Edit</button> \
@@ -68,40 +70,58 @@ function refreshCalendars() {
 </div>';
   $.get("/api/subscription/calendar", function(data) {
     app.calendars = data.calendars;
+    // Clean current visible data
+    $("#d_user_calendars").html("It seems like you haven't joined to or created any calendars...");
+    $("#select_calendar").empty();
+    
+    // Check if there is any calendars returned
     if (data.calendars.length < 1) {
+      $('#nav_create_tabs a:last').tab('show');
       return;
     }
+    
+    // We got calendars, clear division to repopulate
     $("#d_user_calendars").empty();
-    $("#select_calendar").empty();
+    // If there is any, create calendar elements
     $.each(data.calendars, function(index, calendar) {
-      $('#select_calendar')
-       .append($("<option></option>")
-       .attr("value",calendar.calendarId)
-       .text(calendar.name));
-       
       var cal_div = $(cal_html.replace("{{id}}", calendar.calendarId)
          .replace("{{name}}", calendar.name)
          .replace("{{joinCode}}", calendar.joinCode)
          .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#d_user_calendars");
       
-      cal_div.find("input").change(refreshEvents);
-      cal_div.find("button").click(function() {
-        var calid = $(this).parent().parent().data("calid");
-        $("#d_edit_calendar input[name='name']").val(calendar.name);
-        $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
-        $("#d_user_calendars").toggle();
-        $("#d_edit_calendar").data("calid", calid).toggle();
+      cal_div.find("input").change(function() {
+        if (calendar.role === "admin" || calendar.role === "owner") {
+          cal_div.find(".calendar-extras").toggle();
+        }
+        refreshEvents();
       });
+      
+      // Check calendar rights
+      if (calendar.role === "admin" || calendar.role === "owner") {
+        // Update event calendar selection box
+        $('#select_calendar')
+         .append($("<option></option>")
+         .attr("value",calendar.calendarId)
+         .text(calendar.name));
+       
+        cal_div.find("button").click(function() {
+          var calid = $(this).parent().parent().data("calid");
+          $("#d_edit_calendar input[name='name']").val(calendar.name);
+          $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
+          $("#d_user_calendars").toggle();
+          $("#d_edit_calendar").data("calid", calid).toggle();
+        });
+      }
     });
     // Refresh events for the calendars
-    $("#d_user_calendars input").first().prop("checked", "true");
-    refreshEvents();
+    $("#d_user_calendars input").first().prop("checked", "true").change();
   });
 }
 
 // Update data-date field of calendar view from startDate
 function updateCalendarDates(startDate) {
   // TODO: Handle different time zone
+  var today = new Date();
   app.current_start_date = new Date(startDate);
   $("#prev_day").next().text(formatDate(startDate));
 
@@ -113,6 +133,11 @@ function updateCalendarDates(startDate) {
     // update heading text
     var heading = $($("#t_calendar_heading").children()[k]);
     heading.text(getWeekDay(startDate));
+    heading.addClass("bg-info");
+
+    if (date === today.toLocaleDateString()) {
+      heading.removeClass("bg-info").addClass("bg-warning");
+    }
 
     // update heading class
     heading.removeClass("th_weekend").removeClass("th_weekday");

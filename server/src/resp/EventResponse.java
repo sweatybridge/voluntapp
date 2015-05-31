@@ -91,7 +91,7 @@ public class EventResponse extends Response {
     } else {
       this.max = Integer.parseInt(max);
     }
-    
+
     // Parse calendar to sql date time and pginterval for storage
     long start = startDateTime.getTimeInMillis();
     this.sqlDate = new Date(start);
@@ -132,9 +132,9 @@ public class EventResponse extends Response {
     // Fill in composite fields
     java.util.Date start = new java.util.Date(sqlDate.getTime()
         + sqlTime.getTime());
-    this.startDateTime = UTC_FORMATTER.format(start);
+    this.startDateTime = UTC_FORMATTER.format(start).concat("Z");
     sqlDuration.add(start);
-    this.endDateTime = UTC_FORMATTER.format(start);
+    this.endDateTime = UTC_FORMATTER.format(start).concat("Z");
   }
 
   /*

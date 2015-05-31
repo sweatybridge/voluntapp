@@ -1,7 +1,10 @@
 // Document Ready
 $(function() {
   // Bind datetime picker
-  $(".datetimepicker").datetimepicker();
+  // http://xdsoft.net/jqplugins/datetimepicker/
+  $(".datetimepicker").datetimepicker({
+    format: "Y-m-d H:i"
+  });
 
   // Bind edit event buttons
   $("#btn_event_save").click(function() {
@@ -23,10 +26,7 @@ $(function() {
         toastr.success("Saved chanages to " + formObj["title"]);
         refreshEvents();
         form.trigger("reset");
-        $("#btn_event_create").show();
-        $("#btn_event_save").hide();
-        $("#btn_event_delete").hide();
-        $("#btn_event_cancel").hide();
+        turnEventCreate();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     })
@@ -34,10 +34,7 @@ $(function() {
 
   $("#btn_event_cancel").click(function() {
     $("#event_form").trigger("reset");
-    $("#btn_event_create").show();
-    $("#btn_event_save").hide();
-    $("#btn_event_delete").hide();
-    $("#btn_event_cancel").hide();
+    turnEventCreate();
   });
 
   // delete event
@@ -49,6 +46,11 @@ $(function() {
       toastr.error("Failed to read event id. Please select the event again or refresh the app.");
       return;
     }
+    
+    // User confirmation
+    if(!confirm("Are you sure you want to delete "+formObj.title+"?")) {
+      return
+    }
 
     // ajax delete
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
@@ -57,10 +59,7 @@ $(function() {
         toastr.success("Deleted event " + formObj["title"]);
         refreshEvents();
         form.trigger("reset");
-        $("#btn_event_create").show();
-        $("#btn_event_save").hide();
-        $("#btn_event_delete").hide();
-        $("#btn_event_cancel").hide();
+        turnEventCreate();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -96,6 +95,14 @@ $(function() {
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
+  });
+  
+  // bind click to empty space on calendar
+  $("#t_calendar_body").children().click(function() {
+    // update create event form
+    var start = $(this).data("date")
+    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
+    turnEventCreate();
   });
   
   // Refresh description count
@@ -144,6 +151,13 @@ function renderEvents() {
     $(this).empty();
   });
   
+  // Sort events because back-end doesn't
+  // TODO: check sorting
+  app.events.sort(function(a,b) {
+    // Something like
+    var aDate = new Date(a.startDate + ' ' + a.startTime);
+    var bDate = new Date(b.startDate + ' ' + b.startTime);
+  });
   // Rerender active calendars' events
   $.each(app.events, function(index, event) {
     if (active_calendars.indexOf(event.calendarId) >= 0) {
@@ -191,7 +205,7 @@ function createEventView(event) {
       if (event.max == -1) {
         temp = temp.replace('{{remaining}}', "&infin;");
       } else {
-        temp = temp.replace('{{remaining}}', event.max - event.currentCount);
+        temp = temp.replace('{{remaining}}', event.currentCount + "/" + event.max);
       }
       var view = $(temp);
       $(elem).append(view);
@@ -230,7 +244,7 @@ function joinEvent(elem) {
         if (event.max > -1) {
           // update remaining spots
           event.currentCount -= 1;
-          view.find(".count").text(event.max - event.currentCount);
+          view.find(".count").text(event.currentCount + "/" + event.max);
         }
         // update badge
         $(elem).removeClass("progress-bar-danger").text("Join");
@@ -262,7 +276,7 @@ function joinEvent(elem) {
         // update remaining spots
         event.currentCount += 1;
         if (event.max > -1) {
-          view.find(".count").text(event.max - event.currentCount);
+          view.find(".count").text(event.currentCount + "/" + event.max);
         }
         // update badge
         $(elem).addClass("progress-bar-danger").text("Unjoin");
@@ -279,7 +293,7 @@ function joinEvent(elem) {
 
 // Handler for editing event
 function editEvent(elem) {
-  var view = $(elem.target).closest(".event");
+  var view = $(elem).closest(".event");
   var eid = view.data("eventId");
   var event = $.grep(app.events, function(e){ return e.eventId === eid; })[0];
 
@@ -290,10 +304,7 @@ function editEvent(elem) {
   }
 
   // update event editor
-  $("#btn_event_create").hide();
-  $("#btn_event_save").show();
-  $("#btn_event_delete").show();
-  $("#btn_event_cancel").show();
+  turnEventEdit();
 
   // unformat and populate
   var start = new Date(event.startDateTime);
@@ -320,6 +331,18 @@ function formatEventForm(formObj) {
   formObj["endTime"] = formObj["endDate"].split(" ")[1];
   formObj["endDate"] = formObj["endDate"].split(" ")[0].replace(regex, '-');
   formObj["timezone"] = jstz.determine().name();
+}
+
+// Shows event create button and hide the rest
+function turnEventCreate() {
+  $("#btn_event_create").show();
+  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").hide();
+}
+
+// Shows event editing buttons and hides the create
+function turnEventEdit() {
+  $("#btn_event_create").hide();
+  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").show();
 }
 
 // Updates description left characters
