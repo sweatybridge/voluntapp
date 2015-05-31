@@ -180,7 +180,7 @@ function createEventView(event) {
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
-    '<div class="desc">{{description}}</div>'+
+    '<div class="event-extras"><div class="requirements"></div><div class="desc">{{description}}</div></div>'+
     '<div class="location">'+
       '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
     '</div>'+
@@ -193,13 +193,33 @@ function createEventView(event) {
     if ($(elem).data("date") === start.toLocaleDateString()) {
       var readableDate = formatDate(start).split(" ").reverse().join(" ");
       var readableTime = start.toLocaleTimeString().substring(0, 5);
+      
+      // Extract requirements from description
+      var lines = event.description.split("\n");
+      var requirements = [];
+      var description = [];
+      lines.forEach(function(l) {
+        console.log(l);
+        if (startsWith(l, "R-")) {
+          requirements.push(l.slice(2));
+        } else {
+          description.push(l);
+        }
+      });
+      
+      // TODO: Maybe remove trailing new lines from the description?
+      // as in ["", "desc"] or ["desc", ""]
+      description = description.join("\n");
+      
+      console.log(requirements);
+      console.log(description);
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
         .replace('{{startDate}}', readableDate)
         .replace('{{startTime}}', readableTime)
         .replace('{{title}}', event.title)
-        .replace('{{description}}', event.description)
+        .replace('{{description}}', description)
         .replace('{{location}}', event.location);
       
       if (event.max == -1) {
@@ -208,6 +228,15 @@ function createEventView(event) {
         temp = temp.replace('{{remaining}}', event.currentCount + "/" + event.max);
       }
       var view = $(temp);
+      // Add in the requirement checkboxes
+      var req_html = '<div class="checkbox"> \
+                      <label> \
+                        <input type="checkbox"> {{requirement}} \
+                      </label> \
+                    </div>';
+      requirements.forEach(function(r) {
+        view.find(".requirements").append(
+      });
       $(elem).append(view);
       if (event.hasJoined) {
         // update joined badge
