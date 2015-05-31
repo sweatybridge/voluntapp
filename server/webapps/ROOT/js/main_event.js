@@ -23,10 +23,7 @@ $(function() {
         toastr.success("Saved chanages to " + formObj["title"]);
         refreshEvents();
         form.trigger("reset");
-        $("#btn_event_create").show();
-        $("#btn_event_save").hide();
-        $("#btn_event_delete").hide();
-        $("#btn_event_cancel").hide();
+        turnEventCreate();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     })
@@ -34,10 +31,7 @@ $(function() {
 
   $("#btn_event_cancel").click(function() {
     $("#event_form").trigger("reset");
-    $("#btn_event_create").show();
-    $("#btn_event_save").hide();
-    $("#btn_event_delete").hide();
-    $("#btn_event_cancel").hide();
+    turnEventCreate();
   });
 
   // delete event
@@ -49,6 +43,11 @@ $(function() {
       toastr.error("Failed to read event id. Please select the event again or refresh the app.");
       return;
     }
+    
+    // User confirmation
+    if(!confirm("Are you sure you want to delete "+formObj.title+"?")) {
+      return
+    }
 
     // ajax delete
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
@@ -57,10 +56,7 @@ $(function() {
         toastr.success("Deleted event " + formObj["title"]);
         refreshEvents();
         form.trigger("reset");
-        $("#btn_event_create").show();
-        $("#btn_event_save").hide();
-        $("#btn_event_delete").hide();
-        $("#btn_event_cancel").hide();
+        turnEventCreate();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -96,6 +92,14 @@ $(function() {
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
+  });
+  
+  // bind click to empty space on calendar
+  $("#t_calendar_body").children().click(function() {
+    // update create event form
+    var start = $(this).data("date")
+    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
+    turnEventCreate();
   });
   
   // Refresh description count
@@ -297,10 +301,7 @@ function editEvent(elem) {
   }
 
   // update event editor
-  $("#btn_event_create").hide();
-  $("#btn_event_save").show();
-  $("#btn_event_delete").show();
-  $("#btn_event_cancel").show();
+  turnEventEdit();
 
   // unformat and populate
   var start = new Date(event.startDateTime);
@@ -327,6 +328,18 @@ function formatEventForm(formObj) {
   formObj["endTime"] = formObj["endDate"].split(" ")[1];
   formObj["endDate"] = formObj["endDate"].split(" ")[0].replace(regex, '-');
   formObj["timezone"] = jstz.determine().name();
+}
+
+// Shows event create button and hide the rest
+function turnEventCreate() {
+  $("#btn_event_create").show();
+  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").hide();
+}
+
+// Shows event editing buttons and hides the create
+function turnEventEdit() {
+  $("#btn_event_create").hide();
+  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").show();
 }
 
 // Updates description left characters

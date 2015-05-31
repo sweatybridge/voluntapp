@@ -2,6 +2,15 @@ var app = {joined:{}};
 
 // DOCUMENT READY
 $(function() {
+  // Sets up request headers for all subsequent ajax calls
+  $.ajaxSetup({
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    beforeSend: function(xhr) {
+      xhr.setRequestHeader("Authorization", getCookie("token"));
+    }
+  });
+  
   // Bind refresh button
   $("#b_refresh").click(refreshCalendars);
   
@@ -34,15 +43,6 @@ $(function() {
       success: function(data) { window.location.reload(); },
       error: function(data) { alert(data.responseJSON.message); }
     });
-  });
-
-  // Sets up request headers for all subsequent ajax calls
-  $.ajaxSetup({
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    beforeSend: function(xhr) {
-      xhr.setRequestHeader("Authorization", getCookie("token"));
-    }
   });
   
   // Bind user profile buttons
@@ -92,17 +92,6 @@ $(function() {
   // Request calendar information
   refreshCalendars();
 
-  // bind click to empty space on calendar
-  $("#t_calendar_body").children().click(function() {
-    // update create event form
-    var start = $(this).data("date")
-    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
-
-    $("#btn_event_create").show();
-    $("#btn_event_save").hide();
-    $("#btn_event_delete").hide();
-    $("#btn_event_cancel").hide();
-  });
 }); // End of document ready
 
 // Update user profile information on view

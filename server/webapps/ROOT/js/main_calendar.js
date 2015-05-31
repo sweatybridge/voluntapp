@@ -21,7 +21,7 @@ $(function() {
   $("#b_delete_calendar").click(function() {
     var calid = $(this).parent().data("calid");
     var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
-    if(confirm("Are you sure you want to delete "+name+"?")){
+    if(confirm("Are you sure you want to delete "+name+"?")) {
       $.ajax("/api/calendar/"+calid, {
         method: "DELETE",
         success: function(data) {
