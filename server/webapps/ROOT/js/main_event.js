@@ -243,6 +243,11 @@ function createEventView(event) {
       if (event.hasJoined) {
         // update joined badge
         view.find(".badge").addClass("progress-bar-danger").text("Unjoin");
+        // update requirements checkbox
+        view.find('.requirements input[type="checkbox"]').each(function(i) {
+          this.checked = true;
+          this.disabled = true;
+        });
         // update header
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
       } else if (event.max - event.currentCount == 0) {
@@ -281,6 +286,11 @@ function joinEvent(elem) {
         $(elem).removeClass("progress-bar-danger").text("Join");
         // update header
         view.find(".header").removeClass("progress-bar-success").addClass("progress-bar-info");
+        // update requirements checkbox
+        view.find('.requirements input[type="checkbox"]').each(function(i) {
+          this.checked = false;
+          this.disabled = false;
+        });
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
@@ -326,6 +336,10 @@ function joinEvent(elem) {
         $(elem).addClass("progress-bar-danger").text("Unjoin");
         // update header
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
+        // update requirements checkbox
+        view.find('.requirements input[type="checkbox"]').each(function(i) {
+          this.disabled = true;
+        });
       },
       error: function(data) {
         toastr.error("Cannot unjoin event: " + data.responseJSON.message);
