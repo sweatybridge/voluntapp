@@ -62,7 +62,7 @@ function refreshCalendars() {
       <input type="checkbox"> {{name}} \
     </label> \
   </div> \
-  <div class="calendar-extras"> \
+  <div class="calendar-extras" style="display: none;"> \
     <p>Join code: <strong>{{joinCode}}</strong></p> \
     <p>Join enabled: <strong>{{joinEnabled}}</strong></p> \
     <button type="button" class="btn btn-info">Edit</button> \
@@ -86,14 +86,23 @@ function refreshCalendars() {
          .replace("{{joinCode}}", calendar.joinCode)
          .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#d_user_calendars");
       
-      cal_div.find("input").change(refreshEvents);
-      cal_div.find("button").click(function() {
-        var calid = $(this).parent().parent().data("calid");
-        $("#d_edit_calendar input[name='name']").val(calendar.name);
-        $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
-        $("#d_user_calendars").toggle();
-        $("#d_edit_calendar").data("calid", calid).toggle();
+      cal_div.find("input").change(function() {
+        if (calendar.role === "admin" || calendar.role === "owner") {
+          cal_div.find(".calendar-extras").toggle();
+        }
+        refreshEvents();
       });
+      
+      // Check calendar rights
+      if (calendar.role === "admin" || calendar.role === "owner") {
+        cal_div.find("button").click(function() {
+          var calid = $(this).parent().parent().data("calid");
+          $("#d_edit_calendar input[name='name']").val(calendar.name);
+          $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
+          $("#d_user_calendars").toggle();
+          $("#d_edit_calendar").data("calid", calid).toggle();
+        });
+      }
     });
     // Refresh events for the calendars
     $("#d_user_calendars input").first().prop("checked", "true");

@@ -286,7 +286,7 @@ function joinEvent(elem) {
 
 // Handler for editing event
 function editEvent(elem) {
-  var view = $(elem.target).closest(".event");
+  var view = $(elem).closest(".event");
   var eid = view.data("eventId");
   var event = $.grep(app.events, function(e){ return e.eventId === eid; })[0];
 
