@@ -115,7 +115,6 @@ function refreshCalendars() {
     });
     // Refresh events for the calendars
     $("#d_user_calendars input").first().prop("checked", "true").change();
-    refreshEvents();
   });
 }
 
