@@ -7,10 +7,9 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 
-import org.apache.commons.validator.routines.CalendarValidator;
 import org.postgresql.util.PGInterval;
 
 import com.sun.org.apache.regexp.internal.recompile;
@@ -46,6 +45,7 @@ public class EventResponse extends Response {
   private int currentCount = -1;
   private int max = -2;
   private boolean hasJoined = false;
+  private Set<UserResponse> volunteers;
 
   /**
    * Other variables used by the database interface

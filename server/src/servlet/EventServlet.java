@@ -31,15 +31,20 @@ public class EventServlet extends HttpServlet {
   }
 
   /**
-   * Given the ID of the event, return all the information about the event.
+   * Given the ID of the event, return event details and all volunteer information.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int eventId = Integer.parseInt(request.getPathInfo().substring(1));
 
-    EventResponse event = db.getEvent(eventId);
+    Response resp;
+    try {
+      resp = db.getEvent(eventId);
+    } catch (SQLException e) {
+      resp = new ErrorResponse("Error retrieving event data.");
+    }
 
-    request.setAttribute(Response.class.getSimpleName(), event);
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
   /**

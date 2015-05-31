@@ -6,10 +6,14 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
+import utils.AuthLevel;
+
 /**
  * A successful response to a calendar request.
  */
 public class CalendarResponse extends Response {
+
+  public static final CalendarResponse NO_CALENDAR = new CalendarResponse();
 
   public static String CID_COLUMN = "ID";
   public static String CNAME_COLUMN = "NAME";
@@ -201,8 +205,20 @@ public class CalendarResponse extends Response {
     events.add(event);
   }
 
+  public AuthLevel getRole() {
+    return AuthLevel.getAuth(role);
+  }
+
+  public void setJoinCode(String joinCode) {
+    this.joinCode = joinCode;
+  }
+
   public static void main(String[] args) {
     CalendarResponse resp = new CalendarResponse("dupa", true, 123, "acd");
     System.out.println(resp.getSQLUpdate());
+  }
+
+  public void setJoinEnabled(Boolean joinEnabled) {
+    this.joinEnabled = joinEnabled;
   }
 }

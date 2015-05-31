@@ -180,7 +180,7 @@ function createEventView(event) {
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
-    '<div class="desc">{{description}}</div>'+
+    '<div class="event-extras"><div class="desc">{{description}}</div><div class="requirements"></div></div>'+
     '<div class="location">'+
       '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
     '</div>'+
@@ -193,13 +193,30 @@ function createEventView(event) {
     if ($(elem).data("date") === start.toLocaleDateString()) {
       var readableDate = formatDate(start).split(" ").reverse().join(" ");
       var readableTime = start.toLocaleTimeString().substring(0, 5);
+      
+      // Extract requirements from description
+      var lines = event.description.split("\n");
+      var requirements = [];
+      var description = [];
+      lines.forEach(function(l) {
+        if (startsWith(l, "R-")) {
+          requirements.push(l.slice(2));
+        } else {
+          description.push(l);
+        }
+      });
+      
+      // TODO: Maybe remove trailing new lines from the description?
+      // as in ["", "desc"] or ["desc", ""]
+      description = description.join("\n");
+      
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
         .replace('{{startDate}}', readableDate)
         .replace('{{startTime}}', readableTime)
         .replace('{{title}}', event.title)
-        .replace('{{description}}', event.description)
+        .replace('{{description}}', description)
         .replace('{{location}}', event.location);
       
       if (event.max == -1) {
@@ -207,11 +224,30 @@ function createEventView(event) {
       } else {
         temp = temp.replace('{{remaining}}', event.currentCount + "/" + event.max);
       }
+      
       var view = $(temp);
+      
+      // Add in the requirement checkboxes
+      var req_html = '<div class="checkbox"> \
+                      <label> \
+                        <input type="checkbox"> {{requirement}} \
+                      </label> \
+                    </div>';
+      requirements.forEach(function(r) {
+        var req_checkbox = $(req_html.replace("{{requirement}}", r));
+        view.find(".requirements").append(req_checkbox);
+      });
+      
+      // Append the view to the actual td
       $(elem).append(view);
       if (event.hasJoined) {
         // update joined badge
         view.find(".badge").addClass("progress-bar-danger").text("Unjoin");
+        // update requirements checkbox
+        view.find('.requirements input[type="checkbox"]').each(function(i) {
+          this.checked = true;
+          this.disabled = true;
+        });
         // update header
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
       } else if (event.max - event.currentCount == 0) {
@@ -250,6 +286,11 @@ function joinEvent(elem) {
         $(elem).removeClass("progress-bar-danger").text("Join");
         // update header
         view.find(".header").removeClass("progress-bar-success").addClass("progress-bar-info");
+        // update requirements checkbox
+        view.find('.requirements input[type="checkbox"]').each(function(i) {
+          this.checked = false;
+          this.disabled = false;
+        });
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
@@ -266,6 +307,19 @@ function joinEvent(elem) {
       toastr.error("Joining for " + event.title + " is disabled");
       return;
     }
+    
+    // Satisfy all requirements if there are any
+    var filledReqs = true;
+    view.find('.requirements input[type="checkbox"]').each(function(i) {
+      filledReqs = filledReqs && this.checked;
+    });
+    
+    if (!filledReqs) {
+      toastr.error("You haven't checked all requirements for " + event.title);
+      return;
+    }
+    
+    // Everything is fine, join the party
     $.ajax("/api/subscription/event", {
       method: "POST",
       data: JSON.stringify({eventId: eid}),
@@ -282,6 +336,10 @@ function joinEvent(elem) {
         $(elem).addClass("progress-bar-danger").text("Unjoin");
         // update header
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
+        // update requirements checkbox
+        view.find('.requirements input[type="checkbox"]').each(function(i) {
+          this.disabled = true;
+        });
       },
       error: function(data) {
         toastr.error("Cannot unjoin event: " + data.responseJSON.message);

@@ -92,3 +92,13 @@ function validateUpdate(form) {
 function hasError(name) {
   return (name.search(/[^A-Za-z\s]/) != -1);
 }
+
+// Check if strA startsWith strB
+function startsWith(strA, strB) {
+  return strA.slice(0, strB.length) == strB;
+}
+
+// Check if strA endsWith strB
+function endsWith(strA, strB) {
+  return strA.slice(-strB.length) == strB;
+}
