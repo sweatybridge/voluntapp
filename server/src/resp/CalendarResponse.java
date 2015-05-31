@@ -181,6 +181,10 @@ public class CalendarResponse extends Response {
     return AuthLevel.getAuth(role);
   }
 
+  public void setJoinCode(String joinCode) {
+    this.joinCode = joinCode;
+  }
+
   public static void main(String[] args) {
     CalendarResponse resp = new CalendarResponse("dupa", true, 123, "acd");
     System.out.println(resp.getSQLUpdate());

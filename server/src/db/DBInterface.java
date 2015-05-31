@@ -166,13 +166,18 @@ public class DBInterface {
         CalendarResponse calendar =
             getCalendar(new CalendarRequest(userId,
                 result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
-        
+
         // User is subscribed to a calendar that he doesn't have access to
         if (calendar == CalendarResponse.NO_CALENDAR) {
           throw new InconsistentDataException(
               "User is no longer subscribed to this calendar.");
         }
-        
+
+        // Remove join code if user is not an admin
+        if (calendar.getRole() == AuthLevel.BASIC) {
+          calendar.setJoinCode(null);
+        }
+
         cals.add(calendar);
       }
     } finally {
