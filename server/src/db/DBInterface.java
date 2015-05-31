@@ -146,14 +146,16 @@ public class DBInterface {
   public CalendarSubscriptionResponse getUsersEvents(int userId)
       throws SQLException, InconsistentDataException {
     List<CalendarResponse> cals = new ArrayList<>();
-    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
+    CalendarSubscriptionResponse resp =
+        new CalendarSubscriptionResponse(userId);
     Connection conn = source.getConnection();
     try {
       query(resp);
       ResultSet result = resp.getResultSet();
       while (result.next()) {
-        CalendarResponse calendar = getCalendar(new CalendarRequest(userId,
-            result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
+        int eventId = result.getInt(CalendarSubscriptionResponse.CID_COLUMN);
+        CalendarResponse calendar =
+            getCalendar(new CalendarRequest(userId, eventId));
 
         // User is subscribed to a calendar that he doesn't have access to
         if (calendar == CalendarResponse.NO_CALENDAR) {
@@ -367,7 +369,13 @@ public class DBInterface {
    *           and the response
    */
   public EventSubscriptionResponse getEventSubscription(
-      EventSubscriptionRequest esr) {
+      EventSubscriptionRequest esr) throws SQLException {
+    EventSubscriptionResponse eresp =
+        new EventSubscriptionResponse(esr.getUserId(), esr.getEventId());
+    
+    query(eresp);
+    
+    
     return null;
   }
 
@@ -385,12 +393,16 @@ public class DBInterface {
       UserNotFoundException, InconsistentDataException {
     List<UserResponse> userResponses = new ArrayList<>();
     EventAdminResponse response = new EventAdminResponse(eventId);
-    query(response, response.getSQLUserCount());
+    
+    query(response);
+    
+    // Retrieve user details based on user id
     List<Integer> users = response.getSubscriberList();
     for (Integer user : users) {
       userResponses.add(getUser(new UserRequest(user)));
     }
     response.setAttendees(userResponses);
+    
     return response;
   }
 

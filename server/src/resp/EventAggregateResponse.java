@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventAdminResponse extends Response {
+public class EventAggregateResponse extends Response {
 
   private List<UserResponse> attendees;
 
@@ -19,9 +19,9 @@ public class EventAdminResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public EventAdminResponse() {}
+  public EventAggregateResponse() {}
 
-  public EventAdminResponse(int eventId) {
+  public EventAggregateResponse(int eventId) {
     this.eventId = eventId;
   }
 

@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import req.EventRequest;
 import resp.ErrorResponse;
-import resp.EventAdminResponse;
 import resp.EventResponse;
 import resp.Response;
 import resp.SuccessResponse;
@@ -35,12 +34,13 @@ public class EventServlet extends HttpServlet {
 
   /**
    * Given the ID of the event, return event details and all volunteer
-   * information.
+   * information if the user is admin, otherwise unauthorized access.
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int userId = ServletUtils.getUserId(request);
     if (userId == 0) {
+      // response.setStatus(HttpURLConnection.HTTP_UNAUTHORIZED);
       return;
     }
 
@@ -53,13 +53,14 @@ public class EventServlet extends HttpServlet {
     }
     int eventId = Integer.parseInt(eid);
 
+    Response resp;
     try {
-      EventAdminResponse resp = db.getEventAttendees(eventId);
-      request.setAttribute(Response.class.getSimpleName(), resp);
+      resp = db.getEventAttendees(eventId);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Request must follow REST convention."));
+      resp = new ErrorResponse("Request must follow REST convention.");
     }
+
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
   /**

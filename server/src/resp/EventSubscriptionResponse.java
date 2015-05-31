@@ -3,7 +3,6 @@ package resp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class EventSubscriptionResponse extends Response {
@@ -25,9 +24,9 @@ public class EventSubscriptionResponse extends Response {
    */
   public EventSubscriptionResponse() {}
 
-  public EventSubscriptionResponse(int eventId, int userId) {
-    this.eventId = eventId;
+  public EventSubscriptionResponse(int userId, int eventId) {
     this.userId = userId;
+    this.eventId = eventId;
   }
 
   public void setPastEvents(List<EventResponse> pastEvents) {
@@ -79,20 +78,6 @@ public class EventSubscriptionResponse extends Response {
     int i = 1;
     prepared.setInt(i++, eventId);
     prepared.setInt(i++, userId);
-  }
-
-  public String getSQLUserCount() {
-    return String.format(
-        "SELECT (\"UID\") FROM \"EVENT_USER\" WHERE \"EID\" = %d;", eventId);
-  }
-
-  public List<Integer> getSubscriberList() throws SQLException {
-    // Untested
-    List<Integer> users = new ArrayList<>();
-    while (rs.next()) {
-      users.add(rs.getInt(UID_COLUMN));
-    }
-    return users;
   }
 
   public ResultSet getResultSet() {
