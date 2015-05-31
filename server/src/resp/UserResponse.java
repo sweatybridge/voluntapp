@@ -1,7 +1,9 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 
 import exception.InconsistentDataException;
@@ -21,7 +23,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   private static final String PASSWORD_COLUMN = "PASSWORD";
   private static final String FIRST_NAME_COLUMN = "FIRST_NAME";
   private static final String LAST_NAME_COLUMN = "LAST_NAME";
-  private static final String ID_COLUMN = "ID";
+  public static final String ID_COLUMN = "ID";
   private static final String LAST_SEEN_COLUMN = "LAST_SEEN";
   public static final int INVALID_USER_ID = -1;
 
@@ -77,18 +79,41 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM public.\"USER\" WHERE \"%s\"='%s';",
-        (email == null) ? ID_COLUMN : EMAIL_COLUMN, (email == null) ? userId
-            : email.replace("\'", "\'\'"));
+    return String.format("SELECT * FROM public.\"USER\" WHERE \"%s\"=?;",
+        (email == null) ? ID_COLUMN : EMAIL_COLUMN);
   }
 
   @Override
+  public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
+    if (email == null) {
+      prepared.setInt(1, userId);
+    } else {
+      prepared.setString(1, email.replace("\'", "\'\'"));
+    }
+  }
+
+  /*
+   * @Override public String getSQLInsert() { return
+   * "INSERT INTO public.\"USER\" VALUES(DEFAULT, '" + email.replace("\'",
+   * "\'\'") + "','" + hashedPassword.replace("\'", "\'\'") + "','" +
+   * firstName.replace("\'", "\'\'") + "','" + lastName.replace("\'", "\'\'") +
+   * "', DEFAULT);"; }
+   */
+
+  @Override
   public String getSQLInsert() {
-    return "INSERT INTO public.\"USER\" VALUES(DEFAULT, '"
-        + email.replace("\'", "\'\'") + "','"
-        + hashedPassword.replace("\'", "\'\'") + "','"
-        + firstName.replace("\'", "\'\'") + "','"
-        + lastName.replace("\'", "\'\'") + "', DEFAULT);";
+    return String
+        .format(
+            "INSERT INTO public.\"USER\" (\"%s\", \"%s\", \"%s\", \"%s\") VALUES(?, ?, ?, ?);",
+            EMAIL_COLUMN, PASSWORD_COLUMN, FIRST_NAME_COLUMN, LAST_NAME_COLUMN);
+  }
+
+  @Override
+  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
+    prepared.setString(1, email.replace("\'", "\'\'"));
+    prepared.setString(2, hashedPassword.replace("\'", "\'\'"));
+    prepared.setString(3, firstName.replace("\'", "\'\'"));
+    prepared.setString(4, lastName.replace("\'", "\'\'"));
   }
 
   @Override

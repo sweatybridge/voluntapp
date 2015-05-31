@@ -80,6 +80,7 @@ public class SessionServlet extends HttpServlet {
 
       } catch (SQLException | InconsistentDataException
           | PasswordHashFailureException e) {
+        e.printStackTrace();
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "Something really bad has happened."));
         return;
@@ -114,7 +115,8 @@ public class SessionServlet extends HttpServlet {
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {}
+      throws IOException {
+  }
 
   /**
    * Logs out the user and remove its session.
@@ -123,9 +125,8 @@ public class SessionServlet extends HttpServlet {
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    SessionResponse session =
-        (SessionResponse) request.getAttribute(SessionResponse.class
-            .getSimpleName());
+    SessionResponse session = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
 
     Response resp = invalidateSession(session);
 

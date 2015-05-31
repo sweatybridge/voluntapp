@@ -50,8 +50,8 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq =
-        gson.fromJson(request.getReader(), EventRequest.class);
+    EventRequest eventReq = gson.fromJson(request.getReader(),
+        EventRequest.class);
 
     if (!eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -63,6 +63,7 @@ public class EventServlet extends HttpServlet {
       EventResponse resp = db.putEvent(eventReq);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
+      e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error occurred while adding a new event to the database."));
     }
@@ -76,8 +77,8 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq =
-        gson.fromJson(request.getReader(), EventRequest.class);
+    EventRequest eventReq = gson.fromJson(request.getReader(),
+        EventRequest.class);
 
     if (!eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(),
@@ -92,8 +93,8 @@ public class EventServlet extends HttpServlet {
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
         } else {
-          request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
-              "Event data were updated successfully."));
+          request.setAttribute(Response.class.getSimpleName(),
+              new SuccessResponse("Event data were updated successfully."));
         }
       } catch (NumberFormatException e) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -123,9 +124,9 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    
+
     String eventId = request.getPathInfo().substring(1);
-    
+
     if (eventId != null) {
       try {
         db.deleteEvent(Integer.parseInt(eventId));
@@ -143,8 +144,8 @@ public class EventServlet extends HttpServlet {
                 + "more than one row was deleted."));
       }
     } else {
-      request.setAttribute(Response.class.getSimpleName(), 
-          new ErrorResponse("No event ID was specified."));
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No event ID was specified."));
     }
   }
 
