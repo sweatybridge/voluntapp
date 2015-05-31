@@ -136,10 +136,12 @@ public class DBInterface {
    * @param er
    *          EventRequest
    * @return EventResponse
+   * @throws SQLException 
    */
-  public EventResponse getEvent(int eventId) {
-    // TODO: implement this
-    return new EventResponse();
+  public EventResponse getEvent(int eventId) throws SQLException {
+    EventResponse event = new EventResponse();
+    query(event);
+    return event;
   }
 
   /**

@@ -5,10 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.Set;
 
-import org.apache.commons.validator.routines.CalendarValidator;
 import org.postgresql.util.PGInterval;
 
 /**
@@ -36,12 +34,13 @@ public class EventResponse extends Response {
   private String title;
   private String description;
   private String location;
-  private String duration; // HH:mm:ss
+  private String duration; // HH:mm
   private String startDateTime;
   private String endDateTime;
   private int currentCount = -1;
   private int max = -1;
   private boolean hasJoined = false;
+  private Set<UserResponse> volunteers;
 
   /**
    * Other variables used by the database interface
