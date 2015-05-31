@@ -121,7 +121,7 @@ public class DBInterface {
         request.getUserId());
     query(result);
 
-    // Role based authentication 
+    // Role based authentication
     if (result.getRole() == AuthLevel.NONE) {
       return CalendarResponse.NO_CALENDAR;
     }
@@ -140,7 +140,7 @@ public class DBInterface {
    * @param er
    *          EventRequest
    * @return EventResponse
-   * @throws SQLException 
+   * @throws SQLException
    */
   public EventResponse getEvent(int eventId) throws SQLException {
     EventResponse event = new EventResponse();
@@ -156,7 +156,7 @@ public class DBInterface {
    * @return SubscriptionResponse Object whose calendarIds field is set to IDs
    *         of all calendars to which a user subscribed.
    * @throws SQLException
-   * @throws InconsistentDataException 
+   * @throws InconsistentDataException
    */
   public CalendarSubscriptionResponse getUsersCalendars(int userId)
       throws SQLException, InconsistentDataException {
@@ -167,9 +167,8 @@ public class DBInterface {
       query(resp);
       ResultSet result = resp.getResultSet();
       while (result.next()) {
-        CalendarResponse calendar =
-            getCalendar(new CalendarRequest(userId,
-                result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
+        CalendarResponse calendar = getCalendar(new CalendarRequest(userId,
+            result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
 
         // User is subscribed to a calendar that he doesn't have access to
         if (calendar == CalendarResponse.NO_CALENDAR) {
@@ -580,7 +579,9 @@ public class DBInterface {
       }
       if (q != null) {
         PreparedStatement stmt = conn.prepareStatement(q);
-        update.formatSQLUpdate(stmt);
+        if (override == null) {
+          update.formatSQLUpdate(stmt);
+        }
         result = stmt.executeUpdate();
         update.checkResult(result);
         return result;
@@ -632,7 +633,9 @@ public class DBInterface {
         q = override;
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      query.formatSQLQuery(stmt);
+      if (override == null) {
+        query.formatSQLQuery(stmt);
+      }
       result = stmt.executeQuery();
       query.setResult(result);
     } finally {
