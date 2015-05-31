@@ -176,6 +176,7 @@ public class DBInterface {
 
         // Remove join code if user is not an admin
         if (calendar.getRole() == AuthLevel.BASIC) {
+          calendar.setJoinEnabled(null);
           calendar.setJoinCode(null);
         }
 

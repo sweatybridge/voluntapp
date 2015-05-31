@@ -206,4 +206,8 @@ public class CalendarResponse extends Response {
     CalendarResponse resp = new CalendarResponse("dupa", true, 123, "acd");
     System.out.println(resp.getSQLUpdate());
   }
+
+  public void setJoinEnabled(Boolean joinEnabled) {
+    this.joinEnabled = joinEnabled;
+  }
 }
