@@ -1,12 +1,10 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.logging.Level;
-
-import listener.Application;
 
 /**
  * A successful response to a calendar request.
@@ -80,12 +78,25 @@ public class CalendarResponse extends Response {
     return calendarId;
   }
 
+  /*
+   * @Override public String getSQLInsert() { return
+   * String.format("INSERT INTO public.\"CALENDAR\" VALUES " +
+   * "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s', DEFAULT);", name.replace("\'",
+   * "\'\'"), userId, joinEnabled, joinCode.replace("\'", "\'\'")); }
+   */
+
   @Override
   public String getSQLInsert() {
-    return String.format("INSERT INTO public.\"CALENDAR\" VALUES "
-        + "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s', DEFAULT);",
-        name.replace("\'", "\'\'"), userId, joinEnabled,
-        joinCode.replace("\'", "\'\'"));
+    return String
+        .format("INSERT INTO \"CALENDAR\" VALUES (DEFAULT, ?, ?, DEFAULT, ?, ?, DEFAULT);");
+  }
+
+  @Override
+  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
+    prepared.setString(1, escape(name));
+    prepared.setInt(2, userId);
+    prepared.setBoolean(3, joinEnabled);
+    prepared.setString(4, escape(joinCode));
   }
 
   /*
@@ -102,14 +113,20 @@ public class CalendarResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    Application.logger.log(Level.ALL, userId + " " + calendarId);
-    System.out.println("User id: " + userId);
-    System.out.println("Calendar id: " + calendarId);
-
     return String
         .format(
-            "SELECT * FROM \"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\" WHERE \"CID\" =%d AND \"ACTIVE\"=true;",
-            userId, calendarId);
+            "SELECT * FROM \"CALENDAR\" JOIN (SELECT \"%s\",\"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=?) AS x ON \"CALENDAR\".\"%s\" =x.\"%s\" WHERE \"%s\" = ? AND \"%s\"=true;",
+            CalendarSubscriptionResponse.CID_COLUMN,
+            CalendarSubscriptionResponse.ROLE_COLUMN,
+            CalendarSubscriptionResponse.UID_COLUMN, CID_COLUMN,
+            CalendarSubscriptionResponse.CID_COLUMN,
+            CalendarSubscriptionResponse.CID_COLUMN, ACTIVE_COLUMN);
+  }
+
+  @Override
+  public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
+    prepare.setInt(1, userId);
+    prepare.setInt(2, calendarId);
   }
 
   @Override

@@ -1,6 +1,8 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import sql.SQLInsert;
 import sql.SQLQuery;
@@ -25,6 +27,11 @@ public abstract class Response implements SQLQuery, SQLInsert, SQLUpdate {
   }
 
   @Override
+  public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
+    return;
+  }
+
+  @Override
   public void setResult(ResultSet result) {
     return;
   }
@@ -42,5 +49,14 @@ public abstract class Response implements SQLQuery, SQLInsert, SQLUpdate {
   @Override
   public void checkResult(int rowsAffected) {
     return;
-  }  
+  }
+
+  @Override
+  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
+    return;
+  }
+
+  public String escape(String s) {
+    return s.replace("\'", "\'\'");
+  }
 }

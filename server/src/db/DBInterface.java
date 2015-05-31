@@ -1,6 +1,7 @@
 package db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -151,8 +152,8 @@ public class DBInterface {
     CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
     Connection conn = source.getConnection();
     try {
-      Statement stmt = conn.createStatement();
-      ResultSet result = stmt.executeQuery(resp.getSQLQuery());
+      query(resp);
+      ResultSet result = resp.getResultSet();
       while (result.next()) {
         cals.add(getCalendar(new CalendarRequest(userId, result
             .getInt(CalendarSubscriptionResponse.CID_COLUMN))));
@@ -202,21 +203,7 @@ public class DBInterface {
     UserResponse us = new UserResponse(rq.getEmail(),
         PasswordUtils.getPasswordHash(rq.getPassword()),
         UserResponse.INVALID_USER_ID, rq.getFirstName(), rq.getLastName());
-
-    Connection conn = source.getConnection();
-    int uid;
-    try {
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(us.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
-      ResultSet rs = stmt.getGeneratedKeys();
-      if (!rs.next()) {
-        throw new SQLException();
-      }
-      uid = rs.getInt("ID");
-    } finally {
-      conn.close();
-    }
-    return uid;
+    return insert(us, true, UserResponse.ID_COLUMN);
   }
 
   /**
@@ -231,7 +218,7 @@ public class DBInterface {
    */
   public boolean putSession(SessionRequest sq) throws SQLException {
     SessionResponse sr = new SessionResponse(sq.getSessionId(), sq.getUserId());
-    return insert(sr);
+    return insert(sr) == 1;
   }
 
   /**
@@ -245,7 +232,7 @@ public class DBInterface {
   public CalendarResponse putCalendar(CalendarRequest cq) throws SQLException {
     CalendarResponse cr = new CalendarResponse(cq.getName(),
         cq.isJoinEnabled(), cq.getUserId(), cq.getInviteCode());
-    cr.setCalendarID(getID(cr, CalendarResponse.CID_COLUMN));
+    cr.setCalendarID(insert(cr, true, CalendarResponse.CID_COLUMN));
     return cr;
   }
 
@@ -273,34 +260,6 @@ public class DBInterface {
   }
 
   /**
-   * Utility method which retrieves the ID of the inserted database record.
-   * 
-   * @param insert
-   *          SQLInsert object corresponding to the record to be added to the
-   *          database
-   * @param ColumnID
-   * @return ID of the inserted database record
-   * @throws SQLException
-   */
-  private int getID(SQLInsert insert, String ColumnID) throws SQLException {
-    Connection conn = source.getConnection();
-    int id;
-    try {
-      Statement stmt = conn.createStatement();
-      int rows = stmt.executeUpdate(insert.getSQLInsert(),
-          Statement.RETURN_GENERATED_KEYS);
-      ResultSet rs = stmt.getGeneratedKeys();
-      if (rows == 0 || !rs.next()) {
-        throw new SQLException();
-      }
-      id = rs.getInt(ColumnID);
-    } finally {
-      conn.close();
-    }
-    return id;
-  }
-
-  /**
    * Store the event into the database.
    * 
    * @param er
@@ -311,10 +270,10 @@ public class DBInterface {
   public EventResponse putEvent(EventRequest ereq) throws SQLException {
     // TODO: why convert max to string?
     EventResponse eresp = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
-        ereq.getStartDate(), ereq.getDuration(),
-        Integer.toString(ereq.getMax()), -1, ereq.getCalendarId());
-    int id = getID(eresp, EventResponse.EID_COLUMN);
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
+        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), -1,
+        ereq.getCalendarId());
+    int id = insert(eresp, true, EventResponse.EID_COLUMN);
     eresp.setEventId(id);
     return eresp;
   }
@@ -334,7 +293,7 @@ public class DBInterface {
     // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());
-    if (!insert(response)) {
+    if (!(insert(response) == 1)) {
       throw new InvalidActionException("Tried to join a full event");
     }
     return response;
@@ -455,9 +414,8 @@ public class DBInterface {
       throws SQLException, EventNotFoundException, InconsistentDataException {
     // TODO: why convert max to string?
     EventResponse er = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
-        ereq.getStartDate(), ereq.getDuration(),
-        Integer.toString(ereq.getMax()), eventId, -1);
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
+        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), eventId, -1);
     return updateRowCheckHelper(er);
   }
 
@@ -497,8 +455,7 @@ public class DBInterface {
    */
   public boolean deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
-    EventResponse er = new EventResponse(null, null, null, null, null, null,
-        null, eventId, -1, true);
+    EventResponse er = new EventResponse(eventId, true);
     return updateRowCheckHelper(er);
   }
 
@@ -556,16 +513,28 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private boolean insert(SQLInsert insertion) throws SQLException {
+  private int insert(SQLInsert insertion, boolean returnKey, String keyColumn)
+      throws SQLException {
     Connection conn = source.getConnection();
-    int rows = 0;
+    int ret = 0;
     try {
-      Statement stmt = conn.createStatement();
-      rows = stmt.executeUpdate(insertion.getSQLInsert());
+      PreparedStatement stmt = conn.prepareStatement(insertion.getSQLInsert(),
+          Statement.RETURN_GENERATED_KEYS);
+      insertion.formatSQLInsert(stmt);
+      ret = stmt.executeUpdate();
+      if (returnKey) {
+        ResultSet rs = stmt.getGeneratedKeys();
+        rs.next();
+        ret = rs.getInt(keyColumn);
+      }
     } finally {
       conn.close();
     }
-    return rows == 1;
+    return ret;
+  }
+
+  private int insert(SQLInsert insertion) throws SQLException {
+    return insert(insertion, false, null);
   }
 
   /**
@@ -609,9 +578,11 @@ public class DBInterface {
    */
   private boolean query(SQLQuery query) throws SQLException {
     Connection conn = source.getConnection();
+    ResultSet result = null;
     try {
-      Statement stmt = conn.createStatement();
-      ResultSet result = stmt.executeQuery(query.getSQLQuery());
+      PreparedStatement stmt = conn.prepareStatement(query.getSQLQuery());
+      query.formatSQLQuery(stmt);
+      result = stmt.executeQuery();
       query.setResult(result);
     } finally {
       conn.close();

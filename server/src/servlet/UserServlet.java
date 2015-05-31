@@ -89,7 +89,7 @@ public class UserServlet extends HttpServlet {
   }
 
   /**
-   * TODO: Updates the user details with supplied information.
+   * Updates the user details with supplied information.
    */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response) {
@@ -131,8 +131,8 @@ public class UserServlet extends HttpServlet {
       request.setAttribute("userId", userId);
       getServletContext().getRequestDispatcher("/api/session").forward(request,
           response);
-
     } catch (SQLException e) {
+      e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The email you entered is already in use."));
     } catch (PasswordHashFailureException e) {

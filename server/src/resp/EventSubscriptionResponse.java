@@ -1,5 +1,6 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,14 +45,30 @@ public class EventSubscriptionResponse extends Response {
   @Override
   public String getSQLQuery() {
     return String.format(
-        "SELECT COUNT (*) AS \"TOTAL\" FROM \"EVENT_USER\" WHERE \"%s\"=%d;",
-        EID_COLUMN, eventId);
+        "SELECT COUNT (*) AS \"TOTAL\" FROM \"EVENT_USER\" WHERE \"%s\"=?;",
+        EID_COLUMN);
   }
 
   @Override
+  public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
+    prepare.setInt(1, eventId);
+  }
+
+  /*
+   * @Override public String getSQLInsert() { return
+   * String.format("INSERT INTO \"EVENT_USER\" VALUES (%d,%d);", eventId,
+   * userId); }
+   */
+
+  @Override
   public String getSQLInsert() {
-    return String.format("INSERT INTO \"EVENT_USER\" VALUES (%d,%d);", eventId,
-        userId);
+    return "INSERT INTO \"EVENT_USER\" VALUES (?, ?);";
+  }
+
+  @Override
+  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
+    prepared.setInt(1, eventId);
+    prepared.setInt(2, userId);
   }
 
   // TODO: WE REALLY NEED A DELETE ONE ???
