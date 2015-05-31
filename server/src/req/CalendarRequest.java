@@ -149,19 +149,15 @@ public class CalendarRequest implements Request {
     public void setResult(ResultSet result) {
       this.rs = result;
       try {
-        while (rs.next()) {
-          EventResponse resp = new EventResponse(
-              rs.getString(EventResponse.TITLE_COLUMN),
-              rs.getString(EventResponse.DESC_COLUMN),
-              rs.getString(EventResponse.LOCATION_COLUMN),
-              rs.getString(EventResponse.TIME_COLUMN),
-              rs.getString(EventResponse.DATE_COLUMN),
-              rs.getString(EventResponse.DURATION_COLUMN),
-              rs.getString(EventResponse.MAX_ATTEDEE_COLUMN),
-              rs.getInt(EventResponse.EID_COLUMN), calendarId);
+        EventResponse resp = new EventResponse();
+        resp.setResult(result);
+        while (resp.isFound()) {
+          resp.setCalendarId(calendarId);
           resp.setCurrentCount(rs.getString("count"));
           resp.setJoined(rs.getBoolean("exists"));
           events.add(resp);
+          resp = new EventResponse();
+          resp.setResult(result);
         }
       } catch (SQLException e) {
         System.err.println("Error getting the result while creating "
