@@ -92,6 +92,18 @@ $(function() {
   
   // Request calendar information
   refreshCalendars();
+
+  // bind click to empty space on calendar
+  $("#t_calendar_body").children().click(function() {
+    // update create event form
+    var start = $(this).data("date")
+    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
+
+    $("#btn_event_create").show();
+    $("#btn_event_save").hide();
+    $("#btn_event_delete").hide();
+    $("#btn_event_cancel").hide();
+  });
 }); // End of document ready
 
 // Update user profile information on view

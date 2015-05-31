@@ -157,12 +157,12 @@ function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
-  '<div data-event-id="{{eventId}}" class="event">'+
+  '<div data-event-id="{{eventId}}" class="event" onclick="event.stopPropagation();">'+
     '<div class="time">'+
       '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
     '</div>'+
-    '<div class="header progress-bar-info" onclick="editEvent(this)">'+
+    '<div class="header progress-bar-info" onclick="editEvent(event)">'+
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
@@ -278,8 +278,8 @@ function joinEvent(elem) {
 }
 
 // Handler for editing event
-function editEvent(elem) {
-  var view = $(elem).closest(".event");
+function editEvent(e) {
+  var view = $(e.target).closest(".event");
   var eid = view.data("eventId");
   var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
 
