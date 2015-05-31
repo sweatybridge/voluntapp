@@ -40,6 +40,7 @@ $(function() {
     $("#btn_event_cancel").hide();
   });
 
+  // delete event
   $("#btn_event_delete").click(function() {
     // Retrieve form data
     var form = $("#event_form");
@@ -53,7 +54,7 @@ $(function() {
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
       method: "DELETE",
       success: function(data) {
-        toastr.success("Saved chanages to " + formObj["title"]);
+        toastr.success("Deleted event " + formObj["title"]);
         refreshEvents();
         form.trigger("reset");
         $("#btn_event_create").show();
