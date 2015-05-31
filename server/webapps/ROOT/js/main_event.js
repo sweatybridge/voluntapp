@@ -180,7 +180,7 @@ function createEventView(event) {
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
-    '<div class="event-extras"><div class="requirements"></div><div class="desc">{{description}}</div></div>'+
+    '<div class="event-extras"><div class="desc">{{description}}</div><div class="requirements"></div></div>'+
     '<div class="location">'+
       '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
     '</div>'+
@@ -227,7 +227,9 @@ function createEventView(event) {
       } else {
         temp = temp.replace('{{remaining}}', event.currentCount + "/" + event.max);
       }
+      
       var view = $(temp);
+      
       // Add in the requirement checkboxes
       var req_html = '<div class="checkbox"> \
                       <label> \
@@ -235,8 +237,11 @@ function createEventView(event) {
                       </label> \
                     </div>';
       requirements.forEach(function(r) {
-        view.find(".requirements").append(
+        var req_checkbox = $(req_html.replace("{{requirement}}", r));
+        view.find(".requirements").append(req_checkbox);
       });
+      
+      // Append the view to the actual td
       $(elem).append(view);
       if (event.hasJoined) {
         // update joined badge
