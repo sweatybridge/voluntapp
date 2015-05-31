@@ -199,7 +199,6 @@ function createEventView(event) {
       var requirements = [];
       var description = [];
       lines.forEach(function(l) {
-        console.log(l);
         if (startsWith(l, "R-")) {
           requirements.push(l.slice(2));
         } else {
@@ -211,8 +210,6 @@ function createEventView(event) {
       // as in ["", "desc"] or ["desc", ""]
       description = description.join("\n");
       
-      console.log(requirements);
-      console.log(description);
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
@@ -300,6 +297,19 @@ function joinEvent(elem) {
       toastr.error("Joining for " + event.title + " is disabled");
       return;
     }
+    
+    // Satisfy all requirements if there are any
+    var filledReqs = true;
+    view.find('.requirements input[type="checkbox"]').each(function(i) {
+      filledReqs = filledReqs && this.checked;
+    });
+    
+    if (!filledReqs) {
+      toastr.error("You haven't checked all requirements for " + event.title);
+      return;
+    }
+    
+    // Everything is fine, join the party
     $.ajax("/api/subscription/event", {
       method: "POST",
       data: JSON.stringify({eventId: eid}),
