@@ -40,6 +40,7 @@ $(function() {
     $("#btn_event_cancel").hide();
   });
 
+  // delete event
   $("#btn_event_delete").click(function() {
     // Retrieve form data
     var form = $("#event_form");
@@ -53,7 +54,7 @@ $(function() {
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
       method: "DELETE",
       success: function(data) {
-        toastr.success("Saved chanages to " + formObj["title"]);
+        toastr.success("Deleted event " + formObj["title"]);
         refreshEvents();
         form.trigger("reset");
         $("#btn_event_create").show();
@@ -163,7 +164,7 @@ function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
-  '<div data-event-id="{{eventId}}" class="event">'+
+  '<div data-event-id="{{eventId}}" class="event" onclick="event.stopPropagation();">'+
     '<div class="time">'+
       '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
@@ -181,10 +182,10 @@ function createEventView(event) {
     '</div>'+
   '</div>';
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).data("date") === event.startDate) {
-      var startDateTime = new Date(event.startDate + "T" + event.startTime.split("+")[0]);
-      var readableDate = formatDate(startDateTime).split(" ").reverse().join(" ");
-      var readableTime = startDateTime.toLocaleTimeString().substring(0, 5);
+    var start = new Date(event.startDateTime);
+    if ($(elem).data("date") === start.toLocaleDateString()) {
+      var readableDate = formatDate(start).split(" ").reverse().join(" ");
+      var readableTime = start.toLocaleTimeString().substring(0, 5);
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
@@ -285,9 +286,15 @@ function joinEvent(elem) {
 
 // Handler for editing event
 function editEvent(elem) {
-  var view = $(elem).closest(".event");
+  var view = $(elem.target).closest(".event");
   var eid = view.data("eventId");
-  var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
+  var event = $.grep(app.events, function(e){ return e.eventId === eid; })[0];
+
+  // check if user's role is editor or above
+  var cal = $.grep(app.calendars, function(e){ return e.calendarId === event.calendarId; })[0];
+  if (cal.role === "basic") {
+    return;
+  }
 
   // update event editor
   $("#btn_event_create").hide();
@@ -296,14 +303,16 @@ function editEvent(elem) {
   $("#btn_event_cancel").show();
 
   // unformat and populate
-  var startDateTime = event.startDate.replace("-", "/") + " " + event.startTime;
-  //console.log(event);
+  var start = new Date(event.startDateTime);
+  var pickerStart = start.toLocaleDateString() + " " + start.toLocaleTimeString().substr(0,5);
+  var end = new Date(event.endDateTime);
+  var pickerEnd = end.toLocaleDateString() + " " + end.toLocaleTimeString().substr(0,5);
 
   var form = $("#event_form");
   form.find('input[name="title"]').val(event.title);
   form.find('textarea[name="description"]').val(event.description);
-  form.find('input[name="startDate"]').val(startDateTime);
-  //form.find('input[name="endDate"]').val(event.endDate);
+  form.find('input[name="startDate"]').val(pickerStart);
+  form.find('input[name="endDate"]').val(pickerEnd);
   form.find('input[name="location"]').val(event.location);
   form.find('input[name="max"]').val(event.max);
   form.find('input[name="eventId"]').val(event.eventId);

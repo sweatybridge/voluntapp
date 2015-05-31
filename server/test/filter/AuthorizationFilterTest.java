@@ -98,7 +98,7 @@ public class AuthorizationFilterTest {
     // Sets up request
     when(req.getHeader("Authorization")).thenReturn(TEST_SESSION_ID);
     when(db.getSession(TEST_SESSION_ID)).thenThrow(
-        new SessionNotFoundException());
+        new SessionNotFoundException(TEST_SESSION_ID));
 
     // Method under test
     filter.doFilter(req, resp, chain);

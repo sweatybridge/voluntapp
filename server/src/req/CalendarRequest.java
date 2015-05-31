@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import resp.CalendarSubscriptionResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import sql.SQLQuery;
@@ -15,11 +14,6 @@ import sql.SQLQuery;
  * Deserialized JSON object of an API request to create a calendar.
  */
 public class CalendarRequest implements Request {
-
-  /**
-   * Invalid register request object to replace null checks.
-   */
-  public static final CalendarRequest INVALID = new CalendarRequest();
 
   /**
    * Length of time interval (in miliseconds). Events in the specified time
@@ -38,7 +32,7 @@ public class CalendarRequest implements Request {
   /**
    * Fields excluded from deserialisation.
    */
-  private transient Integer calendarId;
+  private transient int calendarId;
   private transient String inviteCode;
   private transient int userId;
 
@@ -56,13 +50,19 @@ public class CalendarRequest implements Request {
     this.userId = userId;
   }
 
+  public CalendarRequest(int userId, int calendarId) {
+    this.userId = userId;
+    this.calendarId = calendarId;
+  }
+
   /* Constructor used by GET method of calendar servlet. */
   public CalendarRequest(int calendarId) {
     this.calendarId = calendarId;
   }
 
   /* Constructor added for testing. */
-  public CalendarRequest(Timestamp startDate, int calendarId) {
+  public CalendarRequest(int userId, Timestamp startDate, int calendarId) {
+    this.userId = userId;
     this.startDate = startDate;
     this.calendarId = calendarId;
   }
@@ -149,19 +149,15 @@ public class CalendarRequest implements Request {
     public void setResult(ResultSet result) {
       this.rs = result;
       try {
-        while (rs.next()) {
-          EventResponse resp = new EventResponse(
-              rs.getString(EventResponse.TITLE_COLUMN),
-              rs.getString(EventResponse.DESC_COLUMN),
-              rs.getString(EventResponse.LOCATION_COLUMN),
-              rs.getString(EventResponse.TIME_COLUMN),
-              rs.getString(EventResponse.DATE_COLUMN),
-              rs.getString(EventResponse.DURATION_COLUMN),
-              rs.getString(EventResponse.MAX_ATTEDEE_COLUMN),
-              rs.getInt(EventResponse.EID_COLUMN), calendarId);
+        EventResponse resp = new EventResponse();
+        resp.setResult(result);
+        while (resp.isFound()) {
+          resp.setCalendarId(calendarId);
           resp.setCurrentCount(rs.getString("count"));
           resp.setJoined(rs.getBoolean("exists"));
           events.add(resp);
+          resp = new EventResponse();
+          resp.setResult(result);
         }
       } catch (SQLException e) {
         System.err.println("Error getting the result while creating "

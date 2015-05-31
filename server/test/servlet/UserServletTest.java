@@ -131,7 +131,7 @@ public class UserServletTest extends ServletTest {
     // Checks user id is installed before forwarding
     verify(req).setAttribute("userId", TEST_USER_ID);
 
-    validateForwardingTo("/session");
+    validateForwardingTo("/api/session");
   }
 
   @Test

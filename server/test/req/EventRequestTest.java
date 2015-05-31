@@ -123,10 +123,10 @@ public class EventRequestTest {
   }
 
   @Test
-  public void validationFailsWhenMaxIsNegative() {
+  public void validationFailsWhenMaxIsBelowNegativeOne() {
     EventRequest event =
         new EventRequest(TEST_TITLE, null, null, TEST_START_TIME,
-            TEST_START_DATE, null, null, TEST_TIMEZONE, -1, TEST_CAL_ID);
+            TEST_START_DATE, null, null, TEST_TIMEZONE, -2, TEST_CAL_ID);
 
     assertFalse(event.isValid());
   }

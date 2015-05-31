@@ -37,8 +37,10 @@ public class UserServlet extends HttpServlet {
   /**
    * Constructs a user servlet with injected dependencies.
    * 
-   * @param gson json serialiser
-   * @param db database interface
+   * @param gson
+   *          json serialiser
+   * @param db
+   *          database interface
    */
   public UserServlet(Gson gson, DBInterface db) {
     this.gson = gson;
@@ -52,9 +54,8 @@ public class UserServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
     // Session should not be null if user is authenticated
-    SessionResponse session =
-        (SessionResponse) request.getAttribute(SessionResponse.class
-            .getSimpleName());
+    SessionResponse session = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
 
     Response resp;
     try {
@@ -76,14 +77,13 @@ public class UserServlet extends HttpServlet {
   public void doDelete(HttpServletRequest request, HttpServletResponse response) {
 
     // get current user id from auth token
-    SessionResponse session =
-        (SessionResponse) request.getAttribute(SessionResponse.class
-            .getSimpleName());
+    SessionResponse session = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
 
     // delete from user table
 
-    Response resp =
-        new SuccessResponse("Successfully deleted user from database.");
+    Response resp = new SuccessResponse(
+        "Successfully deleted user from database.");
 
     request.setAttribute(Response.class.getSimpleName(), resp);
   }
@@ -95,9 +95,8 @@ public class UserServlet extends HttpServlet {
   public void doPut(HttpServletRequest request, HttpServletResponse response) {
 
     // get current user id from auth token
-    SessionResponse session =
-        (SessionResponse) request.getAttribute(SessionResponse.class
-            .getSimpleName());
+    SessionResponse session = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
 
     // update user with new information
 
@@ -114,8 +113,8 @@ public class UserServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException, ServletException {
     // Parse user registration request
-    RegisterRequest user =
-        gson.fromJson(request.getReader(), RegisterRequest.class);
+    RegisterRequest user = gson.fromJson(request.getReader(),
+        RegisterRequest.class);
 
     // Validate registration
     if (!user.isValid()) {

@@ -92,8 +92,8 @@ public class EventServlet extends HttpServlet {
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
         } else {
-          request.setAttribute(Response.class.getSimpleName(),
-              "Event data were updated successfully.");
+          request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
+              "Event data were updated successfully."));
         }
       } catch (NumberFormatException e) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -110,8 +110,8 @@ public class EventServlet extends HttpServlet {
                 + "more than one row was updated."));
       }
     } else {
-      request.setAttribute(Response.class.getSimpleName(),
-          "No event ID was specified.");
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No event ID was specified."));
     }
   }
 

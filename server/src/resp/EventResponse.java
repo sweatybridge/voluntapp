@@ -4,13 +4,20 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
+import org.apache.commons.validator.routines.CalendarValidator;
 import org.postgresql.util.PGInterval;
 
 /**
  * A successful response to a event request.
  */
 public class EventResponse extends Response {
+
+  private static final SimpleDateFormat UTC_FORMATTER = new SimpleDateFormat(
+      "yyyy-MM-dd'T'HH:mm:ss");
 
   public static String EID_COLUMN = "EID";
   public static String TITLE_COLUMN = "TITLE";
@@ -29,9 +36,9 @@ public class EventResponse extends Response {
   private String title;
   private String description;
   private String location;
-  private String startTime; // HH:mm
-  private String startDate; // YYYY-MM-DD
   private String duration; // HH:mm:ss
+  private String startDateTime;
+  private String endDateTime;
   private int currentCount = -1;
   private int max = -1;
   private boolean hasJoined = false;
@@ -45,6 +52,8 @@ public class EventResponse extends Response {
   private transient Time sqlTime;
   private transient boolean found;
   private transient boolean delete;
+  private transient String startTime; // HH:mm
+  private transient String startDate; // YYYY-MM-DD
 
   /**
    * Fields excluded from serialisation.
@@ -54,18 +63,14 @@ public class EventResponse extends Response {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public EventResponse() {
-  }
+  public EventResponse() {}
 
   /**
    * Constructs a successful event response.
    * 
-   * @param email
-   *          Email of the user response
-   * @param hashedPassword
-   *          Password found in the database
-   * @param userId
-   *          The ID of the user requests
+   * @param email Email of the user response
+   * @param hashedPassword Password found in the database
+   * @param userId The ID of the user requests
    */
   public EventResponse(String title, String description, String location,
       String time, String date, String duration, String max, int eventId,
@@ -106,6 +111,13 @@ public class EventResponse extends Response {
     this.sqlDate = (Date) rs.getObject(DATE_COLUMN);
     this.sqlDuration = (PGInterval) rs.getObject(DURATION_COLUMN);
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
+
+    // Fill in composite fields
+    java.util.Date start =
+        new java.util.Date(sqlDate.getTime() + sqlTime.getTime());
+    this.startDateTime = UTC_FORMATTER.format(start);
+    sqlDuration.add(start);
+    this.endDateTime = UTC_FORMATTER.format(start);
   }
 
   /*
@@ -115,22 +127,26 @@ public class EventResponse extends Response {
   @Override
   public String getSQLUpdate() {
     int found = 0;
-    String formatString = ((title == null || found++ == Integer.MIN_VALUE) ? ""
-        : "\"" + TITLE_COLUMN + "\"='" + title + "',")
-        + ((description == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DESC_COLUMN + "\"='" + description.replace("\'", "\'\'") + "',")
-        + ((location == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + LOCATION_COLUMN + "\"='" + location.replace("\'", "\'\'") + "',")
-        + ((startDate == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DATE_COLUMN + "\"='" + startDate.replace("\'", "\'\'") + "',")
-        + ((startTime == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + TIME_COLUMN + "\"='" + startTime.replace("\'", "\'\'") + "',")
-        + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + DURATION_COLUMN + "\"='" + duration.replace("\'", "\'\'") + "',")
-        + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + MAX_ATTEDEE_COLUMN + "\"=" + max + ",")
-        + ((!delete || found++ == Integer.MIN_VALUE) ? "" : "\""
-            + ACTIVE_COLUMN + "\"" + "=false,");
+    String formatString =
+        ((title == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+            + TITLE_COLUMN + "\"='" + title + "',")
+            + ((description == null || found++ == Integer.MIN_VALUE) ? ""
+                : "\"" + DESC_COLUMN + "\"='"
+                    + description.replace("\'", "\'\'") + "',")
+            + ((location == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+                + LOCATION_COLUMN + "\"='" + location.replace("\'", "\'\'")
+                + "',")
+            + ((startDate == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+                + DATE_COLUMN + "\"='" + startDate.replace("\'", "\'\'") + "',")
+            + ((startTime == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+                + TIME_COLUMN + "\"='" + startTime.replace("\'", "\'\'") + "',")
+            + ((duration == null || found++ == Integer.MIN_VALUE) ? "" : "\""
+                + DURATION_COLUMN + "\"='" + duration.replace("\'", "\'\'")
+                + "',")
+            + ((max == -1 || found++ == Integer.MIN_VALUE) ? "" : "\""
+                + MAX_ATTEDEE_COLUMN + "\"=" + max + ",")
+            + ((!delete || found++ == Integer.MIN_VALUE) ? "" : "\""
+                + ACTIVE_COLUMN + "\"" + "=false,");
     return (found == 0) ? null : String.format(
         "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=%d",
         formatString.substring(0, formatString.length() - 1), eventId);
@@ -225,5 +241,13 @@ public class EventResponse extends Response {
 
   public void setJoined(boolean hasJoined) {
     this.hasJoined = hasJoined;
+  }
+  
+  public boolean isFound() {
+    return found;
+  }
+  
+  public void setCalendarId(int calendarId) {
+    this.calendarId = calendarId;
   }
 }
