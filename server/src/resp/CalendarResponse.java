@@ -6,12 +6,16 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.logging.Level;
 
+import utils.AuthLevel;
+
 import listener.Application;
 
 /**
  * A successful response to a calendar request.
  */
 public class CalendarResponse extends Response {
+
+  public static final CalendarResponse NO_CALENDAR = new CalendarResponse();
 
   public static String CID_COLUMN = "ID";
   public static String CNAME_COLUMN = "NAME";
@@ -171,6 +175,10 @@ public class CalendarResponse extends Response {
 
   public void addEvent(EventResponse event) {
     events.add(event);
+  }
+
+  public AuthLevel getRole() {
+    return AuthLevel.getAuth(role);
   }
 
   public static void main(String[] args) {

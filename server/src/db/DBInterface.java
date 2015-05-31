@@ -116,6 +116,12 @@ public class DBInterface {
     CalendarResponse result = new CalendarResponse(request.getCalendarId(),
         request.getUserId());
     query(result);
+
+    // Role based authentication 
+    if (result.getRole() == AuthLevel.NONE) {
+      return CalendarResponse.NO_CALENDAR;
+    }
+
     if (request.getStartDate() != null) {
       CalendarEventsQuery query = request.getCalendarEventsQuery();
       query(query);
@@ -144,9 +150,10 @@ public class DBInterface {
    * @return SubscriptionResponse Object whose calendarIds field is set to IDs
    *         of all calendars to which a user subscribed.
    * @throws SQLException
+   * @throws InconsistentDataException 
    */
   public CalendarSubscriptionResponse getUsersCalendars(int userId)
-      throws SQLException {
+      throws SQLException, InconsistentDataException {
     List<CalendarResponse> cals = new ArrayList<>();
     CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
     Connection conn = source.getConnection();
@@ -154,8 +161,17 @@ public class DBInterface {
       Statement stmt = conn.createStatement();
       ResultSet result = stmt.executeQuery(resp.getSQLQuery());
       while (result.next()) {
-        cals.add(getCalendar(new CalendarRequest(userId, result
-            .getInt(CalendarSubscriptionResponse.CID_COLUMN))));
+        CalendarResponse calendar =
+            getCalendar(new CalendarRequest(userId,
+                result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
+        
+        // User is subscribed to a calendar that he doesn't have access to
+        if (calendar == CalendarResponse.NO_CALENDAR) {
+          throw new InconsistentDataException(
+              "User is no longer subscribed to this calendar.");
+        }
+        
+        cals.add(calendar);
       }
     } finally {
       conn.close();
