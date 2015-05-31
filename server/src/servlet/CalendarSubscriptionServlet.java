@@ -11,12 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import req.CalendarSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
-import resp.SessionResponse;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
 
 import db.DBInterface;
+import exception.InconsistentDataException;
 
 @WebServlet
 public class CalendarSubscriptionServlet extends HttpServlet {
@@ -44,7 +44,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     Response subResp;
     try {
       subResp = db.getUsersCalendars(userId);
-    } catch (SQLException e) {
+    } catch (SQLException | InconsistentDataException e) {
       subResp = new ErrorResponse("Error while retirieving the calendar IDs "
           + "from the database." + e.getMessage());
     }

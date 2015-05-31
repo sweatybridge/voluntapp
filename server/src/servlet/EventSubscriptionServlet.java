@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
-import resp.SessionResponse;
 import resp.SuccessResponse;
 import utils.ServletUtils;
 
