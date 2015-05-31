@@ -162,7 +162,7 @@ function createEventView(event) {
       '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
     '</div>'+
-    '<div class="header progress-bar-info" onclick="editEvent(event)">'+
+    '<div class="header progress-bar-info" onclick="editEvent(this)">'+
       '<span class="label label-warning count">{{remaining}}</span>'+
     '</div>'+
     '<div class="title">{{title}}</div>'+
@@ -278,10 +278,16 @@ function joinEvent(elem) {
 }
 
 // Handler for editing event
-function editEvent(e) {
-  var view = $(e.target).closest(".event");
+function editEvent(elem) {
+  var view = $(elem.target).closest(".event");
   var eid = view.data("eventId");
-  var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
+  var event = $.grep(app.events, function(e){ return e.eventId === eid; })[0];
+
+  // check if user's role is editor or above
+  var cal = $.grep(app.calendars, function(e){ return e.calendarId === event.calendarId; })[0];
+  if (cal.role === "basic") {
+    return;
+  }
 
   // update event editor
   $("#btn_event_create").hide();
