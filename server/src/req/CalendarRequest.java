@@ -10,7 +10,6 @@ import java.util.List;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import resp.Response;
-import sql.SQLQuery;
 
 /**
  * Deserialized JSON object of an API request to create a calendar.
@@ -41,24 +40,16 @@ public class CalendarRequest implements Request {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public CalendarRequest() {
-  }
+  public CalendarRequest() {}
 
-  public CalendarRequest(String name, boolean joinEnabled, String inviteCode,
-      int userId) {
-    this.name = name;
-    this.joinEnabled = joinEnabled;
-    this.inviteCode = inviteCode;
-    this.userId = userId;
-  }
-
+  /**
+   * Constructor called by calendar servlet to get user calendars.
+   * 
+   * @param userId
+   * @param calendarId
+   */
   public CalendarRequest(int userId, int calendarId) {
     this.userId = userId;
-    this.calendarId = calendarId;
-  }
-
-  /* Constructor used by GET method of calendar servlet. */
-  public CalendarRequest(int calendarId) {
     this.calendarId = calendarId;
   }
 
