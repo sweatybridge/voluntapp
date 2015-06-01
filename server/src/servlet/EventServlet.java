@@ -11,7 +11,9 @@ import req.EventRequest;
 import resp.ErrorResponse;
 import resp.EventResponse;
 import resp.Response;
+import resp.SessionResponse;
 import resp.SuccessResponse;
+import utils.AuthLevel;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
@@ -77,6 +79,12 @@ public class EventServlet extends HttpServlet {
     if (!eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The supplied event data are invalid."));
+      return;
+    }
+    
+    /* Verify if the user is allowed to publish events in the specified 
+     * calendar. */
+    if (!checkAccessRights(eventReq, request)) {
       return;
     }
 
@@ -169,6 +177,32 @@ public class EventServlet extends HttpServlet {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No event ID was specified."));
     }
+  }
+  
+  /**
+   * Function which verifies if the user has enough privileges to add/modify/delete
+   * events from a particular calendar.
+   * 
+   * @param eventReq - event data supplied by the user
+   * @param request  - Http servlet request sent by the user
+   * @return Boolean value indicating if the user is allowed to edit calendar 
+   *         events.
+   */
+  private boolean checkAccessRights(EventRequest eventReq, 
+      HttpServletRequest request) {
+    SessionResponse sessionResponse = (SessionResponse) request
+        .getAttribute(SessionResponse.class.getSimpleName());
+    
+    AuthLevel level = db.authoriseUser(sessionResponse.getUserId(), 
+        eventReq.getCalendarId());
+    
+    if (level == AuthLevel.NONE || level == AuthLevel.BASIC) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "You are not allowed to publish events to this calendar. " +
+          "Owner / Admin priviledges are required."));
+      return false;
+    }
+    return true;
   }
 
 }

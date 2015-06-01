@@ -642,9 +642,9 @@ public class DBInterface {
         q = override;
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      if (override == null) {
+      //if (override == null) {
         query.formatSQLQuery(stmt);
-      }
+      //}
       result = stmt.executeQuery();
       query.setResult(result);
     } finally {
