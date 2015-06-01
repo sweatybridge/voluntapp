@@ -114,9 +114,10 @@ public class EventServlet extends HttpServlet {
     EventRequest eventReq =
         gson.fromJson(request.getReader(), EventRequest.class);
 
-    if (!eventReq.isValid()) {
-      request.setAttribute(Response.class.getSimpleName(),
-          "The updated event data are invalid.");
+    if (eventReq == null || !eventReq.isValid()) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "The updated event data are invalid."));
+      return;
     }
     String eventId = eventReq.getEventId();
     
