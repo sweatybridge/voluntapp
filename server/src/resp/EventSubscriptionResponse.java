@@ -25,7 +25,7 @@ public class EventSubscriptionResponse extends Response {
    */
   public EventSubscriptionResponse() {}
 
-  public EventSubscriptionResponse(int userId, int eventId) {
+  public EventSubscriptionResponse(int eventId, int userId) {
     this.userId = userId;
     this.eventId = eventId;
   }
