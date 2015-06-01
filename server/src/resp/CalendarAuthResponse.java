@@ -15,14 +15,6 @@ public class CalendarAuthResponse extends Response {
     this.calendarId = calendarId;
   }
 
-  /*
-   * @Override public String getSQLQuery() { return String.format(
-   * "SELECT \"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=%d AND \"%s\"=%d",
-   * CalendarSubscriptionResponse.ROLE_COLUMN,
-   * CalendarSubscriptionResponse.UID_COLUMN, userId,
-   * CalendarSubscriptionResponse.CID_COLUMN, calendarId); }
-   */
-
   @Override
   public String getSQLQuery() {
     return String.format(

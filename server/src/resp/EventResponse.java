@@ -17,8 +17,7 @@ import org.postgresql.util.PGInterval;
  */
 public class EventResponse extends Response {
 
-  private static final SimpleDateFormat UTC_FORMATTER = new SimpleDateFormat(
-      "yyyy-MM-dd'T'HH:mm:ss");
+  private static final String UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
   public static String EID_COLUMN = "EID";
   public static String TITLE_COLUMN = "TITLE";
@@ -140,9 +139,11 @@ public class EventResponse extends Response {
     // Fill in composite fields
     java.util.Date start =
         new java.util.Date(sqlDate.getTime() + sqlTime.getTime());
-    this.startDateTime = UTC_FORMATTER.format(start).concat("Z");
+    this.startDateTime =
+        new SimpleDateFormat(UTC_FORMAT).format(start).concat("Z");
     sqlDuration.add(start);
-    this.endDateTime = UTC_FORMATTER.format(start).concat("Z");
+    this.endDateTime =
+        new SimpleDateFormat(UTC_FORMAT).format(start).concat("Z");
   }
 
   /*

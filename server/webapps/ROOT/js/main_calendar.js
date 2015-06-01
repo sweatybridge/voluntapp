@@ -154,6 +154,7 @@ function updateCalendarDates(startDate) {
     startDate.setDate(startDate.getDate() + 1);
   });
 
+  startDate.setDate(startDate.getDate() - 1);
   $("#next_day").prev().text(formatDate(startDate));
 }
 

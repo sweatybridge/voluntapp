@@ -82,13 +82,6 @@ public class CalendarResponse extends Response {
     return calendarId;
   }
 
-  /*
-   * @Override public String getSQLInsert() { return
-   * String.format("INSERT INTO public.\"CALENDAR\" VALUES " +
-   * "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s', DEFAULT);", name.replace("\'",
-   * "\'\'"), userId, joinEnabled, joinCode.replace("\'", "\'\'")); }
-   */
-
   @Override
   public String getSQLInsert() {
     return String
@@ -102,14 +95,9 @@ public class CalendarResponse extends Response {
     prepared.setBoolean(3, joinEnabled);
     prepared.setString(4, escape(joinCode));
   }
-
-  /*
-   * "SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM (\"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\") WHERE \"CID\" =%d AND \"%s\"=true;"
-   * , CNAME_COLUMN, CREATOR_COLUMN, CREATED_COLUMN, JOIN_ENABLED_COLUMN,
-   * JOIN_CODE_COLUMN, ACTIVE_COLUMN, ROLE_COLUMN, userId, calendarId,
-   * ACTIVE_COLUMN
-   * 
-   * 
+  
+  
+   /* 
    * SELECT * FROM \"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM
    * \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\"
    * WHERE \"CID\" =%d AND \"ACTIVE\"=true;

@@ -2,8 +2,10 @@
 $(function() {
   // Bind datetime picker
   // http://xdsoft.net/jqplugins/datetimepicker/
-  $(".datetimepicker").datetimepicker({
-    format: "Y-m-d H:i"
+  $(".datetimepicker").each(function(k, elem) {
+    $(elem).datetimepicker({
+      format: "Y-m-d H:i"
+    });
   });
 
   // Bind edit event buttons
@@ -25,17 +27,13 @@ $(function() {
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
         refreshEvents();
-        form.trigger("reset");
-        turnEventCreate();
+        resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     })
   });
 
-  $("#btn_event_cancel").click(function() {
-    $("#event_form").trigger("reset");
-    turnEventCreate();
-  });
+  $("#btn_event_cancel").click(resetEventForm);
 
   // delete event
   $("#btn_event_delete").click(function() {
@@ -58,8 +56,7 @@ $(function() {
       success: function(data) {
         toastr.success("Deleted event " + formObj["title"]);
         refreshEvents();
-        form.trigger("reset");
-        turnEventCreate();
+        resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -91,7 +88,7 @@ $(function() {
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
         refreshEvents();
-        form.trigger("reset");
+        resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -100,9 +97,7 @@ $(function() {
   // bind click to empty space on calendar
   $("#t_calendar_body").children().click(function() {
     // update create event form
-    var start = $(this).data("date")
-    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
-    turnEventCreate();
+    resetEventForm();
   });
   
   // Refresh description count
@@ -110,6 +105,19 @@ $(function() {
   $('#event_form textarea[name="description"]').keyup(updateCountdown);
   updateCountdown();
 
+  $.ajax("/api/subscription/event", {
+    method: "GET",
+    success: function(data) {
+      var past = $("#collapseThree .list-group");
+      $.each(data.joinedEvents, function(k, event) {
+        var tmpl = '<a href="#" class="list-group-item"></a>';
+        $(tmpl).text(event.title).appendTo(past);
+      });
+    },
+    error: function(data) {
+      toastr.error("Failed to retrieve past events: " + data.responseJSON.message);
+    }
+  });
 }); // End of document ready
 
 // Update Events
@@ -367,19 +375,19 @@ function editEvent(elem) {
 
   // unformat and populate
   var start = new Date(event.startDateTime);
-  var pickerStart = start.toLocaleDateString() + " " + start.toLocaleTimeString().substr(0,5);
   var end = new Date(event.endDateTime);
-  var pickerEnd = end.toLocaleDateString() + " " + end.toLocaleTimeString().substr(0,5);
 
   var form = $("#event_form");
   form.find('input[name="title"]').val(event.title);
   form.find('textarea[name="description"]').val(event.description);
-  form.find('input[name="startDate"]').val(pickerStart);
-  form.find('input[name="endDate"]').val(pickerEnd);
+  form.find('input[name="startDate"]').datetimepicker({value: start});
+  form.find('input[name="endDate"]').datetimepicker({value: end});
   form.find('input[name="location"]').val(event.location);
   form.find('input[name="max"]').val(event.max);
   form.find('input[name="eventId"]').val(event.eventId);
   form.find('select[name="calendarId"]').val(event.calendarId);
+
+  updateCountdown();
 }
 
 // Adds extra fields into event form
@@ -408,4 +416,11 @@ function turnEventEdit() {
 function updateCountdown() {
     var remaining = 255 - $('#event_form textarea[name="description"]').val().length;
     $('.countdown').text(remaining + ' characters remaining.');
+}
+
+// Resets the event form to create
+function resetEventForm() {
+  $("#event_form").trigger('reset');
+  turnEventCreate();
+  updateCountdown();
 }
