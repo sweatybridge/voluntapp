@@ -123,8 +123,8 @@ public class CalendarRequest implements Request {
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS (?, ?) "
-                  + "AND "
-                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?) AND \"%s\"=true;",
+                  + "AND \"%s\"=true AND "
+                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
               EventResponse.DESC_COLUMN, EventResponse.LOCATION_COLUMN,

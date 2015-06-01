@@ -33,14 +33,17 @@ public class EventAdminResponse extends Response {
   @Override
   public String getSQLQuery() {
     return String.format(
-        "SELECT (\"%s\") FROM \"EVENT_USER\" WHERE \"%s\" = ?;",
+        "SELECT (\"%s\") FROM \"EVENT_USER\" WHERE \"%s\" = ? AND (SELECT \"%s\"=true FROM \"EVENT\" WHERE \"%s\"=?);",
         EventSubscriptionResponse.UID_COLUMN,
-        EventSubscriptionResponse.EID_COLUMN);
+        EventSubscriptionResponse.EID_COLUMN,
+        EventResponse.ACTIVE_COLUMN,
+        EventResponse.EID_COLUMN);
   }
 
   @Override
   public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
     prepare.setInt(1, eventId);
+    prepare.setInt(2, eventId);
   }
 
   public List<Integer> getAttendeeIds() throws SQLException {

@@ -32,6 +32,7 @@ import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
 import utils.AuthLevel;
+import utils.CalendarIdQuery;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
 import exception.EventNotFoundException;
@@ -642,9 +643,9 @@ public class DBInterface {
         q = override;
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      if (override == null) {
+      //if (override == null) {
         query.formatSQLQuery(stmt);
-      }
+      //}
       result = stmt.executeQuery();
       query.setResult(result);
     } finally {
@@ -690,6 +691,23 @@ public class DBInterface {
       return AuthLevel.NONE;
     }
     return AuthLevel.getAuth(car.getAccessPrivilege());
+  }
+  
+  /**
+   * Gets a calendarId of the calendar in which the specified event was 
+   * published.
+   * 
+   * @param  eventId of the queried event 
+   * @return calendarId of the corresponding calendar
+   */
+  public int getCalendarId(int eventId) {
+    CalendarIdQuery query = new CalendarIdQuery(eventId);
+    try {
+      query(query);
+    } catch (SQLException e) {
+      return 0;
+    }
+    return query.getCalendarId();
   }
 
 }
