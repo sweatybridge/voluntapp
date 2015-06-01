@@ -25,17 +25,13 @@ $(function() {
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
         refreshEvents();
-        form.trigger("reset");
-        turnEventCreate();
+        resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     })
   });
 
-  $("#btn_event_cancel").click(function() {
-    $("#event_form").trigger("reset");
-    turnEventCreate();
-  });
+  $("#btn_event_cancel").click(resetEventForm);
 
   // delete event
   $("#btn_event_delete").click(function() {
@@ -58,8 +54,7 @@ $(function() {
       success: function(data) {
         toastr.success("Deleted event " + formObj["title"]);
         refreshEvents();
-        form.trigger("reset");
-        turnEventCreate();
+        resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -91,7 +86,7 @@ $(function() {
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
         refreshEvents();
-        form.trigger("reset");
+        resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
@@ -100,9 +95,9 @@ $(function() {
   // bind click to empty space on calendar
   $("#t_calendar_body").children().click(function() {
     // update create event form
-    var start = $(this).data("date")
-    $("#event_form").trigger("reset").find('input[name="startDate"]').val(start);
-    turnEventCreate();
+    resetEventForm();
+    var start = $(this).data("date");
+    $("#event_form").find('input[name="startDate"]').val(start);
   });
   
   // Refresh description count
@@ -420,4 +415,11 @@ function turnEventEdit() {
 function updateCountdown() {
     var remaining = 255 - $('#event_form textarea[name="description"]').val().length;
     $('.countdown').text(remaining + ' characters remaining.');
+}
+
+// Resets the event form to create
+function resetEventForm() {
+  $("#event_form").trigger('reset');
+  turnEventCreate();
+  updateCountdown();
 }
