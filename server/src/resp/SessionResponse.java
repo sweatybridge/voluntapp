@@ -110,12 +110,6 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
     }
   }
 
-  /*
-   * @Override public String getSQLInsert() { return
-   * "INSERT INTO \"SESSION\" VALUES ('" + sessionId.replace("\'", "\'\'") +
-   * "', " + userId + ", DEFAULT);"; }
-   */
-
   public String getSQLInsert() {
     return "INSERT INTO \"SESSION\" VALUES (?,?,DEFAULT);";
   }
