@@ -2,8 +2,10 @@
 $(function() {
   // Bind datetime picker
   // http://xdsoft.net/jqplugins/datetimepicker/
-  $(".datetimepicker").datetimepicker({
-    format: "Y-m-d H:i"
+  $(".datetimepicker").each(function(k, elem) {
+    $(elem).datetimepicker({
+      format: "Y-m-d H:i"
+    });
   });
 
   // Bind edit event buttons
@@ -96,8 +98,6 @@ $(function() {
   $("#t_calendar_body").children().click(function() {
     // update create event form
     resetEventForm();
-    var start = $(this).data("date");
-    $("#event_form").find('input[name="startDate"]').val(start);
   });
   
   // Refresh description count
@@ -374,15 +374,13 @@ function editEvent(elem) {
 
   // unformat and populate
   var start = new Date(event.startDateTime);
-  var pickerStart = start.toLocaleDateString() + " " + start.toLocaleTimeString().substr(0,5);
   var end = new Date(event.endDateTime);
-  var pickerEnd = end.toLocaleDateString() + " " + end.toLocaleTimeString().substr(0,5);
 
   var form = $("#event_form");
   form.find('input[name="title"]').val(event.title);
   form.find('textarea[name="description"]').val(event.description);
-  form.find('input[name="startDate"]').val(pickerStart);
-  form.find('input[name="endDate"]').val(pickerEnd);
+  form.find('input[name="startDate"]').datetimepicker({value: start});
+  form.find('input[name="endDate"]').datetimepicker({value: end});
   form.find('input[name="location"]').val(event.location);
   form.find('input[name="max"]').val(event.max);
   form.find('input[name="eventId"]').val(event.eventId);
