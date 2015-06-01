@@ -115,6 +115,14 @@ public class EventResponse extends Response {
     this.delete = delete;
   }
 
+  /**
+   * Constructor used for getting a single event by id.
+   * @param eid
+   */
+  public EventResponse(int eventId) {
+    this.eventId = eventId;
+  }
+
   public int getCalendarId() {
     return calendarId;
   }
@@ -217,9 +225,13 @@ public class EventResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM \"EVENT_USER\" WHERE \"%s\"=?;",
-        EID_COLUMN);
+    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=?;", EID_COLUMN);
   }
+
+  @Override
+  public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
+    prepared.setInt(1, eventId);
+  };
 
   @Override
   public void setResult(ResultSet result) {

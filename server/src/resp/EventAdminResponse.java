@@ -8,6 +8,7 @@ import java.util.List;
 
 public class EventAdminResponse extends Response {
 
+  @SuppressWarnings("unused")
   private List<UserResponse> attendees;
 
   /**
@@ -29,10 +30,6 @@ public class EventAdminResponse extends Response {
     this.attendees = attendees;
   }
 
-  public List<UserResponse> getAttendees() {
-    return attendees;
-  }
-
   @Override
   public String getSQLQuery() {
     return String.format(
@@ -46,32 +43,12 @@ public class EventAdminResponse extends Response {
     prepare.setInt(1, eventId);
   }
 
-  @Override
-  public String getSQLInsert() {
-    return null;
-  }
-
-  @Override
-  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {}
-
-  @Override
-  public String getSQLDelete() {
-    return null;
-  }
-
-  @Override
-  public void formatSQLDelete(PreparedStatement prepared) throws SQLException {}
-
-  public List<Integer> getSubscriberList() throws SQLException {
+  public List<Integer> getAttendeeIds() throws SQLException {
     List<Integer> users = new ArrayList<>();
     while (rs.next()) {
       users.add(rs.getInt(EventSubscriptionResponse.UID_COLUMN));
     }
     return users;
-  }
-
-  public ResultSet getResultSet() {
-    return rs;
   }
 
   @Override

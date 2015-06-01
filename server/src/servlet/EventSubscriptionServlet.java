@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
-import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import utils.ServletUtils;
@@ -20,7 +19,6 @@ import com.google.gson.Gson;
 import db.DBInterface;
 import exception.InconsistentDataException;
 import exception.InvalidActionException;
-import exception.UserNotFoundException;
 
 public class EventSubscriptionServlet extends HttpServlet {
 
@@ -45,13 +43,16 @@ public class EventSubscriptionServlet extends HttpServlet {
     if (userId == 0) {
       return;
     }
+
     Response subResp;
     try {
-      subResp = db.getUsersEvents(userId);
-    } catch (SQLException | InconsistentDataException e) {
-      subResp = new ErrorResponse("Error while retirieving the calendar IDs "
-          + "from the database." + e.getMessage());
+      subResp = db.getEventSubscription(userId);
+    } catch (SQLException e) {
+      subResp =
+          new ErrorResponse("Error while retirieving the calendar IDs "
+              + "from the database." + e.getMessage());
     }
+
     request.setAttribute(Response.class.getSimpleName(), subResp);
   }
 
@@ -68,15 +69,16 @@ public class EventSubscriptionServlet extends HttpServlet {
     if (userId == 0) {
       return;
     }
-    EventSubscriptionRequest subReq = gson.fromJson(request.getReader(),
-        EventSubscriptionRequest.class);
+    EventSubscriptionRequest subReq =
+        gson.fromJson(request.getReader(), EventSubscriptionRequest.class);
     subReq.setUserId(userId);
 
     Response subResp;
     try {
       subResp = db.putEventSubscription(subReq);
     } catch (SQLException e) {
-      subResp = new ErrorResponse("Error while registering event subscription ");
+      subResp =
+          new ErrorResponse("Error while registering event subscription ");
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     } catch (InvalidActionException e) {
       subResp = new ErrorResponse("Tried to join a full event!");
@@ -103,8 +105,8 @@ public class EventSubscriptionServlet extends HttpServlet {
     if (userId == 0) {
       return;
     }
-    EventSubscriptionRequest subreq = gson.fromJson(request.getReader(),
-        EventSubscriptionRequest.class);
+    EventSubscriptionRequest subreq =
+        gson.fromJson(request.getReader(), EventSubscriptionRequest.class);
     subreq.setUserId(userId);
 
     Response subResp;
@@ -112,8 +114,8 @@ public class EventSubscriptionServlet extends HttpServlet {
       if (db.deleteEventSubscription(subreq) == 1) {
         subResp = new SuccessResponse("Unsubscribed from event");
       } else {
-        subResp = new ErrorResponse(
-            "Unsubscribing failed, you are not subscribed");
+        subResp =
+            new ErrorResponse("Unsubscribing failed, you are not subscribed");
       }
     } catch (SQLException | InconsistentDataException e) {
       subResp = new ErrorResponse("Unsubscribing went wrong, this is bad");

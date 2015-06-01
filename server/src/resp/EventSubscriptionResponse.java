@@ -3,6 +3,7 @@ package resp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class EventSubscriptionResponse extends Response {
@@ -10,7 +11,7 @@ public class EventSubscriptionResponse extends Response {
   public static String EID_COLUMN = "EID";
   public static String UID_COLUMN = "UID";
 
-  private List<EventResponse> pastEvents;
+  private List<EventResponse> joinedEvents = new ArrayList<>();
 
   /**
    * Fields excluded from serialisation.
@@ -29,31 +30,25 @@ public class EventSubscriptionResponse extends Response {
     this.eventId = eventId;
   }
 
-  public void setPastEvents(List<EventResponse> pastEvents) {
-    this.pastEvents = pastEvents;
-  }
-
-  public List<EventResponse> getPastEvents() {
-    return pastEvents;
+  /**
+   * Constructs a get response.
+   * 
+   * @param eventId
+   */
+  public EventSubscriptionResponse(int userId) {
+    this.userId = userId;
   }
 
   @Override
   public String getSQLQuery() {
-    return String.format(
-        "SELECT COUNT (*) AS \"TOTAL\" FROM \"EVENT_USER\" WHERE \"%s\"=?;",
-        EID_COLUMN);
+    return String.format("SELECT (\"%s\") FROM \"EVENT_USER\" WHERE \"%s\"=?;",
+        EID_COLUMN, UID_COLUMN);
   }
 
   @Override
   public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
-    prepare.setInt(1, eventId);
+    prepare.setInt(1, userId);
   }
-
-  /*
-   * @Override public String getSQLInsert() { return
-   * String.format("INSERT INTO \"EVENT_USER\" VALUES (%d,%d);", eventId,
-   * userId); }
-   */
 
   @Override
   public String getSQLInsert() {
@@ -87,5 +82,17 @@ public class EventSubscriptionResponse extends Response {
   @Override
   public void setResult(ResultSet result) {
     rs = result;
+  }
+
+  public List<Integer> getJoinedEventIds() throws SQLException {
+    List<Integer> events = new ArrayList<>();
+    while (rs.next()) {
+      events.add(rs.getInt(EventSubscriptionResponse.EID_COLUMN));
+    }
+    return events;
+  }
+
+  public void addEvent(EventResponse event) {
+    joinedEvents.add(event);
   }
 }

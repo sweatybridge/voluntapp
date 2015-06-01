@@ -134,51 +134,6 @@ public class DBInterface {
   }
 
   /**
-   * Get IDs of all calendars to which the user subscribed.
-   * 
-   * @param userId
-   *          ID of the user whose calendars are supposed to be retrieved.
-   * @return SubscriptionResponse Object whose calendarIds field is set to IDs
-   *         of all calendars to which a user subscribed.
-   * @throws SQLException
-   * @throws InconsistentDataException
-   */
-  public CalendarSubscriptionResponse getUsersEvents(int userId)
-      throws SQLException, InconsistentDataException {
-    List<CalendarResponse> cals = new ArrayList<>();
-    CalendarSubscriptionResponse resp =
-        new CalendarSubscriptionResponse(userId);
-    Connection conn = source.getConnection();
-    try {
-      query(resp);
-      ResultSet result = resp.getResultSet();
-      while (result.next()) {
-        int eventId = result.getInt(CalendarSubscriptionResponse.CID_COLUMN);
-        CalendarResponse calendar =
-            getCalendar(new CalendarRequest(userId, eventId));
-
-        // User is subscribed to a calendar that he doesn't have access to
-        if (calendar == CalendarResponse.NO_CALENDAR) {
-          throw new InconsistentDataException(
-              "User is no longer subscribed to this calendar.");
-        }
-
-        // Remove join code if user is not an admin
-        if (calendar.getRole() == AuthLevel.BASIC) {
-          calendar.setJoinEnabled(null);
-          calendar.setJoinCode(null);
-        }
-
-        cals.add(calendar);
-      }
-    } finally {
-      conn.close();
-    }
-    resp.setCalendars(cals);
-    return resp;
-  }
-
-  /**
    * Given the join code of a calendar and the ID of a user, register user's
    * subscription to a given calendar.
    * 
@@ -368,15 +323,21 @@ public class DBInterface {
    *           Thrown if the user was deleted between the issuing of the request
    *           and the response
    */
-  public EventSubscriptionResponse getEventSubscription(
-      EventSubscriptionRequest esr) throws SQLException {
-    EventSubscriptionResponse eresp =
-        new EventSubscriptionResponse(esr.getUserId(), esr.getEventId());
-    
-    query(eresp);
-    
-    
-    return null;
+  public EventSubscriptionResponse getEventSubscription(int userId)
+      throws SQLException {
+    // Get event subscription
+    EventSubscriptionResponse eventSubs = new EventSubscriptionResponse(userId);
+    query(eventSubs);
+
+    // Retrieve event details from ids
+    List<Integer> eventIds = eventSubs.getJoinedEventIds();
+    for (int eid : eventIds) {
+      EventResponse event = new EventResponse(eid);
+      query(event);
+      eventSubs.addEvent(event);
+    }
+
+    return eventSubs;
   }
 
   /**
@@ -397,7 +358,7 @@ public class DBInterface {
     query(response);
     
     // Retrieve user details based on user id
-    List<Integer> users = response.getSubscriberList();
+    List<Integer> users = response.getAttendeeIds();
     for (Integer user : users) {
       userResponses.add(getUser(new UserRequest(user)));
     }
