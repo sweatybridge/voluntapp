@@ -133,10 +133,12 @@ function updateCalendarDates(startDate) {
     // update heading text
     var heading = $($("#t_calendar_heading").children()[k]);
     heading.text(getWeekDay(startDate));
-    heading.addClass("bg-info");
 
+    // highlight heading background
     if (date === today.toLocaleDateString()) {
       heading.removeClass("bg-info").addClass("bg-warning");
+    } else {
+      heading.removeClass("bg-warning").addClass("bg-info");
     }
 
     // update heading class
