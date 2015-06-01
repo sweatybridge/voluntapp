@@ -179,16 +179,22 @@ function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
-  '<div data-event-id="{{eventId}}" class="event" onclick="event.stopPropagation();">'+
-    '<div class="time">'+
+  '<div class="event">'+
+    '<div class="time" onclick="editEvent(this)">'+
       '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
     '</div>'+
-    '<div class="header progress-bar-info" onclick="editEvent(this)">'+
-      '<span class="label label-warning count">{{remaining}}</span>'+
+    '<div class="header progress-bar-info">'+
+      '<div class="dropdown">'+
+        '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
+        '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}"></ul>'+
+      '</div>'+
     '</div>'+
-    '<div class="title">{{title}}</div>'+
-    '<div class="event-extras"><div class="desc">{{description}}</div><div class="requirements"></div></div>'+
+    '<div class="title" onclick="editEvent(this)">{{title}}</div>'+
+    '<div class="event-extras">'+
+      '<div class="desc" onclick="editEvent(this)">{{description}}</div>'+
+      '<div class="requirements"></div>'+
+    '</div>'+
     '<div class="location">'+
       '<span class="glyphicon glyphicon-map-marker"></span> {{location}}'+
     '</div>'+
@@ -221,6 +227,7 @@ function createEventView(event) {
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
+        .replace('{{eventId}}', event.eventId)
         .replace('{{startDate}}', readableDate)
         .replace('{{startTime}}', readableTime)
         .replace('{{title}}', event.title)
@@ -233,8 +240,11 @@ function createEventView(event) {
         temp = temp.replace('{{remaining}}', event.currentCount + "/" + event.max);
       }
       
-      var view = $(temp);
-      
+      // stop propagating event to elements below this view
+      var view = $(temp).data("eventId", event.eventId).click(function(e) {
+        e.stopPropagation();
+      });
+
       // Add in the requirement checkboxes
       var req_html = '<div class="checkbox"> \
                       <label> \
@@ -245,7 +255,30 @@ function createEventView(event) {
         var req_checkbox = $(req_html.replace("{{requirement}}", r));
         view.find(".requirements").append(req_checkbox);
       });
-      
+
+      // show list of volunteers if admin clicks on label
+      view.find(".count").dropdown().click(function() {
+        var attendeesList = $(this).next();
+        var tmpl = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#"></a></li>';
+        $.ajax("/api/event/" + event.eventId, {
+          method: "GET",
+          success: function(data) {
+            attendeesList.empty();
+            if (data.attendees.length > 0) {
+              // add attendees
+              $.each(data.attendees, function(k, attendee) {
+                $(tmpl).appendTo(attendeesList).find("a").text(attendee.firstName);
+              });
+            } else {
+              $(tmpl).appendTo(attendeesList).find("a").text("No attendee");
+            }
+          },
+          error: function(data) {
+            console.log("Not admin.");
+          }
+        });
+      });
+
       // Append the view to the actual td
       $(elem).append(view);
       if (event.hasJoined) {
@@ -259,7 +292,7 @@ function createEventView(event) {
         // update header
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
       } else if (event.max - event.currentCount == 0) {
-        view.find(".badge").css("visibility", "hidden");
+        view.find(".badge").hide();
       }
       // hide location if it is not set
       if (!event.location) {
