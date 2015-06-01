@@ -5,8 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.validator.routines.CalendarValidator;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Deserialized JSON object of an API request to create new event.
@@ -42,7 +43,8 @@ public class EventRequest implements Request {
    */
   public EventRequest() {}
 
-  public EventRequest(String title, String description, String location,
+  @VisibleForTesting
+  protected EventRequest(String title, String description, String location,
       String startTime, String startDate, String endTime, String endDate,
       String timezone, int max, int calendarId) {
     this.title = title;
@@ -57,6 +59,7 @@ public class EventRequest implements Request {
     this.calendarId = calendarId;
   }
 
+  @VisibleForTesting
   public EventRequest(String title, String description, String location,
       Calendar startDateTime, Calendar endDateTime, TimeZone clientTimezone,
       int max, int calendarId) {
@@ -134,9 +137,6 @@ public class EventRequest implements Request {
     return max;
   }
 
-  /**
-   * Could return null
-   */
   public String getDescription() {
     return description;
   }
@@ -149,27 +149,6 @@ public class EventRequest implements Request {
     return endDateTime;
   }
 
-  /**
-   * Should only be called if the request object is constructed manually by
-   * server as they might contain invalid information submitted by client.
-   */
-  public String getStartTime() {
-    return startTime;
-  }
-
-  public String getStartDate() {
-    return startDate;
-  }
-
-  public String getDuration() {
-    if (startDateTime == null || endDateTime == null) {
-      return null;
-    }
-    long duration =
-        endDateTime.getTimeInMillis() - startDateTime.getTimeInMillis();
-    return DurationFormatUtils.formatDuration(duration, "HH:mm:ss");
-  }
-  
   public String getEventId() {
     return eventId;
   }
