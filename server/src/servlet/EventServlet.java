@@ -1,6 +1,8 @@
 package servlet;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.http.HttpServlet;
@@ -8,11 +10,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.EventRequest;
+import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.EventResponse;
+import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
+import sql.SQLQuery;
 import utils.AuthLevel;
 import utils.ServletUtils;
 
@@ -84,7 +89,7 @@ public class EventServlet extends HttpServlet {
     
     /* Verify if the user is allowed to publish events in the specified 
      * calendar. */
-    if (!checkAccessRights(eventReq, request)) {
+    if (!checkAccessRights(eventReq.getCalendarId(), request)) {
       return;
     }
 
@@ -113,8 +118,14 @@ public class EventServlet extends HttpServlet {
       request.setAttribute(Response.class.getSimpleName(),
           "The updated event data are invalid.");
     }
-
     String eventId = eventReq.getEventId();
+    
+    /* Verify if the user is allowed to edit events in the specified 
+     * calendar. */
+    if (!checkAccessRights(db.getCalendarId(Integer.parseInt(eventId)), request)) {
+      return;
+    }
+    
     if (eventId != null) {
       try {
         if (!db.updateEvent(Integer.parseInt(eventId), eventReq)) {
@@ -155,6 +166,12 @@ public class EventServlet extends HttpServlet {
       throws IOException {
 
     String eventId = request.getPathInfo().substring(1);
+    
+    /* Verify if the user is allowed to edit events in the specified 
+     * calendar. */
+    if (!checkAccessRights(db.getCalendarId(Integer.parseInt(eventId)), request)) {
+      return;
+    }
 
     if (eventId != null) {
       try {
@@ -188,21 +205,20 @@ public class EventServlet extends HttpServlet {
    * @return Boolean value indicating if the user is allowed to edit calendar 
    *         events.
    */
-  private boolean checkAccessRights(EventRequest eventReq, 
+  private boolean checkAccessRights(int calendarId, 
       HttpServletRequest request) {
     SessionResponse sessionResponse = (SessionResponse) request
         .getAttribute(SessionResponse.class.getSimpleName());
     
     AuthLevel level = db.authoriseUser(sessionResponse.getUserId(), 
-        eventReq.getCalendarId());
+        calendarId);
     
     if (level == AuthLevel.NONE || level == AuthLevel.BASIC) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "You are not allowed to publish events to this calendar. " +
+          "You are not allowed to edit events of this calendar. " +
           "Owner / Admin priviledges are required."));
       return false;
     }
     return true;
   }
-
 }
