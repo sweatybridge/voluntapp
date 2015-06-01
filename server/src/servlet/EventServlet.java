@@ -59,6 +59,12 @@ public class EventServlet extends HttpServlet {
       return;
     }
     int eventId = Integer.parseInt(eid);
+    
+    /* Verify if the user is allowed to preview info about event attendees 
+     * in the specified calendar. */
+    if (!checkAccessRights(db.getCalendarId(eventId), request)) {
+      return;
+    }
 
     Response resp;
     try {
@@ -216,8 +222,8 @@ public class EventServlet extends HttpServlet {
     
     if (level == AuthLevel.NONE || level == AuthLevel.BASIC) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "You are not allowed to edit events of this calendar. " +
-          "Owner / Admin priviledges are required."));
+          "You are not allowed to preview attendees details or edit events " +
+          "of this calendar. Owner / Admin priviledges are required."));
       return false;
     }
     return true;
