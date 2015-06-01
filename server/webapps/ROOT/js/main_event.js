@@ -385,6 +385,8 @@ function editEvent(elem) {
   form.find('input[name="max"]').val(event.max);
   form.find('input[name="eventId"]').val(event.eventId);
   form.find('select[name="calendarId"]').val(event.calendarId);
+
+  updateCountdown();
 }
 
 // Adds extra fields into event form
