@@ -110,6 +110,19 @@ $(function() {
   $('#event_form textarea[name="description"]').keyup(updateCountdown);
   updateCountdown();
 
+  $.ajax("/api/subscription/event", {
+    method: "GET",
+    success: function(data) {
+      var past = $("#collapseThree .list-group");
+      $.each(data.joinedEvents, function(k, event) {
+        var tmpl = '<a href="#" class="list-group-item"></a>';
+        $(tmpl).text(event.title).appendTo(past);
+      });
+    },
+    error: function(data) {
+      toastr.error("Failed to retrieve past events: " + data.responseJSON.message);
+    }
+  });
 }); // End of document ready
 
 // Update Events
