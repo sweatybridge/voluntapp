@@ -131,7 +131,7 @@ function updateCalendarDates(startDate) {
 
     // update heading text
     var heading = $($("#t_calendar_heading").children()[k]);
-    heading.text(getWeekDay(startDate));
+    heading.text(getWeekDay(startDate) + " - " + formatDate(startDate));
     heading.removeClass();
 
     // highlight heading background
