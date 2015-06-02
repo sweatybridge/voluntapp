@@ -1,6 +1,7 @@
 package db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -20,15 +21,18 @@ import req.UserRequest;
 import resp.CalendarAuthResponse;
 import resp.CalendarResponse;
 import resp.CalendarSubscriptionResponse;
+import resp.EventAdminResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.UserResponse;
+import sql.SQLDelete;
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
 import utils.AuthLevel;
+import utils.CalendarIdQuery;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
 import exception.EventNotFoundException;
@@ -116,52 +120,18 @@ public class DBInterface {
     CalendarResponse result = new CalendarResponse(request.getCalendarId(),
         request.getUserId());
     query(result);
+
+    // Role based authentication
+    if (result.getRole() == AuthLevel.NONE) {
+      return CalendarResponse.NO_CALENDAR;
+    }
+
     if (request.getStartDate() != null) {
       CalendarEventsQuery query = request.getCalendarEventsQuery();
       query(query);
       result.setEvents(query.getEvents());
     }
     return result;
-  }
-
-  /**
-   * Retrieve an event by its id.
-   * 
-   * @param er
-   *          EventRequest
-   * @return EventResponse
-   */
-  public EventResponse getEvent(int eventId) {
-    // TODO: implement this
-    return new EventResponse();
-  }
-
-  /**
-   * Get IDs of all calendars to which the user subscribed.
-   * 
-   * @param userId
-   *          ID of the user whose calendars are supposed to be retrieved.
-   * @return SubscriptionResponse Object whose calendarIds field is set to IDs
-   *         of all calendars to which a user subscribed.
-   * @throws SQLException
-   */
-  public CalendarSubscriptionResponse getUsersCalendars(int userId)
-      throws SQLException {
-    List<CalendarResponse> cals = new ArrayList<>();
-    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
-    Connection conn = source.getConnection();
-    try {
-      Statement stmt = conn.createStatement();
-      ResultSet result = stmt.executeQuery(resp.getSQLQuery());
-      while (result.next()) {
-        cals.add(getCalendar(new CalendarRequest(userId, result
-            .getInt(CalendarSubscriptionResponse.CID_COLUMN))));
-      }
-    } finally {
-      conn.close();
-    }
-    resp.setCalendars(cals);
-    return resp;
   }
 
   /**
@@ -186,6 +156,45 @@ public class DBInterface {
   }
 
   /**
+   * Get all events to which the user subscribed.
+   * 
+   * @throws SQLException
+   * @throws InconsistentDataException
+   */
+  public CalendarSubscriptionResponse getUsersCalendars(int userId)
+      throws SQLException, InconsistentDataException {
+    List<CalendarResponse> cals = new ArrayList<>();
+    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(userId);
+    Connection conn = source.getConnection();
+    try {
+      query(resp);
+      ResultSet result = resp.getResultSet();
+      while (result.next()) {
+        CalendarResponse calendar = getCalendar(new CalendarRequest(userId,
+            result.getInt(CalendarSubscriptionResponse.CID_COLUMN)));
+
+        // User is subscribed to a calendar that he doesn't have access to
+        if (calendar == CalendarResponse.NO_CALENDAR) {
+          throw new InconsistentDataException(
+              "User is no longer subscribed to this calendar.");
+        }
+
+        // Remove join code if user is not an admin
+        if (calendar.getRole() == AuthLevel.BASIC) {
+          calendar.setJoinEnabled(null);
+          calendar.setJoinCode(null);
+        }
+
+        cals.add(calendar);
+      }
+    } finally {
+      conn.close();
+    }
+    resp.setCalendars(cals);
+    return resp;
+  }
+
+  /**
    * Store user entity into database.
    * 
    * @param rq
@@ -202,21 +211,7 @@ public class DBInterface {
     UserResponse us = new UserResponse(rq.getEmail(),
         PasswordUtils.getPasswordHash(rq.getPassword()),
         UserResponse.INVALID_USER_ID, rq.getFirstName(), rq.getLastName());
-
-    Connection conn = source.getConnection();
-    int uid;
-    try {
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(us.getSQLInsert(), Statement.RETURN_GENERATED_KEYS);
-      ResultSet rs = stmt.getGeneratedKeys();
-      if (!rs.next()) {
-        throw new SQLException();
-      }
-      uid = rs.getInt("ID");
-    } finally {
-      conn.close();
-    }
-    return uid;
+    return insert(us, true, UserResponse.ID_COLUMN);
   }
 
   /**
@@ -231,7 +226,7 @@ public class DBInterface {
    */
   public boolean putSession(SessionRequest sq) throws SQLException {
     SessionResponse sr = new SessionResponse(sq.getSessionId(), sq.getUserId());
-    return insert(sr);
+    return insert(sr) == 1;
   }
 
   /**
@@ -245,7 +240,7 @@ public class DBInterface {
   public CalendarResponse putCalendar(CalendarRequest cq) throws SQLException {
     CalendarResponse cr = new CalendarResponse(cq.getName(),
         cq.isJoinEnabled(), cq.getUserId(), cq.getInviteCode());
-    cr.setCalendarID(getID(cr, CalendarResponse.CID_COLUMN));
+    cr.setCalendarID(insert(cr, true, CalendarResponse.CID_COLUMN));
     return cr;
   }
 
@@ -273,34 +268,6 @@ public class DBInterface {
   }
 
   /**
-   * Utility method which retrieves the ID of the inserted database record.
-   * 
-   * @param insert
-   *          SQLInsert object corresponding to the record to be added to the
-   *          database
-   * @param ColumnID
-   * @return ID of the inserted database record
-   * @throws SQLException
-   */
-  private int getID(SQLInsert insert, String ColumnID) throws SQLException {
-    Connection conn = source.getConnection();
-    int id;
-    try {
-      Statement stmt = conn.createStatement();
-      int rows = stmt.executeUpdate(insert.getSQLInsert(),
-          Statement.RETURN_GENERATED_KEYS);
-      ResultSet rs = stmt.getGeneratedKeys();
-      if (rows == 0 || !rs.next()) {
-        throw new SQLException();
-      }
-      id = rs.getInt(ColumnID);
-    } finally {
-      conn.close();
-    }
-    return id;
-  }
-
-  /**
    * Store the event into the database.
    * 
    * @param er
@@ -311,10 +278,10 @@ public class DBInterface {
   public EventResponse putEvent(EventRequest ereq) throws SQLException {
     // TODO: why convert max to string?
     EventResponse eresp = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
-        ereq.getStartDate(), ereq.getDuration(),
-        Integer.toString(ereq.getMax()), -1, ereq.getCalendarId());
-    int id = getID(eresp, EventResponse.EID_COLUMN);
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
+        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), -1,
+        ereq.getCalendarId());
+    int id = insert(eresp, true, EventResponse.EID_COLUMN);
     eresp.setEventId(id);
     return eresp;
   }
@@ -334,14 +301,14 @@ public class DBInterface {
     // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());
-    if (!insert(response)) {
+    if (!(insert(response) == 1)) {
       throw new InvalidActionException("Tried to join a full event");
     }
     return response;
   }
 
   /**
-   * Gets the list of users that have signed up to an event.
+   * Gets the list of events that a user has subscribed to.
    * 
    * @param esr
    *          The request object of the event in question (only the event ID is
@@ -357,25 +324,47 @@ public class DBInterface {
    *           Thrown if the user was deleted between the issuing of the request
    *           and the response
    */
-  public EventSubscriptionResponse getEventSubscription(
-      EventSubscriptionRequest esr) throws SQLException, UserNotFoundException,
-      InconsistentDataException {
-    // Untested
-    List<UserResponse> userResponses = new ArrayList<>();
-    EventSubscriptionResponse response = new EventSubscriptionResponse(
-        esr.getEventId());
-    Connection conn = source.getConnection();
-    try {
-      Statement stmt = conn.createStatement();
-      response.setResult(stmt.executeQuery(response.getSQLUserCount()));
-      List<Integer> users = response.getSubscriberList();
-      for (Integer user : users) {
-        userResponses.add(getUser(new UserRequest(user)));
-      }
-      response.setAttenendees(userResponses);
-    } finally {
-      conn.close();
+  public EventSubscriptionResponse getEventSubscription(int userId)
+      throws SQLException {
+    // Get event subscription
+    EventSubscriptionResponse eventSubs = new EventSubscriptionResponse(userId);
+    query(eventSubs);
+
+    // Retrieve event details from ids
+    List<Integer> eventIds = eventSubs.getJoinedEventIds();
+    for (int eid : eventIds) {
+      EventResponse event = new EventResponse(eid);
+      query(event);
+      eventSubs.addEvent(event);
     }
+
+    return eventSubs;
+  }
+
+  /**
+   * Given an event id, returns the list of attendees, should only be called by
+   * admins of this event.
+   * 
+   * @param eventId
+   * @return
+   * @throws SQLException
+   * @throws UserNotFoundException
+   * @throws InconsistentDataException
+   */
+  public EventAdminResponse getEventAttendees(int eventId) throws SQLException,
+      UserNotFoundException, InconsistentDataException {
+    List<UserResponse> userResponses = new ArrayList<>();
+    EventAdminResponse response = new EventAdminResponse(eventId);
+    
+    query(response);
+    
+    // Retrieve user details based on user id
+    List<Integer> users = response.getAttendeeIds();
+    for (Integer user : users) {
+      userResponses.add(getUser(new UserRequest(user)));
+    }
+    response.setAttendees(userResponses);
+    
     return response;
   }
 
@@ -394,7 +383,7 @@ public class DBInterface {
       throws SQLException, InconsistentDataException {
     EventSubscriptionResponse response = new EventSubscriptionResponse(
         esr.getEventId(), esr.getUserId());
-    int rows = update(response);
+    int rows = delete(response);
     if (rows > 1) {
       throw new InconsistentDataException(
           "Deleteing an event subscription removed more than one row");
@@ -455,9 +444,8 @@ public class DBInterface {
       throws SQLException, EventNotFoundException, InconsistentDataException {
     // TODO: why convert max to string?
     EventResponse er = new EventResponse(ereq.getTitle(),
-        ereq.getDescription(), ereq.getLocation(), ereq.getStartTime(),
-        ereq.getStartDate(), ereq.getDuration(),
-        Integer.toString(ereq.getMax()), eventId, -1);
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
+        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), eventId, -1);
     return updateRowCheckHelper(er);
   }
 
@@ -497,8 +485,7 @@ public class DBInterface {
    */
   public boolean deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
-    EventResponse er = new EventResponse(null, null, null, null, null, null,
-        null, eventId, -1, true);
+    EventResponse er = new EventResponse(eventId, true);
     return updateRowCheckHelper(er);
   }
 
@@ -541,7 +528,7 @@ public class DBInterface {
    */
   public boolean deleteSession(String sid) throws SQLException {
     SessionResponse sr = new SessionResponse(sid, UserResponse.INVALID_USER_ID);
-    int rowsChanged = update(sr);
+    int rowsChanged = delete(sr);
     // If this it not 1 we may have a problem and wish to log it/
     return rowsChanged == 1;
   }
@@ -556,16 +543,28 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private boolean insert(SQLInsert insertion) throws SQLException {
+  private int insert(SQLInsert insertion, boolean returnKey, String keyColumn)
+      throws SQLException {
     Connection conn = source.getConnection();
-    int rows = 0;
+    int ret = 0;
     try {
-      Statement stmt = conn.createStatement();
-      rows = stmt.executeUpdate(insertion.getSQLInsert());
+      PreparedStatement stmt = conn.prepareStatement(insertion.getSQLInsert(),
+          Statement.RETURN_GENERATED_KEYS);
+      insertion.formatSQLInsert(stmt);
+      ret = stmt.executeUpdate();
+      if (returnKey) {
+        ResultSet rs = stmt.getGeneratedKeys();
+        rs.next();
+        ret = rs.getInt(keyColumn);
+      }
     } finally {
       conn.close();
     }
-    return rows == 1;
+    return ret;
+  }
+
+  private int insert(SQLInsert insertion) throws SQLException {
+    return insert(insertion, false, null);
   }
 
   /**
@@ -578,14 +577,23 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private int update(SQLUpdate query) throws SQLException {
+  private int update(SQLUpdate update, String override) throws SQLException {
     Connection conn = source.getConnection();
+    int result = 0;
     try {
-      Statement stmt = conn.createStatement();
-      String q = query.getSQLUpdate();
+      String q;
+      if (override == null) {
+        q = update.getSQLUpdate();
+      } else {
+        q = override;
+      }
       if (q != null) {
-        int result = stmt.executeUpdate(q);
-        query.checkResult(result);
+        PreparedStatement stmt = conn.prepareStatement(q);
+        if (override == null) {
+          update.formatSQLUpdate(stmt);
+        }
+        result = stmt.executeUpdate();
+        update.checkResult(result);
         return result;
       }
     } finally {
@@ -593,6 +601,23 @@ public class DBInterface {
     }
     // The query is pointless, return 1 to signal success
     return 1;
+  }
+
+  private int update(SQLUpdate update) throws SQLException {
+    return update(update, null);
+  }
+
+  private int delete(SQLDelete delete) throws SQLException {
+    Connection conn = source.getConnection();
+    int result = 0;
+    try {
+      PreparedStatement stmt = conn.prepareStatement(delete.getSQLDelete());
+      delete.formatSQLDelete(stmt);
+      result = stmt.executeUpdate();
+    } finally {
+      conn.close();
+    }
+    return result;
   }
 
   /**
@@ -607,16 +632,30 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private boolean query(SQLQuery query) throws SQLException {
+  private boolean query(SQLQuery query, String override) throws SQLException {
     Connection conn = source.getConnection();
+    ResultSet result = null;
     try {
-      Statement stmt = conn.createStatement();
-      ResultSet result = stmt.executeQuery(query.getSQLQuery());
+      String q;
+      if (override == null) {
+        q = query.getSQLQuery();
+      } else {
+        q = override;
+      }
+      PreparedStatement stmt = conn.prepareStatement(q);
+      //if (override == null) {
+        query.formatSQLQuery(stmt);
+      //}
+      result = stmt.executeQuery();
       query.setResult(result);
     } finally {
       conn.close();
     }
     return true;
+  }
+
+  private boolean query(SQLQuery query) throws SQLException {
+    return query(query, null);
   }
 
   /**
@@ -631,14 +670,8 @@ public class DBInterface {
   public boolean updateSession(int userId, String sessionId)
       throws SQLException {
     SessionResponse sr = new SessionResponse(sessionId, userId);
-    Connection conn = source.getConnection();
-    try {
-      Statement stmt = conn.createStatement();
-      stmt.executeUpdate(sr.getSQLRefresh());
-    } finally {
-      conn.close();
-    }
-    return true;
+    int rows = update(sr, sr.getSQLRefresh());
+    return rows == 1;
   }
 
   /**
@@ -658,6 +691,23 @@ public class DBInterface {
       return AuthLevel.NONE;
     }
     return AuthLevel.getAuth(car.getAccessPrivilege());
+  }
+  
+  /**
+   * Gets a calendarId of the calendar in which the specified event was 
+   * published.
+   * 
+   * @param  eventId of the queried event 
+   * @return calendarId of the corresponding calendar
+   */
+  public int getCalendarId(int eventId) {
+    CalendarIdQuery query = new CalendarIdQuery(eventId);
+    try {
+      query(query);
+    } catch (SQLException e) {
+      return 0;
+    }
+    return query.getCalendarId();
   }
 
 }

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarRequest;
+import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
@@ -80,8 +81,13 @@ public class CalendarServlet extends HttpServlet {
     }
 
     try {
-      request.setAttribute(Response.class.getSimpleName(),
-          db.getCalendar(calendarRequest));
+      CalendarResponse calendar = db.getCalendar(calendarRequest);
+      if (calendar == CalendarResponse.NO_CALENDAR) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "You do not have access to this calendar."));
+        return;
+      }
+      request.setAttribute(Response.class.getSimpleName(), calendar);
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error while retireving the calendar information from the "
@@ -203,6 +209,7 @@ public class CalendarServlet extends HttpServlet {
     } catch (NumberFormatException e) {
       result = new ErrorResponse("One of the specified dates was invalid.");
     } catch (SQLException e) {
+      e.printStackTrace();
       result = new ErrorResponse(
           "Database error occured while updating the calendar.");
     } catch (InconsistentDataException e) {

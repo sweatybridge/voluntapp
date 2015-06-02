@@ -1,5 +1,6 @@
 package req;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -8,7 +9,7 @@ import java.util.List;
 
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
-import sql.SQLQuery;
+import resp.Response;
 
 /**
  * Deserialized JSON object of an API request to create a calendar.
@@ -39,24 +40,16 @@ public class CalendarRequest implements Request {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public CalendarRequest() {
-  }
+  public CalendarRequest() {}
 
-  public CalendarRequest(String name, boolean joinEnabled, String inviteCode,
-      int userId) {
-    this.name = name;
-    this.joinEnabled = joinEnabled;
-    this.inviteCode = inviteCode;
-    this.userId = userId;
-  }
-
+  /**
+   * Constructor called by calendar servlet to get user calendars.
+   * 
+   * @param userId
+   * @param calendarId
+   */
   public CalendarRequest(int userId, int calendarId) {
     this.userId = userId;
-    this.calendarId = calendarId;
-  }
-
-  /* Constructor used by GET method of calendar servlet. */
-  public CalendarRequest(int calendarId) {
     this.calendarId = calendarId;
   }
 
@@ -108,7 +101,7 @@ public class CalendarRequest implements Request {
     return new CalendarEventsQuery();
   }
 
-  public class CalendarEventsQuery implements SQLQuery {
+  public class CalendarEventsQuery extends Response {
     private ResultSet rs;
     private List<EventResponse> events = new ArrayList<EventResponse>();
 
@@ -123,26 +116,34 @@ public class CalendarRequest implements Request {
      */
 
     public String getSQLQuery() {
-      Timestamp endDate = new Timestamp(startDate.getTime() + TIME_INTERVAL);
       return String
           .format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
-                  + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=%s AND \"%s\"=\"EVENT\".\"%s\")"
+                  + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
-                  + "OVERLAPS ('%s', '%s') "
-                  + "AND "
-                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=%d) AND \"%s\"=true;",
+                  + "OVERLAPS (?, ?) "
+                  + "AND \"%s\"=true AND "
+                  + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
               EventResponse.DESC_COLUMN, EventResponse.LOCATION_COLUMN,
               EventResponse.DATE_COLUMN, EventResponse.TIME_COLUMN,
               EventResponse.DURATION_COLUMN, EventResponse.MAX_ATTEDEE_COLUMN,
               EventSubscriptionResponse.EID_COLUMN,
-              EventSubscriptionResponse.UID_COLUMN, userId,
+              EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              startDate, endDate, calendarId, EventResponse.ACTIVE_COLUMN);
+              EventResponse.ACTIVE_COLUMN);
+    }
+
+    @Override
+    public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
+      Timestamp endDate = new Timestamp(startDate.getTime() + TIME_INTERVAL);
+      prepare.setInt(1, userId);
+      prepare.setTimestamp(2, startDate);
+      prepare.setTimestamp(3, endDate);
+      prepare.setInt(4, calendarId);
     }
 
     @Override

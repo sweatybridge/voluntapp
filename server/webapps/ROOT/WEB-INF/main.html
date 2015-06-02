@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title></title>
+        <title>Web App</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -62,11 +62,9 @@
           
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingOne">
+              <div class="panel-heading" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="false" aria-controls="collapseOne">
                 <h4 class="panel-title">
-                  <a data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="true" aria-controls="collapseOne">
                     My calendars
-                  </a>
                 </h4>
               </div>
               <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
@@ -102,11 +100,9 @@
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingTwo">
+              <div class="panel-heading" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                 <h4 class="panel-title">
-                  <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                     My profile
-                  </a>
                 </h4>
               </div>
               <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
@@ -137,14 +133,37 @@
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingThree">
+              <div class="panel-heading" role="tab" id="headingThree" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                 <h4 class="panel-title">
-                  <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                    Help
-                  </a>
+                    Past events
                 </h4>
               </div>
               <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div class="panel-body">
+                  <div class="list-group">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingFour" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                <h4 class="panel-title">
+                    Saved events
+                </h4>
+              </div>
+              <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                <div class="panel-body">
+                  ??
+                </div>
+              </div>
+            </div>
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="headingFive" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                <h4 class="panel-title">
+                    Help
+                </h4>
+              </div>
+              <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
                 <div class="panel-body">
                   ??
                 </div>
@@ -202,7 +221,7 @@
                   <input type="text" name="startDate" class="form-control datetimepicker" placeholder="Start date time" required>
                   <input type="text" name="endDate" class="form-control datetimepicker" placeholder="End date time" required>
                   <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
-                  <input type="number" name="max" class="form-control" min="-1" value="0" placeholder="Size" required>
+                  <input type="number" name="max" class="form-control" min="-1" placeholder="Maximum Size" required>
                   <textarea class="form-control" name="description" rows="5" placeholder="Description" maxlength="255"></textarea>
                   <span class="countdown"></span>
                   </div>
@@ -246,9 +265,9 @@
 
     <script src="js/plugins.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/main_calendar.js"></script>
     <script src="js/main_event.js"></script>
-    <script src="js/main.js"></script>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
     <script>

@@ -23,6 +23,10 @@
   transition: all 0.3s ease;
 }
 
+.panel-heading {
+  cursor: pointer; cursor: hand;
+}
+
 .event > div {
   padding: 6px;
 }
@@ -79,4 +83,12 @@
 
 .event:hover .event-extras {
   display: block;
+}
+
+a:hover, a:active, a:focus {
+  outline: 0;
+}
+
+.panel-heading:hover {
+  text-decoration: underline;
 }

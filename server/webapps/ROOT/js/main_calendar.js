@@ -134,6 +134,7 @@ function updateCalendarDates(startDate) {
     heading.text(getWeekDay(startDate));
     heading.removeClass();
 
+    // highlight heading background
     if (date === today.toLocaleDateString()) {
       heading.addClass("bg-primary");
     }
@@ -151,6 +152,7 @@ function updateCalendarDates(startDate) {
     startDate.setDate(startDate.getDate() + 1);
   });
 
+  startDate.setDate(startDate.getDate() - 1);
   $("#next_day").prev().text(formatDate(startDate));
 }
 

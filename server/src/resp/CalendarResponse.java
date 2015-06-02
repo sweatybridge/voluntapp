@@ -1,17 +1,19 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.logging.Level;
 
-import listener.Application;
+import utils.AuthLevel;
 
 /**
  * A successful response to a calendar request.
  */
 public class CalendarResponse extends Response {
+
+  public static final CalendarResponse NO_CALENDAR = new CalendarResponse();
 
   public static String CID_COLUMN = "ID";
   public static String CNAME_COLUMN = "NAME";
@@ -82,19 +84,20 @@ public class CalendarResponse extends Response {
 
   @Override
   public String getSQLInsert() {
-    return String.format("INSERT INTO public.\"CALENDAR\" VALUES "
-        + "(DEFAULT, '%s', '%d', DEFAULT, %b, '%s', DEFAULT);",
-        name.replace("\'", "\'\'"), userId, joinEnabled,
-        joinCode.replace("\'", "\'\'"));
+    return String
+        .format("INSERT INTO \"CALENDAR\" VALUES (DEFAULT, ?, ?, DEFAULT, ?, ?, DEFAULT);");
   }
 
-  /*
-   * "SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM (\"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\") WHERE \"CID\" =%d AND \"%s\"=true;"
-   * , CNAME_COLUMN, CREATOR_COLUMN, CREATED_COLUMN, JOIN_ENABLED_COLUMN,
-   * JOIN_CODE_COLUMN, ACTIVE_COLUMN, ROLE_COLUMN, userId, calendarId,
-   * ACTIVE_COLUMN
-   * 
-   * 
+  @Override
+  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
+    prepared.setString(1, escape(name));
+    prepared.setInt(2, userId);
+    prepared.setBoolean(3, joinEnabled);
+    prepared.setString(4, escape(joinCode));
+  }
+  
+  
+   /* 
    * SELECT * FROM \"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM
    * \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\"
    * WHERE \"CID\" =%d AND \"ACTIVE\"=true;
@@ -102,34 +105,51 @@ public class CalendarResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    Application.logger.log(Level.ALL, userId + " " + calendarId);
-    System.out.println("User id: " + userId);
-    System.out.println("Calendar id: " + calendarId);
-
     return String
         .format(
-            "SELECT * FROM \"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\" WHERE \"CID\" =%d AND \"ACTIVE\"=true;",
-            userId, calendarId);
+            "SELECT * FROM \"CALENDAR\" JOIN (SELECT \"%s\",\"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=?) AS x ON \"CALENDAR\".\"%s\" =x.\"%s\" WHERE \"%s\" = ? AND \"%s\"=true;",
+            CalendarSubscriptionResponse.CID_COLUMN,
+            CalendarSubscriptionResponse.ROLE_COLUMN,
+            CalendarSubscriptionResponse.UID_COLUMN, CID_COLUMN,
+            CalendarSubscriptionResponse.CID_COLUMN,
+            CalendarSubscriptionResponse.CID_COLUMN, ACTIVE_COLUMN);
+  }
+
+  @Override
+  public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
+    prepare.setInt(1, userId);
+    prepare.setInt(2, calendarId);
   }
 
   @Override
   public String getSQLUpdate() {
     StringBuilder setUpdate = new StringBuilder();
-
-    setUpdate.append(name != null ? "\"" + CNAME_COLUMN + "\"=" + "\'" + name
-        + "\', " : "");
-    setUpdate.append(joinEnabled != null ? "\"" + JOIN_ENABLED_COLUMN + "\"="
-        + joinEnabled.toString() + ", " : "");
-    setUpdate.append(active != null ? "\"" + ACTIVE_COLUMN + "\"="
-        + active.toString() + ", " : "");
+    setUpdate.append(name != null ? String.format("\"%s\"=?,", CNAME_COLUMN)
+        : "");
+    setUpdate.append(joinEnabled != null ? String.format("\"%s\"=?,",
+        JOIN_ENABLED_COLUMN) : "");
+    setUpdate.append(active != null ? String.format("\"%s\"=?,", ACTIVE_COLUMN)
+        : "");
 
     String update = setUpdate.toString();
-    if (!update.isEmpty()) {
-      System.out.println("chuj");
-      update = update.substring(0, update.length() - 2);
+    if (update.isEmpty()) {
+      return null;
     }
+    update = update.substring(0, update.length() - 1);
     return String.format("UPDATE \"CALENDAR\" SET " + update
-        + " WHERE \"%s\"=%d;", CID_COLUMN, calendarId);
+        + " WHERE \"%s\"=?;", CID_COLUMN);
+  }
+
+  @Override
+  public void formatSQLUpdate(PreparedStatement prepare) throws SQLException {
+    int i = 1;
+    if (name != null)
+      prepare.setString(i++, escape(name));
+    if (joinEnabled != null)
+      prepare.setBoolean(i++, joinEnabled);
+    if (active != null)
+      prepare.setBoolean(i++, active);
+    prepare.setInt(i++, calendarId);
   }
 
   public List<EventResponse> getCalendarEvents() {
@@ -173,8 +193,20 @@ public class CalendarResponse extends Response {
     events.add(event);
   }
 
+  public AuthLevel getRole() {
+    return AuthLevel.getAuth(role);
+  }
+
+  public void setJoinCode(String joinCode) {
+    this.joinCode = joinCode;
+  }
+
   public static void main(String[] args) {
     CalendarResponse resp = new CalendarResponse("dupa", true, 123, "acd");
     System.out.println(resp.getSQLUpdate());
+  }
+
+  public void setJoinEnabled(Boolean joinEnabled) {
+    this.joinEnabled = joinEnabled;
   }
 }

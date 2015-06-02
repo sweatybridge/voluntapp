@@ -1,5 +1,6 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -61,11 +62,14 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
   }
 
   @Override
-  public String getSQLUpdate() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("DELETE FROM \"SESSION\" WHERE \"SID\"='")
-        .append(sessionId.replace("\'", "\'\'")).append("';");
-    return builder.toString();
+  public String getSQLDelete() {
+    return String.format("DELETE FROM \"SESSION\" WHERE \"SID\"=?;");
+  }
+
+  @Override
+  public void formatSQLDelete(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    prepared.setString(i++, escape(sessionId));
   }
 
   public boolean isFound() {
@@ -79,10 +83,13 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
 
   @Override
   public String getSQLQuery() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("SELECT * FROM \"SESSION\" WHERE " + "\"SID\"='")
-        .append(sessionId.replace("\'", "\'\'")).append("';");
-    return builder.toString();
+    return String.format("SELECT * FROM \"SESSION\" WHERE \"%s\" = ?;",
+        SID_COLUMN);
+  }
+
+  @Override
+  public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
+    prepared.setString(1, escape(sessionId));
   }
 
   private void setSessionResponse() throws SQLException {
@@ -103,10 +110,13 @@ public class SessionResponse extends Response implements SQLInsert, SQLQuery,
     }
   }
 
-  @Override
   public String getSQLInsert() {
-    return "INSERT INTO \"SESSION\" VALUES ('"
-        + sessionId.replace("\'", "\'\'") + "', " + userId + ", DEFAULT);";
+    return "INSERT INTO \"SESSION\" VALUES (?,?,DEFAULT);";
+  }
+
+  public void formatSQLInsert(PreparedStatement prepare) throws SQLException {
+    prepare.setString(1, escape(sessionId));
+    prepare.setInt(2, userId);
   }
 
   public String getSQLRefresh() {

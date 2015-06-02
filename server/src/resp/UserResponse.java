@@ -1,15 +1,15 @@
 package resp;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-import exception.InconsistentDataException;
-import exception.UserNotFoundException;
-
 import sql.SQLInsert;
 import sql.SQLQuery;
 import sql.SQLUpdate;
+import exception.InconsistentDataException;
+import exception.UserNotFoundException;
 
 /**
  * A successful response to a user request.
@@ -21,7 +21,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   private static final String PASSWORD_COLUMN = "PASSWORD";
   private static final String FIRST_NAME_COLUMN = "FIRST_NAME";
   private static final String LAST_NAME_COLUMN = "LAST_NAME";
-  private static final String ID_COLUMN = "ID";
+  public static final String ID_COLUMN = "ID";
   private static final String LAST_SEEN_COLUMN = "LAST_SEEN";
   public static final int INVALID_USER_ID = -1;
 
@@ -77,34 +77,63 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM public.\"USER\" WHERE \"%s\"='%s';",
-        (email == null) ? ID_COLUMN : EMAIL_COLUMN, (email == null) ? userId
-            : email.replace("\'", "\'\'"));
+    return String.format("SELECT * FROM public.\"USER\" WHERE \"%s\"=?;",
+        (email == null) ? ID_COLUMN : EMAIL_COLUMN);
+  }
+
+  @Override
+  public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
+    if (email == null) {
+      prepared.setInt(1, userId);
+    } else {
+      prepared.setString(1, email.replace("\'", "\'\'"));
+    }
   }
 
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO public.\"USER\" VALUES(DEFAULT, '"
-        + email.replace("\'", "\'\'") + "','"
-        + hashedPassword.replace("\'", "\'\'") + "','"
-        + firstName.replace("\'", "\'\'") + "','"
-        + lastName.replace("\'", "\'\'") + "', DEFAULT);";
+    return String
+        .format(
+            "INSERT INTO public.\"USER\" (\"%s\", \"%s\", \"%s\", \"%s\") VALUES(?, ?, ?, ?);",
+            EMAIL_COLUMN, PASSWORD_COLUMN, FIRST_NAME_COLUMN, LAST_NAME_COLUMN);
+  }
+
+  @Override
+  public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
+    prepared.setString(1, email.replace("\'", "\'\'"));
+    prepared.setString(2, hashedPassword.replace("\'", "\'\'"));
+    prepared.setString(3, firstName.replace("\'", "\'\'"));
+    prepared.setString(4, lastName.replace("\'", "\'\'"));
   }
 
   @Override
   public String getSQLUpdate() {
     int found = 0;
     String formatString = ((email == null || found++ == Integer.MIN_VALUE) ? ""
-        : "\"EMAIL\"='" + email.replace("\'", "\'\'") + "',")
-        + ((firstName == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"FIRST_NAME\"='" + firstName.replace("\'", "\'\'") + "',")
-        + ((lastName == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"LAST_NAME\"='" + lastName.replace("\'", "\'\'") + "',")
+        : String.format("\"%s\"=?;", EMAIL_COLUMN))
+        + ((firstName == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?;", FIRST_NAME_COLUMN))
+        + ((lastName == null || found++ == Integer.MIN_VALUE) ? "" : String
+            .format("\"%s\"=?;", LAST_NAME_COLUMN))
         + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
-            : "\"PASSWORD\"='" + hashedPassword.replace("\'", "\'\'") + "',");
+            : String.format("\"%s\"=?;", PASSWORD_COLUMN));
     return (found == 0) ? null : String.format(
-        "UPDATE public.\"USER\" SET %s WHERE \"ID\"=%d",
-        formatString.substring(0, formatString.length() - 1), userId);
+        "UPDATE public.\"USER\" SET %s WHERE \"ID\"=?",
+        formatString.substring(0, formatString.length() - 1));
+  }
+
+  @Override
+  public void formatSQLUpdate(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    if (email != null)
+      prepared.setString(i++, escape(email));
+    if (firstName != null)
+      prepared.setString(i++, escape(firstName));
+    if (lastName != null)
+      prepared.setString(i++, lastName);
+    if (hashedPassword != null)
+      prepared.setString(i++, escape(hashedPassword));
+    prepared.setInt(i++, userId);
   }
 
   public String getEmail() {
