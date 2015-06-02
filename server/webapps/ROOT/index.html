@@ -18,7 +18,7 @@
       <div class="form-group">
         <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
-        <input type="hidden" name="verificationCode" class="form-control" placeholder="Verification Code">
+        <input type="hidden" name="validationCode" class="form-control" placeholder="Verification Code">
       </div>
       <input class="btn btn-primary" type="submit" value="Login">
       <p class="form-error" id="login_errors"></p>
@@ -60,12 +60,13 @@
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
+          var form = $(this);
           // TRY TO LOGIN
           if (form.attr("action") == "/api/session") {
             tryLogin();
           } else {
             // VALIDATE
-            var valData = getFormObj($(this));
+            var valData = getFormObj(form);
             delete valData.password;
             $.ajax(form.attr("action"), {
               data: valData,
@@ -77,7 +78,7 @@
               },
               error: function(data) {
                 // Display the error message
-                console.log(data); $("#login_errors").text(data.responseJSON.message);
+                $("#login_errors").text("Please check your email and validation code again.");
               }
             });
           }
@@ -105,7 +106,7 @@
       
       function tryLogin() {
         var form = $("#login_form");
-        $.ajax(form.attr("action"), {
+        $.ajax("/api/session", {
           data: JSON.stringify(getFormObj(form)),
           method: "POST",
           success: function(data) { window.location.reload(); },
@@ -115,7 +116,7 @@
               transformToValidate();
             }
             // Display the error message
-            console.log(data); $("#login_errors").text(data.responseJSON.message);
+            $("#login_errors").text(data.responseJSON.message);
           }
         });
       }

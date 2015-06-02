@@ -27,8 +27,10 @@ public class ValidationServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    String email = (String) request.getAttribute("email");
-    String validationCode = (String) request.getAttribute("validationCode");
+    String email = request.getParameter("email");
+    String validationCode = request.getParameter("validationCode");
+    System.out.println(email);
+    System.out.println(validationCode);
 
     Boolean valid;
     try {
