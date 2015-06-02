@@ -18,15 +18,16 @@
       <div class="form-group">
         <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <input type="hidden" name="verificationCode" class="form-control" placeholder="Verification Code">
       </div>
       <input class="btn btn-primary" type="submit" value="Login">
       <p class="form-error" id="login_errors"></p>
     </form>
     <div class="centre">
-    <p>Don't have an account?</p>
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
-      Register now
-    </button>
+      <p><a id="a_forgot_password" href="#">Forgot your password?</a></p>
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
+        Register now
+      </button>
     </div>
     
     <!-- Modal -->
@@ -45,7 +46,7 @@
               <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
               <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
               <div class="form-group"><input class="btn btn-primary" type="submit" value="Register"></div>
-              <p class="form-error" id="profile_errors"></p>
+              <p class="form-error" id="register_errors"></p>
             </form>
           </div>
         </div><!-- /.modal-content -->
@@ -68,7 +69,10 @@
           if (validateUpdate(form)) {
             return
           }
-          submitAjaxForm(form, function(data) { window.location.reload(); }, $("#register_errors"));
+          submitAjaxForm(form, function(data) {
+            $('#registerModal').modal('hide');
+            $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
+          }, $("#register_errors"));
         });
         
       }); // End of document ready
