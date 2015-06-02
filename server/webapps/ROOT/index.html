@@ -60,23 +60,27 @@
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
-          var form = $(this);
-          $.ajax(form.attr("action"), {
-            data: JSON.stringify(getFormObj(form)),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            method: form.attr("method"),
-            success: function(data) { window.location.reload(); },
-            error: function(data) {
-              // Check if email verification is required
-              if (data.status == 412) {
-                $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
-                $("#login_form").attr("action", "/validate");
+          // TRY TO LOGIN
+          if (form.attr("action") == "/api/session") {
+            tryLogin();
+          } else {
+            // VALIDATE
+            var valData = getFormObj($(this));
+            delete valData.password;
+            $.ajax(form.attr("action"), {
+              data: valData,
+              method: "GET",
+              success: function(data) {
+                alert("Thank you for validating your email:)");
+                // We managed to validate now log the user in
+                tryLogin();
+              },
+              error: function(data) {
+                // Display the error message
+                console.log(data); $("#login_errors").text(data.responseJSON.message);
               }
-              // Display the error message
-              console.log(data); $("#login_errors").text(data.responseJSON.message);
-            }
-          });
+            });
+          }
         });
         
         $("#register_form").submit(function(e) {
@@ -87,11 +91,34 @@
           }
           submitAjaxForm(form, function(data) {
             $('#registerModal').modal('hide');
-            $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
+            $("#login_form input[type='email']").val($("#register_form input[type='email']").val());
+            transformToValidate();
           }, $("#register_errors"));
         });
         
       }); // End of document ready
+      
+      function transformToValidate() {
+        $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
+        $("#login_form").attr("action", "/validate");
+      }
+      
+      function tryLogin() {
+        var form = $("#login_form");
+        $.ajax(form.attr("action"), {
+          data: JSON.stringify(getFormObj(form)),
+          method: "POST",
+          success: function(data) { window.location.reload(); },
+          error: function(data) {
+            // Check if email verification is required
+            if (data.status == 412) {
+              transformToValidate();
+            }
+            // Display the error message
+            console.log(data); $("#login_errors").text(data.responseJSON.message);
+          }
+        });
+      }
     </script>
   </body>
 </html>
