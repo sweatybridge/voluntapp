@@ -204,7 +204,7 @@ public class EventResponse extends Response {
   public String getSQLInsert() {
     return String
         .format(
-            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, true) RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
+            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, true, DEFAULT, DEFAULT) RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
             (sqlTime == null) ? "DEFAULT" : "?",
             (sqlDuration == null) ? "DEFAULT" : "?", calendarId);
   }
