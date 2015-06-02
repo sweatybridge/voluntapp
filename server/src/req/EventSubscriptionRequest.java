@@ -2,11 +2,10 @@ package req;
 
 public class EventSubscriptionRequest implements Request {
 
-  private int eventId;
+  private int userId;
   /**
    * Fields excluded from deserialisation.
    */
-  private transient int userId;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -23,19 +22,7 @@ public class EventSubscriptionRequest implements Request {
      */
     return true;
   }
-
-  public void setUserId(int userId) {
-    this.userId = userId;
-  }
-
-  public void setEventId(int eventId) {
-    this.eventId = eventId;
-  }
-
-  public int getEventId() {
-    return eventId;
-  }
-
+  
   public int getUserId() {
     return userId;
   }

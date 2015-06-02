@@ -3,6 +3,12 @@ package servlet;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,9 +18,12 @@ import req.EventSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
+import utils.AuthLevel;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
 import db.DBInterface;
 import exception.InconsistentDataException;
@@ -94,32 +103,74 @@ public class EventSubscriptionServlet extends HttpServlet {
 
   /**
    * Given the ID of the event, delete user's subscription to the event.
-   * 
-   * @throws IOException
    */
   @Override
-  public void doDelete(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    // TODO: Handle exception, should the servlet methods throw them?
+  public void doDelete(HttpServletRequest request, HttpServletResponse response) {    
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
+    int userToDelete;
+    
+    /* Get and validate the event ID. */
+    String eventId = request.getPathInfo().substring(1);
+    if (eventId == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No event ID was specified."));
       return;
     }
-    EventSubscriptionRequest subreq =
-        gson.fromJson(request.getReader(), EventSubscriptionRequest.class);
-    subreq.setUserId(userId);
-
-    Response subResp;
-    try {
-      if (db.deleteEventSubscription(subreq) == 1) {
-        subResp = new SuccessResponse("Unsubscribed from event");
-      } else {
-        subResp =
-            new ErrorResponse("Unsubscribing failed, you are not subscribed");
+    int eventID = Integer.parseInt(eventId);    
+    
+    /* Check if the user is an admin of the calendar, if yes then serialise 
+     * the submitted user IDs. 
+     */
+    if (db.authoriseUser(userId, db.getCalendarId(eventID)) == AuthLevel.ADMIN) {
+      try {
+        EventSubscriptionRequest req = gson.fromJson(request.getReader(), 
+            EventSubscriptionRequest.class);
+        /* If admin sent payload, delete specified user's subscription, otherwise 
+         * delete admin's subscription.
+         */
+        userToDelete = (req != null) ? req.getUserId() : userId;
+      } catch (JsonSyntaxException | JsonIOException | IOException e) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Could not serialize JSON object."));
+        return;
       }
-    } catch (SQLException | InconsistentDataException e) {
-      subResp = new ErrorResponse("Unsubscribing went wrong, this is bad");
+    } else {
+      userToDelete = userId;
     }
-    request.setAttribute(Response.class.getSimpleName(), subResp);
+    
+    /* Prevent deleting subscription from past events. */    
+    try {
+      if (isPastEvent(eventID)) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "You cannot delete subscription to a past event."));
+        return;
+      }
+    } catch (NumberFormatException | SQLException e1) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Data base error occured."));
+    }
+    
+    /* Delete event subscription(s). */
+    Response resp = null;
+    try {
+      if (db.deleteEventSubscription(eventID, userToDelete)) {
+        resp = new SuccessResponse("Unsubscribed from event");
+      } else {
+        resp = new ErrorResponse("Unsubscribing failed, you are not subscribed");
+      }
+    } catch (SQLException e) {
+      resp = new ErrorResponse("Unsubscribing went wrong, this is bad");
+    } catch (InconsistentDataException e) {
+      resp = new ErrorResponse(e.getMessage());
+    }
+    request.setAttribute(Response.class.getSimpleName(), resp);
+  }
+  
+  
+  private boolean isPastEvent(int eventId) throws SQLException {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    Date currentDate = calendar.getTime();
+    Timestamp eventEndDate = db.getEventEndTime(eventId);
+    return currentDate.getTime() > eventEndDate.getTime();
   }
 }

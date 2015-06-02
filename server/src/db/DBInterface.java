@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import sql.SQLQuery;
 import sql.SQLUpdate;
 import utils.AuthLevel;
 import utils.CalendarIdQuery;
+import utils.EventEndTimeQuery;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
 import exception.EventNotFoundException;
@@ -383,17 +385,16 @@ public class DBInterface {
    * @throws SQLException
    * @throws InconsistentDataException
    */
-  public int deleteEventSubscription(EventSubscriptionRequest esr)
-  // Untested
+  public boolean deleteEventSubscription(int eventId, int userId)
       throws SQLException, InconsistentDataException {
     EventSubscriptionResponse response = new EventSubscriptionResponse(
-        esr.getEventId(), esr.getUserId());
+        eventId, userId);
     int rows = delete(response);
     if (rows > 1) {
       throw new InconsistentDataException(
           "Deleteing an event subscription removed more than one row");
     }
-    return rows;
+    return rows == 1;
   }
 
   /**
@@ -714,6 +715,19 @@ public class DBInterface {
       return 0;
     }
     return query.getCalendarId();
+  }
+  
+  /**
+   * Returns the end time of the event specified by the eventId.
+   * 
+   * @param eventId
+   * @return
+   * @throws SQLException
+   */
+  public Timestamp getEventEndTime(int eventId) throws SQLException {
+    EventEndTimeQuery query = new EventEndTimeQuery(eventId);
+    query(query);
+    return query.getEndTime();
   }
 
 }
