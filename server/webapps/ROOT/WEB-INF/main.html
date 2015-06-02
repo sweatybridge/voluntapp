@@ -49,7 +49,7 @@
             <li class="active"><a id="b_hide_right" href="#">Right sidebar</a></li>
             <li><a id="b_logout" href="#">Logout</a></li>
           </ul>
-          <p id="p_loggedinas" class="navbar-text navbar-right">Logged in as <a data-bind="firstName" href="#account" class="navbar-link">[firstName]</a></p>
+          <p id="p_time" class="navbar-text navbar-right"></p>
         </div>
       </div>
     </nav>
@@ -173,7 +173,9 @@
         </div>
         
         <div id="d_main_col" class="col-sm-8">
-          <div class="lead centre">
+          <label>Start date: </label>
+          <input type="text" id="pickStartDate">
+          <div class="lead inline">
             <strong>
                 <a id="prev_day" href="#">&lt;&lt;</a> <span></span> - <span></span> <a id="next_day" href="#">&gt;&gt;</a>
             </strong>

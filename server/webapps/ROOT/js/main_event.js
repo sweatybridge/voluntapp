@@ -7,6 +7,11 @@ $(function() {
       format: "Y-m-d H:i"
     });
   });
+  
+  // Bind the pick start date input
+  $("#pickStartDate").datetimepicker({
+    format: "Y-m-d"
+  });
 
   // Bind edit event buttons
   $("#btn_event_save").click(function() {

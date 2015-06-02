@@ -45,6 +45,10 @@ body {
   color: FireBrick;
 }
 
+.inline {
+  display: inline;
+}
+
 /*.form input[name="username"] {
   margin-bottom: 0px;
   border-bottom-right-radius: 0;
