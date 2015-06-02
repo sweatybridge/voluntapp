@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
@@ -296,18 +299,19 @@ public class DBInterface {
   /**
    * Adds an event subscription.
    * 
-   * @param esr
-   *          The request object of the new event subscription.
+   * @param eventId - ID of the event to which a user subscribes
+   * @param userId  - ID of the user who wants
+   * 
    * @return Whether the insertion was successful or not.
    * @throws SQLException
    *           Thrown when there was an error interacting with the database.
    * @throws InvalidActionException
    */
-  public Response putEventSubscription(EventSubscriptionRequest esr)
+  public Response putEventSubscription(int eventId, int userId)
       throws SQLException, InvalidActionException {
     // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(
-        esr.getEventId(), esr.getUserId());
+        eventId, userId);
     if (!(insert(response) == 1)) {
       throw new InvalidActionException("Tried to join a full event");
     }
@@ -718,16 +722,18 @@ public class DBInterface {
   }
   
   /**
-   * Returns the end time of the event specified by the eventId.
+   * Has the specified event already happened.
    * 
    * @param eventId
-   * @return
+   * @return boolean value indicating if the event has already happened
    * @throws SQLException
    */
-  public Timestamp getEventEndTime(int eventId) throws SQLException {
+  public boolean isPastEvent(int eventId) throws SQLException {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    Date currentDate = calendar.getTime();
     EventEndTimeQuery query = new EventEndTimeQuery(eventId);
     query(query);
-    return query.getEndTime();
+    return currentDate.getTime() > query.getEndTime().getTime();
   }
 
 }

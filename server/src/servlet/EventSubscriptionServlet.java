@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServlet;
@@ -49,9 +47,6 @@ public class EventSubscriptionServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
-      return;
-    }
 
     Response subResp;
     try {
@@ -61,9 +56,9 @@ public class EventSubscriptionServlet extends HttpServlet {
           new ErrorResponse("Error while retirieving the calendar IDs "
               + "from the database." + e.getMessage());
     }
-
     request.setAttribute(Response.class.getSimpleName(), subResp);
   }
+  
 
   /**
    * Given the ID of an event, register the user's subscription to the event.
@@ -73,36 +68,56 @@ public class EventSubscriptionServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    // TODO: Handle exception, should the servlet methods throw them?
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
+    
+    /* Get and validate the event ID. */
+    String eventId = request.getPathInfo().substring(1);
+    if (eventId == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No event ID was specified."));
       return;
     }
-    EventSubscriptionRequest subReq =
-        gson.fromJson(request.getReader(), EventSubscriptionRequest.class);
-    subReq.setUserId(userId);
-
+    int eventID = Integer.parseInt(eventId);
+    
+    /* Check if the user is subscribed to the calendar corresponding to the
+     * given event. */
+    if (db.authoriseUser(userId, db.getCalendarId(eventID)) == AuthLevel.NONE) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "You cannot join the specified event, you are not subscribed to this calendar."));
+      return;
+    }
+    
+    /* Register user subscription. */
     Response subResp;
     try {
-      subResp = db.putEventSubscription(subReq);
+      subResp = db.putEventSubscription(eventID, userId);
     } catch (SQLException e) {
-      subResp =
-          new ErrorResponse("Error while registering event subscription ");
+      subResp = new ErrorResponse(
+          "Error while registering event subscription." + e.getMessage());
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     } catch (InvalidActionException e) {
-      subResp = new ErrorResponse("Tried to join a full event!");
+      subResp = new ErrorResponse(
+          "Tried to join a full event." + e.getMessage());
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
     request.setAttribute(Response.class.getSimpleName(), subResp);
   }
-
+  
+  
+  /**
+   * Unsupported method.
+   */
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response) {
-
+    request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+        "PUT method is not supported."));
   }
 
+  
   /**
    * Given the ID of the event, delete user's subscription to the event.
+   * If the user is an admin of the calendar on which the event occurs,
+   * allow the users to delete the event subscriptions of other users.
    */
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response) {    
@@ -140,7 +155,7 @@ public class EventSubscriptionServlet extends HttpServlet {
     
     /* Prevent deleting subscription from past events. */    
     try {
-      if (isPastEvent(eventID)) {
+      if (db.isPastEvent(eventID)) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "You cannot delete subscription to a past event."));
         return;
@@ -164,13 +179,5 @@ public class EventSubscriptionServlet extends HttpServlet {
       resp = new ErrorResponse(e.getMessage());
     }
     request.setAttribute(Response.class.getSimpleName(), resp);
-  }
-  
-  
-  private boolean isPastEvent(int eventId) throws SQLException {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    Date currentDate = calendar.getTime();
-    Timestamp eventEndDate = db.getEventEndTime(eventId);
-    return currentDate.getTime() > eventEndDate.getTime();
   }
 }
