@@ -212,6 +212,7 @@ function createEventView(event) {
   // Extract event data
   var start = new Date(event.startDateTime);
   var end = new Date(event.endDateTime);
+  var today = new Date();
   
   var timeDiff = Math.abs(end - start); // in milliseconds
   var diffMinutes = Math.ceil(timeDiff / (1000 * 60));
@@ -275,6 +276,10 @@ function createEventView(event) {
       view.find(".count").dropdown().click(function() {
         var attendeesList = $(this).next();
         var tmpl = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#"></a></li>';
+        // By the time we get here it is considered open
+        if (!$(this).parent().hasClass("open")) {
+          return;
+        }
         $.ajax("/api/event/" + event.eventId, {
           method: "GET",
           success: function(data) {
@@ -297,6 +302,7 @@ function createEventView(event) {
       // Append the view to the actual td
       $(elem).append(view);
       if (event.hasJoined) {
+        view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
         // update joined badge
         view.find(".badge").addClass("progress-bar-danger").text("Unjoin");
         // update requirements checkbox
@@ -305,8 +311,7 @@ function createEventView(event) {
           this.disabled = true;
         });
         // update header
-        view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
-      } else if (event.max - event.currentCount == 0) {
+      } else if (today >= end || event.max - event.currentCount == 0) {
         view.find(".badge").hide();
       }
       // hide location if it is not set
