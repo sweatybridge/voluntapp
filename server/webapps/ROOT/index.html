@@ -18,15 +18,16 @@
       <div class="form-group">
         <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <input type="hidden" name="validationCode" class="form-control" placeholder="Verification Code">
       </div>
       <input class="btn btn-primary" type="submit" value="Login">
       <p class="form-error" id="login_errors"></p>
     </form>
     <div class="centre">
-    <p>Don't have an account?</p>
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
-      Register now
-    </button>
+      <p><a id="a_forgot_password" href="#">Forgot your password?</a></p>
+      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
+        Register now
+      </button>
     </div>
     
     <!-- Modal -->
@@ -45,7 +46,7 @@
               <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
               <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
               <div class="form-group"><input class="btn btn-primary" type="submit" value="Register"></div>
-              <p class="form-error" id="profile_errors"></p>
+              <p class="form-error" id="register_errors"></p>
             </form>
           </div>
         </div><!-- /.modal-content -->
@@ -59,7 +60,28 @@
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
-          submitAjaxForm($(this), function(data) { window.location.reload(); }, $("#login_errors"));
+          var form = $(this);
+          // TRY TO LOGIN
+          if (form.attr("action") == "/api/session") {
+            tryLogin();
+          } else {
+            // VALIDATE
+            var valData = getFormObj(form);
+            delete valData.password;
+            $.ajax(form.attr("action"), {
+              data: valData,
+              method: "GET",
+              success: function(data) {
+                alert("Thank you for validating your email:)");
+                // We managed to validate now log the user in
+                tryLogin();
+              },
+              error: function(data) {
+                // Display the error message
+                $("#login_errors").text("Please check your email and validation code again.");
+              }
+            });
+          }
         });
         
         $("#register_form").submit(function(e) {
@@ -68,10 +90,36 @@
           if (validateUpdate(form)) {
             return
           }
-          submitAjaxForm(form, function(data) { window.location.reload(); }, $("#register_errors"));
+          submitAjaxForm(form, function(data) {
+            $('#registerModal').modal('hide');
+            $("#login_form input[type='email']").val($("#register_form input[type='email']").val());
+            transformToValidate();
+          }, $("#register_errors"));
         });
         
       }); // End of document ready
+      
+      function transformToValidate() {
+        $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
+        $("#login_form").attr("action", "/validate");
+      }
+      
+      function tryLogin() {
+        var form = $("#login_form");
+        $.ajax("/api/session", {
+          data: JSON.stringify(getFormObj(form)),
+          method: "POST",
+          success: function(data) { window.location.reload(); },
+          error: function(data) {
+            // Check if email verification is required
+            if (data.status == 412) {
+              transformToValidate();
+            }
+            // Display the error message
+            $("#login_errors").text(data.responseJSON.message);
+          }
+        });
+      }
     </script>
   </body>
 </html>

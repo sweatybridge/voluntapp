@@ -134,14 +134,25 @@ public class UserServlet extends HttpServlet {
       return;
     }
 
+    // Create a new validation code
+    CodeGenerator cg = new CodeGenerator();
+    String validationCode = cg.getCode(20);
+
     try {
+
       // Write to database
-      int userId = db.putUser(user);
+      int userId = db.putUser(user, validationCode);
+
+      EmailUtils.sendEmail(user.getEmail(), "Validation",
+          "Your validation code is as follows: " + validationCode);
 
       // Forward to session servlet
-      request.setAttribute("userId", userId);
-      getServletContext().getRequestDispatcher("/api/session").forward(request,
-          response);
+      // request.setAttribute("userId", userId);
+      // getServletContext().getRequestDispatcher("/api/session").forward(request,
+      // response);
+
+      request.setAttribute(Response.class.getSimpleName(),
+          new SuccessResponse());
     } catch (SQLException e) {
       e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(

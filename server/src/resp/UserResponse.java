@@ -17,13 +17,13 @@ import exception.UserNotFoundException;
 public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     SQLInsert {
 
-  private static final String EMAIL_COLUMN = "EMAIL";
+  public static final String EMAIL_COLUMN = "EMAIL";
   private static final String PASSWORD_COLUMN = "PASSWORD";
   private static final String FIRST_NAME_COLUMN = "FIRST_NAME";
   private static final String LAST_NAME_COLUMN = "LAST_NAME";
   public static final String ID_COLUMN = "ID";
   private static final String LAST_SEEN_COLUMN = "LAST_SEEN";
-  private static final String VALIDATION_KEY_COLUMN = "VALIDATION_KEY";
+  public static final String VALIDATION_KEY_COLUMN = "VALIDATION_KEY";
   public static final int INVALID_USER_ID = -1;
 
   /**

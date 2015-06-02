@@ -3,6 +3,7 @@ package utils;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -41,4 +42,5 @@ public class EmailUtils {
           "Failed to send message: " + e.getMessage());
     }
   }
+
 }

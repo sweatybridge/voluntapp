@@ -31,6 +31,7 @@ import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.UserResponse;
+import resp.ValidationResponse;
 import sql.SQLDelete;
 import sql.SQLInsert;
 import sql.SQLQuery;
@@ -209,12 +210,8 @@ public class DBInterface {
    *           if insertion failed
    * @throws PasswordHashFailureException
    */
-  public int putUser(RegisterRequest rq) throws SQLException,
-      PasswordHashFailureException {
-
-    // Create a new validation code
-    CodeGenerator cg = new CodeGenerator();
-    String validationCode = cg.getCode(20);
+  public int putUser(RegisterRequest rq, String validationCode)
+      throws SQLException, PasswordHashFailureException {
 
     // Get the password in and put it in the pass variable
     UserResponse us = new UserResponse(rq.getEmail(),
@@ -653,9 +650,9 @@ public class DBInterface {
         q = override;
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      // if (override == null) {
-      query.formatSQLQuery(stmt);
-      // }
+      if (override == null) {
+        query.formatSQLQuery(stmt);
+      }
       result = stmt.executeQuery();
       query.setResult(result);
     } finally {
@@ -734,6 +731,13 @@ public class DBInterface {
     EventEndTimeQuery query = new EventEndTimeQuery(eventId);
     query(query);
     return currentDate.getTime() > query.getEndTime().getTime();
+  }
+
+  public boolean checkValidation(String email, String validationCode)
+      throws SQLException {
+    ValidationResponse vr = new ValidationResponse(email, validationCode);
+    update(vr);
+    return vr.isValid();
   }
 
 }

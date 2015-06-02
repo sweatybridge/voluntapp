@@ -18,6 +18,7 @@ import servlet.EventServlet;
 import servlet.EventSubscriptionServlet;
 import servlet.SessionServlet;
 import servlet.UserServlet;
+import servlet.ValidationServlet;
 
 import com.google.gson.Gson;
 
@@ -71,13 +72,19 @@ public class Application implements ServletContextListener {
     context.addServlet(SessionServlet.class.getName(),
         new SessionServlet(gson, db, sm)).addMapping("/api/session");
     context.addServlet(CalendarServlet.class.getName(),
-        new CalendarServlet(gson, db)).addMapping("/api/calendar", "/api/calendar/*");
-    context.addServlet(EventServlet.class.getName(),
-        new EventServlet(gson, db)).addMapping("/api/event", "/api/event/*");
+        new CalendarServlet(gson, db)).addMapping("/api/calendar",
+        "/api/calendar/*");
+    context
+        .addServlet(EventServlet.class.getName(), new EventServlet(gson, db))
+        .addMapping("/api/event", "/api/event/*");
     context.addServlet(CalendarSubscriptionServlet.class.getName(),
-        new CalendarSubscriptionServlet(gson, db)).addMapping("/api/subscription/calendar");
+        new CalendarSubscriptionServlet(gson, db)).addMapping(
+        "/api/subscription/calendar");
     context.addServlet(EventSubscriptionServlet.class.getName(),
-        new EventSubscriptionServlet(gson, db)).addMapping("/api/subscription/event");
+        new EventSubscriptionServlet(gson, db)).addMapping(
+        "/api/subscription/event");
+    context.addServlet(ValidationServlet.class.getName(),
+        new ValidationServlet(gson, db)).addMapping("/validate");
   }
 
   @Override
