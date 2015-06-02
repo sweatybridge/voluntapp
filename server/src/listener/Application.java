@@ -82,7 +82,7 @@ public class Application implements ServletContextListener {
         "/api/subscription/calendar");
     context.addServlet(EventSubscriptionServlet.class.getName(),
         new EventSubscriptionServlet(gson, db)).addMapping(
-        "/api/subscription/event");
+        "/api/subscription/event", "/api/subscription/event/*");
     context.addServlet(ValidationServlet.class.getName(),
         new ValidationServlet(gson, db)).addMapping("/validate");
   }

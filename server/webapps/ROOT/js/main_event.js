@@ -332,9 +332,8 @@ function joinEvent(elem) {
   // determine wether to join or unjoin
   if (event.hasJoined) {
     // unjoin an event
-    $.ajax("/api/subscription/event", {
+    $.ajax("/api/subscription/event/" + eid, {
       method: "DELETE",
-      data: JSON.stringify({eventId: eid}),
       success: function(data) {
         event.hasJoined = false;
         toastr.warning("Unjoined event " + event.title);
@@ -381,9 +380,8 @@ function joinEvent(elem) {
     }
     
     // Everything is fine, join the party
-    $.ajax("/api/subscription/event", {
+    $.ajax("/api/subscription/event/" + eid, {
       method: "POST",
-      data: JSON.stringify({eventId: eid}),
       success: function(data) {
         toastr.success("Joined event " + event.title);
         // use dictionary to prevent duplicates

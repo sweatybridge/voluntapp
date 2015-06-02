@@ -87,6 +87,19 @@ public class EventSubscriptionServlet extends HttpServlet {
       return;
     }
     
+    /* Disallow joining the past events. */
+    try {
+      if(db.isPastEvent(eventID)) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "You cannot join events that have already finished."));
+        return;
+      }
+    } catch (SQLException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Data base error occured." + e.getMessage()));
+      return;
+    }
+    
     /* Register user subscription. */
     Response subResp;
     try {
