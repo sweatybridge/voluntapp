@@ -91,6 +91,26 @@ $(function() {
   
   // Request calendar information
   refreshCalendars();
+  
+  // Activate time
+  // http://stackoverflow.com/questions/18229022/how-to-show-current-time-in-javascript-in-the-format-hhmmss
+  (function () {
+    function checkTime(i) {
+      return (i < 10) ? "0" + i : i;
+    }
+
+    function startTime() {
+      var today = new Date(),
+      h = checkTime(today.getHours()),
+      m = checkTime(today.getMinutes()),
+      s = checkTime(today.getSeconds());
+      document.getElementById('p_time').innerHTML = h + ":" + m + ":" + s;
+      t = setTimeout(function () {
+        startTime()
+      }, 500);
+    }
+    startTime();
+  })();
 
 }); // End of document ready
 

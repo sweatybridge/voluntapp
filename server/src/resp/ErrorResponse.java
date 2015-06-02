@@ -1,5 +1,7 @@
 package resp;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * An error response indicating that the request has failed. Contains an error
  * message and a status code that can be used to trigger different error
@@ -25,5 +27,10 @@ public class ErrorResponse extends Response {
   public ErrorResponse(String message) {
     this.message = message;
     statusCode = 1;
+  }
+
+  @VisibleForTesting
+  public String getMessage() {
+    return message;
   }
 }

@@ -7,6 +7,11 @@ $(function() {
       format: "Y-m-d H:i"
     });
   });
+  
+  // Bind the pick start date input
+  $("#pickStartDate").datetimepicker({
+    format: "Y-m-d"
+  });
 
   // Bind edit event buttons
   $("#btn_event_save").click(function() {
@@ -182,8 +187,8 @@ function createEventView(event) {
   var temp =
   '<div class="event">'+
     '<div class="time" onclick="editEvent(this)">'+
-      '<dd>{{startDate}}</dd>'+
       '<dd>{{startTime}}</dd>'+
+      '<dd>{{duration}}</dd>'+
     '</div>'+
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
@@ -203,34 +208,43 @@ function createEventView(event) {
       '<a class="badge" onclick="joinEvent(this)">Join</a>'+
     '</div>'+
   '</div>';
+  
+  // Extract event data
+  var start = new Date(event.startDateTime);
+  var end = new Date(event.endDateTime);
+  
+  var timeDiff = Math.abs(end - start); // in milliseconds
+  var diffMinutes = Math.ceil(timeDiff / (1000 * 60));
+  var hours = Math.floor(diffMinutes/60);
+  var minutes = diffMinutes % 60;
+  var duration = ((hours > 0) ? (hours + "h") : "") + ((minutes > 0) ? (minutes + "m") : "");
+  
+  var readableTime = start.toLocaleTimeString().substring(0, 5);
+  
+  // Extract requirements from description
+  var lines = event.description.split("\n");
+  var requirements = [];
+  var description = [];
+  lines.forEach(function(l) {
+    if (startsWith(l, "R-")) {
+      requirements.push(l.slice(2));
+    } else {
+      description.push(l);
+    }
+  });
+  // TODO: Maybe remove trailing new lines from the description?
+  // as in ["", "desc"] or ["desc", ""]
+  description = description.join("\n");
+  
+  // Find the correct column to place it
   $("#t_calendar_body").children().each(function(k, elem) {
-    var start = new Date(event.startDateTime);
     if ($(elem).data("date") === start.toLocaleDateString()) {
-      var readableDate = formatDate(start).split(" ").reverse().join(" ");
-      var readableTime = start.toLocaleTimeString().substring(0, 5);
-      
-      // Extract requirements from description
-      var lines = event.description.split("\n");
-      var requirements = [];
-      var description = [];
-      lines.forEach(function(l) {
-        if (startsWith(l, "R-")) {
-          requirements.push(l.slice(2));
-        } else {
-          description.push(l);
-        }
-      });
-      
-      // TODO: Maybe remove trailing new lines from the description?
-      // as in ["", "desc"] or ["desc", ""]
-      description = description.join("\n");
-      
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
         .replace('{{eventId}}', event.eventId)
-        .replace('{{startDate}}', readableDate)
         .replace('{{startTime}}', readableTime)
+        .replace('{{duration}}', duration)
         .replace('{{title}}', event.title)
         .replace('{{description}}', description)
         .replace('{{location}}', event.location);

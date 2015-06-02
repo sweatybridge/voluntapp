@@ -10,11 +10,11 @@ public class CalendarIdQuery implements SQLQuery {
   
   private static final String CID_COLUMN = "CID";
   private static final String EID_COLUMN = "EID";
-  private int userId;
+  private int eventId;
   private int calendarId;
   
-  public CalendarIdQuery(int userId) {
-    this.userId = userId;
+  public CalendarIdQuery(int eventId) {
+    this.eventId = eventId;
   }
   
   @Override
@@ -25,7 +25,7 @@ public class CalendarIdQuery implements SQLQuery {
 
   @Override
   public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
-    prepared.setInt(1, userId);
+    prepared.setInt(1, eventId);
   }
 
   @Override
