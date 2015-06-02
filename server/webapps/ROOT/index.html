@@ -71,6 +71,7 @@
               // Check if email verification is required
               if (data.status == 412) {
                 $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
+                $("#login_form").attr("action", "/api/validate");
               }
               // Display the error message
               console.log(data); $("#login_errors").text(data.responseJSON.message);
