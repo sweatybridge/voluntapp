@@ -6,9 +6,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class EventAdminResponse extends Response {
 
-  @SuppressWarnings("unused")
   private List<UserResponse> attendees;
 
   /**
@@ -24,6 +25,11 @@ public class EventAdminResponse extends Response {
 
   public EventAdminResponse(int eventId) {
     this.eventId = eventId;
+  }
+
+  @VisibleForTesting
+  public List<UserResponse> getAttendees() {
+    return attendees;
   }
 
   public void setAttendees(List<UserResponse> attendees) {
