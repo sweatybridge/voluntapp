@@ -92,6 +92,7 @@ public class SessionServlet extends HttpServlet {
     }
 
     try {
+      
       // Start a new session
       String sessionId = sm.startSession(userId);
       SessionResponse loginResponse = new SessionResponse(sessionId);

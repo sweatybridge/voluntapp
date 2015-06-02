@@ -75,6 +75,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     this.firstName = rs.getString(FIRST_NAME_COLUMN);
     this.lastName = rs.getString(LAST_NAME_COLUMN);
     this.lastSeen = rs.getTimestamp(LAST_SEEN_COLUMN);
+    this.validationCode = rs.getString(VALIDATION_KEY_COLUMN);
   }
 
   @Override
@@ -88,7 +89,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     if (email == null) {
       prepared.setInt(1, userId);
     } else {
-      prepared.setString(1, email.replace("\'", "\'\'"));
+      prepared.setString(1, escape(email));
     }
   }
 
@@ -183,6 +184,10 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
 
   public void setValidationCode(String validationCode) {
     this.validationCode = validationCode;
+  }
+
+  public String getValidationCode() {
+    return validationCode;
   }
 
 }
