@@ -23,6 +23,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   private static final String LAST_NAME_COLUMN = "LAST_NAME";
   public static final String ID_COLUMN = "ID";
   private static final String LAST_SEEN_COLUMN = "LAST_SEEN";
+  private static final String VALIDATION_KEY_COLUMN = "VALIDATION_KEY";
   public static final int INVALID_USER_ID = -1;
 
   /**
@@ -39,6 +40,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   private transient ResultSet rs;
   private transient boolean found;
   private transient String hashedPassword;
+  private transient String validationCode = "$";
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -94,16 +96,19 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   public String getSQLInsert() {
     return String
         .format(
-            "INSERT INTO public.\"USER\" (\"%s\", \"%s\", \"%s\", \"%s\") VALUES(?, ?, ?, ?);",
-            EMAIL_COLUMN, PASSWORD_COLUMN, FIRST_NAME_COLUMN, LAST_NAME_COLUMN);
+            "INSERT INTO public.\"USER\" (\"%s\", \"%s\", \"%s\", \"%s\", \"%s\") VALUES(?, ?, ?, ?, ?);",
+            EMAIL_COLUMN, PASSWORD_COLUMN, FIRST_NAME_COLUMN, LAST_NAME_COLUMN,
+            VALIDATION_KEY_COLUMN);
   }
 
   @Override
   public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
-    prepared.setString(1, email.replace("\'", "\'\'"));
-    prepared.setString(2, hashedPassword.replace("\'", "\'\'"));
-    prepared.setString(3, firstName.replace("\'", "\'\'"));
-    prepared.setString(4, lastName.replace("\'", "\'\'"));
+    int i = 1;
+    prepared.setString(i++, escape(email));
+    prepared.setString(i++, escape(hashedPassword));
+    prepared.setString(i++, escape(firstName));
+    prepared.setString(i++, escape(lastName));
+    prepared.setString(i++, escape(validationCode));
   }
 
   @Override
@@ -174,6 +179,10 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     if (rs.next() == true) {
       throw new InconsistentDataException("The database is dead!");
     }
+  }
+
+  public void setValidationCode(String validationCode) {
+    this.validationCode = validationCode;
   }
 
 }

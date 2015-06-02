@@ -207,10 +207,15 @@ public class DBInterface {
   public int putUser(RegisterRequest rq) throws SQLException,
       PasswordHashFailureException {
 
+    // Create a new validation code
+    CodeGenerator cg = new CodeGenerator();
+    String validationCode = cg.getCode(20);
+
     // Get the password in and put it in the pass variable
     UserResponse us = new UserResponse(rq.getEmail(),
         PasswordUtils.getPasswordHash(rq.getPassword()),
         UserResponse.INVALID_USER_ID, rq.getFirstName(), rq.getLastName());
+    us.setValidationCode(validationCode);
     return insert(us, true, UserResponse.ID_COLUMN);
   }
 
@@ -355,16 +360,16 @@ public class DBInterface {
       UserNotFoundException, InconsistentDataException {
     List<UserResponse> userResponses = new ArrayList<>();
     EventAdminResponse response = new EventAdminResponse(eventId);
-    
+
     query(response);
-    
+
     // Retrieve user details based on user id
     List<Integer> users = response.getAttendeeIds();
     for (Integer user : users) {
       userResponses.add(getUser(new UserRequest(user)));
     }
     response.setAttendees(userResponses);
-    
+
     return response;
   }
 
@@ -643,9 +648,9 @@ public class DBInterface {
         q = override;
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      //if (override == null) {
-        query.formatSQLQuery(stmt);
-      //}
+      // if (override == null) {
+      query.formatSQLQuery(stmt);
+      // }
       result = stmt.executeQuery();
       query.setResult(result);
     } finally {
@@ -692,12 +697,13 @@ public class DBInterface {
     }
     return AuthLevel.getAuth(car.getAccessPrivilege());
   }
-  
+
   /**
-   * Gets a calendarId of the calendar in which the specified event was 
+   * Gets a calendarId of the calendar in which the specified event was
    * published.
    * 
-   * @param  eventId of the queried event 
+   * @param eventId
+   *          of the queried event
    * @return calendarId of the corresponding calendar
    */
   public int getCalendarId(int eventId) {
