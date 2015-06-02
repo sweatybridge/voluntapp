@@ -52,7 +52,7 @@ public class EventSubscriptionResponse extends Response {
 
   @Override
   public String getSQLInsert() {
-    return "INSERT INTO \"EVENT_USER\" VALUES (?, ?);";
+    return "INSERT INTO \"EVENT_USER\" VALUES (?, ?, DEFAULT);";
   }
 
   @Override

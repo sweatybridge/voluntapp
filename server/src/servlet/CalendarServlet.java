@@ -21,7 +21,7 @@ import utils.ServletUtils;
 import com.google.gson.Gson;
 
 import db.DBInterface;
-import db.InviteCodeGenerator;
+import db.CodeGenerator;
 import exception.CalendarNotFoundException;
 import exception.InconsistentDataException;
 
@@ -30,7 +30,7 @@ public class CalendarServlet extends HttpServlet {
 
   private final Gson gson;
   private final DBInterface db;
-  private final InviteCodeGenerator generator = new InviteCodeGenerator();
+  private final CodeGenerator generator = new CodeGenerator();
 
   private static final long serialVersionUID = 1L;
 
@@ -104,7 +104,7 @@ public class CalendarServlet extends HttpServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     CalendarRequest calendarRequest = initCalendarRequest(request);
-    calendarRequest.setInviteCode(generator.getInviteCode());
+    calendarRequest.setInviteCode(generator.getCode());
 
     if (!calendarRequest.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(

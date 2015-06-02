@@ -51,49 +51,56 @@ public class SessionServlet extends HttpServlet {
       throws IOException {
     // Handle login by email and password
     Integer userId = (Integer) request.getAttribute("userId");
-    if (userId == null) {
 
-      // Parse user login request
-      UserRequest login = gson.fromJson(request.getReader(), UserRequest.class);
+    // Parse user login request
+    UserRequest login = gson.fromJson(request.getReader(), UserRequest.class);
 
-      // Validate login request
-      if (!login.isValid()) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "You have entered invalid login information."));
-        return;
-      }
-
-      try {
-        // Find the user in database
-        UserResponse user = db.getUser(login);
-
-        // Check that password matches the hashed value
-        if (!PasswordUtils.validatePassword(login.getPassword(),
-            user.getHashedPassword())) {
-          request.setAttribute(Response.class.getSimpleName(),
-              new ErrorResponse("You have entered invalid login information."));
-          return;
-        }
-
-        // return user id for starting a session
-        userId = user.getUserId();
-
-      } catch (SQLException | InconsistentDataException
-          | PasswordHashFailureException e) {
-        e.printStackTrace();
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Something really bad has happened."));
-        return;
-      } catch (UserNotFoundException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "You have entered invalid login information."));
-        return;
-      }
+    // Validate login request
+    if (!login.isValid()) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "You have entered invalid login information."));
+      return;
     }
 
     try {
+      // Find the user in database
+      UserResponse user = db.getUser(login);
+
+      // Check user account is valid
+      if (user.getValidationCode() != null) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Please validate your account"));
+        return;
+      }
+
+      // Check that password matches the hashed value
+      if (!PasswordUtils.validatePassword(login.getPassword(),
+          user.getHashedPassword())) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "You have entered invalid login information."));
+        return;
+      }
+
+      // return user id for starting a session
+      userId = user.getUserId();
+
+    } catch (SQLException | InconsistentDataException
+        | PasswordHashFailureException e) {
+      e.printStackTrace();
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Something really bad has happened."));
+      return;
+    } catch (UserNotFoundException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "You have entered invalid login information."));
+      return;
+    }
+
+    try {
+
       // Start a new session
       String sessionId = sm.startSession(userId);
+
       SessionResponse loginResponse = new SessionResponse(sessionId);
 
       // Set the session cookie if request comes from a browser

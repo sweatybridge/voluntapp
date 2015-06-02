@@ -46,7 +46,6 @@ public class DefaultServlet extends HttpServlet {
                 response);
             return;
           } catch (SQLException | SessionNotFoundException e) {
-            e.printStackTrace();
           }
         }
       }

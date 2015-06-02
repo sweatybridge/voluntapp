@@ -3,6 +3,15 @@ package servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,9 +24,11 @@ import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.SuccessResponse;
+import utils.EmailUtils;
 
 import com.google.gson.Gson;
 
+import db.CodeGenerator;
 import db.DBInterface;
 import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
@@ -128,9 +139,12 @@ public class UserServlet extends HttpServlet {
       int userId = db.putUser(user);
 
       // Forward to session servlet
-      request.setAttribute("userId", userId);
-      getServletContext().getRequestDispatcher("/api/session").forward(request,
-          response);
+      // request.setAttribute("userId", userId);
+      // getServletContext().getRequestDispatcher("/api/session").forward(request,
+      // response);
+
+      request.setAttribute(Response.class.getSimpleName(),
+          new SuccessResponse());
     } catch (SQLException e) {
       e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(

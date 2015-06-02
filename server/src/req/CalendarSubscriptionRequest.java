@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 
-import db.InviteCodeGenerator;
+import db.CodeGenerator;
 
 public class CalendarSubscriptionRequest implements Request {
 
@@ -18,12 +18,12 @@ public class CalendarSubscriptionRequest implements Request {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public CalendarSubscriptionRequest() {}
+  public CalendarSubscriptionRequest() {
+  }
 
   @Override
   public boolean isValid() {
-    return joinCode != null
-        && joinCode.length() == InviteCodeGenerator.CODE_LENGTH
+    return joinCode != null && joinCode.length() == CodeGenerator.CODE_LENGTH
         && StringUtils.isAlphanumeric(joinCode);
   }
 
