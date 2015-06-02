@@ -276,6 +276,10 @@ function createEventView(event) {
       view.find(".count").dropdown().click(function() {
         var attendeesList = $(this).next();
         var tmpl = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#"></a></li>';
+        // By the time we get here it is considered open
+        if (!$(this).parent().hasClass("open")) {
+          return;
+        }
         $.ajax("/api/event/" + event.eventId, {
           method: "GET",
           success: function(data) {
