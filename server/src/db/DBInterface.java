@@ -205,12 +205,8 @@ public class DBInterface {
    *           if insertion failed
    * @throws PasswordHashFailureException
    */
-  public int putUser(RegisterRequest rq) throws SQLException,
-      PasswordHashFailureException {
-
-    // Create a new validation code
-    CodeGenerator cg = new CodeGenerator();
-    String validationCode = cg.getCode(20);
+  public int putUser(RegisterRequest rq, String validationCode)
+      throws SQLException, PasswordHashFailureException {
 
     // Get the password in and put it in the pass variable
     UserResponse us = new UserResponse(rq.getEmail(),
@@ -717,16 +713,11 @@ public class DBInterface {
     return query.getCalendarId();
   }
 
-  public boolean checkValidation(Integer userId, String validationCode)
+  public boolean checkValidation(String email, String validationCode)
       throws SQLException {
-    ValidationResponse vr = new ValidationResponse(userId, validationCode);
-    query(vr);
-    try {
-      return vr.isValid();
-    } catch (InconsistentDataException e) {
-      e.printStackTrace();
-      return false;
-    }
+    ValidationResponse vr = new ValidationResponse(email, validationCode);
+    update(vr);
+    return vr.isValid();
   }
 
 }

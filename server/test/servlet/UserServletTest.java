@@ -50,9 +50,8 @@ public class UserServletTest extends ServletTest {
   public void getSucceedsWhenUserExistsInDatabase() throws SQLException,
       UserNotFoundException, InconsistentDataException {
     // Sets up expected response
-    UserResponse expected =
-        new UserResponse(TEST_EMAIL, TEST_PASSWORD, TEST_USER_ID,
-            TEST_FIRST_NAME, TEST_LAST_NAME);
+    UserResponse expected = new UserResponse(TEST_EMAIL, TEST_PASSWORD,
+        TEST_USER_ID, TEST_FIRST_NAME, TEST_LAST_NAME);
 
     // Sets up post condition of getUser
     when(db.getUser(any(UserRequest.class))).thenReturn(expected);
@@ -61,8 +60,8 @@ public class UserServletTest extends ServletTest {
     servlet.doGet(req, resp);
 
     // Verify pre condition of getUser
-    ArgumentCaptor<UserRequest> arg =
-        ArgumentCaptor.forClass(UserRequest.class);
+    ArgumentCaptor<UserRequest> arg = ArgumentCaptor
+        .forClass(UserRequest.class);
     verify(db).getUser(arg.capture());
     assertEquals(TEST_USER_ID, arg.getValue().getUserId());
 
@@ -81,8 +80,8 @@ public class UserServletTest extends ServletTest {
     servlet.doGet(req, resp);
 
     // Verify pre condition of getUser
-    ArgumentCaptor<UserRequest> arg =
-        ArgumentCaptor.forClass(UserRequest.class);
+    ArgumentCaptor<UserRequest> arg = ArgumentCaptor
+        .forClass(UserRequest.class);
     verify(db).getUser(arg.capture());
     assertEquals(TEST_USER_ID, arg.getValue().getUserId());
 
@@ -100,8 +99,8 @@ public class UserServletTest extends ServletTest {
     servlet.doGet(req, resp);
 
     // Verify pre condition of getUser
-    ArgumentCaptor<UserRequest> arg =
-        ArgumentCaptor.forClass(UserRequest.class);
+    ArgumentCaptor<UserRequest> arg = ArgumentCaptor
+        .forClass(UserRequest.class);
     verify(db).getUser(arg.capture());
     assertEquals(TEST_USER_ID, arg.getValue().getUserId());
 
@@ -119,7 +118,8 @@ public class UserServletTest extends ServletTest {
             TEST_FIRST_NAME, "lastName", TEST_LAST_NAME)))));
 
     // Database returns valid user id
-    when(db.putUser(any(RegisterRequest.class))).thenReturn(TEST_USER_ID);
+    when(db.putUser(any(RegisterRequest.class), any(String.class))).thenReturn(
+        TEST_USER_ID);
 
     // Context returns mocked dispatcher
     when(context.getRequestDispatcher(any(String.class)))
@@ -147,7 +147,7 @@ public class UserServletTest extends ServletTest {
     servlet.doPost(req, resp);
 
     // Database is not accessed
-    verify(db, never()).putUser(any(RegisterRequest.class));
+    verify(db, never()).putUser(any(RegisterRequest.class), any(String.class));
 
     validateErrorResponse();
   }
@@ -163,7 +163,8 @@ public class UserServletTest extends ServletTest {
             TEST_FIRST_NAME, "lastName", TEST_LAST_NAME)))));
 
     // Database throws exception for duplicate email
-    when(db.putUser(any(RegisterRequest.class))).thenThrow(new SQLException());
+    when(db.putUser(any(RegisterRequest.class), any(String.class))).thenThrow(
+        new SQLException());
 
     // Method under test
     servlet.doPost(req, resp);
@@ -181,7 +182,7 @@ public class UserServletTest extends ServletTest {
             TEST_FIRST_NAME, "lastName", TEST_LAST_NAME)))));
 
     // Database throws exception for duplicate email
-    when(db.putUser(any(RegisterRequest.class))).thenThrow(
+    when(db.putUser(any(RegisterRequest.class), any(String.class))).thenThrow(
         new PasswordHashFailureException(TEST_PASSWORD));
 
     // Method under test

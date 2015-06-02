@@ -68,8 +68,9 @@ public class SessionServlet extends HttpServlet {
 
       // Check user account is valid
       if (user.getValidationCode() != null) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Please validate your account"));
+        response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
+        request.setAttribute(Response.class.getSimpleName(),
+            new SuccessResponse("Please validate your account"));
         return;
       }
 

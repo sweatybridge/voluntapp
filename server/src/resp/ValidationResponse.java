@@ -1,48 +1,44 @@
 package resp;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import exception.InconsistentDataException;
 
 public class ValidationResponse extends Response {
 
   private String validationCode;
-  private Integer userId;
+  private String email;
   private Boolean valid;
-  private ResultSet rs;
 
-  public ValidationResponse(Integer userId, String validationCode) {
-    this.userId = userId;
+  public ValidationResponse(String email, String validationCode) {
+    this.email = email;
     this.validationCode = validationCode;
     this.valid = false;
   }
 
   @Override
-  public String getSQLQuery() {
-    return String.format(
-        "SELECT 1 FROM \"USER\" WHERE \"%s\" = ? AND \"%s\" = ?;",
-        UserResponse.ID_COLUMN, UserResponse.VALIDATION_KEY_COLUMN);
+  public String getSQLUpdate() {
+    return String
+        .format(
+            "UPDATE \"USER\" SET \"%s\"=NULLIF(\"%s\", ?) WHERE \"%s\"=? AND \"%s\"=?;",
+            UserResponse.VALIDATION_KEY_COLUMN,
+            UserResponse.VALIDATION_KEY_COLUMN,
+            UserResponse.VALIDATION_KEY_COLUMN, UserResponse.EMAIL_COLUMN);
   }
 
   @Override
-  public void formatSQLQuery(PreparedStatement prepared) throws SQLException {
+  public void formatSQLUpdate(PreparedStatement prepared) throws SQLException {
     int i = 1;
-    prepared.setInt(i++, userId);
     prepared.setString(i++, escape(validationCode));
+    prepared.setString(i++, escape(validationCode));
+    prepared.setString(i++, escape(email));
   }
 
   @Override
-  public void setResult(ResultSet rs) {
-    this.rs = rs;
+  public void checkResult(int rows) {
+    valid = rows == 1;
   }
 
-  public Boolean isValid() throws InconsistentDataException, SQLException {
-    valid = rs.next();
-    if (rs.next()) {
-      throw new InconsistentDataException("Users table is inconsistant!");
-    }
+  public Boolean isValid() {
     return valid;
   }
 

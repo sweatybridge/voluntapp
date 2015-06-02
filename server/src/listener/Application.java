@@ -84,7 +84,7 @@ public class Application implements ServletContextListener {
         new EventSubscriptionServlet(gson, db)).addMapping(
         "/api/subscription/event");
     context.addServlet(ValidationServlet.class.getName(),
-        new ValidationServlet(gson, db));
+        new ValidationServlet(gson, db)).addMapping("/validate");
   }
 
   @Override
