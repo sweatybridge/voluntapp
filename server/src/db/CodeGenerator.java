@@ -5,10 +5,14 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
+import javax.swing.GroupLayout.Alignment;
+
 public final class CodeGenerator {
 
   private final Random random;
   public static final int CODE_LENGTH = 6;
+
+  private String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
 
   public CodeGenerator() {
     random = new SecureRandom();
@@ -21,16 +25,13 @@ public final class CodeGenerator {
   public String getCode(Integer length) {
     String res;
     do {
-      res = align(new BigInteger(length * 5, random).toString(32), length);
+      res = "";
+      for (int i = 0; i < length; i++) {
+        int index = (int) (random.nextDouble() * letters.length());
+        res += letters.substring(index, index + 1);
+      }
     } while (taken(res));
     return res;
-  }
-
-  /* Aligns the invite code to a specific length. */
-  private String align(String s, Integer length) {
-    char[] prefix = new char[length - s.length()];
-    Arrays.fill(prefix, '0');
-    return (prefix.toString() + s);
   }
 
   /* Function checking if the invite code is already in use. */

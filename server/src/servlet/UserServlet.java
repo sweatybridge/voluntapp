@@ -139,9 +139,12 @@ public class UserServlet extends HttpServlet {
       int userId = db.putUser(user);
 
       // Forward to session servlet
-      request.setAttribute("userId", userId);
-      getServletContext().getRequestDispatcher("/api/session").forward(request,
-          response);
+      // request.setAttribute("userId", userId);
+      // getServletContext().getRequestDispatcher("/api/session").forward(request,
+      // response);
+
+      request.setAttribute(Response.class.getSimpleName(),
+          new SuccessResponse());
     } catch (SQLException e) {
       e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(

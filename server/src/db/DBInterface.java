@@ -27,6 +27,7 @@ import resp.EventSubscriptionResponse;
 import resp.Response;
 import resp.SessionResponse;
 import resp.UserResponse;
+import resp.ValidationResponse;
 import sql.SQLDelete;
 import sql.SQLInsert;
 import sql.SQLQuery;
@@ -648,9 +649,9 @@ public class DBInterface {
         q = override;
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      // if (override == null) {
-      query.formatSQLQuery(stmt);
-      // }
+      if (override == null) {
+        query.formatSQLQuery(stmt);
+      }
       result = stmt.executeQuery();
       query.setResult(result);
     } finally {
@@ -714,6 +715,18 @@ public class DBInterface {
       return 0;
     }
     return query.getCalendarId();
+  }
+
+  public boolean checkValidation(Integer userId, String validationCode)
+      throws SQLException {
+    ValidationResponse vr = new ValidationResponse(userId, validationCode);
+    query(vr);
+    try {
+      return vr.isValid();
+    } catch (InconsistentDataException e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 
 }
