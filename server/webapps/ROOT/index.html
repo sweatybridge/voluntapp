@@ -60,7 +60,22 @@
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
-          submitAjaxForm($(this), function(data) { window.location.reload(); }, $("#login_errors"));
+          var form = $(this);
+          $.ajax(form.attr("action"), {
+            data: JSON.stringify(getFormObj(form)),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            method: form.attr("method"),
+            success: function(data) { window.location.reload(); },
+            error: function(data) {
+              // Check if email verification is required
+              if (data.status == 412) {
+                $("#login_form input[type='hidden']").attr("type", "text").attr("required", "true");
+              }
+              // Display the error message
+              console.log(data); $("#login_errors").text(data.responseJSON.message);
+            }
+          });
         });
         
         $("#register_form").submit(function(e) {
