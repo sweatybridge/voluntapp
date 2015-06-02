@@ -6,11 +6,11 @@ import java.sql.SQLException;
 public class ValidationResponse extends Response {
 
   private String validationCode;
-  private Integer userId;
+  private String email;
   private Boolean valid;
 
-  public ValidationResponse(Integer userId, String validationCode) {
-    this.userId = userId;
+  public ValidationResponse(String email, String validationCode) {
+    this.email = email;
     this.validationCode = validationCode;
     this.valid = false;
   }
@@ -22,7 +22,7 @@ public class ValidationResponse extends Response {
             "UPDATE \"USER\" SET \"%s\"=NULLIF(\"%s\", ?) WHERE \"%s\"=? AND \"%s\"=?;",
             UserResponse.VALIDATION_KEY_COLUMN,
             UserResponse.VALIDATION_KEY_COLUMN,
-            UserResponse.VALIDATION_KEY_COLUMN, UserResponse.ID_COLUMN);
+            UserResponse.VALIDATION_KEY_COLUMN, UserResponse.EMAIL_COLUMN);
   }
 
   @Override
@@ -30,7 +30,7 @@ public class ValidationResponse extends Response {
     int i = 1;
     prepared.setString(i++, escape(validationCode));
     prepared.setString(i++, escape(validationCode));
-    prepared.setInt(i++, userId);
+    prepared.setString(i++, escape(email));
   }
 
   @Override

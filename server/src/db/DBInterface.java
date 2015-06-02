@@ -713,9 +713,9 @@ public class DBInterface {
     return query.getCalendarId();
   }
 
-  public boolean checkValidation(Integer userId, String validationCode)
+  public boolean checkValidation(String email, String validationCode)
       throws SQLException {
-    ValidationResponse vr = new ValidationResponse(userId, validationCode);
+    ValidationResponse vr = new ValidationResponse(email, validationCode);
     update(vr);
     return vr.isValid();
   }

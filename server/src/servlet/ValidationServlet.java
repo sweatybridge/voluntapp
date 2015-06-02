@@ -27,12 +27,12 @@ public class ValidationServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
-    Integer userId = (Integer) request.getAttribute("userId");
+    String email = (String) request.getAttribute("email");
     String validationCode = (String) request.getAttribute("validationCode");
 
     Boolean valid;
     try {
-      valid = db.checkValidation(userId, validationCode);
+      valid = db.checkValidation(email, validationCode);
     } catch (SQLException e) {
       e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -55,4 +55,10 @@ public class ValidationServlet extends HttpServlet {
       return;
     }
   }
+
+  @Override
+  public void doPut(HttpServletRequest request, HttpServletResponse response) {
+
+  }
+
 }
