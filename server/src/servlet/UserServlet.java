@@ -134,9 +134,17 @@ public class UserServlet extends HttpServlet {
       return;
     }
 
+    // Create a new validation code
+    CodeGenerator cg = new CodeGenerator();
+    String validationCode = cg.getCode(20);
+
     try {
+
       // Write to database
-      int userId = db.putUser(user);
+      int userId = db.putUser(user, validationCode);
+
+      EmailUtils.sendEmail(user.getEmail(), "Validation",
+          "Your validation code is as follows: " + validationCode);
 
       // Forward to session servlet
       // request.setAttribute("userId", userId);

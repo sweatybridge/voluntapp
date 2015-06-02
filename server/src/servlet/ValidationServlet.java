@@ -26,7 +26,7 @@ public class ValidationServlet extends HttpServlet {
   }
 
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
     Integer userId = (Integer) request.getAttribute("userId");
     String validationCode = (String) request.getAttribute("validationCode");
 
