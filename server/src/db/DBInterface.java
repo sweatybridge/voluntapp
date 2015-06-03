@@ -38,6 +38,8 @@ import sql.SQLQuery;
 import sql.SQLUpdate;
 import utils.AuthLevel;
 import utils.CalendarIdQuery;
+import utils.CalendarJoinCodeIdQuery;
+import utils.CalendarJoinEnabledQuery;
 import utils.EventEndTimeQuery;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
@@ -159,7 +161,9 @@ public class DBInterface {
     CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
         userId, joinCode);
     insert(subResp);
-    return subResp;
+    CalendarResponse resp = getCalendar(new CalendarRequest(userId, 
+        getCalendarId(new CalendarJoinCodeIdQuery(joinCode))));
+    return resp;
   }
 
   /**
@@ -756,5 +760,17 @@ public class DBInterface {
     update(vr);
     return vr.isValid();
   }
-
+  
+  /**
+   * Is the specified calendar joinable.
+   * 
+   * @param calendarId
+   * @return
+   * @throws SQLException
+   */
+  public boolean isCalendarJoinable(int calendarId) throws SQLException {
+    CalendarJoinEnabledQuery query = new CalendarJoinEnabledQuery(calendarId);
+    query(query);
+    return query.isJoinEnabled();
+  }
 }

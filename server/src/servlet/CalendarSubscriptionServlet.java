@@ -93,10 +93,10 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     }
     int cid = db.getCalendarId(new CalendarJoinCodeIdQuery(joinCode));
     try {
-      CalendarResponse resp = db.getCalendar(new CalendarRequest(userId, cid));
-      return (resp != CalendarResponse.NO_CALENDAR && resp.getJoinEnabled());
+      return db.isCalendarJoinable(cid);
     } catch (SQLException e) {
-      System.err.println("Database error.");
+      System.err.println("Database error while checking if the calendar " +
+      		"can be joined.");
     }
     return false;
   }

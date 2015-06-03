@@ -18,12 +18,12 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
   public static final String ROLE_COLUMN = "ROLE";
 
   private List<CalendarResponse> calendars = new ArrayList<>();
-  private String joinCode;
   /**
    * Fields excluded from serialisation.
    */
   private transient int userId;
   private transient ResultSet rs;
+  private transient String joinCode;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -40,9 +40,6 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
     this.joinCode = joinCode;
   }
 
-  public void setCalendars(List<CalendarResponse> calendars) {
-    this.calendars = calendars;
-  }
 
   @Override
   public String getSQLQuery() {
@@ -70,7 +67,11 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
   public List<CalendarResponse> getCalendars() {
     return calendars;
   }
-
+  
+  public void setCalendars(List<CalendarResponse> calendars) {
+    this.calendars = calendars;
+  }
+  
   @Override
   public String getSQLInsert() {
     return String
