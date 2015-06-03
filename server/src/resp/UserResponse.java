@@ -40,7 +40,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   private transient ResultSet rs;
   private transient boolean found;
   private transient String hashedPassword;
-  private transient String validationCode = "$";
+  private transient String validationCode = null;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.

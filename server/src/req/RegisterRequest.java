@@ -3,6 +3,10 @@ package req;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 
+import exception.PasswordHashFailureException;
+
+import utils.PasswordUtils;
+
 /**
  * Deserialized JSON object of an API request to register new user.
  */
@@ -13,6 +17,7 @@ public class RegisterRequest implements Request {
    */
   private String email;
   private String password;
+  private String currentPassword; // Used for updating user
   private String firstName;
   private String lastName;
 
@@ -42,9 +47,17 @@ public class RegisterRequest implements Request {
   public String getEmail() {
     return email;
   }
+  
+  public void hashPassword() throws PasswordHashFailureException {
+	  password = PasswordUtils.getPasswordHash(password);
+  }
 
   public String getPassword() {
     return password;
+  }
+  
+  public String getCurrentPassword() {
+	  return currentPassword;
   }
 
   public String getFirstName() {
