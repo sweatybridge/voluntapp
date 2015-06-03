@@ -177,6 +177,7 @@ public class CalendarServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
+    int userId = ServletUtils.getUserId(request);
     String id = request.getPathInfo().substring(1);
 
     if (id == null) {
@@ -192,11 +193,12 @@ public class CalendarServlet extends HttpServlet {
      * code for the calendar. 
      */
     int cid = Integer.parseInt(id);
+    calendarRequest.setUserId(userId);
     calendarRequest.setCalendarId(cid);
     if (calendarRequest.isJoinEnabled()) {
       try {
-        boolean joinEnabled = db.getCalendar(calendarRequest).getJoinEnabled();
-        if (!joinEnabled) {
+        CalendarResponse resp = db.getCalendar(calendarRequest);
+        if (resp != CalendarResponse.NO_CALENDAR && !resp.getJoinEnabled()) {
           calendarRequest.setInviteCode(generator.getCode());
         }
       } catch (SQLException e) {

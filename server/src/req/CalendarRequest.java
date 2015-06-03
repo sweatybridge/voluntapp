@@ -27,7 +27,7 @@ public class CalendarRequest implements Request {
    * Calendar details sent by the client.
    */
   private String name;
-  private Boolean joinEnabled;
+  private boolean joinEnabled;
   private Timestamp startDate;
 
   /**
@@ -77,7 +77,7 @@ public class CalendarRequest implements Request {
     return name;
   }
 
-  public Boolean isJoinEnabled() {
+  public boolean isJoinEnabled() {
     return joinEnabled;
   }
 

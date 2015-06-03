@@ -157,6 +157,8 @@ public class CalendarResponse extends Response {
       prepare.setBoolean(i++, joinEnabled);
     if (active != null)
       prepare.setBoolean(i++, active);
+    if (joinCode != null)
+      prepare.setString(i++, joinCode);
     prepare.setInt(i++, calendarId);
   }
 
