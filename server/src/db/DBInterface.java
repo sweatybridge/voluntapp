@@ -446,6 +446,12 @@ public class DBInterface {
     return updateUser(new UserResponse(userId, validationCode));
   }
 
+  public boolean updateUser(String email, String newPassword)
+      throws SQLException, InconsistentDataException, UserNotFoundException {
+    return updateUser(new UserResponse(email, newPassword,
+        UserResponse.INVALID_USER_ID, null, null));
+  }
+
   /**
    * Functions to update event details for a given event Id.
    * 

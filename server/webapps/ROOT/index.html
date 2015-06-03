@@ -24,7 +24,7 @@
       <p class="form-error" id="login_errors"></p>
     </form>
     <div class="centre">
-      <p><a id="a_forgot_password" href="#">Forgot your password?</a></p>
+      <p><a id="forgot_password" href="#">Forgot your password?</a></p>
       <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
         Register now
       </button>
@@ -57,6 +57,22 @@
     <script>
       // DOCUMENT READY
       $(function() {
+        // Bind forgotten password
+        var formObj = getFormObj($("#login_form"));
+        delete formObj.password;
+        delete formObj.validationCode;
+        $("#forgot_password").click(function(e) {
+           $.ajax("/validate", {
+           method: "PUT",
+           data: JSON.stringify(formObj),
+           success: function(data) {
+             $("#login_error").text("New password has been sent");
+           },
+              error: function(data) { $("#login_error").text(data.responseJSON.message); }
+            })
+        });
+        
+        
         // Bind forms to ajax
         $("#login_form").submit(function(e) {
           e.preventDefault();
@@ -80,7 +96,7 @@
                 // Display the error message
                 var link = $("<a id='resendlink' href='#'>").text("  Click to resend email").click(function(e) {
                   $.post("/validate", JSON.stringify(getFormObj(form)), function(data) {
-                    $("#login_errors").text("Email has been sent.").unbind("click");
+                    $("#login_errors").text("Email has been sent, with a new validation code.").unbind("click");
                   });
                 });
                 $("#login_errors").text("Please check your email and validation code again.").append(link);

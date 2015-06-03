@@ -21,6 +21,16 @@ public class EmailUtils {
     t.start();
   }
 
+  public static void sendTempPassword(String email, String newPassword) {
+    Thread t = new Thread(
+        new EmailRunnable(
+            email,
+            "Requested new password",
+            "We have given you a new password to log on with, please change this IMMEDIATELY after you log in.\n Your new password is: "
+                + newPassword));
+    t.start();
+  }
+
   private static class EmailRunnable implements Runnable {
 
     private String email;

@@ -22,6 +22,7 @@ import servlet.ValidationServlet;
 
 import com.google.gson.Gson;
 
+import db.CodeGenerator;
 import db.DBInterface;
 import db.SessionManager;
 import filter.AuthorizationFilter;
@@ -54,6 +55,7 @@ public class Application implements ServletContextListener {
     Gson gson = new Gson();
     DBInterface db = new DBInterface(source);
     SessionManager sm = new SessionManager(db);
+    CodeGenerator cg = new CodeGenerator();
 
     // Initialise filters
     context.addFilter(AuthorizationFilter.class.getSimpleName(),
@@ -84,7 +86,8 @@ public class Application implements ServletContextListener {
         new EventSubscriptionServlet(gson, db)).addMapping(
         "/api/subscription/event", "/api/subscription/event/*");
     context.addServlet(ValidationServlet.class.getName(),
-        new ValidationServlet(gson, db)).addMapping("/validate");
+        new ValidationServlet(gson, db, cg)).addMapping("/validate");
+
   }
 
   @Override
