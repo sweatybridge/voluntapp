@@ -166,6 +166,30 @@ public class DBInterface {
     insert(subResp);
     return subResp;
   }
+  
+  /**
+   * Deletes a calendar subscription given an userId and a calendarId
+   * 
+   * @param userId
+   * @param calendarId
+   * @return true on success, throws exception otherwise
+   * @throws SQLException
+   * @throws InconsistentDataException
+   * @throws CalendarSubscriptionNotFoundException 
+   */
+  public boolean deleteCalendarSubscription(int userId, int calendarId) throws SQLException, InconsistentDataException, CalendarSubscriptionNotFoundException {
+    CalendarSubscriptionResponse response = new CalendarSubscriptionResponse(userId,
+        calendarId, null);
+    int rows = delete(response);
+    if (rows == 1) {
+      return true;
+    } else if (rows == 0) {
+      throw new CalendarSubscriptionNotFoundException(
+          "Calendar subscription not found for " + userId + '-' + calendarId);
+    }
+    throw new InconsistentDataException(
+        "Update calendar subscription role modified more than 1 row!");
+  }
 
   /**
    * Get all events to which the user subscribed.
@@ -401,7 +425,7 @@ public class DBInterface {
     int rows = delete(response);
     if (rows > 1) {
       throw new InconsistentDataException(
-          "Deleteing an event subscription removed more than one row");
+          "Deleting an event subscription removed more than one row");
     }
     return rows == 1;
   }

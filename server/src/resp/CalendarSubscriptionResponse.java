@@ -20,7 +20,7 @@ public class CalendarSubscriptionResponse extends Response {
   /**
    * Fields excluded from serialisation.
    */
-  private transient int userId;
+  private transient int userId; // Sometimes used for promotion
   private transient ResultSet rs;
   private transient int calendarId; // Used for user promotion
   private transient AuthLevel role;
@@ -61,6 +61,17 @@ public class CalendarSubscriptionResponse extends Response {
     prepare.setInt(2, userId);
     prepare.setInt(3, calendarId);
     System.out.println(prepare.toString());
+  }
+  
+  @Override
+  public String getSQLDelete() {
+    return "DELETE FROM \"USER_CALENDAR\" WHERE \"UID\"=? AND \"CID\"=?";
+  }
+
+  @Override
+  public void formatSQLDelete(PreparedStatement prepared) throws SQLException {
+    prepared.setInt(1, userId);
+    prepared.setInt(2, calendarId);
   }
 
   @Override
