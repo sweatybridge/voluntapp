@@ -479,7 +479,7 @@ public class DBInterface {
     }
 
     CalendarResponse cr = new CalendarResponse(calendarId, creq.getName(),
-        creq.isJoinEnabled());
+        creq.isJoinEnabled(), creq.getInviteCode());
     int rows = update(cr);
     if (rows > 1) {
       throw new InconsistentDataException(
@@ -724,8 +724,7 @@ public class DBInterface {
    *          of the queried event
    * @return calendarId of the corresponding calendar
    */
-  public int getCalendarId(int eventId) {
-    CalendarIdQuery query = new CalendarIdQuery(eventId);
+  public int getCalendarId(CalendarIdQuery query) {
     try {
       query(query);
     } catch (SQLException e) {

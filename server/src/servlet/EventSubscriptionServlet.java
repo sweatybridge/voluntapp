@@ -13,6 +13,7 @@ import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import utils.AuthLevel;
+import utils.CalendarEventIdQuery;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
@@ -77,7 +78,8 @@ public class EventSubscriptionServlet extends HttpServlet {
      * Check if the user is subscribed to the calendar corresponding to the
      * given event.
      */
-    if (db.authoriseUser(userId, db.getCalendarId(eventID)) == AuthLevel.NONE) {
+    if (db.authoriseUser(userId, db.getCalendarId(
+        new CalendarEventIdQuery(eventID))) == AuthLevel.NONE) {
       request
           .setAttribute(
               Response.class.getSimpleName(),
@@ -147,7 +149,8 @@ public class EventSubscriptionServlet extends HttpServlet {
      * Check if the user is an admin of the calendar, if yes then serialise the
      * submitted user IDs.
      */
-    if (db.authoriseUser(userId, db.getCalendarId(eventID)) == AuthLevel.ADMIN) {
+    if (db.authoriseUser(userId, db.getCalendarId(
+        new CalendarEventIdQuery(eventID))) == AuthLevel.ADMIN) {
       try {
         EventSubscriptionRequest req = gson.fromJson(request.getReader(),
             EventSubscriptionRequest.class);

@@ -187,14 +187,31 @@ public class CalendarServlet extends HttpServlet {
 
     CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
         CalendarRequest.class);
-
-    Response result = null;
-
+    
+    /* Check if joining the calendar was re-enabled. If so, generate new join 
+     * code for the calendar. 
+     */
+    int cid = Integer.parseInt(id);
+    calendarRequest.setCalendarId(cid);
+    if (calendarRequest.isJoinEnabled()) {
+      try {
+        boolean joinEnabled = db.getCalendar(calendarRequest).getJoinEnabled();
+        if (!joinEnabled) {
+          calendarRequest.setInviteCode(generator.getCode());
+        }
+      } catch (SQLException e) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Data base error occured."));
+        return;
+      }
+    }
+    
     // Check that the calendar can be updated by the user
-    switch (db.authoriseUser(ServletUtils.getUserId(request),
-        Integer.parseInt(id))) {
+    Response result;
+    switch (db.authoriseUser(ServletUtils.getUserId(request), cid)) {
     case NONE:
     case BASIC:
+    case EDITOR:
       result = new ErrorResponse("Operation not allowed (Update calendar)");
       response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
       request.setAttribute(Response.class.getSimpleName(), result);
@@ -204,7 +221,7 @@ public class CalendarServlet extends HttpServlet {
     }
 
     try {
-      db.updateCalendar(Integer.parseInt(id), calendarRequest);
+      db.updateCalendar(cid, calendarRequest);
       result = new SuccessResponse("Calendar data was successfully updated.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse("One of the specified dates was invalid.");

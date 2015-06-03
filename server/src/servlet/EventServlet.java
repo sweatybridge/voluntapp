@@ -13,6 +13,7 @@ import resp.EventResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import utils.AuthLevel;
+import utils.CalendarEventIdQuery;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
@@ -212,7 +213,7 @@ public class EventServlet extends HttpServlet {
   private boolean checkAccessRights(int calendarId, int eventId, 
       int userId, AuthLevel requiredLevel) {
     if (calendarId == 0) {
-      calendarId = db.getCalendarId(eventId);
+      calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
     }
     AuthLevel level = db.authoriseUser(userId, calendarId);
     return level.ordinal() >= requiredLevel.ordinal();
