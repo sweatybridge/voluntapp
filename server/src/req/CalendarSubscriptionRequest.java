@@ -9,6 +9,8 @@ import db.CodeGenerator;
 public class CalendarSubscriptionRequest implements Request {
 
   private String joinCode;
+  private String targetUserEmail;
+  private String role;
 
   /**
    * Fields excluded from deserialisation.
@@ -29,6 +31,14 @@ public class CalendarSubscriptionRequest implements Request {
 
   public String getJoinCode() {
     return joinCode;
+  }
+  
+  public String getTargetUserEmail() {
+    return targetUserEmail;
+  }
+
+  public String getRole() {
+    return role;
   }
 
   public int getUserId() {

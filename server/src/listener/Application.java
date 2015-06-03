@@ -81,7 +81,7 @@ public class Application implements ServletContextListener {
         .addMapping("/api/event", "/api/event/*");
     context.addServlet(CalendarSubscriptionServlet.class.getName(),
         new CalendarSubscriptionServlet(gson, db)).addMapping(
-        "/api/subscription/calendar");
+        "/api/subscription/calendar", "/api/subscription/calendar/*");
     context.addServlet(EventSubscriptionServlet.class.getName(),
         new EventSubscriptionServlet(gson, db)).addMapping(
         "/api/subscription/event", "/api/subscription/event/*");
