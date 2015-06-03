@@ -109,6 +109,7 @@ a:hover, a:active, a:focus {
     margin-top: -19px;
   }
   #d_left_sidebar {
+    left: -260px;
     padding-right: 15px;
     box-shadow: 5px 0px 5px #888888;
   }

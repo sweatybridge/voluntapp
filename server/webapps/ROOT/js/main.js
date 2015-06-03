@@ -65,27 +65,29 @@ $(function() {
   });
   
   // mobile actions
-  $("body").on("swipeleft", function() {
-    //e.stopPropagation();
-    // close sidebar
-    var width = $("#d_left_sidebar").outerWidth();
-    $("#d_left_sidebar").animate({
-      left: -width,
-      duration: 0.2
-    });
-    $("#b_hide_left").removeClass("active");
-  });
-
-  $("body").on("swiperight", function(e) {
-    // open sidebar
-    if (e.swipestart.coords[0] > 80) {
-      return;
-    }
-    $("#d_left_sidebar").animate({
-      left: 0,
-      duration: 0.2
-    });
-    $("#b_hide_left").addClass("active");
+  $("body").swipe({
+    swipe: function(event, direction, distance, duration, fingerCount, fingerData) {
+      var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+      // close sidebar
+      if (width < 768) {
+        if (direction === "left") {
+          var offset = $("#d_left_sidebar").outerWidth();
+          $("#d_left_sidebar").animate({
+            left: -offset,
+            duration: 0.2
+          });
+          $("#b_hide_left").removeClass("active");
+        } else if (event.swipestart.coords[0] < screen.width / 10) {
+          $("#d_left_sidebar").animate({
+            left: 0,
+            duration: 0.2
+          });
+          $("#b_hide_left").addClass("active");
+        }
+      }
+    },
+    threshold: 0,
+    fingers:'all'
   });
 
   // Bind logout button
@@ -122,13 +124,15 @@ $(function() {
   // Bind previous and next day button
   $("#prev_day").click(function() {
     // advance date by 1
-    app.current_start_date.setDate(app.current_start_date.getDate() - 7);
+    var days = $("#t_calendar_heading").children().length;
+    app.current_start_date.setDate(app.current_start_date.getDate() - days);
     refreshEvents();
   });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
-    app.current_start_date.setDate(app.current_start_date.getDate() + 7);
+    var days = $("#t_calendar_heading").children().length;
+    app.current_start_date.setDate(app.current_start_date.getDate() + days);
     refreshEvents();
   });
   

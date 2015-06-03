@@ -50,7 +50,8 @@ $(function() {
   });
   
   // Render calendar from yesterday
-  updateCalendarDates(getMonday());
+  // updateCalendarDates(getMonday());
+  app.current_start_date = getMonday();
 
   rebuildCalendar();
 }); // End of document ready
