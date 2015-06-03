@@ -3,6 +3,7 @@ package servlet;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.sql.SQLException;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +13,7 @@ import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import utils.AuthLevel;
+import utils.CalendarEventIdQuery;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
@@ -76,7 +78,8 @@ public class EventSubscriptionServlet extends HttpServlet {
      * Check if the user is subscribed to the calendar corresponding to the
      * given event.
      */
-    if (db.authoriseUser(userId, db.getCalendarId(eventID)) == AuthLevel.NONE) {
+    if (db.authoriseUser(userId, db.getCalendarId(
+        new CalendarEventIdQuery(eventID))) == AuthLevel.NONE) {
       request
           .setAttribute(
               Response.class.getSimpleName(),
@@ -103,12 +106,12 @@ public class EventSubscriptionServlet extends HttpServlet {
     try {
       subResp = db.putEventSubscription(eventID, userId);
     } catch (SQLException e) {
-      subResp = new ErrorResponse("Error while registering event subscription."
-          + e.getMessage());
+      subResp = new ErrorResponse(
+          "Error while registering event subscription.");
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     } catch (InvalidActionException e) {
-      subResp = new ErrorResponse("Tried to join a full event."
-          + e.getMessage());
+      subResp = new ErrorResponse(
+          "Tried to join a full event.");
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
     request.setAttribute(Response.class.getSimpleName(), subResp);
@@ -146,7 +149,8 @@ public class EventSubscriptionServlet extends HttpServlet {
      * Check if the user is an admin of the calendar, if yes then serialise the
      * submitted user IDs.
      */
-    if (db.authoriseUser(userId, db.getCalendarId(eventID)) == AuthLevel.ADMIN) {
+    if (db.authoriseUser(userId, db.getCalendarId(
+        new CalendarEventIdQuery(eventID))) == AuthLevel.ADMIN) {
       try {
         EventSubscriptionRequest req = gson.fromJson(request.getReader(),
             EventSubscriptionRequest.class);

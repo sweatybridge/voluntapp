@@ -11,9 +11,9 @@ import req.EventRequest;
 import resp.ErrorResponse;
 import resp.EventResponse;
 import resp.Response;
-import resp.SessionResponse;
 import resp.SuccessResponse;
 import utils.AuthLevel;
+import utils.CalendarEventIdQuery;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
@@ -41,35 +41,28 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int userId = ServletUtils.getUserId(request);
-    if (userId < 0) {
-      // response.setStatus(HttpURLConnection.HTTP_UNAUTHORIZED);
-      return;
-    }
-
-    // Retrieve event id
-    String eid = request.getPathInfo().substring(1);
-    if (eid == null) {
+    
+    String eventId = request.getPathInfo().substring(1);
+    if (eventId == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Request must follow REST convention."));
       return;
     }
-    int eventId = Integer.parseInt(eid);
 
-    /*
-     * Verify if the user is allowed to preview info about event attendees in
-     * the specified calendar.
-     */
-    if (!checkAccessRights(db.getCalendarId(eventId), request)) {
+    /* Verify if the user is allowed to preview info about event attendees 
+     * in the specified calendar. */
+    int eventID = Integer.parseInt(eventId);
+    if (!checkAccessRights(0, eventID, userId, AuthLevel.ADMIN)) {
+      setUnauthorisedAccessErrorResponse(request);
       return;
     }
 
     Response resp;
     try {
-      resp = db.getEventAttendees(eventId);
+      resp = db.getEventAttendees(eventID);
     } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
       resp = new ErrorResponse("Request must follow REST convention.");
     }
-
     request.setAttribute(Response.class.getSimpleName(), resp);
   }
 
@@ -81,20 +74,21 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq = gson.fromJson(request.getReader(),
-        EventRequest.class);
-
-    if (!eventReq.isValid()) {
+    int userId = ServletUtils.getUserId(request);
+    
+    EventRequest eventReq =
+        gson.fromJson(request.getReader(), EventRequest.class);
+    
+    if (eventReq == null || !eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The supplied event data are invalid."));
       return;
     }
-
-    /*
-     * Verify if the user is allowed to publish events in the specified
-     * calendar.
-     */
-    if (!checkAccessRights(eventReq.getCalendarId(), request)) {
+    
+    /* Verify if the user is allowed to publish events in the specified 
+     * calendar. */
+    if (!checkAccessRights(eventReq.getCalendarId(), 0, userId, AuthLevel.EDITOR)) {
+      setUnauthorisedAccessErrorResponse(request);
       return;
     }
 
@@ -116,8 +110,10 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    EventRequest eventReq = gson.fromJson(request.getReader(),
-        EventRequest.class);
+    int userId = ServletUtils.getUserId(request);
+    
+    EventRequest eventReq =
+        gson.fromJson(request.getReader(), EventRequest.class);
 
     if (eventReq == null || !eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -126,16 +122,17 @@ public class EventServlet extends HttpServlet {
     }
     String eventId = eventReq.getEventId();
 
-    /*
-     * Verify if the user is allowed to edit events in the specified calendar.
-     */
-    if (!checkAccessRights(db.getCalendarId(Integer.parseInt(eventId)), request)) {
-      return;
-    }
-
     if (eventId != null) {
+      /* Verify if the user is allowed to edit events in the specified 
+       * calendar - is an editor. */
+      int eventID = Integer.parseInt(eventId);
+      if (!checkAccessRights(0, eventID, userId, AuthLevel.EDITOR)) {
+        setUnauthorisedAccessErrorResponse(request);
+        return;
+      }
+      /* Try to update the event. */
       try {
-        if (!db.updateEvent(Integer.parseInt(eventId), eventReq)) {
+        if (!db.updateEvent(eventID, eventReq)) {
           request
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
@@ -171,19 +168,20 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-
+    int userId = ServletUtils.getUserId(request);
     String eventId = request.getPathInfo().substring(1);
 
-    /*
-     * Verify if the user is allowed to edit events in the specified calendar.
-     */
-    if (!checkAccessRights(db.getCalendarId(Integer.parseInt(eventId)), request)) {
-      return;
-    }
-
     if (eventId != null) {
+      /* Verify if the user is allowed to delete events from the specified 
+       * calendar - is an editor. */
+      int eventID = Integer.parseInt(eventId);
+      if (!checkAccessRights(0, eventID, userId, AuthLevel.EDITOR)) {
+        setUnauthorisedAccessErrorResponse(request);
+        return;
+      }
+      /* Delete the event. */
       try {
-        db.deleteEvent(Integer.parseInt(eventId));
+        db.deleteEvent(eventID);
         request.setAttribute(Response.class.getSimpleName(),
             new SuccessResponse("The event was successfully deleted."));
       } catch (EventNotFoundException e) {
@@ -203,30 +201,31 @@ public class EventServlet extends HttpServlet {
           "No event ID was specified."));
     }
   }
-
+   
   /**
-   * Function which verifies if the user has enough privileges to
-   * add/modify/delete events from a particular calendar.
+   * Check if the user has the required (or higher) user rights.
    * 
-   * @param eventReq
-   *          - event data supplied by the user
-   * @param request
-   *          - Http servlet request sent by the user
-   * @return Boolean value indicating if the user is allowed to edit calendar
-   *         events.
+   * @param calendarId
+   * @param userId
+   * @param requiredLevel
+   * @return
    */
-  private boolean checkAccessRights(int calendarId, HttpServletRequest request) {
-    SessionResponse sessionResponse = (SessionResponse) request
-        .getAttribute(SessionResponse.class.getSimpleName());
-
-    AuthLevel level = db.authoriseUser(sessionResponse.getUserId(), calendarId);
-
-    if (level == AuthLevel.NONE || level == AuthLevel.BASIC) {
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "You are not allowed to preview attendees details or edit events "
-              + "of this calendar. Owner / Admin priviledges are required."));
-      return false;
+  private boolean checkAccessRights(int calendarId, int eventId, 
+      int userId, AuthLevel requiredLevel) {
+    if (calendarId == 0) {
+      calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
     }
-    return true;
+    AuthLevel level = db.authoriseUser(userId, calendarId);
+    return level.ordinal() >= requiredLevel.ordinal();
+  }
+  
+  /**
+   * Set the error message indicating unauthorised access,
+   * 
+   * @param request
+   */
+  private void setUnauthorisedAccessErrorResponse(HttpServletRequest request) {
+    request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+        "You do not have enough rights to perform the requested operation."));
   }
 }

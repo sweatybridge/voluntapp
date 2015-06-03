@@ -100,6 +100,10 @@ public class CalendarRequest implements Request {
   public CalendarEventsQuery getCalendarEventsQuery() {
     return new CalendarEventsQuery();
   }
+  
+  public void setCalendarId(int calendarId) {
+    this.calendarId = calendarId;
+  }
 
   public class CalendarEventsQuery extends Response {
     private ResultSet rs;

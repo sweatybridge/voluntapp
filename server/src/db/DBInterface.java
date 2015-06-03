@@ -38,6 +38,8 @@ import sql.SQLQuery;
 import sql.SQLUpdate;
 import utils.AuthLevel;
 import utils.CalendarIdQuery;
+import utils.CalendarJoinCodeIdQuery;
+import utils.CalendarJoinEnabledQuery;
 import utils.EventEndTimeQuery;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
@@ -155,16 +157,14 @@ public class DBInterface {
    * @return
    * @throws SQLException
    */
-  public Response putCalendarSubscription(CalendarSubscriptionRequest subReq)
+  public Response putCalendarSubscription(int userId, String joinCode)
       throws SQLException {
-    /*
-     * TODO: Register calendar subscription only when the join enable field was
-     * checked.
-     */
     CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
-        subReq.getUserId(), subReq.getJoinCode());
+        userId, joinCode);
     insert(subResp);
-    return subResp;
+    CalendarResponse resp = getCalendar(new CalendarRequest(userId, 
+        getCalendarId(new CalendarJoinCodeIdQuery(joinCode))));
+    return resp;
   }
   
   /**
@@ -534,7 +534,7 @@ public class DBInterface {
     }
 
     CalendarResponse cr = new CalendarResponse(calendarId, creq.getName(),
-        creq.isJoinEnabled());
+        creq.isJoinEnabled(), creq.getInviteCode());
     int rows = update(cr);
     if (rows > 1) {
       throw new InconsistentDataException(
@@ -779,8 +779,7 @@ public class DBInterface {
    *          of the queried event
    * @return calendarId of the corresponding calendar
    */
-  public int getCalendarId(int eventId) {
-    CalendarIdQuery query = new CalendarIdQuery(eventId);
+  public int getCalendarId(CalendarIdQuery query) {
     try {
       query(query);
     } catch (SQLException e) {
@@ -810,5 +809,17 @@ public class DBInterface {
     update(vr);
     return vr.isValid();
   }
-
+  
+  /**
+   * Is the specified calendar joinable.
+   * 
+   * @param calendarId
+   * @return
+   * @throws SQLException
+   */
+  public boolean isCalendarJoinable(int calendarId) throws SQLException {
+    CalendarJoinEnabledQuery query = new CalendarJoinEnabledQuery(calendarId);
+    query(query);
+    return query.isJoinEnabled();
+  }
 }

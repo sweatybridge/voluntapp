@@ -1,7 +1,7 @@
 package utils;
 
 public enum AuthLevel {
-  BASIC, EDITOR, ADMIN, NONE;
+  NONE, BASIC, EDITOR, ADMIN;
 
   public static AuthLevel getAuth(String role) {
     if (role.equalsIgnoreCase("editor")) {

@@ -59,10 +59,12 @@ public class CalendarResponse extends Response {
   }
 
   /* Constructor used for updating calendar data (name and join enabled). */
-  public CalendarResponse(int calendarId, String name, Boolean joinEnabled) {
+  public CalendarResponse(int calendarId, String name, Boolean joinEnabled,
+      String joinCode) {
     this.calendarId = calendarId;
     this.name = name;
     this.joinEnabled = joinEnabled;
+    this.joinCode = joinCode;
   }
 
   public CalendarResponse(String name, boolean joinEnabled, int userId,
@@ -80,6 +82,10 @@ public class CalendarResponse extends Response {
 
   public int getCalendarId() {
     return calendarId;
+  }
+  
+  public boolean getJoinEnabled() {
+    return joinEnabled;
   }
 
   @Override
@@ -130,6 +136,8 @@ public class CalendarResponse extends Response {
         JOIN_ENABLED_COLUMN) : "");
     setUpdate.append(active != null ? String.format("\"%s\"=?,", ACTIVE_COLUMN)
         : "");
+    setUpdate.append(joinCode != null ? String.format("\"%s\"=?,", 
+        JOIN_CODE_COLUMN) : "");
 
     String update = setUpdate.toString();
     if (update.isEmpty()) {
@@ -149,6 +157,8 @@ public class CalendarResponse extends Response {
       prepare.setBoolean(i++, joinEnabled);
     if (active != null)
       prepare.setBoolean(i++, active);
+    if (joinCode != null)
+      prepare.setString(i++, joinCode);
     prepare.setInt(i++, calendarId);
   }
 

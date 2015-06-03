@@ -177,6 +177,7 @@ public class CalendarServlet extends HttpServlet {
   @Override
   protected void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
+    int userId = ServletUtils.getUserId(request);
     String id = request.getPathInfo().substring(1);
 
     if (id == null) {
@@ -187,14 +188,32 @@ public class CalendarServlet extends HttpServlet {
 
     CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
         CalendarRequest.class);
-
-    Response result = null;
-
+    
+    /* Check if joining the calendar was re-enabled. If so, generate new join 
+     * code for the calendar. 
+     */
+    int cid = Integer.parseInt(id);
+    calendarRequest.setUserId(userId);
+    calendarRequest.setCalendarId(cid);
+    if (calendarRequest.isJoinEnabled()) {
+      try {
+        CalendarResponse resp = db.getCalendar(calendarRequest);
+        if (resp != CalendarResponse.NO_CALENDAR && !resp.getJoinEnabled()) {
+          calendarRequest.setInviteCode(generator.getCode());
+        }
+      } catch (SQLException e) {
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Data base error occured."));
+        return;
+      }
+    }
+    
     // Check that the calendar can be updated by the user
-    switch (db.authoriseUser(ServletUtils.getUserId(request),
-        Integer.parseInt(id))) {
+    Response result;
+    switch (db.authoriseUser(ServletUtils.getUserId(request), cid)) {
     case NONE:
     case BASIC:
+    case EDITOR:
       result = new ErrorResponse("Operation not allowed (Update calendar)");
       response.setStatus(HttpURLConnection.HTTP_FORBIDDEN);
       request.setAttribute(Response.class.getSimpleName(), result);
@@ -204,7 +223,7 @@ public class CalendarServlet extends HttpServlet {
     }
 
     try {
-      db.updateCalendar(Integer.parseInt(id), calendarRequest);
+      db.updateCalendar(cid, calendarRequest);
       result = new SuccessResponse("Calendar data was successfully updated.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse("One of the specified dates was invalid.");
@@ -230,8 +249,7 @@ public class CalendarServlet extends HttpServlet {
    */
   private CalendarRequest initCalendarRequest(HttpServletRequest request)
       throws IOException {
-    SessionResponse sessionResponse = (SessionResponse) request
-        .getAttribute(SessionResponse.class.getSimpleName());
+    int userId = ServletUtils.getUserId(request);
 
     CalendarRequest calendarRequest;
     if (request.getMethod().equals("GET")) {
@@ -243,7 +261,7 @@ public class CalendarServlet extends HttpServlet {
     }
 
     // Set userID of calendar creator.
-    calendarRequest.setUserId(sessionResponse.getUserId());
+    calendarRequest.setUserId(userId);
 
     return calendarRequest;
   }

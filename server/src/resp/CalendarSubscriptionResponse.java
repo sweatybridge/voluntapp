@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import utils.AuthLevel;
+import sql.SQLInsert;
+import sql.SQLQuery;
 
 public class CalendarSubscriptionResponse extends Response {
 
@@ -16,12 +18,12 @@ public class CalendarSubscriptionResponse extends Response {
   public static final String ROLE_COLUMN = "ROLE";
 
   private List<CalendarResponse> calendars = new ArrayList<>();
-  private String joinCode;
   /**
    * Fields excluded from serialisation.
    */
-  private transient int userId; // Sometimes used for promotion
+  private transient int userId;
   private transient ResultSet rs;
+  private transient String joinCode;
   private transient int calendarId; // Used for user promotion
   private transient AuthLevel role;
 
