@@ -39,6 +39,8 @@ $(function() {
   
   $("#user_promotion_form").submit(function(e) {
     e.preventDefault();
+    var calid = $(this).parent().data("calid");
+    $(this).attr("action", "/api/subscription/calendar/"+calid);
     submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#user_promotion_errors"));
   });
   

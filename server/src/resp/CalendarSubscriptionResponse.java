@@ -6,8 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import sql.SQLInsert;
-import sql.SQLQuery;
 import utils.AuthLevel;
 
 public class CalendarSubscriptionResponse extends Response {
@@ -54,14 +52,15 @@ public class CalendarSubscriptionResponse extends Response {
   
   @Override
   public String getSQLUpdate() {
-    return String.format("UPDATE \"USER_CALENDAR\" SET \"ROLE\"='?' WHERE \"UID\"=? AND \"CID\"=?");
+    return "UPDATE \"USER_CALENDAR\" SET \"ROLE\"=?::\"ROLE\" WHERE \"UID\"=? AND \"CID\"=?";
   }
   
   @Override
   public void formatSQLUpdate(PreparedStatement prepare) throws SQLException {
-    prepare.setString(1, role.toString());
+    prepare.setString(1, role.toString().toLowerCase());
     prepare.setInt(2, userId);
     prepare.setInt(3, calendarId);
+    System.out.println(prepare.toString());
   }
 
   @Override

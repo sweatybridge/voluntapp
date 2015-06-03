@@ -12,6 +12,7 @@ import req.CalendarSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
+import resp.UserResponse;
 import utils.AuthLevel;
 import utils.ServletUtils;
 
@@ -20,9 +21,9 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
 import db.DBInterface;
-import exception.CalendarNotFoundException;
 import exception.CalendarSubscriptionNotFoundException;
 import exception.InconsistentDataException;
+import exception.UserNotFoundException;
 
 @WebServlet
 public class CalendarSubscriptionServlet extends HttpServlet {
@@ -103,12 +104,12 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   @Override
   public void doPut(HttpServletRequest request, HttpServletResponse response) {
     // Get and check the calendar id from the url
-    String calendarIdS = request.getPathInfo().substring(1);
-    if (calendarIdS == null) {
+    if (request.getPathInfo() == null || request.getPathInfo().substring(1).length() < 1) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No calendar ID specified."));
       return;
     }
+    String calendarIdS = request.getPathInfo().substring(1);
     
     // Check if the current user has owner or admin rights
     int calendarId = Integer.parseInt(calendarIdS);
@@ -133,8 +134,30 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     }
     
     assert(req != null);
+    // Get the target user id from email
+    UserResponse targetUser;
+    try {
+      targetUser = db.getUser(req.getTargetUserEmail());
+    } catch (SQLException e1) {
+      e1.printStackTrace();
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Internal database error at getting target user id (SQLException)."));
+      return;
+    } catch (UserNotFoundException e1) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Target user is not recognized."));
+      return;
+    } catch (InconsistentDataException e1) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Getting target user affected more than 1 row."));
+      return;
+    }
+    assert(targetUser != null);
+    int targetUserId = targetUser.getUserId();
+    assert(targetUserId >= 0);
+    
     // We know the user is admin, make sure the requested user is not itself
-    if (currentUserId == req.getTargetUserId()) {
+    if (currentUserId == targetUserId) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Cannot demote yourself, ask another admin to modify your role."));
       return;
@@ -143,7 +166,8 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     // Looks like a valid request so far, update the database
     Response resp = new ErrorResponse("Unknown error in role update.");
       try {
-        db.updateUserRole(req.getTargetUserId(), calendarId, req.getRole());
+        AuthLevel enumRole = AuthLevel.getAuth(req.getRole());
+        db.updateUserRole(targetUserId, calendarId, enumRole);
         resp = new SuccessResponse("Updated user role.");
       } catch (CalendarSubscriptionNotFoundException e) {
         resp = new ErrorResponse("The requested update subscription does not exist.");
@@ -151,7 +175,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         resp = new ErrorResponse("The update request affected more than 1 row.");
       } catch (SQLException e) {
         e.printStackTrace();
-        resp = new ErrorResponse("Internal database error (SQLException).");
+        resp = new ErrorResponse("Internal database error at role update (SQLException).");
       }
     request.setAttribute(Response.class.getSimpleName(), resp);
   }

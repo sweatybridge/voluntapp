@@ -76,8 +76,8 @@
                   <button id="b_delete_calendar" type="button" class="btn btn-danger">Delete this calendar</button>
                   <form role="form" id="user_promotion_form" action="/api/subscription/calendar" method="put" autocomplete="off">
                     <p>Enter the user email that you want the perform the action. Remember that the user must be part of this calendar by joining.</p>
-                    <div class="form-group"><input id="user-email" type="email" class="form-control" name="userEmail" placeholder="User email" required>
-                    <select id="select_user_action" class="form-control" name="role">
+                    <div class="form-group"><input type="email" class="form-control" name="targetUserEmail" placeholder="User email" required>
+                    <select class="form-control" name="role">
                       <option value="admin">Make Admin</option>
                       <option value="editor">Make Editor</option>
                       <option value="basic">Make Basic</option>
