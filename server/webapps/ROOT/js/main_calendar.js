@@ -41,6 +41,16 @@ $(function() {
     e.preventDefault();
     var calid = $(this).parent().data("calid");
     $(this).attr("action", "/api/subscription/calendar/"+calid);
+    var formObj = getFormObj($(this));
+    console.log(formObj);
+    // Handle delete case
+    if (formObj.role == "remove") {
+      if (confirm("Are you sure you want to remove "+formObj.targetUserEmail+"?")) {
+        $(this).attr("method", "DELETE"); // Update method
+      } else {
+        return; // Cancel
+      }
+    }
     submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#user_promotion_errors"));
   });
   

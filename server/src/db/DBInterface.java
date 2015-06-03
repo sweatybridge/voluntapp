@@ -406,6 +406,17 @@ public class DBInterface {
     return rows == 1;
   }
   
+  /**
+   * Updates users role in the USER_CALENDAR table
+   * 
+   * @param targetUserId
+   * @param calendarId
+   * @param role
+   * @return true on success, throws exception otherwise
+   * @throws CalendarSubscriptionNotFoundException
+   * @throws InconsistentDataException
+   * @throws SQLException
+   */
   public boolean updateUserRole(int targetUserId, int calendarId, AuthLevel role) throws CalendarSubscriptionNotFoundException, InconsistentDataException, SQLException {
     CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(targetUserId, calendarId, role);
     int rows = update(resp);
