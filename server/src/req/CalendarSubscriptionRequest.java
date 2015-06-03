@@ -11,7 +11,7 @@ import db.CodeGenerator;
 public class CalendarSubscriptionRequest implements Request {
 
   private String joinCode;
-  private int targetUserId;
+  private int targetUserEmail;
   private AuthLevel role;
 
   /**
@@ -36,7 +36,7 @@ public class CalendarSubscriptionRequest implements Request {
   }
   
   public int getTargetUserId() {
-    return targetUserId;
+    return targetUserEmail;
   }
 
   public AuthLevel getRole() {
