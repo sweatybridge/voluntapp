@@ -82,14 +82,12 @@ public class UserServlet extends HttpServlet {
 	@Override
 	public void doDelete(HttpServletRequest request,
 			HttpServletResponse response) {
-
 		// get current user id from auth token
-		SessionResponse session = (SessionResponse) request
-				.getAttribute(SessionResponse.class.getSimpleName());
-
-		Response resp = new SuccessResponse(
-				"Successfully deleted user from database.");
-
+		/*
+		 * SessionResponse session = (SessionResponse) request
+		 * .getAttribute(SessionResponse.class.getSimpleName());
+		 */
+		Response resp = new ErrorResponse("Method not supported.");
 		request.setAttribute(Response.class.getSimpleName(), resp);
 	}
 
@@ -116,16 +114,16 @@ public class UserServlet extends HttpServlet {
 			request.setAttribute(Response.class.getSimpleName(), resp);
 			return;
 		}
-		
+
 		// We should have returned an error response if null
-		assert(rr != null);
+		assert (rr != null);
 		// Make sure it is a valid request
 		if (!rr.isValid()) {
 			resp = new ErrorResponse("Provided data is invalid.");
 			request.setAttribute(Response.class.getSimpleName(), resp);
 			return;
 		}
-		
+
 		try {
 			// Check the current password
 			UserResponse uresp = db.getUser(new UserRequest(uid));
@@ -173,28 +171,27 @@ public class UserServlet extends HttpServlet {
 		String validationCode = cg
 				.getCode(ValidationServlet.VALIDATION_CODE_LENGTH);
 
+		// Assume failure until success
+		Response resp = new ErrorResponse("Unknown error in register method.");
 		try {
-
 			// Write to database
 			int userId = db.putUser(user, validationCode);
-
 			EmailUtils.sendValidationEmail(user.getEmail(), validationCode);
 
 			// Forward to session servlet
 			// request.setAttribute("userId", userId);
 			// getServletContext().getRequestDispatcher("/api/session").forward(request,
 			// response);
+			// NOTE: Registration require email validation, so no forwarding
 
-			request.setAttribute(Response.class.getSimpleName(),
-					new SuccessResponse());
+			resp = new SuccessResponse("Registered user " + userId);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			request.setAttribute(Response.class.getSimpleName(),
-					new ErrorResponse(
-							"The email you entered is already in use."));
+			resp = new ErrorResponse("The email you entered is already in use.");
 		} catch (PasswordHashFailureException e) {
-			request.setAttribute(Response.class.getSimpleName(),
-					new ErrorResponse("Password Hashing Failed"));
+			resp = new ErrorResponse("Password Hashing Failed");
 		}
+
+		request.setAttribute(Response.class.getSimpleName(), resp);
 	}
 }
