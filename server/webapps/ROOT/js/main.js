@@ -64,7 +64,7 @@ $(function() {
     if (validateUpdate(form)) {
       return;
     }
-    submitAjaxForm(form, function(data) { toastr.success(data.message); }, $("#profile_errors"));
+    submitAjaxForm(form, function(data) { toastr.success(data.message); $("#b_cancel_profile").click(); refreshUser(); }, $("#profile_errors"));
   });
 
   // Bind previous and next day button

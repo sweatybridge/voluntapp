@@ -109,35 +109,42 @@ public class UserServlet extends HttpServlet {
 		RegisterRequest rr = null;
 		try {
 			// Try parsing the request
-			rr = gson.fromJson(request.getReader(),
-					RegisterRequest.class);
+			rr = gson.fromJson(request.getReader(), RegisterRequest.class);
 		} catch (JsonSyntaxException | JsonIOException | IOException e) {
 			e.printStackTrace();
 			resp = new ErrorResponse("Invalid update payload.");
+			request.setAttribute(Response.class.getSimpleName(), resp);
 			return;
 		}
-			// Make sure it is a valid request
-			if (rr.isValid()) {
-				try {
-					// Check the current password
-					UserResponse uresp = db.getUser(new UserRequest(uid));
-					if (!PasswordUtils.validatePassword(
-							rr.getCurrentPassword(), uresp.getHashedPassword())) {
-						resp = new ErrorResponse(
-								"Your current password doesn't match our records, have you entered it correctly?");
-					} else {
-						// Everything seems to be fine, try to update the
-						// database
-						rr.hashPassword(); // Hash the password first
-						db.updateUser(uid, rr);
-						resp = new SuccessResponse("Successfully updated user.");
-					}
-				} catch (SQLException | InconsistentDataException
-						| UserNotFoundException | PasswordHashFailureException e) {
-					e.printStackTrace();
-					resp = new ErrorResponse("Error in user update sequence.");
-				}
+		
+		// We should have returned an error response if null
+		assert(rr != null);
+		// Make sure it is a valid request
+		if (!rr.isValid()) {
+			resp = new ErrorResponse("Provided data is invalid.");
+			request.setAttribute(Response.class.getSimpleName(), resp);
+			return;
+		}
+		
+		try {
+			// Check the current password
+			UserResponse uresp = db.getUser(new UserRequest(uid));
+			if (!PasswordUtils.validatePassword(rr.getCurrentPassword(),
+					uresp.getHashedPassword())) {
+				resp = new ErrorResponse(
+						"Your current password doesn't match our records, have you entered it correctly?");
+			} else {
+				// Everything seems to be fine, try to update the
+				// database
+				rr.hashPassword(); // Hash the password first
+				db.updateUser(uid, rr);
+				resp = new SuccessResponse("Successfully updated user.");
 			}
+		} catch (SQLException | InconsistentDataException
+				| UserNotFoundException | PasswordHashFailureException e) {
+			e.printStackTrace();
+			resp = new ErrorResponse("Error in user update sequence.");
+		}
 
 		request.setAttribute(Response.class.getSimpleName(), resp);
 	}
