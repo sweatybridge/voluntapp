@@ -68,6 +68,11 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     this.lastName = lastName;
   }
 
+  public UserResponse(int userId, String validationCode) {
+    this.userId = userId;
+    this.validationCode = validationCode;
+  }
+
   private void setUserResponse() throws SQLException {
     this.email = rs.getString(EMAIL_COLUMN);
     this.hashedPassword = rs.getString(PASSWORD_COLUMN);
@@ -116,13 +121,15 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   public String getSQLUpdate() {
     int found = 0;
     String formatString = ((email == null || found++ == Integer.MIN_VALUE) ? ""
-        : String.format("\"%s\"=?;", EMAIL_COLUMN))
+        : String.format("\"%s\"=?,", EMAIL_COLUMN))
         + ((firstName == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?;", FIRST_NAME_COLUMN))
+            .format("\"%s\"=?,", FIRST_NAME_COLUMN))
         + ((lastName == null || found++ == Integer.MIN_VALUE) ? "" : String
-            .format("\"%s\"=?;", LAST_NAME_COLUMN))
+            .format("\"%s\"=?,", LAST_NAME_COLUMN))
         + ((hashedPassword == null || found++ == Integer.MIN_VALUE) ? ""
-            : String.format("\"%s\"=?;", PASSWORD_COLUMN));
+            : String.format("\"%s\"=?,", PASSWORD_COLUMN))
+        + ((validationCode == null || found++ == Integer.MIN_VALUE) ? ""
+            : String.format("\"%s\"=?,", VALIDATION_KEY_COLUMN));
     return (found == 0) ? null : String.format(
         "UPDATE public.\"USER\" SET %s WHERE \"ID\"=?",
         formatString.substring(0, formatString.length() - 1));
@@ -136,9 +143,11 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     if (firstName != null)
       prepared.setString(i++, escape(firstName));
     if (lastName != null)
-      prepared.setString(i++, lastName);
+      prepared.setString(i++, escape(lastName));
     if (hashedPassword != null)
       prepared.setString(i++, escape(hashedPassword));
+    if (validationCode != null)
+      prepared.setString(i++, escape(validationCode));
     prepared.setInt(i++, userId);
   }
 

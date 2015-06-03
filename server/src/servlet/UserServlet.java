@@ -3,15 +3,6 @@ package servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -91,8 +82,6 @@ public class UserServlet extends HttpServlet {
     SessionResponse session = (SessionResponse) request
         .getAttribute(SessionResponse.class.getSimpleName());
 
-    // delete from user table
-
     Response resp = new SuccessResponse(
         "Successfully deleted user from database.");
 
@@ -108,8 +97,6 @@ public class UserServlet extends HttpServlet {
     // get current user id from auth token
     SessionResponse session = (SessionResponse) request
         .getAttribute(SessionResponse.class.getSimpleName());
-
-    // update user with new information
 
     Response resp = new SuccessResponse("Successfully updated user.");
 
@@ -136,15 +123,15 @@ public class UserServlet extends HttpServlet {
 
     // Create a new validation code
     CodeGenerator cg = new CodeGenerator();
-    String validationCode = cg.getCode(20);
+    String validationCode = cg
+        .getCode(ValidationServlet.VALIDATION_CODE_LENGTH);
 
     try {
 
       // Write to database
       int userId = db.putUser(user, validationCode);
 
-      EmailUtils.sendEmail(user.getEmail(), "Validation",
-          "Your validation code is as follows: " + validationCode);
+      EmailUtils.sendValidationEmail(user.getEmail(), validationCode);
 
       // Forward to session servlet
       // request.setAttribute("userId", userId);
