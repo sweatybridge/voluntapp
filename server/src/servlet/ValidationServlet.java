@@ -47,6 +47,7 @@ public class ValidationServlet extends HttpServlet {
       valid = db.checkValidation(email, validationCode);
     } catch (SQLException e) {
       e.printStackTrace();
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Validation check failed"));
       return;
@@ -82,11 +83,12 @@ public class ValidationServlet extends HttpServlet {
     }
 
     // Create a new temp password for the user
-    String newPassword, password;
+    String hashedPassword, password;
     try {
       password = cg.getCode(PasswordUtils.TEMP_PASSWORD_LENGTH);
-      newPassword = PasswordUtils.getPasswordHash(password);
+      hashedPassword = PasswordUtils.getPasswordHash(password);
     } catch (PasswordHashFailureException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Something went wrong, please try again"));
       e.printStackTrace();
@@ -96,23 +98,29 @@ public class ValidationServlet extends HttpServlet {
     // Update the users password with the new one
     try {
 
-      db.updateUser(vr.getEmail(), password);
+      db.updateUser(vr.getEmail(), hashedPassword);
     } catch (InconsistentDataException | SQLException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Something went wrong, please try again"));
       e.printStackTrace();
       return;
     } catch (UserNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The email you provided does not exist"));
       return;
     }
 
     // Email the user with the new password
-    EmailUtils.sendTempPassword(vr.getEmail(), newPassword);
+    EmailUtils.sendTempPassword(vr.getEmail(), password);
 
-    request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
-        "Email with a new password has been sent"));
+    SuccessResponse s = new SuccessResponse(
+        "Email with a new password has been sent");
+    response.setContentType("application/json");
+    response.setCharacterEncoding("utf-8");
+    request.setAttribute(Response.class.getSimpleName(), s);
+    gson.toJson(s, response.getWriter());
 
   }
 
@@ -134,15 +142,18 @@ public class ValidationServlet extends HttpServlet {
     try {
       ur = db.getUser(vr.getEmail());
     } catch (UserNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The email you entered was not found"));
       return;
     } catch (SQLException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "There was a problem with your request, please try again"));
       e.printStackTrace();
       return;
     } catch (InconsistentDataException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Something went wrong!"));
       e.printStackTrace();
@@ -151,11 +162,13 @@ public class ValidationServlet extends HttpServlet {
     try {
       if (!PasswordUtils.validatePassword(vr.getPassword(),
           ur.getHashedPassword())) {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "You have provided an incorrect password"));
         return;
       }
     } catch (PasswordHashFailureException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Something went wrong, there is nothing you can do!"));
       e.printStackTrace();
@@ -168,6 +181,7 @@ public class ValidationServlet extends HttpServlet {
     try {
       db.updateUser(ur.getUserId(), newCode);
     } catch (SQLException | InconsistentDataException | UserNotFoundException e) {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Something went wrong, please try again!"));
       e.printStackTrace();
@@ -177,7 +191,11 @@ public class ValidationServlet extends HttpServlet {
     // Send the user an email with the new code
     EmailUtils.sendValidationEmail(ur.getEmail(), newCode);
 
-    request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
-        "Please check your email for your validation code"));
+    SuccessResponse s = new SuccessResponse(
+        "Please check your email for your validation code");
+    response.setContentType("application/json");
+    response.setCharacterEncoding("utf-8");
+    request.setAttribute(Response.class.getSimpleName(), s);
+    gson.toJson(s, response.getWriter());
   }
 }

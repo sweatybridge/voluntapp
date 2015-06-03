@@ -74,6 +74,9 @@ public abstract class Response implements SQLQuery, SQLInsert, SQLUpdate,
   }
 
   public String escape(String s) {
+    if (s == null) {
+      return null;
+    }
     return s.replace("\'", "\'\'");
   }
 }
