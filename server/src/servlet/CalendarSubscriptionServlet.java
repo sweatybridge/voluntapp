@@ -8,9 +8,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import req.CalendarRequest;
 import req.CalendarSubscriptionRequest;
+import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
+import utils.CalendarJoinCodeIdQuery;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
@@ -69,10 +72,10 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       return;
     }
     
-    if (canJoin(subReq.getJoinCode())) {
+    if (canJoin(userId, subReq.getJoinCode())) {
       Response subResp;
       try {
-        subResp = db.putCalendarSubscription(subReq);
+        subResp = db.putCalendarSubscription(userId, subReq.getJoinCode());
       } catch (SQLException e) {
         subResp = new ErrorResponse("Error while registering user's calendar "
             + "subscription.");
@@ -84,7 +87,17 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     }
   }
   
-  private boolean canJoin(String joinCode) {
-    return true;
+  private boolean canJoin(int userId, String joinCode) {
+    if (joinCode == null) {
+      return false;
+    }
+    int cid = db.getCalendarId(new CalendarJoinCodeIdQuery(joinCode));
+    try {
+      CalendarResponse resp = db.getCalendar(new CalendarRequest(userId, cid));
+      return (resp != CalendarResponse.NO_CALENDAR && resp.getJoinEnabled());
+    } catch (SQLException e) {
+      System.err.println("Database error.");
+    }
+    return false;
   }
 }
