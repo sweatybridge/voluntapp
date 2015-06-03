@@ -1,5 +1,7 @@
 \documentclass[10pt,a4paper]{article}
 
+\usepackage{dirtytalk}
+\usepackage{csquotes}
 \usepackage{fullpage}
 
 
@@ -27,13 +29,18 @@ Coursework}
 
 \section*{Question 2}
 \begin{itemize}
-\item Assuming all stakeholders are under the European jurisdiction, Andy has not violated MacFanboy's copyright. He owns a brand of smartphone that is not supported by MacFanboy's game, so he monitored the network traffic to reverse engineer the protocol and write a new client that is compatible with his smartphone. According to Articles 5 and 6 of the Software Directive, Andy has the right to observe, study, and test MacFanboy's software and that includes using debugger and monitoring tools.
+\item Assuming all stakeholders are under the European jurisdiction, Andy has not violated MacFanboy's copyright. He owns a brand of smartphone that is not supported by MacFanboy's game, so he monitored the network traffic to reverse engineer the protocol and write a new client that is compatible with his smartphone. According to Articles 5 and 6 of the Software Directive, Andy has the right to observe, study, and test MacFanboy's software and that includes using debugger and monitoring tools. This is still the case even though the licence agreement specifically forbids it.
 \item Under the same assumptions, Beatrice has violated MacFanboy's copyright because she disassembled controller.dylib when the information required to achieve interoperability is readily available (ie. via packet sniffing like Andy did). This is in line with the court's statement on Sega v. Accolade case, which quotes
 
+\begin{displayquote}
+\say{
 The need to disassemble object code arises, if at all, only in connection with operations systems, system interface procedures, and other programs that are visible to the user when operating - and then only when non-alternative means of gaining and understanding of the ideas and functional concepts exists.
+}
+\end{displayquote}
 
 Beatrice downloads Andy's app, studies his source code, and modifies the app to support new op codes, all of which do not violate Andy's copyright as his app is licensed under GNU GPL v3. However, for Beatrice to legally distribute copies of her modified app (for money or free of charge), she has to make the source code of her app available to those who obtained a copy because any derivative work must also be licensed under GNU GPL v3. Assuming that Beatrice only uploads the compiled copy of her version, she has violated Andy's copyright.
 \item In order not to violate Andy's copyright, Beatrice should provide source code to her program to all her customers if she wish to continue distributing it. The most effective strategy is therefore to release her source code on the Internet. In order not to violate MacFanboy's copyright, Beatrice cannot disassemble controller.dylib but she can sniff the packets transmitted by the game during its operation to analyse its op codes, just like what Andy did.
+\item However if we assume that all stakeholders are not under European jurisdiction then quite a few things change. Firstly Andy would have breeched MacFanboy's copyright as the licence extract given prohibits any monitoring to find out how the software works. If this is the case then Andy could do very little to find the op codes apart from asking MacFanboy. Beatrice would have still breeched both Andy's and MacFanboy's copyright under these new assumptions.
 \end{itemize}
 
 
