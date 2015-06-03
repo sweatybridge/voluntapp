@@ -311,9 +311,14 @@ function createEventView(event) {
           this.disabled = true;
         });
         // update header
-      } else if (today >= end || event.max - event.currentCount == 0) {
+      }
+      
+      // Hide if in the past or there are any places
+      if (today >= end || event.max - event.currentCount == 0) {
         view.find(".badge").hide();
       }
+      
+      
       // hide location if it is not set
       if (!event.location) {
         view.find(".location").hide();
