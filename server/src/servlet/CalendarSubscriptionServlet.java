@@ -11,11 +11,17 @@ import javax.servlet.http.HttpServletResponse;
 import req.CalendarSubscriptionRequest;
 import resp.ErrorResponse;
 import resp.Response;
+import resp.SuccessResponse;
+import utils.AuthLevel;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
 import db.DBInterface;
+import exception.CalendarNotFoundException;
+import exception.CalendarSubscriptionNotFoundException;
 import exception.InconsistentDataException;
 
 @WebServlet
@@ -37,11 +43,18 @@ public class CalendarSubscriptionServlet extends HttpServlet {
    */
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    // Get the user id of the session
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
+    Response subResp;
+
+    // Check id, return error if not valid
+    if (userId < 0) {
+      subResp = new ErrorResponse("Invalid session user ID.");
+      request.setAttribute(Response.class.getSimpleName(), subResp);
       return;
     }
-    Response subResp;
+
+    // Get the data from the database
     try {
       subResp = db.getUsersCalendars(userId);
     } catch (SQLException | InconsistentDataException e) {
@@ -60,17 +73,20 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    // TODO: To keep servlets consistent this may be better being changed to
-    // post?
+    // Get user id from session and make sure it is valid
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
+    Response subResp;
+    if (userId < 0) {
+      subResp = new ErrorResponse("Invalid session user ID.");
+      request.setAttribute(Response.class.getSimpleName(), subResp);
       return;
     }
+
     CalendarSubscriptionRequest subReq = gson.fromJson(request.getReader(),
         CalendarSubscriptionRequest.class);
     subReq.setUserId(userId);
 
-    Response subResp;
+    // Update database
     try {
       subResp = db.putCalendarSubscription(subReq);
     } catch (SQLException e) {
@@ -78,5 +94,65 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           + "subscription.");
     }
     request.setAttribute(Response.class.getSimpleName(), subResp);
+  }
+  
+  /** 
+   * Given a calendar id in the form /api/subscription/calendar/[id], if the current user has admin rights
+   * updates the given userid (in the payload) to the specified auth level.
+   */
+  @Override
+  public void doPut(HttpServletRequest request, HttpServletResponse response) {
+    // Get and check the calendar id from the url
+    String calendarIdS = request.getPathInfo().substring(1);
+    if (calendarIdS == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No calendar ID specified."));
+      return;
+    }
+    
+    // Check if the current user has owner or admin rights
+    int calendarId = Integer.parseInt(calendarIdS);
+    assert(calendarId >= 0);
+    int currentUserId = ServletUtils.getUserId(request);
+    AuthLevel level = db.authoriseUser(currentUserId, calendarId);
+    if (level != AuthLevel.ADMIN) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Insufficient rights to change user role."));
+      return;
+    }
+    
+    // Get the payload data, we are looking for userId (targetUserId) and role
+    CalendarSubscriptionRequest req;
+    try {
+      req = gson.fromJson(request.getReader(), CalendarSubscriptionRequest.class);
+    } catch (JsonSyntaxException | JsonIOException | IOException e) {
+      e.printStackTrace();
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Invalid update payload."));
+      return;
+    }
+    
+    assert(req != null);
+    // We know the user is admin, make sure the requested user is not itself
+    if (currentUserId == req.getTargetUserId()) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Cannot demote yourself, ask another admin to modify your role."));
+      return;
+    }
+    
+    // Looks like a valid request so far, update the database
+    Response resp = new ErrorResponse("Unknown error in role update.");
+      try {
+        db.updateUserRole(req.getTargetUserId(), calendarId, req.getRole());
+        resp = new SuccessResponse("Updated user role.");
+      } catch (CalendarSubscriptionNotFoundException e) {
+        resp = new ErrorResponse("The requested update subscription does not exist.");
+      } catch (InconsistentDataException e) {
+        resp = new ErrorResponse("The update request affected more than 1 row.");
+      } catch (SQLException e) {
+        e.printStackTrace();
+        resp = new ErrorResponse("Internal database error (SQLException).");
+      }
+    request.setAttribute(Response.class.getSimpleName(), resp);
   }
 }

@@ -41,7 +41,7 @@ public class EventServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
+    if (userId < 0) {
       // response.setStatus(HttpURLConnection.HTTP_UNAUTHORIZED);
       return;
     }

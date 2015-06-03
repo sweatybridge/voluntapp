@@ -2,6 +2,8 @@ package req;
 
 import org.apache.commons.lang3.StringUtils;
 
+import utils.AuthLevel;
+
 import com.google.common.annotations.VisibleForTesting;
 
 import db.CodeGenerator;
@@ -9,6 +11,8 @@ import db.CodeGenerator;
 public class CalendarSubscriptionRequest implements Request {
 
   private String joinCode;
+  private int targetUserId;
+  private AuthLevel role;
 
   /**
    * Fields excluded from deserialisation.
@@ -29,6 +33,14 @@ public class CalendarSubscriptionRequest implements Request {
 
   public String getJoinCode() {
     return joinCode;
+  }
+  
+  public int getTargetUserId() {
+    return targetUserId;
+  }
+
+  public AuthLevel getRole() {
+    return role;
   }
 
   public int getUserId() {

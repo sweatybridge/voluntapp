@@ -41,6 +41,7 @@ import utils.CalendarIdQuery;
 import utils.EventEndTimeQuery;
 import utils.PasswordUtils;
 import exception.CalendarNotFoundException;
+import exception.CalendarSubscriptionNotFoundException;
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
 import exception.InvalidActionException;
@@ -403,6 +404,19 @@ public class DBInterface {
           "Deleteing an event subscription removed more than one row");
     }
     return rows == 1;
+  }
+  
+  public boolean updateUserRole(int targetUserId, int calendarId, AuthLevel role) throws CalendarSubscriptionNotFoundException, InconsistentDataException, SQLException {
+    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(targetUserId, calendarId, role);
+    int rows = update(resp);
+    if (rows == 1) {
+      return true;
+    } else if (rows == 0) {
+      throw new CalendarSubscriptionNotFoundException(
+          "Calendar subscription not found for " + targetUserId + '-' + calendarId);
+    }
+    throw new InconsistentDataException(
+        "Update calendar subscription role modified more than 1 row!");
   }
 
   /**

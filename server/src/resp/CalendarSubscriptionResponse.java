@@ -8,9 +8,9 @@ import java.util.List;
 
 import sql.SQLInsert;
 import sql.SQLQuery;
+import utils.AuthLevel;
 
-public class CalendarSubscriptionResponse extends Response implements SQLQuery,
-    SQLInsert {
+public class CalendarSubscriptionResponse extends Response {
 
   /* Columns of the USER_CALENDAR table. */
   public static final String UID_COLUMN = "UID";
@@ -24,6 +24,8 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
    */
   private transient int userId;
   private transient ResultSet rs;
+  private transient int calendarId; // Used for user promotion
+  private transient AuthLevel role;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -39,9 +41,32 @@ public class CalendarSubscriptionResponse extends Response implements SQLQuery,
     this.userId = userId;
     this.joinCode = joinCode;
   }
+  
+  public CalendarSubscriptionResponse(int targetUserId, int calendarId, AuthLevel role) {
+    this.userId = targetUserId;
+    this.calendarId = calendarId;
+    this.role = role;
+  }
 
   public void setCalendars(List<CalendarResponse> calendars) {
     this.calendars = calendars;
+  }
+  
+  @Override
+  public String getSQLUpdate() {
+    return String.format("UPDATE \"USER_CALENDAR\" SET \"ROLE\"='?' WHERE \"UID\"=? AND \"CID\"=?");
+  }
+  
+  @Override
+  public void formatSQLUpdate(PreparedStatement prepare) throws SQLException {
+    prepare.setString(1, role.toString());
+    prepare.setInt(2, userId);
+    prepare.setInt(3, calendarId);
+  }
+
+  @Override
+  public void checkResult(int rowsAffected) {
+   assert(rowsAffected == 1);
   }
 
   @Override
