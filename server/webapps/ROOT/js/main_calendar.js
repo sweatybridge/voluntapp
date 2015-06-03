@@ -51,7 +51,8 @@ $(function() {
   
   // Render calendar from yesterday
   updateCalendarDates(getMonday());
-  
+
+  rebuildCalendar();
 }); // End of document ready
 
 // Update calendars

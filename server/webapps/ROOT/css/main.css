@@ -6,12 +6,8 @@
   display: none;
 }
 
-.th_weekday {
-  width: 14%;
-}
-
-.th_weekend {
-  width: 14%;
+.th_weekday, .th_weekend {
+  width: 160px;
 }
 
 .event {
@@ -90,4 +86,45 @@ a:hover, a:active, a:focus {
 
 .panel-heading:hover {
   text-decoration: underline;
+}
+
+.sidebar {
+  width: 80%;
+  height: 100%;
+  background-color: #eee;
+  max-width: 260px;
+  position: absolute;
+  z-index: 1000;
+}
+
+.container {
+  position: relative;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    padding-top: 19px;
+    margin-top: -19px;
+  }
+  #d_left_sidebar {
+    padding-right: 15px;
+    box-shadow: 5px 0px 5px #888888;
+  }
+  #d_right_sidebar {
+    display: none;
+  }
+}
+
+#d_left_sidebar {
+  padding-left: 15px;
+}
+
+#d_right_sidebar {
+  right: 0px;
+}
+
+body {
+  overflow-x: hidden;
 }

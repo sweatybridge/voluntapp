@@ -54,9 +54,11 @@
       </div>
     </nav>
     
-    <div class="container-fluid">
-      <div class="row">
-        <div id="d_left_sidebar" class="col-sm-2">
+    
+        
+        <!-- LEFT SIDE BAR -->
+
+        <div id="d_left_sidebar" class="sidebar">
           <p class="lead">Welcome, <span data-bind="firstName">[firstName]</span></p>
           <p>You haven't logged in since <strong data-bind="lastSeen">[lastSeen]</strong></p>
           
@@ -172,37 +174,9 @@
           </div>
         </div>
         
-        <div id="d_main_col" class="col-sm-8">
-          <label>Start date: </label>
-          <input type="text" id="pickStartDate">
-          <div class="lead inline">
-            <strong>
-                <a id="prev_day" href="#">&lt;&lt;</a> <span></span> - <span></span> <a id="next_day" href="#">&gt;&gt;</a>
-            </strong>
-          </div>
-          <table id="t_calendar" class="table">
-            <tr id="t_calendar_heading">
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
-            <tr id="t_calendar_body">
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-        
-        <div id="d_right_sidebar" class="col-sm-2">
+        <!-- RIGHT SIDE BAR -->
+
+        <div id="d_right_sidebar" class="sidebar">
           <div id="d_right_sidebar" role="tabpanel">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs nav-justified" role="tablist" id="nav_create_tabs">
@@ -252,16 +226,33 @@
                 </form>
               </div>
             </div>
-
           </div>
         </div>
-        
+
+    <!-- MAIN CALENDAR VIEW -->
+
+    <div class="container">
+      <div class="row">
+        <div id="d_main_col">
+          <label>Start date: </label>
+          <input type="text" id="pickStartDate">
+          <div class="lead inline">
+            <strong>
+                <a id="prev_day" href="#">&lt;&lt;</a> <span></span> - <span></span> <a id="next_day" href="#">&gt;&gt;</a>
+            </strong>
+          </div>
+          <table id="t_calendar" class="table">
+            <tr id="t_calendar_heading"></tr>
+            <tr id="t_calendar_body"></tr>
+          </table>
+        </div>
       </div> <!-- End of row -->
     </div> <!-- /container -->
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
 
+    <script src="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
     <script src="js/vendor/bootstrap.min.js"></script>
     <script src="js/vendor/jquery.datetimepicker.js"></script>
 
