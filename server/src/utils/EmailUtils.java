@@ -18,7 +18,7 @@ public class EmailUtils {
   public static void sendValidationEmail(String email, String validationCode) {
     Thread t = new Thread(new EmailRunnable(email, "Validation",
         "Your validation code is: " + validationCode));
-    t.run();
+    t.start();
   }
 
   private static class EmailRunnable implements Runnable {
