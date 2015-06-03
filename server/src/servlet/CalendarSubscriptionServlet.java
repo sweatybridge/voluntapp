@@ -38,9 +38,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
-      return;
-    }
+    
     Response subResp;
     try {
       subResp = db.getUsersCalendars(userId);
@@ -60,23 +58,33 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
-    // TODO: To keep servlets consistent this may be better being changed to
-    // post?
     int userId = ServletUtils.getUserId(request);
-    if (userId == 0) {
-      return;
-    }
+    
     CalendarSubscriptionRequest subReq = gson.fromJson(request.getReader(),
         CalendarSubscriptionRequest.class);
-    subReq.setUserId(userId);
-
-    Response subResp;
-    try {
-      subResp = db.putCalendarSubscription(subReq);
-    } catch (SQLException e) {
-      subResp = new ErrorResponse("Error while registering user's calendar "
-          + "subscription.");
+    
+    if (subReq == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No request body was specified."));
+      return;
     }
-    request.setAttribute(Response.class.getSimpleName(), subResp);
+    
+    if (canJoin(subReq.getJoinCode())) {
+      Response subResp;
+      try {
+        subResp = db.putCalendarSubscription(subReq);
+      } catch (SQLException e) {
+        subResp = new ErrorResponse("Error while registering user's calendar "
+            + "subscription.");
+      }
+      request.setAttribute(Response.class.getSimpleName(), subResp);
+    } else {
+      request.setAttribute(Response.class.getSimpleName(), 
+          new ErrorResponse("Cannot join the specified calendar."));
+    }
+  }
+  
+  private boolean canJoin(String joinCode) {
+    return true;
   }
 }

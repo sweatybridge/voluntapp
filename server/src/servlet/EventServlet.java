@@ -1,8 +1,6 @@
 package servlet;
 
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.http.HttpServlet;
@@ -10,14 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.EventRequest;
-import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.EventResponse;
-import resp.EventSubscriptionResponse;
 import resp.Response;
-import resp.SessionResponse;
 import resp.SuccessResponse;
-import sql.SQLQuery;
 import utils.AuthLevel;
 import utils.ServletUtils;
 
@@ -57,7 +51,7 @@ public class EventServlet extends HttpServlet {
     /* Verify if the user is allowed to preview info about event attendees 
      * in the specified calendar. */
     int eventID = Integer.parseInt(eventId);
-    if (!checkAccessRights(eventID, userId, AuthLevel.ADMIN)) {
+    if (!checkAccessRights(0, eventID, userId, AuthLevel.ADMIN)) {
       setUnauthorisedAccessErrorResponse(request);
       return;
     }
@@ -92,7 +86,7 @@ public class EventServlet extends HttpServlet {
     
     /* Verify if the user is allowed to publish events in the specified 
      * calendar. */
-    if (!checkPOSTAccessRights(eventReq.getCalendarId(), userId, AuthLevel.EDITOR)) {
+    if (!checkAccessRights(eventReq.getCalendarId(), 0, userId, AuthLevel.EDITOR)) {
       setUnauthorisedAccessErrorResponse(request);
       return;
     }
@@ -131,7 +125,7 @@ public class EventServlet extends HttpServlet {
       /* Verify if the user is allowed to edit events in the specified 
        * calendar - is an editor. */
       int eventID = Integer.parseInt(eventId);
-      if (!checkAccessRights(eventID, userId, AuthLevel.EDITOR)) {
+      if (!checkAccessRights(0, eventID, userId, AuthLevel.EDITOR)) {
         setUnauthorisedAccessErrorResponse(request);
         return;
       }
@@ -180,7 +174,7 @@ public class EventServlet extends HttpServlet {
       /* Verify if the user is allowed to delete events from the specified 
        * calendar - is an editor. */
       int eventID = Integer.parseInt(eventId);
-      if (!checkAccessRights(eventID, userId, AuthLevel.EDITOR)) {
+      if (!checkAccessRights(0, eventID, userId, AuthLevel.EDITOR)) {
         setUnauthorisedAccessErrorResponse(request);
         return;
       }
@@ -206,21 +200,7 @@ public class EventServlet extends HttpServlet {
           "No event ID was specified."));
     }
   }
-  
-  /**
-   * Check if the user has the required (or higher) user rights.
-   *   
-   * @param eventId
-   * @param userId
-   * @param requiredLevel
-   * @return
-   */
-  private boolean checkAccessRights(int eventId, int userId, 
-      AuthLevel requiredLevel) {
-    AuthLevel level = db.authoriseUser(userId, db.getCalendarId(eventId));
-    return level.ordinal() >= requiredLevel.ordinal();
-  }
-  
+   
   /**
    * Check if the user has the required (or higher) user rights.
    * 
@@ -229,8 +209,11 @@ public class EventServlet extends HttpServlet {
    * @param requiredLevel
    * @return
    */
-  private boolean checkPOSTAccessRights(int calendarId, int userId, 
-      AuthLevel requiredLevel) {
+  private boolean checkAccessRights(int calendarId, int eventId, 
+      int userId, AuthLevel requiredLevel) {
+    if (calendarId == 0) {
+      calendarId = db.getCalendarId(eventId);
+    }
     AuthLevel level = db.authoriseUser(userId, calendarId);
     return level.ordinal() >= requiredLevel.ordinal();
   }

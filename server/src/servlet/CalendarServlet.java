@@ -230,8 +230,7 @@ public class CalendarServlet extends HttpServlet {
    */
   private CalendarRequest initCalendarRequest(HttpServletRequest request)
       throws IOException {
-    SessionResponse sessionResponse = (SessionResponse) request
-        .getAttribute(SessionResponse.class.getSimpleName());
+    int userId = ServletUtils.getUserId(request);
 
     CalendarRequest calendarRequest;
     if (request.getMethod().equals("GET")) {
@@ -243,7 +242,7 @@ public class CalendarServlet extends HttpServlet {
     }
 
     // Set userID of calendar creator.
-    calendarRequest.setUserId(sessionResponse.getUserId());
+    calendarRequest.setUserId(userId);
 
     return calendarRequest;
   }
