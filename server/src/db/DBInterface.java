@@ -93,6 +93,11 @@ public class DBInterface {
     return rs;
   }
 
+  public UserResponse getUser(String email) throws SQLException,
+      UserNotFoundException, InconsistentDataException {
+    return getUser(new UserRequest(email, null));
+  }
+
   /**
    * Retrieve session information from a supplied session ID number. Used to
    * find out the user id, which user is logged for rights, etc.
@@ -296,8 +301,10 @@ public class DBInterface {
   /**
    * Adds an event subscription.
    * 
-   * @param eventId - ID of the event to which a user subscribes
-   * @param userId  - ID of the user who wants
+   * @param eventId
+   *          - ID of the event to which a user subscribes
+   * @param userId
+   *          - ID of the user who wants
    * 
    * @return Whether the insertion was successful or not.
    * @throws SQLException
@@ -307,8 +314,8 @@ public class DBInterface {
   public Response putEventSubscription(int eventId, int userId)
       throws SQLException, InvalidActionException {
     // Untested
-    EventSubscriptionResponse response = new EventSubscriptionResponse(
-        eventId, userId);
+    EventSubscriptionResponse response = new EventSubscriptionResponse(eventId,
+        userId);
     if (!(insert(response) == 1)) {
       throw new InvalidActionException("Tried to join a full event");
     }
@@ -388,8 +395,8 @@ public class DBInterface {
    */
   public boolean deleteEventSubscription(int eventId, int userId)
       throws SQLException, InconsistentDataException {
-    EventSubscriptionResponse response = new EventSubscriptionResponse(
-        eventId, userId);
+    EventSubscriptionResponse response = new EventSubscriptionResponse(eventId,
+        userId);
     int rows = delete(response);
     if (rows > 1) {
       throw new InconsistentDataException(
@@ -415,10 +422,8 @@ public class DBInterface {
    * @throws UserNotFoundException
    *           Thrown when the user could not be found in the database.
    */
-  public boolean updateUser(int userId, RegisterRequest rr)
-      throws SQLException, InconsistentDataException, UserNotFoundException {
-    UserResponse ur = new UserResponse(rr.getEmail(), rr.getPassword(), userId,
-        rr.getFirstName(), rr.getLastName());
+  private boolean updateUser(UserResponse ur) throws SQLException,
+      InconsistentDataException, UserNotFoundException {
     int rows = update(ur);
     if (rows == 1) {
       return true;
@@ -428,6 +433,17 @@ public class DBInterface {
     }
     throw new InconsistentDataException(
         "Update user info modified more than 1 row!");
+  }
+
+  public boolean updateUser(int userId, RegisterRequest rr)
+      throws SQLException, InconsistentDataException, UserNotFoundException {
+    return updateUser(new UserResponse(rr.getEmail(), rr.getPassword(), userId,
+        rr.getFirstName(), rr.getLastName()));
+  }
+
+  public boolean updateUser(int userId, String validationCode)
+      throws SQLException, InconsistentDataException, UserNotFoundException {
+    return updateUser(new UserResponse(userId, validationCode));
   }
 
   /**
@@ -717,7 +733,7 @@ public class DBInterface {
     }
     return query.getCalendarId();
   }
-  
+
   /**
    * Has the specified event already happened.
    * 

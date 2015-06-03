@@ -78,7 +78,12 @@
               },
               error: function(data) {
                 // Display the error message
-                $("#login_errors").text("Please check your email and validation code again.");
+                var link = $("<a id='resendlink' href='#'>").text("  Click to resend email").click(function(e) {
+                  $.post("/validate", JSON.stringify(getFormObj(form)), function(data) {
+                    $("#login_errors").text("Email has been sent.").unbind("click");
+                  });
+                });
+                $("#login_errors").text("Please check your email and validation code again.").append(link);
               }
             });
           }

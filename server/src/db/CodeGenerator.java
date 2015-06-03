@@ -1,11 +1,7 @@
 package db;
 
-import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Random;
-
-import javax.swing.GroupLayout.Alignment;
 
 public final class CodeGenerator {
 
@@ -22,7 +18,7 @@ public final class CodeGenerator {
     return getCode(6);
   }
 
-  public String getCode(Integer length) {
+  public synchronized String getCode(Integer length) {
     String res;
     do {
       res = "";

@@ -3,7 +3,6 @@ package utils;
 import java.util.Properties;
 import java.util.logging.Level;
 
-import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -16,6 +15,31 @@ import listener.Application;
 
 public class EmailUtils {
 
+  public static void sendValidationEmail(String email, String validationCode) {
+    Thread t = new Thread(new EmailRunnable(email, "Validation",
+        "Your validation code is: " + validationCode));
+    t.start();
+  }
+
+  private static class EmailRunnable implements Runnable {
+
+    private String email;
+    private String subject;
+    private String body;
+
+    public EmailRunnable(String email, String subject, String body) {
+      this.email = email;
+      this.subject = subject;
+      this.body = body;
+    }
+
+    @Override
+    public void run() {
+      sendEmail(email, subject, body);
+    }
+
+  }
+
   public static void sendEmail(String to, String subject, String body) {
 
     Properties props = new Properties();
@@ -27,7 +51,8 @@ public class EmailUtils {
     Session session = Session.getInstance(props,
         new javax.mail.Authenticator() {
           protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication("webappsalpha@gmail.com", "webappsalpha34");
+            return new PasswordAuthentication("webappsalpha@gmail.com",
+                "webappsalpha34");
           }
         });
 

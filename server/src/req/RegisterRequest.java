@@ -19,7 +19,8 @@ public class RegisterRequest implements Request {
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public RegisterRequest() {}
+  public RegisterRequest() {
+  }
 
   public RegisterRequest(String email, String password, String firstName,
       String lastName) {

@@ -47,7 +47,7 @@ public class EventServlet extends HttpServlet {
           "Request must follow REST convention."));
       return;
     }
-        
+
     /* Verify if the user is allowed to preview info about event attendees 
      * in the specified calendar. */
     int eventID = Integer.parseInt(eventId);
@@ -77,7 +77,7 @@ public class EventServlet extends HttpServlet {
     
     EventRequest eventReq =
         gson.fromJson(request.getReader(), EventRequest.class);
-
+    
     if (eventReq == null || !eventReq.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The supplied event data are invalid."));
@@ -120,7 +120,7 @@ public class EventServlet extends HttpServlet {
       return;
     }
     String eventId = eventReq.getEventId();
-    
+
     if (eventId != null) {
       /* Verify if the user is allowed to edit events in the specified 
        * calendar - is an editor. */
