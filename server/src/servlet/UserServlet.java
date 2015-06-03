@@ -13,11 +13,11 @@ import req.RegisterRequest;
 import req.UserRequest;
 import resp.ErrorResponse;
 import resp.Response;
-import resp.SessionResponse;
 import resp.SuccessResponse;
 import resp.UserResponse;
 import utils.EmailUtils;
 import utils.PasswordUtils;
+import utils.ServletUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -58,14 +58,10 @@ public class UserServlet extends HttpServlet {
 	 */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-
 		// Session should not be null if user is authenticated
-		SessionResponse session = (SessionResponse) request
-				.getAttribute(SessionResponse.class.getSimpleName());
-
 		Response resp;
 		try {
-			int userId = session.getUserId();
+			int userId = ServletUtils.getUserId(request);
 			resp = db.getUser(new UserRequest(userId));
 		} catch (UserNotFoundException e) {
 			resp = new ErrorResponse("User is deleted but session is active.");
@@ -83,10 +79,6 @@ public class UserServlet extends HttpServlet {
 	public void doDelete(HttpServletRequest request,
 			HttpServletResponse response) {
 		// get current user id from auth token
-		/*
-		 * SessionResponse session = (SessionResponse) request
-		 * .getAttribute(SessionResponse.class.getSimpleName());
-		 */
 		Response resp = new ErrorResponse("Method not supported.");
 		request.setAttribute(Response.class.getSimpleName(), resp);
 	}
@@ -97,9 +89,7 @@ public class UserServlet extends HttpServlet {
 	@Override
 	public void doPut(HttpServletRequest request, HttpServletResponse response) {
 		// First get the user id from the session
-		SessionResponse session = (SessionResponse) request
-				.getAttribute(SessionResponse.class.getSimpleName());
-		int uid = session.getUserId();
+		int uid = ServletUtils.getUserId(request);
 
 		// Create a register request and try to update the database with the
 		// given user
