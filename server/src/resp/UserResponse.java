@@ -40,7 +40,7 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
   private transient ResultSet rs;
   private transient boolean found;
   private transient String hashedPassword;
-  private transient String validationCode = "$";
+  private transient String validationCode = null;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -131,8 +131,9 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
         + ((validationCode == null || found++ == Integer.MIN_VALUE) ? ""
             : String.format("\"%s\"=?,", VALIDATION_KEY_COLUMN));
     return (found == 0) ? null : String.format(
-        "UPDATE public.\"USER\" SET %s WHERE \"ID\"=?",
-        formatString.substring(0, formatString.length() - 1));
+        "UPDATE public.\"USER\" SET %s WHERE \"%s\"=?;",
+        formatString.substring(0, formatString.length() - 1),
+        (userId == INVALID_USER_ID) ? EMAIL_COLUMN : ID_COLUMN);
   }
 
   @Override
@@ -148,7 +149,11 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
       prepared.setString(i++, escape(hashedPassword));
     if (validationCode != null)
       prepared.setString(i++, escape(validationCode));
-    prepared.setInt(i++, userId);
+    if (userId != INVALID_USER_ID) {
+      prepared.setInt(i++, userId);
+    } else {
+      prepared.setString(i++, email);
+    }
   }
 
   public String getEmail() {
