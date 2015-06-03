@@ -27,12 +27,14 @@ public class ValidationServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
   private final DBInterface db;
   private final Gson gson;
+  private final CodeGenerator cg;
 
   public static final int VALIDATION_CODE_LENGTH = 20;
 
-  public ValidationServlet(Gson gson, DBInterface db) {
+  public ValidationServlet(Gson gson, DBInterface db, CodeGenerator cg) {
     this.db = db;
     this.gson = gson;
+    this.cg = cg;
   }
 
   @Override
@@ -66,8 +68,51 @@ public class ValidationServlet extends HttpServlet {
     }
   }
 
+  // Creates a temporary password and emails it to the user
   @Override
-  public void doPut(HttpServletRequest request, HttpServletResponse response) {
+  public void doPut(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    ValidationRequest vr = gson.fromJson(request.getReader(),
+        ValidationRequest.class);
+
+    if (vr.getEmail() == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Information supplied was invalid"));
+      return;
+    }
+
+    // Create a new temp password for the user
+    String newPassword, password;
+    try {
+      password = cg.getCode(PasswordUtils.TEMP_PASSWORD_LENGTH);
+      newPassword = PasswordUtils.getPasswordHash(password);
+    } catch (PasswordHashFailureException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Something went wrong, please try again"));
+      e.printStackTrace();
+      return;
+    }
+
+    // Update the users password with the new one
+    try {
+
+      db.updateUser(vr.getEmail(), password);
+    } catch (InconsistentDataException | SQLException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Something went wrong, please try again"));
+      e.printStackTrace();
+      return;
+    } catch (UserNotFoundException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "The email you provided does not exist"));
+      return;
+    }
+
+    // Email the user with the new password
+    EmailUtils.sendTempPassword(vr.getEmail(), newPassword);
+
+    request.setAttribute(Response.class.getSimpleName(), new SuccessResponse(
+        "Email with a new password has been sent"));
 
   }
 
@@ -81,6 +126,7 @@ public class ValidationServlet extends HttpServlet {
     if (!vr.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Information supplied was invalid"));
+      return;
     }
 
     // Check the users password is correct
@@ -118,7 +164,6 @@ public class ValidationServlet extends HttpServlet {
 
     // The users password is correct, construct a new validation code and update
     // the database
-    CodeGenerator cg = new CodeGenerator();
     String newCode = cg.getCode(VALIDATION_CODE_LENGTH);
     try {
       db.updateUser(ur.getUserId(), newCode);
