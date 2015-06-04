@@ -70,9 +70,11 @@ $(function() {
 function refreshCalendars() {
   var cal_html = '<div data-calid="{{id}}" class="calendar"> \
   <div class="checkbox"> \
-    <label> \
-      <input type="checkbox"> {{name}} \
+    <span class="subcheck"> \
+      <input type="checkbox"> {{name}}   \
     </label> \
+    </span> \
+    <a href="#" class="calendar-unsub"><span class="remove-sub glyphicon glyphicon-minus scarlet"></span></a> \
   </div> \
   <div class="calendar-extras" style="display: none;"> \
     <p>Join code: <strong>{{joinCode}}</strong></p> \
@@ -104,9 +106,30 @@ function refreshCalendars() {
       cal_div.find("input").change(function() {
         if (calendar.role === "admin" || calendar.role === "owner") {
           cal_div.find(".calendar-extras").toggle();
+          cal_div.find(".calendar-unsub").toggle();
         }
         refreshEvents();
       });
+
+      // Add unsubscribing from events
+      if (calendar.role === "basic" || calendar.role === "editor") {
+		  cal_div.find("a").click(function() {
+		    var calid = $(this).parent().parent().data("calid");
+		    var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
+		    $.ajax("/api/subscription/calendar/"+calid, {
+				data: JSON.stringify({targetUserEmail : app.user.email}),
+				method: "DELETE",
+				success: function(data) {
+				  toastr.warning("Unsubscribed from " + name);
+				  refreshCalendars();
+				},
+				error: function(data) {
+				  toastr.error("Could not unscubscribe from " + name);
+				  refreshCalendars();
+				}
+		    });
+		  });
+      } 
       
       // Check calendar rights
       if (calendar.role === "admin" || calendar.role === "owner") {
