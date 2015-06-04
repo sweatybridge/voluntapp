@@ -68,12 +68,15 @@ $(function() {
   // mobile actions
   $(window).on("swipeleft", function() {
     // close sidebar
-    var width = $("#d_left_sidebar").outerWidth();
-    $("#d_left_sidebar").animate({
-      left: -width,
-      duration: 0.2
-    });
-    $("#b_hide_left").removeClass("active");
+    $("#b_hide_left").trigger("click");
+//     if (("#b_hide_left").hasClass("active")) {
+//       $("#b_hide_left").trigger("click");
+//     } else {
+//       var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+//       if (e.swipestart.coords[0] > width * 7 / 8) {
+//         $("#b_hide_left").trigger("click");
+//       }
+//     }
   });
 
   $(window).on("swiperight", function(e) {
@@ -81,11 +84,7 @@ $(function() {
     if (e.swipestart.coords[0] > 120) {
       return;
     }
-    $("#d_left_sidebar").animate({
-      left: 0,
-      duration: 0.2
-    });
-    $("#b_hide_left").addClass("active");
+    $("#b_hide_left").trigger("click");
   });
 
   // Bind logout button
@@ -221,7 +220,7 @@ function rebuildCalendar() {
       $(".container").animate({
         "left": left,
         duration: 0.2
-      }).css("width", days * 160);
+      }).css("width", width - 30);
 
       for (var i = 0; i < days; i++) {
         $("#t_calendar_heading").append("<th/>");

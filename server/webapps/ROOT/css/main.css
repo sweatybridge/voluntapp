@@ -105,10 +105,15 @@ Side bar
 }
 
 .container {
-  left: 260px;
   position: relative;
   margin-left: 15px;
   margin-right: 15px;
+}
+
+@media (min-width: 768px) {
+  .container {
+    left: 260px;
+  }
 }
 
 @media (max-width: 768px) {
