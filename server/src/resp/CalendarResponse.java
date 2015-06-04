@@ -83,7 +83,7 @@ public class CalendarResponse extends Response {
   public int getCalendarId() {
     return calendarId;
   }
-  
+
   public boolean getJoinEnabled() {
     return joinEnabled;
   }
@@ -101,9 +101,8 @@ public class CalendarResponse extends Response {
     prepared.setBoolean(3, joinEnabled);
     prepared.setString(4, escape(joinCode));
   }
-  
-  
-   /* 
+
+  /*
    * SELECT * FROM \"CALENDAR\" JOIN (SELECT \"CID\",\"ROLE\" FROM
    * \"USER_CALENDAR\" WHERE \"UID\"=%d) AS x ON \"CALENDAR\".\"ID\" =x.\"CID\"
    * WHERE \"CID\" =%d AND \"ACTIVE\"=true;
@@ -136,7 +135,7 @@ public class CalendarResponse extends Response {
         JOIN_ENABLED_COLUMN) : "");
     setUpdate.append(active != null ? String.format("\"%s\"=?,", ACTIVE_COLUMN)
         : "");
-    setUpdate.append(joinCode != null ? String.format("\"%s\"=?,", 
+    setUpdate.append(joinCode != null ? String.format("\"%s\"=?,",
         JOIN_CODE_COLUMN) : "");
 
     String update = setUpdate.toString();
@@ -169,11 +168,9 @@ public class CalendarResponse extends Response {
   @Override
   public void setResult(ResultSet result) {
     this.rs = result;
-    System.out.println("HERE");
     try {
-      System.out.println(rs.getWarnings());
-      rs.next();
-      setCalendarResponse();
+      if (rs.next())
+        setCalendarResponse();
     } catch (SQLException e) {
       System.err.println("Error getting the result while creating "
           + "calendarResponse object.");
