@@ -168,9 +168,7 @@ public class CalendarResponse extends Response {
   @Override
   public void setResult(ResultSet result) {
     this.rs = result;
-    System.out.println("HERE");
     try {
-      System.out.println(rs.getWarnings());
       if (rs.next())
         setCalendarResponse();
     } catch (SQLException e) {
