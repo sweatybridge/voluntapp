@@ -178,7 +178,8 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     this.rs = result;
     try {
       found = rs.next();
-      setUserResponse();
+      if (found)
+        setUserResponse();
     } catch (SQLException e) {
       System.err.println("Error getting the result");
       return;
