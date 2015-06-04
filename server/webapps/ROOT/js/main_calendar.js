@@ -102,11 +102,13 @@ function refreshCalendars() {
          .replace("{{name}}", calendar.name)
          .replace("{{joinCode}}", calendar.joinCode)
          .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#d_user_calendars");
-      
+      if (calendar.role === "admin" || calendar.role === "owner") {
+          cal_div.find(".calendar-unsub").toggle();
+      }      
+
       cal_div.find("input").change(function() {
         if (calendar.role === "admin" || calendar.role === "owner") {
           cal_div.find(".calendar-extras").toggle();
-          cal_div.find(".calendar-unsub").toggle();
         }
         refreshEvents();
       });
