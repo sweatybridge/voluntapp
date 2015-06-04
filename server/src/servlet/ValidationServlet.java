@@ -76,6 +76,10 @@ public class ValidationServlet extends HttpServlet {
     ValidationRequest vr = gson.fromJson(request.getReader(),
         ValidationRequest.class);
 
+    // Set up the type for the response as we do not go through the filers
+    response.setContentType("application/json");
+    response.setCharacterEncoding("utf-8");
+
     if (vr.getEmail() == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Information supplied was invalid"));
@@ -107,8 +111,9 @@ public class ValidationServlet extends HttpServlet {
       return;
     } catch (UserNotFoundException e) {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "The email you provided does not exist"));
+      Response r = new ErrorResponse("The email you provided does not exist");
+      request.setAttribute(Response.class.getSimpleName(), r);
+      gson.toJson(r, response.getWriter());
       return;
     }
 
@@ -117,8 +122,6 @@ public class ValidationServlet extends HttpServlet {
 
     SuccessResponse s = new SuccessResponse(
         "Email with a new password has been sent");
-    response.setContentType("application/json");
-    response.setCharacterEncoding("utf-8");
     request.setAttribute(Response.class.getSimpleName(), s);
     gson.toJson(s, response.getWriter());
 
