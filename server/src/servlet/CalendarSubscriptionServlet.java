@@ -8,9 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import req.CalendarRequest;
 import req.CalendarSubscriptionRequest;
-import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
@@ -106,5 +104,122 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       		"can be joined.");
     }
     return false;
+  }
+  
+  /**
+   * Given a calendar id in the form /api/subscription/calendar/[id], if the
+   * current user has admin rights updates the given targetUserEmail (in the
+   * payload) to the specified auth level.
+   */
+  @Override
+  public void doPut(HttpServletRequest request, HttpServletResponse response) {
+    Response resp = updateDeleteSubscription(request, 1);
+    request.setAttribute(Response.class.getSimpleName(), resp);
+  }
+
+  /**
+   * Given a calendar id in the form /api/subscription/calendar/[id], if the
+   * current user has admin rights removes the given targetUserEmail (in the
+   * payload). NOTE: Admins cannot remove themselves from calendars to ensure
+   * that there is at least 1 admin.
+   */
+  @Override
+  public void doDelete(HttpServletRequest request, HttpServletResponse response) {
+    Response resp = updateDeleteSubscription(request, 0);
+    request.setAttribute(Response.class.getSimpleName(), resp);
+  }
+  
+  private Response updateDeleteSubscription(HttpServletRequest request, int action) {
+    // Get and check the calendar id from the url
+    if (request.getPathInfo() == null
+        || request.getPathInfo().substring(1).length() < 1) {
+      return new ErrorResponse("No calendar ID specified.");
+    }
+    String calendarIdS = request.getPathInfo().substring(1);
+
+    int calendarId = Integer.parseInt(calendarIdS);
+    assert (calendarId >= 0);
+    int currentUserId = ServletUtils.getUserId(request);
+    AuthLevel currentLevel = db.authoriseUser(currentUserId, calendarId);
+    
+    // Get the payload data, we are looking for userId (targetUserId) and role
+    CalendarSubscriptionRequest req;
+    try {
+      req = gson.fromJson(request.getReader(),
+          CalendarSubscriptionRequest.class);
+    } catch (JsonSyntaxException | JsonIOException | IOException e) {
+      e.printStackTrace();
+      return new ErrorResponse("Invalid delete calendar subscription payload.");
+    }
+    
+    assert (req != null);
+    // Get the target user id from email
+    UserResponse targetUser;
+    try {
+      targetUser = db.getUser(req.getTargetUserEmail());
+    } catch (SQLException e1) {
+      e1.printStackTrace();
+      return new ErrorResponse("Internal database error at getting target user id (SQLException).");
+    } catch (UserNotFoundException e1) {
+      return new ErrorResponse("Target user is not recognized.");
+    } catch (InconsistentDataException e1) {
+      return new ErrorResponse("Getting target user affected more than 1 row.");
+    }
+    assert (targetUser != null);
+    int targetUserId = targetUser.getUserId();
+    assert (targetUserId >= 0);
+    
+    // DELETE USER
+    if (action == 0) {
+      // We got all the data we need, try to unsubscribe user
+      // Check if the current user is admin or not
+      // Remember that admin cannot unsubscribe from their own calendars
+      // to ensure that there is at least 1 admin
+      if (currentUserId == targetUserId && currentLevel == AuthLevel.ADMIN) {
+          return new ErrorResponse("Admins cannot unsubscribe from their calendars for security reasons, ask a fellow admin to remove you.");
+      } else if (currentUserId != targetUserId && currentLevel != AuthLevel.ADMIN) {
+        return new ErrorResponse("Insufficient rights to delete user subscription.");
+      }
+      
+      // Everything seems to be fine, perform unsubscribe
+      try {
+        try {
+          db.deleteCalendarSubscription(targetUserId, calendarId);
+          return new SuccessResponse("User unsubscribed.");
+        } catch (CalendarSubscriptionNotFoundException e) {
+          return new ErrorResponse("The requested update subscription does not exist.");
+        }
+      } catch (SQLException e) {
+        e.printStackTrace();
+        return new ErrorResponse("Internal database error at deleting calendar subscription (SQLException).");
+      } catch (InconsistentDataException e) {
+        return new ErrorResponse("Deleting calendar subscription affected more than 1 row.");
+      }
+    } else if (action == 1) { // UPDATE SUBSCRIPTION
+      // Make sure the user is admin of the calendar specified
+      if (currentLevel != AuthLevel.ADMIN) {
+        return new ErrorResponse("Insufficient rights to change user role.");
+      }
+      // We know the user is admin, make sure the requested user is not itself
+      if (currentUserId == targetUserId) {
+        return new ErrorResponse("Cannot demote yourself, ask another admin to modify your role.");
+      }
+      
+      // Looks like a valid request so far, update the database
+      try {
+        AuthLevel enumRole = AuthLevel.getAuth(req.getRole());
+        db.updateUserRole(targetUserId, calendarId, enumRole);
+        return new SuccessResponse("Updated user role.");
+      } catch (CalendarSubscriptionNotFoundException e) {
+        return new ErrorResponse("The requested update subscription does not exist.");
+      } catch (InconsistentDataException e) {
+        return new ErrorResponse("The update request affected more than 1 row.");
+      } catch (SQLException e) {
+        e.printStackTrace();
+        return new ErrorResponse("Internal database error at role update (SQLException).");
+      }
+    } // End of else if (action == 1)
+    
+    return new ErrorResponse("Unknown error in calendar subscription update or delete.");
   }
 }
