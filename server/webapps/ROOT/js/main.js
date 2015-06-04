@@ -46,48 +46,46 @@ $(function() {
   
   // Bind right side bar
   $("#b_hide_right").click(function() {
-    var width = $("#d_left_sidebar").outerWidth();
-    if ($(this).parent().hasClass("active")) {
+    var btn = $(this).parent();
+    if (btn.hasClass("active")) {
+      var width = $("#d_left_sidebar").outerWidth();
       $("#d_right_sidebar").animate({
         right: -width,
         duration: 0.2
       });
-      $(this).parent().removeClass("active");
+      btn.removeClass("active");
     } else {
       $("#d_right_sidebar").animate({
         right: 0,
         duration: 0.2
       });
-      $(this).parent().addClass("active");
+      btn.addClass("active");
     }
 
     rebuildCalendar();
   });
-  
+
   // mobile actions
-  $("body").swipe({
-    swipe: function(event, direction, distance, duration, fingerCount, fingerData) {
-      var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-      // close sidebar
-      if (width < 768) {
-        if (direction === "left") {
-          var offset = $("#d_left_sidebar").outerWidth();
-          $("#d_left_sidebar").animate({
-            left: -offset,
-            duration: 0.2
-          });
-          $("#b_hide_left").removeClass("active");
-        } else if (event.swipestart.coords[0] < screen.width / 10) {
-          $("#d_left_sidebar").animate({
-            left: 0,
-            duration: 0.2
-          });
-          $("#b_hide_left").addClass("active");
-        }
-      }
-    },
-    threshold: 0,
-    fingers:'all'
+  $(window).on("swipeleft", function() {
+    // close sidebar
+    var width = $("#d_left_sidebar").outerWidth();
+    $("#d_left_sidebar").animate({
+      left: -width,
+      duration: 0.2
+    });
+    $("#b_hide_left").removeClass("active");
+  });
+
+  $(window).on("swiperight", function(e) {
+    // open sidebar
+    if (e.swipestart.coords[0] > 120) {
+      return;
+    }
+    $("#d_left_sidebar").animate({
+      left: 0,
+      duration: 0.2
+    });
+    $("#b_hide_left").addClass("active");
   });
 
   // Bind logout button
