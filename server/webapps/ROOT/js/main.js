@@ -25,66 +25,45 @@ $(function() {
 
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
-    var btn = $(this).parent();
-    if (btn.hasClass("active")) {
-      var width = $("#d_left_sidebar").outerWidth();
-      $("#d_left_sidebar").animate({
-        left: -width,
-        duration: 0.2
-      });
-      btn.removeClass("active");
-    } else {
-      $("#d_left_sidebar").animate({
-        left: 0,
-        duration: 0.2
-      });
-      btn.addClass("active");
-    }
-
+    $(this).parent().hasClass("active") ? hideLeftBar() : showLeftBar();
     rebuildCalendar();
   });
   
   // Bind right side bar
   $("#b_hide_right").click(function() {
-    var btn = $(this).parent();
-    if (btn.hasClass("active")) {
-      var width = $("#d_left_sidebar").outerWidth();
-      $("#d_right_sidebar").animate({
-        right: -width,
-        duration: 0.2
-      });
-      btn.removeClass("active");
-    } else {
-      $("#d_right_sidebar").animate({
-        right: 0,
-        duration: 0.2
-      });
-      btn.addClass("active");
-    }
-
+    $(this).parent().hasClass("active") ? hideRightBar() : showRightBar();
     rebuildCalendar();
   });
 
   // mobile actions
-  $(window).on("swipeleft", function() {
-    // close sidebar
-    $("#b_hide_left").trigger("click");
-//     if (("#b_hide_left").hasClass("active")) {
-//       $("#b_hide_left").trigger("click");
+  $(window).on("swipeleft", function(e) {
+    hideLeftBar();
+    // close left bar if it's open
+//     if ($("#b_hide_left").parent().hasClass("active")) {
+//       hideLeftBar();
 //     } else {
+//       // close right bar if swiping from right edge
 //       var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
 //       if (e.swipestart.coords[0] > width * 7 / 8) {
-//         $("#b_hide_left").trigger("click");
+//         showRightBar();
 //       }
 //     }
+    rebuildCalendar();
   });
 
   $(window).on("swiperight", function(e) {
-    // open sidebar
-    if (e.swipestart.coords[0] > 120) {
-      return;
-    }
-    $("#b_hide_left").trigger("click");
+    showLeftBar();
+    // close right bar if it's open
+//     if ($("#b_hide_right").parent().hasClass("active")) {
+//       hideRightBar();
+//     } else {
+//       // open left bar if swiping from left edge
+//       var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+//       if (e.swipestart.coords[0] < width / 8) {
+//         showLeftBar();
+//       }
+//     }
+    rebuildCalendar();
   });
 
   // Bind logout button
@@ -180,16 +159,40 @@ function refreshUser() {
   });
 }
 
-// Update main column class whether sizebars are hidden or not
-function updateMainCol() {
-  var size = 8;
-  if ($("#d_right_sidebar").hasClass("col-hidden")) {
-    size += 2;
-  }
-  if ($("#d_left_sidebar").hasClass("col-hidden")) {
-    size += 2;
-  }
-  $("#d_main_col").attr("class", "col-sm-" + size);
+// Hide sidebar by moving it off screen
+function hideRightBar() {
+  var width = $("#d_right_sidebar").outerWidth();
+  $("#d_right_sidebar").animate({
+    right: -width,
+    duration: 0.2
+  });
+  $("#b_hide_right").parent().removeClass("active");
+}
+
+function hideLeftBar() {
+  var width = $("#d_left_sidebar").outerWidth();
+  $("#d_left_sidebar").animate({
+    left: -width,
+    duration: 0.2
+  });
+  $("#b_hide_left").parent().removeClass("active");
+}
+
+// Show sidebar by moving it into screen
+function showRightBar() {
+  $("#d_right_sidebar").animate({
+    right: 0,
+    duration: 0.2
+  });
+  $("#b_hide_right").parent().addClass("active");
+}
+
+function showLeftBar() {
+  $("#d_left_sidebar").animate({
+    left: 0,
+    duration: 0.2
+  });
+  $("#b_hide_left").parent().addClass("active");
 }
 
 // Rebuild calendar layout for mobile responsiveness
@@ -198,11 +201,13 @@ function rebuildCalendar() {
   var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
   if (width < 768) {
     // single column fluid layout
-    // clear calendar heading and body
-    $("#t_calendar_heading").empty().append("<th/>");
-    $("#t_calendar_body").empty().append("<td/>");
-    app.current_start_date = new Date();
-    updateCalendarDates(app.current_start_date);
+    if ($("#t_calendar_body").children().length !== 1) {
+      // clear calendar heading and body
+      $("#t_calendar_heading").empty().append("<th/>");
+      $("#t_calendar_body").empty().append("<td/>");
+      app.current_start_date = new Date();
+      refreshEvents();
+    }
   } else {
     var left = $("#b_hide_left").parent().hasClass("active") ? $("#d_left_sidebar").outerWidth() : 0;
     var right = $("#b_hide_right").parent().hasClass("active") ? $("#d_right_sidebar").outerWidth() : 0;
@@ -228,7 +233,7 @@ function rebuildCalendar() {
       }
 
       // update navigation button
-      updateCalendarDates(app.current_start_date);
+      refreshEvents();
     }
   }
 }

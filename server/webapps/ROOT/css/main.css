@@ -96,12 +96,13 @@ Event view
 Side bar
 */
 .sidebar {
+  position: fixed;
   width: 80%;
   height: 100%;
   background-color: #eee;
   max-width: 260px;
-  position: absolute;
   z-index: 1000;
+  overflow-y: scroll;
 }
 
 .container {
@@ -124,7 +125,7 @@ Side bar
   #d_left_sidebar {
     left: -260px;
     padding-right: 15px;
-    box-shadow: 5px 0px 5px #888888;
+    box-shadow: 2px 0px 4px #888888;
   }
   #d_right_sidebar {
     display: none;
