@@ -28,7 +28,6 @@ import exception.SessionNotFoundException;
 
 @ServerEndpoint(value = "/chat")
 public class ChatServer {
-  private static final Gson gson = new Gson();
   private static final DBInterface db = new DBInterface(DataSourceProvider.getSource());
 
   private static final ConcurrentMap<Integer, List<Session>> connections = new ConcurrentHashMap<Integer, List<Session>>();
@@ -81,8 +80,10 @@ public class ChatServer {
     // Return to the user roster
     try {
       session.getBasicRemote().sendText("Roster incoming:");
-      //ChatMessage roster = new ChatMessage(db.getRoster(userId));
-      session.getBasicRemote().sendText(gson.toJson(db.getRoster(userId)));
+      List<Integer> destinationIds = new ArrayList<Integer>(2);
+      destinationIds.add(userId);
+      ChatMessage roster = new ChatMessage("roster", destinationIds, -1, db.getRoster(userId));
+      session.getBasicRemote().sendText(roster.toString());
     } catch (IOException | SQLException e) {
       e.printStackTrace();
       System.err.println("Could not send user roster at start.");
@@ -100,7 +101,7 @@ public class ChatServer {
 
   @OnMessage
   public void onMessage(String message) {
-    ChatMessage chatMessage = gson.fromJson(message, ChatMessage.class);
+    ChatMessage chatMessage = ChatMessage.fromJson(message);
     sendChatMessage(chatMessage, true);
   }
 
@@ -130,7 +131,7 @@ public class ChatServer {
       // Send to each session
       for (Session session : sessions) {
         try {
-          session.getBasicRemote().sendText(gson.toJson(chatMessage));
+          session.getBasicRemote().sendText(chatMessage.toString());
         } catch (IOException e) {
           e.printStackTrace();
           System.err.println("Couldn't send ChatMessage.");

@@ -3,26 +3,34 @@ package chat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 import resp.RosterResponse;
 
 
 public class ChatMessage {
+  private static final Gson gson = new Gson();
+  
   private String type;
   private List<Integer> destinationIds;
   private Integer sourceId;
-  private String payload;
+  private Object payload;
   
   // Empty constructor
   public ChatMessage() {
     
   }
-
+  
   public ChatMessage(String type, List<Integer> destinationIds,
-      Integer sourceId, String payload) {
+      Integer sourceId, Object payload) {
     this.type = type;
     this.destinationIds = destinationIds;
     this.sourceId = sourceId;
     this.payload = payload;
+  }
+  
+  public static ChatMessage fromJson(String json) {
+    return gson.fromJson(json, ChatMessage.class);
   }
 
   public String getType() {
@@ -49,11 +57,16 @@ public class ChatMessage {
     this.sourceId = sourceId;
   }
 
-  public String getPayload() {
+  public Object getPayload() {
     return payload;
   }
 
   public void setPayload(String payload) {
     this.payload = payload;
+  }
+  
+  @Override
+  public String toString() {
+    return gson.toJson(this);
   }
 }
