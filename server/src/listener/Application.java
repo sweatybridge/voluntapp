@@ -19,6 +19,7 @@ import servlet.EventSubscriptionServlet;
 import servlet.SessionServlet;
 import servlet.UserServlet;
 import servlet.ValidationServlet;
+import utils.DataSourceProvider;
 
 import com.google.gson.Gson;
 
@@ -44,12 +45,7 @@ public class Application implements ServletContextListener {
     ServletContext context = sce.getServletContext();
 
     // Using connection pool managed by servlet container
-    PGConnectionPoolDataSource source = new PGConnectionPoolDataSource();
-    source.setUrl(context.getInitParameter("db_host"));
-    source.setUser(context.getInitParameter("db_user"));
-    source.setPassword(context.getInitParameter("db_pass"));
-    source.setSsl(true);
-    source.setSslfactory("org.postgresql.ssl.NonValidatingFactory");
+    PGConnectionPoolDataSource source = DataSourceProvider.getSource();
 
     // Reusable objects for all servlets (must be thread safe).
     Gson gson = new Gson();
