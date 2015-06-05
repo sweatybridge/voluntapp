@@ -29,6 +29,7 @@ import resp.EventAdminResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import resp.Response;
+import resp.RosterResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
 import resp.ValidationResponse;
@@ -162,11 +163,11 @@ public class DBInterface {
     CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
         userId, joinCode);
     insert(subResp);
-    CalendarResponse resp = getCalendar(new CalendarRequest(userId, 
+    CalendarResponse resp = getCalendar(new CalendarRequest(userId,
         getCalendarId(new CalendarJoinCodeIdQuery(joinCode))));
     return resp;
   }
-  
+
   /**
    * Deletes a calendar subscription given an userId and a calendarId
    * 
@@ -175,11 +176,13 @@ public class DBInterface {
    * @return true on success, throws exception otherwise
    * @throws SQLException
    * @throws InconsistentDataException
-   * @throws CalendarSubscriptionNotFoundException 
+   * @throws CalendarSubscriptionNotFoundException
    */
-  public boolean deleteCalendarSubscription(int userId, int calendarId) throws SQLException, InconsistentDataException, CalendarSubscriptionNotFoundException {
-    CalendarSubscriptionResponse response = new CalendarSubscriptionResponse(userId,
-        calendarId, null);
+  public boolean deleteCalendarSubscription(int userId, int calendarId)
+      throws SQLException, InconsistentDataException,
+      CalendarSubscriptionNotFoundException {
+    CalendarSubscriptionResponse response = new CalendarSubscriptionResponse(
+        userId, calendarId, null);
     int rows = delete(response);
     if (rows == 1) {
       return true;
@@ -429,7 +432,7 @@ public class DBInterface {
     }
     return rows == 1;
   }
-  
+
   /**
    * Updates users role in the USER_CALENDAR table
    * 
@@ -441,14 +444,18 @@ public class DBInterface {
    * @throws InconsistentDataException
    * @throws SQLException
    */
-  public boolean updateUserRole(int targetUserId, int calendarId, AuthLevel role) throws CalendarSubscriptionNotFoundException, InconsistentDataException, SQLException {
-    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(targetUserId, calendarId, role);
+  public boolean updateUserRole(int targetUserId, int calendarId, AuthLevel role)
+      throws CalendarSubscriptionNotFoundException, InconsistentDataException,
+      SQLException {
+    CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(
+        targetUserId, calendarId, role);
     int rows = update(resp);
     if (rows == 1) {
       return true;
     } else if (rows == 0) {
       throw new CalendarSubscriptionNotFoundException(
-          "Calendar subscription not found for " + targetUserId + '-' + calendarId);
+          "Calendar subscription not found for " + targetUserId + '-'
+              + calendarId);
     }
     throw new InconsistentDataException(
         "Update calendar subscription role modified more than 1 row!");
@@ -809,7 +816,7 @@ public class DBInterface {
     update(vr);
     return vr.isValid();
   }
-  
+
   /**
    * Is the specified calendar joinable.
    * 
@@ -821,5 +828,11 @@ public class DBInterface {
     CalendarJoinEnabledQuery query = new CalendarJoinEnabledQuery(calendarId);
     query(query);
     return query.isJoinEnabled();
+  }
+
+  public RosterResponse getRoster(int userId) throws SQLException {
+    RosterResponse rr = new RosterResponse(userId);
+    query(rr);
+    return rr;
   }
 }

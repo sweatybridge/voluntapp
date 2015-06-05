@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import sql.SQLInsert;
 import sql.SQLQuery;
@@ -19,8 +20,8 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
 
   public static final String EMAIL_COLUMN = "EMAIL";
   private static final String PASSWORD_COLUMN = "PASSWORD";
-  private static final String FIRST_NAME_COLUMN = "FIRST_NAME";
-  private static final String LAST_NAME_COLUMN = "LAST_NAME";
+  public static final String FIRST_NAME_COLUMN = "FIRST_NAME";
+  public static final String LAST_NAME_COLUMN = "LAST_NAME";
   public static final String ID_COLUMN = "ID";
   private static final String LAST_SEEN_COLUMN = "LAST_SEEN";
   public static final String VALIDATION_KEY_COLUMN = "VALIDATION_KEY";
