@@ -81,6 +81,11 @@ public class ChatServer {
       return;
     }
     sessions.add(session);
+    try {
+      session.getBasicRemote().sendText("Welcome");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   @OnClose
