@@ -31,8 +31,6 @@ public class ChatServer {
   private static final Gson GSON = new Gson();
   private static final DBInterface db = new DBInterface(DataSourceProvider.getSource());
 
-  private static final String GUEST_PREFIX = "Guest";
-  private static final AtomicInteger connectionIds = new AtomicInteger(0);
   private static final ConcurrentMap<Integer, List<Session>> connections = new ConcurrentHashMap<Integer, List<Session>>();
 
   @OnOpen
@@ -42,7 +40,6 @@ public class ChatServer {
     List<String> tokens = params.get("token");
     if (tokens == null || tokens.size() < 1) {
       try {
-        session.getBasicRemote().sendText("No token."); // TODO: Remove after debugging
         session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "No authentication token provided."));
       } catch (IOException e) {
         e.printStackTrace();
@@ -57,7 +54,6 @@ public class ChatServer {
       sessionResponse = db.getSession(tokens.get(0));
     } catch (SQLException | SessionNotFoundException e) {
       try {
-        session.getBasicRemote().sendText("Invalid token."); // TODO: Remove after debugging
         session.close(new CloseReason(CloseReason.CloseCodes.CANNOT_ACCEPT, "Invalid authentication token provided."));
       } catch (IOException e1) {
         e.printStackTrace();
@@ -81,11 +77,6 @@ public class ChatServer {
       return;
     }
     sessions.add(session);
-    try {
-      session.getBasicRemote().sendText("Welcome");
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   @OnClose
