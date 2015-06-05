@@ -1,11 +1,9 @@
 package chat;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
-
-import resp.RosterResponse;
 
 
 public class ChatMessage {
@@ -14,6 +12,7 @@ public class ChatMessage {
   private String type;
   private List<Integer> destinationIds;
   private Integer sourceId;
+  private Date date;
   private Object payload;
   
   // Empty constructor
@@ -26,6 +25,7 @@ public class ChatMessage {
     this.type = type;
     this.destinationIds = destinationIds;
     this.sourceId = sourceId;
+    this.date = new Date();
     this.payload = payload;
   }
   
