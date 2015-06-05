@@ -112,7 +112,8 @@ public class ChatServer {
 
   @OnMessage
   public void onMessage(String message) {
-    ChatMessage chatMessage = ChatMessage.fromJson(message);
+    // Get ChatMessage and set time to now so it can't be forged
+    ChatMessage chatMessage = ChatMessage.fromJson(message, true);
     sendChatMessage(chatMessage, true);
   }
 
