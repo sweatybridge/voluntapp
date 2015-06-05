@@ -81,11 +81,14 @@ public class ChatServer {
     // Return to the user roster
     try {
       session.getBasicRemote().sendText("Roster incoming:");
+      //ChatMessage roster = new ChatMessage(db.getRoster(userId));
       session.getBasicRemote().sendText(gson.toJson(db.getRoster(userId)));
     } catch (IOException | SQLException e) {
       e.printStackTrace();
       System.err.println("Could not send user roster at start.");
     }
+    
+    // TODO: Return any offline messages
   }
 
   @OnClose
@@ -103,6 +106,7 @@ public class ChatServer {
 
   @OnError
   public void onError(Throwable t) throws Throwable {
+    t.printStackTrace();
     System.err.println("ChatServer Error: " + t.toString());
   }
 

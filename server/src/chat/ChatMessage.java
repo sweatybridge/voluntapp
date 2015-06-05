@@ -1,6 +1,9 @@
 package chat;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import resp.RosterResponse;
 
 
 public class ChatMessage {
@@ -12,6 +15,14 @@ public class ChatMessage {
   // Empty constructor
   public ChatMessage() {
     
+  }
+
+  public ChatMessage(String type, List<Integer> destinationIds,
+      Integer sourceId, String payload) {
+    this.type = type;
+    this.destinationIds = destinationIds;
+    this.sourceId = sourceId;
+    this.payload = payload;
   }
 
   public String getType() {

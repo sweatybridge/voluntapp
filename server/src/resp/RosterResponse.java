@@ -3,6 +3,8 @@ package resp;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,14 +14,14 @@ public class RosterResponse extends Response {
 
   private transient int userId;
   private transient ResultSet rs;
-  private transient Set<Integer> lookup;
+  private transient Set<Integer> lookup = new HashSet<Integer>();
 
   public class RosterEntry {
     private int uid;
     private int cid;
     private String firstName;
     private String lastName;
-    private List<String> calNames;
+    private List<String> calNames = new ArrayList<String>();
 
     public RosterEntry(int uid, int cid, String firstName, String lastName) {
       this.uid = uid;
@@ -56,7 +58,12 @@ public class RosterResponse extends Response {
   }
 
   public RosterResponse(int userId) {
+    this.roster = new ArrayList<RosterEntry>();
     this.userId = userId;
+  }
+  
+  public int getUserId() {
+    return userId;
   }
 
   @Override
@@ -82,7 +89,7 @@ public class RosterResponse extends Response {
             CalendarSubscriptionResponse.ROLE_COLUMN,
             CalendarSubscriptionResponse.ROLE_COLUMN,
             CalendarSubscriptionResponse.ROLE_COLUMN, UserResponse.ID_COLUMN,
-            CalendarSubscriptionResponse.CID_COLUMN,
+            CalendarSubscriptionResponse.UID_COLUMN,
             CalendarSubscriptionResponse.CID_COLUMN,
             CalendarResponse.CID_COLUMN, CalendarResponse.ACTIVE_COLUMN);
   }
