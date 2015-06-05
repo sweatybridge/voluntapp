@@ -28,7 +28,7 @@ import exception.SessionNotFoundException;
 
 @ServerEndpoint(value = "/chat")
 public class ChatServer {
-  private static final Gson GSON = new Gson();
+  private static final Gson gson = new Gson();
   private static final DBInterface db = new DBInterface(DataSourceProvider.getSource());
 
   private static final ConcurrentMap<Integer, List<Session>> connections = new ConcurrentHashMap<Integer, List<Session>>();
@@ -66,7 +66,7 @@ public class ChatServer {
     // Add user to the connections map
     int userId = sessionResponse.getUserId();
     // Attach userid to the session
-    session.getUserProperties().put("userid", userId);
+    session.getUserProperties().put("userId", userId);
     
     // Add it to the active list of connections
     List<Session> sessions = connections.get(userId);
@@ -74,19 +74,30 @@ public class ChatServer {
       List<Session> userSessions = new ArrayList<>();
       userSessions.add(session);
       connections.put(Integer.valueOf(userId), userSessions);
-      return;
+    } else {
+      sessions.add(session);
     }
-    sessions.add(session);
+    
+    // Return to the user roster
+    try {
+      session.getBasicRemote().sendText("Roster incoming:");
+      session.getBasicRemote().sendText(gson.toJson(db.getRoster(userId)));
+    } catch (IOException | SQLException e) {
+      e.printStackTrace();
+      System.err.println("Could not send user roster at start.");
+    }
   }
 
   @OnClose
   public void onClose(Session session) {
-    // TODO: Remove this session from the connections map
+    // Remove this session from the connections map
+    Integer userId = (Integer) session.getUserProperties().get("userId");
+    connections.get(userId).remove(session);
   }
 
   @OnMessage
   public void onMessage(String message) {
-    ChatMessage chatMessage = GSON.fromJson(message, ChatMessage.class);
+    ChatMessage chatMessage = gson.fromJson(message, ChatMessage.class);
     sendChatMessage(chatMessage, true);
   }
 
@@ -115,7 +126,7 @@ public class ChatServer {
       // Send to each session
       for (Session session : sessions) {
         try {
-          session.getBasicRemote().sendText(GSON.toJson(chatMessage));
+          session.getBasicRemote().sendText(gson.toJson(chatMessage));
         } catch (IOException e) {
           e.printStackTrace();
           System.err.println("Couldn't send ChatMessage.");
