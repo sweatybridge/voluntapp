@@ -14,6 +14,8 @@ import java.util.TimeZone;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
+import chat.ChatMessage;
+
 import req.CalendarRequest;
 import req.CalendarRequest.CalendarEventsQuery;
 import req.CalendarSubscriptionRequest;
@@ -28,6 +30,7 @@ import resp.CalendarSubscriptionResponse;
 import resp.EventAdminResponse;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
+import resp.MessageResponse;
 import resp.Response;
 import resp.RosterResponse;
 import resp.SessionResponse;
@@ -835,4 +838,13 @@ public class DBInterface {
     query(rr);
     return rr;
   }
+
+  public void insertMessage(ChatMessage ch) throws SQLException {
+    for (Integer i : ch.getDestinationIds()) {
+      MessageResponse mr = new MessageResponse(ch.getType(), ch.getSourceId(),
+          i, ch.getPayload());
+      insert(mr);
+    }
+  }
+
 }

@@ -8,14 +8,35 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Class for holding the formats of the chat Roster, used
+ * when the user signs onto the system to send the list of all
+ * available people they can chat to. 
+ * 
+ * @author bs2113
+ *
+ */
+/**
+ * @author bs2113
+ *
+ */
 public class RosterResponse extends Response {
 
+  
+  // List of the people in the roster (JSON target)
   private List<RosterEntry> roster;
 
+  // Internal fields not serialized by JSON
   private transient int userId;
   private transient ResultSet rs;
   private transient Set<Integer> lookup = new HashSet<Integer>();
 
+  /**
+   * Anonymous class to store each of the users in the roster. 
+   * 
+   * @author bs2113
+   *
+   */
   public class RosterEntry {
     private int uid;
     private int cid;
