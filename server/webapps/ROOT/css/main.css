@@ -94,8 +94,10 @@ Drawer
   /* expand to include sidebar */
   left: -270px;
   right: -270px;
-  /* full screen */
-  height: 100%;
+  /* full screen from children height */
+  top: 51px;
+  bottom: 0px;
+  padding-top: 19px;
   overflow-y: scroll;
   transition: transform ease-in-out 0.3s, width ease-in-out 0.3s;
 }
