@@ -65,7 +65,7 @@
                 Console.log('Info: WebSocket connection opened.');
                 document.getElementById('chat').onkeydown = function(event) {
                     if (event.keyCode == 13) {
-                        Chat.sendMessage();
+                        Chat.sendChatbox();
                     }
                 };
             };
@@ -88,12 +88,16 @@
             }
         };
 
-        Chat.sendMessage = (function() {
+        Chat.sendChatbox = (function() {
             var message = document.getElementById('chat').value;
             if (message != '') {
                 Chat.socket.send(message);
                 document.getElementById('chat').value = '';
             }
+        });
+        
+        Chat.sendMessage = (function(message) {
+            Chat.socket.send(message);
         });
 
         var Console = {};
@@ -110,7 +114,7 @@
             console.scrollTop = console.scrollHeight;
         });
 
-        Chat.initialize();
+        //Chat.initialize();
 
 
         document.addEventListener("DOMContentLoaded", function() {

@@ -3,9 +3,8 @@ package req;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 
-import exception.PasswordHashFailureException;
-
 import utils.PasswordUtils;
+import exception.PasswordHashFailureException;
 
 /**
  * Deserialized JSON object of an API request to register new user.

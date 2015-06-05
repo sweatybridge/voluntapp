@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,13 +13,9 @@ import java.util.TimeZone;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
-import chat.ChatMessage;
-
 import req.CalendarRequest;
 import req.CalendarRequest.CalendarEventsQuery;
-import req.CalendarSubscriptionRequest;
 import req.EventRequest;
-import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
@@ -46,6 +41,7 @@ import utils.CalendarJoinCodeIdQuery;
 import utils.CalendarJoinEnabledQuery;
 import utils.EventEndTimeQuery;
 import utils.PasswordUtils;
+import chat.ChatMessage;
 import exception.CalendarNotFoundException;
 import exception.CalendarSubscriptionNotFoundException;
 import exception.EventNotFoundException;
@@ -839,12 +835,10 @@ public class DBInterface {
     return rr;
   }
 
-  public void insertMessage(ChatMessage ch) throws SQLException {
-    for (Integer i : ch.getDestinationIds()) {
+  public void insertMessage(ChatMessage ch, Integer destinationId) throws SQLException {
       MessageResponse mr = new MessageResponse(ch.getType(), ch.getSourceId(),
-          i, ch.getPayload());
+          destinationId, ch.getPayloadString());
       insert(mr);
-    }
   }
 
 }

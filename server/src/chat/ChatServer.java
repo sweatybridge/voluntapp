@@ -3,10 +3,12 @@ package chat;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -17,7 +19,6 @@ import javax.websocket.server.ServerEndpoint;
 
 import resp.SessionResponse;
 import utils.DataSourceProvider;
-import com.google.gson.Gson;
 import db.DBInterface;
 import exception.SessionNotFoundException;
 
@@ -87,7 +88,6 @@ public class ChatServer {
 
     // Return to the user roster
     try {
-      session.getBasicRemote().sendText("Roster incoming:");
       List<Integer> destinationIds = new ArrayList<Integer>(2);
       destinationIds.add(userId);
       ChatMessage roster = new ChatMessage("roster", destinationIds, -1,
@@ -144,8 +144,14 @@ public class ChatServer {
 
       // Get their list of active sessions
       List<Session> sessions = connections.get(destinationId);
-      if (sessions == null && storeOffline) {
-        // TODO: Store message offline
+      if ((sessions == null || sessions.size() == 0) && storeOffline) {
+        // Store message offline
+        try {
+          db.insertMessage(chatMessage, destinationId);
+        } catch (SQLException e) {
+          System.err.println("Unable to store offline message to "+destinationId);
+          e.printStackTrace();
+        }
         continue;
       }
 

@@ -57,8 +57,8 @@ public class ChatMessage {
     this.sourceId = sourceId;
   }
 
-  public Object getPayload() {
-    return payload;
+  public String getPayloadString() {
+    return gson.toJson(payload);
   }
 
   public void setPayload(String payload) {

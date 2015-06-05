@@ -3,7 +3,6 @@ package db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,20 +20,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.postgresql.ds.PGConnectionPoolDataSource;
-import org.postgresql.osgi.PGDataSourceFactory;
 
 import req.EventRequest;
-import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
 import resp.EventResponse;
-import resp.EventSubscriptionResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
 import exception.EventNotFoundException;
 import exception.InconsistentDataException;
-import exception.PasswordHashFailureException;
 import exception.SessionNotFoundException;
 import exception.UserNotFoundException;
 
