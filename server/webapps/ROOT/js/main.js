@@ -37,6 +37,7 @@ $(function() {
 
   // mobile actions
   $(window).on("swipeleft", function(e) {
+    $(".app").hasClass("showleft") ? $(".app").removeClass("showleft") : $(".app").addClass("showright");
     hideLeftBar();
     // close left bar if it's open
 //     if ($("#b_hide_left").parent().hasClass("active")) {
@@ -52,6 +53,7 @@ $(function() {
   });
 
   $(window).on("swiperight", function(e) {
+    $(".app").hasClass("showright") ? $(".app").removeClass("showright") : $(".app").addClass("showleft");
     showLeftBar();
     // close right bar if it's open
 //     if ($("#b_hide_right").parent().hasClass("active")) {
@@ -161,37 +163,37 @@ function refreshUser() {
 
 // Hide sidebar by moving it off screen
 function hideRightBar() {
-  var width = $("#d_right_sidebar").outerWidth();
-  $("#d_right_sidebar").animate({
-    right: -width,
-    duration: 0.2
-  });
+//   var width = $("#d_right_sidebar").outerWidth();
+//   $("#d_right_sidebar").animate({
+//     right: -width,
+//     duration: 0.2
+//   });
   $("#b_hide_right").parent().removeClass("active");
 }
 
 function hideLeftBar() {
-  var width = $("#d_left_sidebar").outerWidth();
-  $("#d_left_sidebar").animate({
-    left: -width,
-    duration: 0.2
-  });
+//   var width = $("#d_left_sidebar").outerWidth();
+//   $("#d_left_sidebar").animate({
+//     left: -width,
+//     duration: 0.2
+//   });
   $("#b_hide_left").parent().removeClass("active");
 }
 
 // Show sidebar by moving it into screen
 function showRightBar() {
-  $("#d_right_sidebar").animate({
-    right: 0,
-    duration: 0.2
-  });
+//   $("#d_right_sidebar").animate({
+//     right: 0,
+//     duration: 0.2
+//   });
   $("#b_hide_right").parent().addClass("active");
 }
 
 function showLeftBar() {
-  $("#d_left_sidebar").animate({
-    left: 0,
-    duration: 0.2
-  });
+//   $("#d_left_sidebar").animate({
+//     left: 0,
+//     duration: 0.2
+//   });
   $("#b_hide_left").parent().addClass("active");
 }
 
