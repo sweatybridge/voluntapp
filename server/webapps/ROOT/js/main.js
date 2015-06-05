@@ -26,46 +26,22 @@ $(function() {
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
     $(this).parent().hasClass("active") ? hideLeftBar() : showLeftBar();
-    rebuildCalendar();
+    //rebuildCalendar();
   });
   
   // Bind right side bar
   $("#b_hide_right").click(function() {
     $(this).parent().hasClass("active") ? hideRightBar() : showRightBar();
-    rebuildCalendar();
+    //rebuildCalendar();
   });
 
   // mobile actions
   $(window).on("swipeleft", function(e) {
     $(".app").hasClass("showleft") ? $(".app").removeClass("showleft") : $(".app").addClass("showright");
-    hideLeftBar();
-    // close left bar if it's open
-//     if ($("#b_hide_left").parent().hasClass("active")) {
-//       hideLeftBar();
-//     } else {
-//       // close right bar if swiping from right edge
-//       var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-//       if (e.swipestart.coords[0] > width * 7 / 8) {
-//         showRightBar();
-//       }
-//     }
-    rebuildCalendar();
   });
 
   $(window).on("swiperight", function(e) {
     $(".app").hasClass("showright") ? $(".app").removeClass("showright") : $(".app").addClass("showleft");
-    showLeftBar();
-    // close right bar if it's open
-//     if ($("#b_hide_right").parent().hasClass("active")) {
-//       hideRightBar();
-//     } else {
-//       // open left bar if swiping from left edge
-//       var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-//       if (e.swipestart.coords[0] < width / 8) {
-//         showLeftBar();
-//       }
-//     }
-    rebuildCalendar();
   });
 
   // Bind logout button
@@ -146,7 +122,7 @@ $(function() {
     startTime();
   })();
 
-  $(window).resize(rebuildCalendar);
+  //$(window).resize(rebuildCalendar);
 }); // End of document ready
 
 // Update user profile information on view
@@ -163,37 +139,23 @@ function refreshUser() {
 
 // Hide sidebar by moving it off screen
 function hideRightBar() {
-//   var width = $("#d_right_sidebar").outerWidth();
-//   $("#d_right_sidebar").animate({
-//     right: -width,
-//     duration: 0.2
-//   });
+  $(".app").removeClass("showright");
   $("#b_hide_right").parent().removeClass("active");
 }
 
 function hideLeftBar() {
-//   var width = $("#d_left_sidebar").outerWidth();
-//   $("#d_left_sidebar").animate({
-//     left: -width,
-//     duration: 0.2
-//   });
+  $(".app").removeClass("showleft");
   $("#b_hide_left").parent().removeClass("active");
 }
 
 // Show sidebar by moving it into screen
 function showRightBar() {
-//   $("#d_right_sidebar").animate({
-//     right: 0,
-//     duration: 0.2
-//   });
+  $(".app").addClass("showright");
   $("#b_hide_right").parent().addClass("active");
 }
 
 function showLeftBar() {
-//   $("#d_left_sidebar").animate({
-//     left: 0,
-//     duration: 0.2
-//   });
+  $(".app").addClass("showleft");
   $("#b_hide_left").parent().addClass("active");
 }
 

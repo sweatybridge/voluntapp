@@ -141,6 +141,22 @@ Side bar
   display: block;
 }
 
+.visible-xs, .visible-sm {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .visible-xs {
+    display: block !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .visible-sm {
+    display: block !important;
+  }
+}
+
 @media (min-width: 768px) {
   /* show more navbar items */
   .navbar-brand {
