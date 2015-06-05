@@ -96,7 +96,9 @@ public class ChatServer {
   public void onClose(Session session) {
     // Remove this session from the connections map
     Integer userId = (Integer) session.getUserProperties().get("userId");
-    connections.get(userId).remove(session);
+    if (userId != null) {
+      connections.get(userId).remove(session);
+    }
   }
 
   @OnMessage
