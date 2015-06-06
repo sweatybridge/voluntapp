@@ -55,6 +55,12 @@ public class ConcurrentHashSet<T> implements Iterable<T> {
     writeLock.unlock();
   }
   
+  public void remove(Object o) {
+    writeLock.lock();
+    set.remove(o);
+    writeLock.unlock();
+  }
+  
   public Iterator<T> iterator() {
     readLock.lock();
     Iterator<T> iter = set.iterator();

@@ -18,6 +18,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import resp.SessionResponse;
+import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
 import db.DBInterface;
 import exception.SessionNotFoundException;
@@ -37,7 +38,7 @@ public class ChatServer {
   private static final DBInterface db = new DBInterface(
       DataSourceProvider.getSource());
 
-  private static final ConcurrentMap<Integer, List<Session>> connections = new ConcurrentHashMap<Integer, List<Session>>();
+  private static final ConcurrentMap<Integer, ConcurrentHashSet<Session>> connections = new ConcurrentHashMap<Integer, ConcurrentHashSet<Session>>();
 
   @OnOpen
   public void onOpen(Session session) {
@@ -77,9 +78,9 @@ public class ChatServer {
     session.getUserProperties().put("userId", userId);
 
     // Add it to the active list of connections
-    List<Session> sessions = connections.get(userId);
+    ConcurrentHashSet<Session> sessions = connections.get(userId);
     if (sessions == null) {
-      List<Session> userSessions = new LinkedList<>();
+      ConcurrentHashSet<Session> userSessions = new ConcurrentHashSet<>();
       userSessions.add(session);
       connections.put(Integer.valueOf(userId), userSessions);
     } else {
@@ -95,8 +96,11 @@ public class ChatServer {
       session.getBasicRemote().sendText(roster.toString());
       
       // Return any offline messages
-      for (ChatMessage cm: db.getMessages(userId)) {
-        session.getBasicRemote().sendText(cm.toString());
+      List<ChatMessage> cms = db.getMessages(userId);
+      if (cms != null) {
+        for (ChatMessage cm: cms) {
+          session.getBasicRemote().sendText(cm.toString());
+        }
       }
       
     } catch (IOException | SQLException e) {
@@ -153,8 +157,8 @@ public class ChatServer {
       }
 
       // Get their list of active sessions
-      List<Session> sessions = connections.get(destinationId);
-      if ((sessions == null || sessions.size() == 0) && chatMessage.isStoreOffline()) {
+      ConcurrentHashSet<Session> sessions = connections.get(destinationId);
+      if ((sessions == null || sessions.isEmpty()) && chatMessage.isStoreOffline()) {
         // Store message offline
         try {
           db.insertMessage(chatMessage, destinationId);
