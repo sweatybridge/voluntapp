@@ -86,19 +86,24 @@ public class ChatServer {
       sessions.add(session);
     }
 
-    // Return to the user roster
     try {
+      // Send the user roster
       List<Integer> destinationIds = new ArrayList<Integer>(2);
       destinationIds.add(userId);
       ChatMessage roster = new ChatMessage("roster", destinationIds, -1,
-          db.getRoster(userId));
+          false, db.getRoster(userId));
       session.getBasicRemote().sendText(roster.toString());
+      
+      // Return any offline messages
+      for (ChatMessage cm: db.getMessages(userId)) {
+        session.getBasicRemote().sendText(cm.toString());
+      }
+      
     } catch (IOException | SQLException e) {
       e.printStackTrace();
-      System.err.println("Could not send user roster at start.");
+      System.err.println("Could not send user roster or offline messages at start.");
     }
 
-    // TODO: Return any offline messages
   }
 
   @OnClose
@@ -114,7 +119,8 @@ public class ChatServer {
   public void onMessage(String message) {
     // Get ChatMessage and set time to now so it can't be forged
     ChatMessage chatMessage = ChatMessage.fromJson(message, true);
-    sendChatMessage(chatMessage, true);
+    System.out.println("Routing: "+chatMessage.toString()); // TODO: Remove after debugging
+    routeChatMessage(chatMessage);
   }
 
   @OnError
@@ -133,8 +139,11 @@ public class ChatServer {
    *          If true, then if the destination is offline, will store it in the
    *          database
    */
-  public static void sendChatMessage(ChatMessage chatMessage,
-      boolean storeOffline) {
+  public static void routeChatMessage(ChatMessage chatMessage) {
+    // Make sure we have destinations to route to
+    if (chatMessage.getDestinationIds() == null) {
+      return;
+    }
     // For every destination id
     for (Integer destinationId : chatMessage.getDestinationIds()) {
       // Check if it was addressed at the server
@@ -145,7 +154,7 @@ public class ChatServer {
 
       // Get their list of active sessions
       List<Session> sessions = connections.get(destinationId);
-      if ((sessions == null || sessions.size() == 0) && storeOffline) {
+      if ((sessions == null || sessions.size() == 0) && chatMessage.isStoreOffline()) {
         // Store message offline
         try {
           db.insertMessage(chatMessage, destinationId);
