@@ -132,7 +132,7 @@ function updateCalendarDates(startDate) {
     $(elem).data("date", date);
 
     // update heading text
-    var heading = $("#t_calendar_heading :nth-child("+(k+1)+")");
+    var heading = $("#t_calendar_heading td:nth-child("+(k+1)+")");
     heading.text(getWeekDay(startDate) + " - " + formatDate(startDate));
     heading.removeClass("bg-primary").removeClass("th_weekend").removeClass("th_weekday");
 

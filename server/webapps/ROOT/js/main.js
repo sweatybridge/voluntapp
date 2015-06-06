@@ -78,14 +78,14 @@ $(function() {
   // Bind previous and next day button
   $("#prev_day").click(function() {
     // advance date by 1
-    var days = $("#t_calendar_heading").children().length;
+    var days = $("#t_calendar_heading").children(":visible").length;
     app.current_start_date.setDate(app.current_start_date.getDate() - days);
     refreshEvents();
   });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
-    var days = $("#t_calendar_heading").children().length;
+    var days = $("#t_calendar_heading").children(":visible").length;
     app.current_start_date.setDate(app.current_start_date.getDate() + days);
     refreshEvents();
   });

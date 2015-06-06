@@ -2,10 +2,6 @@
   display: none;
 }
 
-.th_weekday, .th_weekend {
-  width: 160px;
-}
-
 .panel-heading {
   cursor: pointer; cursor: hand;
 }
@@ -16,6 +12,16 @@
 
 a:hover, a:active, a:focus {
   outline: 0;
+}
+
+/*
+Calendar view
+*/
+#t_calendar {
+  table-layout: fixed;
+}
+
+.th_weekday, .th_weekend {
 }
 
 /* 
@@ -99,12 +105,20 @@ Drawer
   bottom: 0px;
   padding-top: 19px;
   overflow-y: scroll;
+  -moz-transition: transform ease-in-out 0.3s, width ease-in-out 0.3s;
+  -webkit-transition: transform ease-in-out 0.3s, width ease-in-out 0.3s;
   transition: transform ease-in-out 0.3s, width ease-in-out 0.3s;
 }
 .app.showleft {
+  -ms-transform: translateX(270px);
+  -moz-transform: translateX(270px);
+  -webkit-transform: translateX(270px);
   transform: translateX(270px);
 }
 .app.showright {
+  -ms-transform: translateX(-270px);
+  -moz-transform: translateX(-270px);
+  -webkit-transform: translateX(-270px);
   transform: translateX(-270px);
 }
 
@@ -125,7 +139,6 @@ Side bar
   padding-right: 15px;
 }
 #d_right_sidebar {
-  padding-right: 15px;
   right: 0px;
 }
 #d_left_sidebar {
@@ -141,19 +154,9 @@ Side bar
   display: block;
 }
 
-.visible-xs, .visible-sm {
-  display: none;
-}
-
-@media (min-width: 480px) {
-  .visible-xs {
-    display: block !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .visible-sm {
-    display: block !important;
+@media (max-width: 479px) {
+  .hidden-xxs {
+    display: none !important;
   }
 }
 
@@ -167,5 +170,19 @@ Side bar
   }
   #navbar {
     display: block;
+  }
+}
+
+@media (min-width: 1370px) {
+  /* switch to toggle right bar */
+  .app {
+    right: 0px;
+  }
+}
+
+@media (min-width: 1640px) {
+  /* switch to toggle left bar */
+  .app {
+    left: 0px;
   }
 }
