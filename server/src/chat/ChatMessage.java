@@ -29,6 +29,12 @@ public class ChatMessage {
     this.setStoreOffline(storeOffline);
     this.payload = payload;
   }
+  
+  public ChatMessage(String type, List<Integer> destinationIds,
+      Integer sourceId, Date date, boolean storeOffline, Object payload) {
+    this(type, destinationIds, sourceId, storeOffline, payload);
+    this.date = date;
+  }
 
   /**
    * Creates a ChatMessage instance from the given json string.

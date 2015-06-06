@@ -869,7 +869,7 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error in the database interaction
    */
-  public List<MessageResponse> getMessages(int userId) throws SQLException {
+  public List<ChatMessage> getMessages(int userId) throws SQLException {
     MessageResponse mr = new MessageResponse(userId);
     query(mr);
     return mr.getMessages();
