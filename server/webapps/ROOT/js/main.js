@@ -10,6 +10,10 @@ $(function() {
       xhr.setRequestHeader("Authorization", getCookie("token"));
     }
   });
+
+  $("#pickStartDate").datetimepicker({
+    timepicker: false
+  });
   
   // Bind refresh button
   $("#b_refresh").click(refreshCalendars);

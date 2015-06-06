@@ -65,7 +65,10 @@
         <div id="d_left_sidebar" class="sidebar">
           <p class="lead">Welcome, <span data-bind="firstName">[firstName]</span></p>
           <p>You haven't logged in since <strong data-bind="lastSeen">[lastSeen]</strong></p>
-          
+          <div>
+            <label>Start date: </label>
+            <input type="text" id="pickStartDate">
+          </div>
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="false" aria-controls="collapseOne">
@@ -181,9 +184,7 @@
           <!-- MAIN CALENDAR VIEW -->
 
         <div id="d_main_col">
-          <label>Start date: </label>
-          <input type="text" id="pickStartDate">
-          <div class="lead inline">
+          <div class="lead">
             <strong>
                 <a id="prev_day" href="#">&lt;&lt;</a> <span></span> - <span></span> <a id="next_day" href="#">&gt;&gt;</a>
             </strong>
