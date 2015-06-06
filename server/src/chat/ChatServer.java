@@ -91,7 +91,7 @@ public class ChatServer {
       List<Integer> destinationIds = new ArrayList<Integer>(2);
       destinationIds.add(userId);
       ChatMessage roster = new ChatMessage("roster", destinationIds, -1,
-          db.getRoster(userId));
+          false, db.getRoster(userId));
       session.getBasicRemote().sendText(roster.toString());
     } catch (IOException | SQLException e) {
       e.printStackTrace();
@@ -114,7 +114,8 @@ public class ChatServer {
   public void onMessage(String message) {
     // Get ChatMessage and set time to now so it can't be forged
     ChatMessage chatMessage = ChatMessage.fromJson(message, true);
-    sendChatMessage(chatMessage, true);
+    System.out.println("Routing: "+chatMessage.toString());
+    sendChatMessage(chatMessage);
   }
 
   @OnError
@@ -133,8 +134,7 @@ public class ChatServer {
    *          If true, then if the destination is offline, will store it in the
    *          database
    */
-  public static void sendChatMessage(ChatMessage chatMessage,
-      boolean storeOffline) {
+  public static void sendChatMessage(ChatMessage chatMessage) {
     // For every destination id
     for (Integer destinationId : chatMessage.getDestinationIds()) {
       // Check if it was addressed at the server
@@ -145,7 +145,7 @@ public class ChatServer {
 
       // Get their list of active sessions
       List<Session> sessions = connections.get(destinationId);
-      if ((sessions == null || sessions.size() == 0) && storeOffline) {
+      if ((sessions == null || sessions.size() == 0) && chatMessage.isStoreOffline()) {
         // Store message offline
         try {
           db.insertMessage(chatMessage, destinationId);

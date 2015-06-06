@@ -12,6 +12,7 @@ public class ChatMessage {
   private List<Integer> destinationIds;
   private Integer sourceId;
   private Date date;
+  private boolean storeOffline;
   private Object payload;
 
   // Empty constructor
@@ -20,11 +21,12 @@ public class ChatMessage {
   }
 
   public ChatMessage(String type, List<Integer> destinationIds,
-      Integer sourceId, Object payload) {
+      Integer sourceId, boolean storeOffline, Object payload) {
     this.type = type;
     this.destinationIds = destinationIds;
     this.sourceId = sourceId;
     this.setDate(new Date());
+    this.setStoreOffline(storeOffline);
     this.payload = payload;
   }
 
@@ -77,6 +79,14 @@ public class ChatMessage {
   public void setDate(Date date) {
     this.date = date;
   }
+  
+  public boolean isStoreOffline() {
+    return storeOffline;
+  }
+
+  public void setStoreOffline(boolean storeOffline) {
+    this.storeOffline = storeOffline;
+  }
 
   public String getPayloadString() {
     return gson.toJson(payload);
@@ -90,4 +100,5 @@ public class ChatMessage {
   public String toString() {
     return gson.toJson(this);
   }
+
 }
