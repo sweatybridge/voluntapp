@@ -152,10 +152,6 @@ public class EventResponse extends Response {
         "Z");
   }
 
-  /*
-   * TODO: Change the update query to allow partial updates, i.e. updates of
-   * only a subset of the row fields.
-   */
   @Override
   public String getSQLUpdate() {
     int found = 0;

@@ -829,16 +829,50 @@ public class DBInterface {
     return query.isJoinEnabled();
   }
 
+  /**
+   * Returns the details of the user that the given user ID can talk to
+   * 
+   * @param userId
+   *          The id of the user to query for
+   * @return The response object that contains the users details
+   * @throws SQLException
+   *           Thrown when there is an error in the database interaction
+   */
   public RosterResponse getRoster(int userId) throws SQLException {
     RosterResponse rr = new RosterResponse(userId);
     query(rr);
     return rr;
   }
 
-  public void insertMessage(ChatMessage ch, Integer destinationId) throws SQLException {
-      MessageResponse mr = new MessageResponse(ch.getType(), ch.getSourceId(),
-          destinationId, ch.getPayloadString());
-      insert(mr);
+  /**
+   * Inserts a chat message into the database, used for offline messages and
+   * possibly logging?
+   * 
+   * @param ch
+   *          The message to save
+   * @throws SQLException
+   *           Thrown when there is an error in the database interaction
+   */
+  public void insertMessage(ChatMessage ch, Integer destinationId)
+      throws SQLException {
+    MessageResponse mr = new MessageResponse(ch.getType(), ch.getSourceId(),
+        destinationId, ch.getPayloadString());
+    insert(mr);
+  }
+
+  /**
+   * Gets the messages that need to be sent to a given user
+   * 
+   * @param userId
+   *          The userId of who to get the messages for
+   * @return A list of MessageResponses containing the required message data
+   * @throws SQLException
+   *           Thrown when there is an error in the database interaction
+   */
+  public List<MessageResponse> getMessages(int userId) throws SQLException {
+    MessageResponse mr = new MessageResponse(userId);
+    query(mr);
+    return mr.getMessages();
   }
 
 }
