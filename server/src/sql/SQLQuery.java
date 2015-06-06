@@ -18,6 +18,12 @@ public interface SQLQuery {
    */
   public String getSQLQuery();
 
+  /**
+   * Formats the {@link java.sql.PreparedStatement PreparedStatement} made from 
+   * 
+   * @param prepared
+   * @throws SQLException
+   */
   public void formatSQLQuery(PreparedStatement prepared) throws SQLException;
 
   public void setResult(ResultSet result);

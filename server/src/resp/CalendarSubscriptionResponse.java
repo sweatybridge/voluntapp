@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import utils.AuthLevel;
-import sql.SQLInsert;
-import sql.SQLQuery;
 
 public class CalendarSubscriptionResponse extends Response {
 

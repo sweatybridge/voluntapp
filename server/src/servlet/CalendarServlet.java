@@ -14,14 +14,13 @@ import req.CalendarRequest;
 import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
-import resp.SessionResponse;
 import resp.SuccessResponse;
 import utils.ServletUtils;
 
 import com.google.gson.Gson;
 
-import db.DBInterface;
 import db.CodeGenerator;
+import db.DBInterface;
 import exception.CalendarNotFoundException;
 import exception.InconsistentDataException;
 
