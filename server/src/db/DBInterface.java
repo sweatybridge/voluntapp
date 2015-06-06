@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,9 +17,7 @@ import chat.ChatMessage;
 
 import req.CalendarRequest;
 import req.CalendarRequest.CalendarEventsQuery;
-import req.CalendarSubscriptionRequest;
 import req.EventRequest;
-import req.EventSubscriptionRequest;
 import req.RegisterRequest;
 import req.SessionRequest;
 import req.UserRequest;
@@ -833,18 +830,51 @@ public class DBInterface {
     return query.isJoinEnabled();
   }
 
+  /**
+   * Returns the details of the user that the given user ID can talk to
+   * 
+   * @param userId
+   *          The id of the user to query for
+   * @return The response object that contains the users details
+   * @throws SQLException
+   *           Thrown when there is an error in the database interaction
+   */
   public RosterResponse getRoster(int userId) throws SQLException {
     RosterResponse rr = new RosterResponse(userId);
     query(rr);
     return rr;
   }
 
+  /**
+   * Inserts a chat message into the database, used for offline messages and
+   * possibly logging?
+   * 
+   * @param ch
+   *          The message to save
+   * @throws SQLException
+   *           Thrown when there is an error in the database interaction
+   */
   public void insertMessage(ChatMessage ch) throws SQLException {
     for (Integer i : ch.getDestinationIds()) {
       MessageResponse mr = new MessageResponse(ch.getType(), ch.getSourceId(),
           i, ch.getPayload());
       insert(mr);
     }
+  }
+
+  /**
+   * Gets the messages that need to be sent to a given user
+   * 
+   * @param userId
+   *          The userId of who to get the messages for
+   * @return A list of MessageResponses containing the required message data
+   * @throws SQLException
+   *           Thrown when there is an error in the database interaction
+   */
+  public List<MessageResponse> getMessages(int userId) throws SQLException {
+    MessageResponse mr = new MessageResponse(userId);
+    query(mr);
+    return mr.getMessages();
   }
 
 }

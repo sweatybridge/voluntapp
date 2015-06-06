@@ -1,9 +1,6 @@
 package chat;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import resp.RosterResponse;
 
 
 public class ChatMessage {
