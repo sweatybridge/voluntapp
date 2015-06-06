@@ -7,14 +7,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ConcurrentSet<T> implements Iterable<T> {
+public class ConcurrentHashSet<T> implements Iterable<T> {
   
   private final Set<T> set;
   private final ReadWriteLock lock;
   private final Lock readLock;
   private final Lock writeLock;
   
-  public ConcurrentSet() {
+  public ConcurrentHashSet() {
     set = new HashSet<T>();
     lock = new ReentrantReadWriteLock();
     readLock = lock.readLock();
