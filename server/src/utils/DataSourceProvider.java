@@ -2,9 +2,22 @@ package utils;
 
 import org.postgresql.ds.PGConnectionPoolDataSource;
 
+/**
+ * Wraps around the PGConnectionPoolDataSource to return only one instance of
+ * it. Singleton.
+ * 
+ * @author nc1813
+ * 
+ */
 public class DataSourceProvider {
   private static PGConnectionPoolDataSource source = null;
 
+  /**
+   * Creates the data source if not already created, otherwise returns the same
+   * one.
+   * 
+   * @return data source
+   */
   public static synchronized PGConnectionPoolDataSource getSource() {
     if (source == null) {
       source = new PGConnectionPoolDataSource();

@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -9,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarSubscriptionRequest;
+import resp.CalendarResponse;
+import resp.CalendarSubscriptionResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
@@ -21,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
+import db.CalendarIdUserIdMap;
 import db.DBInterface;
 import exception.CalendarSubscriptionNotFoundException;
 import exception.InconsistentDataException;
@@ -50,6 +54,12 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     Response subResp;
     try {
       subResp = db.getUsersCalendars(userId);
+      /* Record that a user is subscribed to given calendars. */
+      CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+      for (CalendarResponse calendar : 
+        ((CalendarSubscriptionResponse) subResp).getCalendars()) {
+        map.put(calendar.getCalendarId(), userId);
+      }
     } catch (SQLException | InconsistentDataException e) {
       subResp = new ErrorResponse("Error while retirieving the calendar IDs "
           + "from the database." + e.getMessage());
@@ -81,6 +91,9 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       Response subResp;
       try {
         subResp = db.putCalendarSubscription(userId, subReq.getJoinCode());
+        /* Register calendar ID to user ID mapping. */
+        CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+        map.put(((CalendarResponse) subResp).getCalendarId(), userId);
       } catch (SQLException e) {
         subResp = new ErrorResponse("Error while registering user's calendar "
             + "subscription.");
@@ -185,6 +198,8 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         try {
           db.deleteCalendarSubscription(targetUserId, calendarId);
+          CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+          map.remove(calendarId, targetUserId);
           return new SuccessResponse("User unsubscribed.");
         } catch (CalendarSubscriptionNotFoundException e) {
           return new ErrorResponse("The requested update subscription does not exist.");

@@ -5,7 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import chat.ChatMessage;
 
 /**
  * Class to store message information Used to serialize messages from to the
@@ -71,27 +74,6 @@ public class MessageResponse extends Response {
     this.payload = payload;
   }
 
-  /**
-   * Private constructor used internally to construct messages got from the
-   * database.
-   * 
-   * @param type
-   *          See other constructor.
-   * @param from
-   *          See other constructor.
-   * @param to
-   *          See other constructor.
-   * @param payload
-   *          See other constructor.
-   * @param ts
-   *          The timestamp of the message.
-   */
-  private MessageResponse(String type, int from, int to, String payload,
-      Timestamp ts) {
-    this(type, from, to, payload);
-    this.timestamp = ts;
-  }
-
   /*
    * (non-Javadoc)
    * 
@@ -127,8 +109,8 @@ public class MessageResponse extends Response {
   @Override
   public String getSQLQuery() {
     return String.format(
-        "SELECT \"%s\",\"%s\",\"%s\",\"%s\" FROM \"MESSAGE\" WHERE \"%s\"=?;",
-        FROM_COLUMN, TIME_COLUMN, PAYLOAD_COLUMN, TYPE_COLUMN, TO_COLUMN);
+        "SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM \"MESSAGE\" WHERE \"%s\"=?;",
+        FROM_COLUMN, TO_COLUMN, TIME_COLUMN, PAYLOAD_COLUMN, TYPE_COLUMN, TO_COLUMN);
   }
 
   /*
@@ -163,15 +145,16 @@ public class MessageResponse extends Response {
    * @throws SQLException
    *           Thrown when an error occurs with the database interaction.
    */
-  public List<MessageResponse> getMessages() throws SQLException {
-    List<MessageResponse> messages = new ArrayList<>();
+  public List<ChatMessage> getMessages() throws SQLException {
+    List<ChatMessage> messages = new ArrayList<>();
     if (rs == null || !rs.next()) {
       return null;
     }
     do {
-      messages.add(new MessageResponse(rs.getString(TYPE_COLUMN), rs
-          .getInt(FROM_COLUMN), rs.getInt(TO_COLUMN), rs
-          .getString(PAYLOAD_COLUMN), (Timestamp) rs.getObject(TIME_COLUMN)));
+      messages
+          .add(new ChatMessage(rs.getString(TYPE_COLUMN), Arrays.asList(rs.getInt(TO_COLUMN)), rs
+              .getInt(FROM_COLUMN), timestamp, true, rs
+              .getString(PAYLOAD_COLUMN)));
 
     } while (rs.next());
     return messages;

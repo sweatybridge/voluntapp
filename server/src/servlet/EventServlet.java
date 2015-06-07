@@ -16,6 +16,8 @@ import utils.AuthLevel;
 import utils.CalendarEventIdQuery;
 import utils.ServletUtils;
 
+import chat.DynamicUpdate;
+
 import com.google.gson.Gson;
 
 import db.DBInterface;
@@ -94,6 +96,7 @@ public class EventServlet extends HttpServlet {
 
     try {
       EventResponse resp = db.putEvent(eventReq);
+      DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
       e.printStackTrace();
@@ -132,11 +135,13 @@ public class EventServlet extends HttpServlet {
       }
       /* Try to update the event. */
       try {
-        if (!db.updateEvent(eventID, eventReq)) {
+        EventResponse resp = db.updateEvent(eventID, eventReq);
+        if (resp == null) {
           request
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
         } else {
+          DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
           request.setAttribute(Response.class.getSimpleName(),
               new SuccessResponse("Event data were updated successfully."));
         }

@@ -154,7 +154,7 @@ public class DBInterface {
    * 
    * @param SubscriptionRequest
    *          containing the user ID and calendar join code
-   * @return
+   * @return CalendarResponse
    * @throws SQLException
    */
   public Response putCalendarSubscription(int userId, String joinCode)
@@ -515,7 +515,7 @@ public class DBInterface {
    * @param ereq
    *          The request containing the information that need to be put in.
    *          nulls indicate that the values will not change.
-   * @return Whether or not the update was successful.
+   * @return EventResponse which is not null if the update was successful.
    * @throws SQLException
    *           Thrown when a database error occurs.
    * @throws EventNotFoundException
@@ -524,7 +524,7 @@ public class DBInterface {
    *           Thrown when the database is shown to be in a inconsistent state.
    *           This MUST be dealt with.
    */
-  public boolean updateEvent(int eventId, EventRequest ereq)
+  public EventResponse updateEvent(int eventId, EventRequest ereq)
       throws SQLException, EventNotFoundException, InconsistentDataException {
     // TODO: why convert max to string?
     EventResponse er = new EventResponse(ereq.getTitle(),
@@ -558,7 +558,7 @@ public class DBInterface {
    * 
    * @param eventId
    *          Event to be marked
-   * @return Whether the marking update was successful or not
+   * @return EventResponse which is not null if the deletion was successfull
    * @throws EventNotFoundException
    *           When the eventId given was not found in the database
    * @throws InconsistentDataException
@@ -567,7 +567,7 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is a error in interacting with the database
    */
-  public boolean deleteEvent(int eventId) throws EventNotFoundException,
+  public EventResponse deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
     EventResponse er = new EventResponse(eventId, true);
     return updateRowCheckHelper(er);
@@ -579,7 +579,7 @@ public class DBInterface {
    * 
    * @param r
    *          Response representing the query to be run.
-   * @return Whether or not the update was successful.
+   * @return Response corresponding to the given update
    * @throws EventNotFoundException
    *           See delete or update event.
    * @throws InconsistentDataException
@@ -587,11 +587,11 @@ public class DBInterface {
    * @throws SQLException
    *           See delete or update event.
    */
-  private boolean updateRowCheckHelper(Response r)
+  private EventResponse updateRowCheckHelper(EventResponse r)
       throws EventNotFoundException, InconsistentDataException, SQLException {
     int rows = update(r);
     if (rows == 1) {
-      return true;
+      return r;
     }
     if (rows == 0) {
       throw new EventNotFoundException(
@@ -869,7 +869,7 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error in the database interaction
    */
-  public List<MessageResponse> getMessages(int userId) throws SQLException {
+  public List<ChatMessage> getMessages(int userId) throws SQLException {
     MessageResponse mr = new MessageResponse(userId);
     query(mr);
     return mr.getMessages();
