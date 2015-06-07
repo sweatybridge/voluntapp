@@ -116,7 +116,10 @@ $(function() {
       var past = $("#collapseThree .list-group");
       $.each(data.joinedEvents, function(k, event) {
         var tmpl = '<a href="#" class="list-group-item"></a>';
-        $(tmpl).text(event.title).appendTo(past);
+        $(tmpl).text(event.title).click(function() {
+          // update event creation form
+          updateEventForm(event);
+        }).appendTo(past);
       });
     },
     error: function(data) {
@@ -424,6 +427,11 @@ function editEvent(elem) {
   turnEventEdit();
 
   // unformat and populate
+  updateEventForm(event);
+}
+
+function updateEventForm(event) {
+  // unformat and populate
   var start = new Date(event.startDateTime);
   var end = new Date(event.endDateTime);
 
@@ -437,6 +445,7 @@ function editEvent(elem) {
   form.find('input[name="eventId"]').val(event.eventId);
   form.find('select[name="calendarId"]').val(event.calendarId);
 
+  // update number of characters remaining in description field
   updateCountdown();
 }
 
