@@ -20,6 +20,7 @@ import javax.websocket.server.ServerEndpoint;
 import resp.SessionResponse;
 import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
+import db.CalendarIdUserIdMap;
 import db.DBInterface;
 import exception.SessionNotFoundException;
 
@@ -115,7 +116,13 @@ public class ChatServer {
     // Remove this session from the connections map
     Integer userId = (Integer) session.getUserProperties().get("userId");
     if (userId != null) {
-      connections.get(userId).remove(session);
+      ConcurrentHashSet<Session> sessions = connections.get(userId);
+      sessions.remove(session);
+      // Check if the user is logged off entirely
+      if (sessions.isEmpty()) {
+        // Remove the calendar Id map
+        CalendarIdUserIdMap.getInstance().deleteUser(userId);
+      }
     }
   }
 
