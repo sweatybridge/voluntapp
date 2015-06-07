@@ -135,12 +135,13 @@ public class EventServlet extends HttpServlet {
       }
       /* Try to update the event. */
       try {
-        if (!db.updateEvent(eventID, eventReq)) {
+        EventResponse resp = db.updateEvent(eventID, eventReq);
+        if (resp == null) {
           request
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
         } else {
-          //DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
+          DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
           request.setAttribute(Response.class.getSimpleName(),
               new SuccessResponse("Event data were updated successfully."));
         }
