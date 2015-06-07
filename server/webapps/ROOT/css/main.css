@@ -14,6 +14,11 @@ a:hover, a:active, a:focus {
   outline: 0;
 }
 
+.btn-remove {
+  top: 0px;
+  line-height: inherit;
+}
+
 /*
 Calendar view
 */
@@ -155,6 +160,7 @@ Side bar
 #d_main_col > div {
   display: inline-block;
 }
+
 /*
 Navbar
 */
@@ -182,6 +188,9 @@ Navbar
   border-style: none;
 }
 
+/*
+Responsive layout for large screens
+*/
 @media (max-width: 479px) {
   .hidden-xxs {
     display: none !important;

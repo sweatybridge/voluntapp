@@ -278,7 +278,13 @@ function createEventView(event) {
       // show list of volunteers if admin clicks on label
       view.find(".count").dropdown().click(function() {
         var attendeesList = $(this).next();
-        var tmpl = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#"></a></li>';
+        var tmpl =
+          '<li role="presentation">'+
+            '<a role="menuitem" tabindex="-1" href="#">'+
+              '<span>{{firstName}}</span>'+
+              '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick=removeAttendee({{userId}})></span>'+
+            '</a>'+
+          '</li>';
         // By the time we get here it is considered open
         if (!$(this).parent().hasClass("open")) {
           return;
@@ -290,7 +296,10 @@ function createEventView(event) {
             if (data.attendees.length > 0) {
               // add attendees
               $.each(data.attendees, function(k, attendee) {
-                $(tmpl).appendTo(attendeesList).find("a").text(attendee.firstName);
+                var elem = tmpl
+                    .replace("{{firstName}}", attendee.firstName)
+                    .replace("{{userId}}", attendee.userId);
+                $(elem).appendTo(attendeesList);
               });
             } else {
               $(tmpl).appendTo(attendeesList).find("a").text("No attendee");
@@ -482,4 +491,9 @@ function resetEventForm() {
   $("#event_form").trigger('reset');
   turnEventCreate();
   updateCountdown();
+}
+
+// Removes an attendee from an event (admin feature)
+function removeAttendee(userId) {
+  // TODO: call the right api
 }
