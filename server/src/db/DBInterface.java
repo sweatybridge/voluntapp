@@ -154,7 +154,7 @@ public class DBInterface {
    * 
    * @param SubscriptionRequest
    *          containing the user ID and calendar join code
-   * @return
+   * @return CalendarResponse
    * @throws SQLException
    */
   public Response putCalendarSubscription(int userId, String joinCode)
