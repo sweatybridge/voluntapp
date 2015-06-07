@@ -63,6 +63,17 @@
   text-align: right;
 }
 
+.remove-sub {
+  float:right;
+}
+.subcheck {
+  padding-left:10px;
+}
+
+.scarlet {
+  color:#FF2400;
+}
+
 .event .event-extras {
   padding-top: 0px;
   padding-bottom: 0px;
