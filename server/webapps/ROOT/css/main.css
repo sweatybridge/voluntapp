@@ -156,6 +156,8 @@ Side bar
   padding-right: 15px;
   /* center children */
   text-align: center;
+  /* expand calendar to register reset event listener*/
+  min-height: 100%;
 }
 #d_main_col > div {
   display: inline-block;

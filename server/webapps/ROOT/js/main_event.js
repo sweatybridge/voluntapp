@@ -100,10 +100,7 @@ $(function() {
   });
   
   // bind click to empty space on calendar
-  $("#t_calendar_body").children().click(function() {
-    // update create event form
-    resetEventForm();
-  });
+  $("#d_main_col").click(resetEventForm);
   
   // Refresh description count
   $('#event_form textarea[name="description"]').change(updateCountdown);
@@ -113,13 +110,20 @@ $(function() {
   $.ajax("/api/subscription/event", {
     method: "GET",
     success: function(data) {
-      var past = $("#collapseThree .list-group");
+      var saved = $("#collapseThree .list-group");
+      var tmpl = 
+          '<a href="#" class="list-group-item">'+
+            '<span>{{title}}</span>'+
+            '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent({{eventId}})></span>'+
+          '</a>';
       $.each(data.joinedEvents, function(k, event) {
-        var tmpl = '<a href="#" class="list-group-item"></a>';
-        $(tmpl).text(event.title).click(function() {
+        var elem = tmpl
+            .replace("{{title}}", event.title)
+            .replace("{{eventId}}", event.eventId);
+        $(elem).click(function() {
           // update event creation form
           updateEventForm(event);
-        }).appendTo(past);
+        }).appendTo(saved);
       });
     },
     error: function(data) {
@@ -495,5 +499,10 @@ function resetEventForm() {
 
 // Removes an attendee from an event (admin feature)
 function removeAttendee(userId) {
+  // TODO: call the right api
+}
+
+// Removes an event from list of saved event templates
+function removeSavedEvent(eventId) {
   // TODO: call the right api
 }
