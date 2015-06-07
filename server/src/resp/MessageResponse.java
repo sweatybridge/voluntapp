@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import chat.ChatMessage;
@@ -108,8 +109,8 @@ public class MessageResponse extends Response {
   @Override
   public String getSQLQuery() {
     return String.format(
-        "SELECT \"%s\",\"%s\",\"%s\",\"%s\" FROM \"MESSAGE\" WHERE \"%s\"=?;",
-        FROM_COLUMN, TIME_COLUMN, PAYLOAD_COLUMN, TYPE_COLUMN, TO_COLUMN);
+        "SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM \"MESSAGE\" WHERE \"%s\"=?;",
+        FROM_COLUMN, TO_COLUMN, TIME_COLUMN, PAYLOAD_COLUMN, TYPE_COLUMN, TO_COLUMN);
   }
 
   /*
@@ -150,10 +151,8 @@ public class MessageResponse extends Response {
       return null;
     }
     do {
-      List<Integer> destinationIds = new ArrayList<>(2);
-      destinationIds.add(rs.getInt(to));
       messages
-          .add(new ChatMessage(rs.getString(TYPE_COLUMN), destinationIds, rs
+          .add(new ChatMessage(rs.getString(TYPE_COLUMN), Arrays.asList(rs.getInt(TO_COLUMN)), rs
               .getInt(FROM_COLUMN), timestamp, true, rs
               .getString(PAYLOAD_COLUMN)));
 
