@@ -97,12 +97,12 @@ public class ChatServer {
       session.getBasicRemote().sendText(roster.toString());
       
       // Return any offline messages
-      List<ChatMessage> cms = db.getMessages(userId);
+      /*List<ChatMessage> cms = db.getMessages(userId);
       if (cms != null) {
         for (ChatMessage cm: cms) {
           session.getBasicRemote().sendText(cm.toString());
         }
-      }
+      }*/
       
     } catch (IOException | SQLException e) {
       e.printStackTrace();

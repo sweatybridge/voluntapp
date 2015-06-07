@@ -1,6 +1,7 @@
 package db;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -10,10 +11,12 @@ import resp.CalendarResponse;
 import resp.CalendarSubscriptionResponse;
 
 import utils.ConcurrentHashSet;
+import utils.DataSourceProvider;
 
 public class CalendarIdUserIdMap {
   
-  private DBInterface db;
+  private static final DBInterface db = new DBInterface(
+      DataSourceProvider.getSource());
   private static CalendarIdUserIdMap instance;
   
   /* Map from calendar IDs to list (set) of user IDs subscribed to the certain 
@@ -48,13 +51,14 @@ public class CalendarIdUserIdMap {
   public Integer[] getUserIds(Integer calendarId) {
     ConcurrentHashSet<Integer> set = map.get(calendarId);
     if (set != null) {
-      return ((Integer[]) set.toArray());
+      Object[] userIds = set.toArray();
+      return (Arrays.copyOf(userIds, userIds.length, Integer[].class));
     }
     return null;
   }
   
   /**
-   * Given the calnedar ID and the user ID, remove the mapping from the map.
+   * Given the calendar ID and the user ID, remove the mapping from the map.
    * 
    * @param calendarId
    * @param userId
