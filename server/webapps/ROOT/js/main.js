@@ -12,7 +12,11 @@ $(function() {
   });
 
   $("#pickStartDate").datetimepicker({
-    timepicker: false
+    timepicker: false,
+    onSelectDate: function(dp,$input){
+      app.current_start_date = dp;
+      refreshEvents();
+    }
   });
   
   // Bind refresh button

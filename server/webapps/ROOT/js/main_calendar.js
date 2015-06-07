@@ -124,6 +124,8 @@ function refreshCalendars() {
 function updateCalendarDates(startDate) {
   var today = new Date();
   app.current_start_date = new Date(startDate);
+  $("#pickStartDate").datetimepicker({value: app.current_start_date});
+
   $("#prev_day").next().text(formatDate(startDate));
 
   $("#t_calendar_body").children(":visible").each(function(k, elem) {
