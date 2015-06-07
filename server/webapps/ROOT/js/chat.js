@@ -1,7 +1,8 @@
 // Global chat object
 var Chat = {};
 
-Chat.connect = (function(host) {
+Chat.socket = null;
+Chat.connect = function(host) {
   // Check if we have WebSocket support
   if ('WebSocket' in window) {
     Chat.socket = new WebSocket(host);
@@ -30,4 +31,27 @@ Chat.connect = (function(host) {
     var msg = JSON.parse(e.data);
     console.log(msg);
   };
-});
+};
+
+// Bind the initialization function
+Chat.init = function() {
+  var cookie = getCookie("token");
+  if (!cookie) {
+    console.log("No token.");
+    return;
+  }
+  var connectionUrl = window.location.host + "/chat?token="+getCookie("token");
+  if (window.location.protocol == 'http:') {
+    Chat.connect('ws://' + connectionUrl);
+  } else {
+    Chat.connect('wss://' + connectionUrl);
+  }
+};
+
+// Bind sending objects to the server
+Chat.sendObj = function(obj) {
+  // Make checks
+  if (obj && Chat.socket) {
+    Chat.socket.send(JSON.stringify(obj));
+  }
+};
