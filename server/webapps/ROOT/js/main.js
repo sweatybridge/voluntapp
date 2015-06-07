@@ -144,22 +144,26 @@ function refreshUser() {
 // Hide sidebar by moving it off screen
 function hideRightBar() {
   $(".app").removeClass("showright");
+  // $("#d_right_sidebar").removeClass("active");
   $("#b_hide_right").parent().removeClass("active");
 }
 
 function hideLeftBar() {
   $(".app").removeClass("showleft");
+  // $("#d_left_sidebar").removeClass("active");
   $("#b_hide_left").parent().removeClass("active");
 }
 
 // Show sidebar by moving it into screen
 function showRightBar() {
   $(".app").addClass("showright");
+  // $("#d_right_sidebar").addClass("active");
   $("#b_hide_right").parent().addClass("active");
 }
 
 function showLeftBar() {
   $(".app").addClass("showleft");
+  // $("#d_left_sidebar").addClass("active");
   $("#b_hide_left").parent().addClass("active");
 }
 

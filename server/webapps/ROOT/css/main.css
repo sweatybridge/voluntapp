@@ -28,6 +28,7 @@ Calendar view
 Event view 
 */
 .event {
+  text-align: left;
   margin: 4px;
   background-color: white;
   font-family: "Benton Sans","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
