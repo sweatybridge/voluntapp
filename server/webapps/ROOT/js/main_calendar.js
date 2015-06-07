@@ -62,8 +62,10 @@ $(function() {
   });
   
   // Render calendar from yesterday
-  updateCalendarDates(getMonday());
-  
+  // updateCalendarDates(getMonday());
+  app.current_start_date = getMonday();
+
+  //rebuildCalendar();
 }); // End of document ready
 
 // Update calendars
@@ -159,17 +161,19 @@ function refreshCalendars() {
 function updateCalendarDates(startDate) {
   var today = new Date();
   app.current_start_date = new Date(startDate);
+  $("#pickStartDate").datetimepicker({value: app.current_start_date});
+
   $("#prev_day").next().text(formatDate(startDate));
 
-  $("#t_calendar_body").children().each(function(k, elem) {
+  $("#t_calendar_body").children(":visible").each(function(k, elem) {
     // update data fields
     var date = startDate.toLocaleDateString();
     $(elem).data("date", date);
 
     // update heading text
-    var heading = $($("#t_calendar_heading").children()[k]);
+    var heading = $("#t_calendar_heading td:nth-child("+(k+1)+")");
     heading.text(getWeekDay(startDate) + " - " + formatDate(startDate));
-    heading.removeClass();
+    heading.removeClass("bg-primary").removeClass("th_weekend").removeClass("th_weekday");
 
     // highlight heading background
     if (date === today.toLocaleDateString()) {
@@ -177,7 +181,6 @@ function updateCalendarDates(startDate) {
     }
 
     // update heading class
-    heading.removeClass("th_weekend").removeClass("th_weekday");
     var day = startDate.getDay();
     if (day === 0 || day === 6) {
       heading.addClass("th_weekend");

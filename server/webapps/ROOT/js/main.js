@@ -10,6 +10,14 @@ $(function() {
       xhr.setRequestHeader("Authorization", getCookie("token"));
     }
   });
+
+  $("#pickStartDate").datetimepicker({
+    timepicker: false,
+    onSelectDate: function(dp,$input){
+      app.current_start_date = dp;
+      refreshEvents();
+    }
+  });
   
   // Bind refresh button
   $("#b_refresh").click(refreshCalendars);
@@ -25,17 +33,25 @@ $(function() {
 
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
-    $("#d_left_sidebar").toggleClass("col-hidden col-sm-2");
-    $(this).parent().toggleClass("active");
-    updateMainCol();
+    $(this).parent().hasClass("active") ? hideLeftBar() : showLeftBar();
+    //rebuildCalendar();
   });
   
+  // Bind right side bar
   $("#b_hide_right").click(function() {
-    $("#d_right_sidebar").toggleClass("col-hidden col-sm-2");
-    $(this).parent().toggleClass("active");
-    updateMainCol();        
+    $(this).parent().hasClass("active") ? hideRightBar() : showRightBar();
+    //rebuildCalendar();
   });
-  
+
+  // mobile actions
+  $(window).on("swipeleft", function(e) {
+    $(".app").hasClass("showleft") ? $(".app").removeClass("showleft") : $(".app").addClass("showright");
+  });
+
+  $(window).on("swiperight", function(e) {
+    $(".app").hasClass("showright") ? $(".app").removeClass("showright") : $(".app").addClass("showleft");
+  });
+
   // Bind logout button
   $("#b_logout").click(function() {
     $.ajax("/api/session", {
@@ -70,13 +86,15 @@ $(function() {
   // Bind previous and next day button
   $("#prev_day").click(function() {
     // advance date by 1
-    app.current_start_date.setDate(app.current_start_date.getDate() - 7);
+    var days = $("#t_calendar_heading").children(":visible").length;
+    app.current_start_date.setDate(app.current_start_date.getDate() - days);
     refreshEvents();
   });
 
   $("#next_day").click(function() {
     // shift weekday columns right by one
-    app.current_start_date.setDate(app.current_start_date.getDate() + 7);
+    var days = $("#t_calendar_heading").children(":visible").length;
+    app.current_start_date.setDate(app.current_start_date.getDate() + days);
     refreshEvents();
   });
   
@@ -115,6 +133,7 @@ $(function() {
     startTime();
   })();
 
+  //$(window).resize(rebuildCalendar);
 }); // End of document ready
 
 // Update user profile information on view
@@ -129,14 +148,71 @@ function refreshUser() {
   });
 }
 
-// Update main column class whether sizebars are hidden or not
-function updateMainCol() {
-  var size = 8;
-  if ($("#d_right_sidebar").hasClass("col-hidden")) {
-    size += 2;
+// Hide sidebar by moving it off screen
+function hideRightBar() {
+  $(".app").removeClass("showright");
+  // $("#d_right_sidebar").removeClass("active");
+  $("#b_hide_right").parent().removeClass("active");
+}
+
+function hideLeftBar() {
+  $(".app").removeClass("showleft");
+  // $("#d_left_sidebar").removeClass("active");
+  $("#b_hide_left").parent().removeClass("active");
+}
+
+// Show sidebar by moving it into screen
+function showRightBar() {
+  $(".app").addClass("showright");
+  // $("#d_right_sidebar").addClass("active");
+  $("#b_hide_right").parent().addClass("active");
+}
+
+function showLeftBar() {
+  $(".app").addClass("showleft");
+  // $("#d_left_sidebar").addClass("active");
+  $("#b_hide_left").parent().addClass("active");
+}
+
+// Rebuild calendar layout for mobile responsiveness
+function rebuildCalendar() {
+  // get available space
+  var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
+  if (width < 768) {
+    // single column fluid layout
+    if ($("#t_calendar_body").children().length !== 1) {
+      // clear calendar heading and body
+      $("#t_calendar_heading").empty().append("<th/>");
+      $("#t_calendar_body").empty().append("<td/>");
+      app.current_start_date = new Date();
+      refreshEvents();
+    }
+  } else {
+    var left = $("#b_hide_left").parent().hasClass("active") ? $("#d_left_sidebar").outerWidth() : 0;
+    var right = $("#b_hide_right").parent().hasClass("active") ? $("#d_right_sidebar").outerWidth() : 0;
+    width = width - left - right;
+    var days = width / 160 >> 0;
+    var current_days = $("#t_calendar_body").children().length;
+
+    if (days !== current_days) {
+      var dayOfWeek = app.current_start_date.getDay();
+
+      // clear calendar heading and body
+      $("#t_calendar_heading").empty();
+      $("#t_calendar_body").empty();
+
+      $(".container").animate({
+        "left": left,
+        duration: 0.2
+      }).css("width", width - 30);
+
+      for (var i = 0; i < days; i++) {
+        $("#t_calendar_heading").append("<th/>");
+        $("#t_calendar_body").append("<td/>");
+      }
+
+      // update navigation button
+      refreshEvents();
+    }
   }
-  if ($("#d_left_sidebar").hasClass("col-hidden")) {
-    size += 2;
-  }
-  $("#d_main_col").attr("class", "col-sm-" + size);
 }

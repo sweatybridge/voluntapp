@@ -100,10 +100,7 @@ $(function() {
   });
   
   // bind click to empty space on calendar
-  $("#t_calendar_body").children().click(function() {
-    // update create event form
-    resetEventForm();
-  });
+  $("#d_main_col").click(resetEventForm);
   
   // Refresh description count
   $('#event_form textarea[name="description"]').change(updateCountdown);
@@ -113,10 +110,20 @@ $(function() {
   $.ajax("/api/subscription/event", {
     method: "GET",
     success: function(data) {
-      var past = $("#collapseThree .list-group");
+      var saved = $("#collapseThree .list-group");
+      var tmpl = 
+          '<a href="#" class="list-group-item">'+
+            '<span>{{title}}</span>'+
+            '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent({{eventId}})></span>'+
+          '</a>';
       $.each(data.joinedEvents, function(k, event) {
-        var tmpl = '<a href="#" class="list-group-item"></a>';
-        $(tmpl).text(event.title).appendTo(past);
+        var elem = tmpl
+            .replace("{{title}}", event.title)
+            .replace("{{eventId}}", event.eventId);
+        $(elem).click(function() {
+          // update event creation form
+          updateEventForm(event);
+        }).appendTo(saved);
       });
     },
     error: function(data) {
@@ -275,7 +282,13 @@ function createEventView(event) {
       // show list of volunteers if admin clicks on label
       view.find(".count").dropdown().click(function() {
         var attendeesList = $(this).next();
-        var tmpl = '<li role="presentation"><a role="menuitem" tabindex="-1" href="#"></a></li>';
+        var tmpl =
+          '<li role="presentation">'+
+            '<a role="menuitem" tabindex="-1" href="#">'+
+              '<span>{{firstName}}</span>'+
+              '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick=removeAttendee({{userId}})></span>'+
+            '</a>'+
+          '</li>';
         // By the time we get here it is considered open
         if (!$(this).parent().hasClass("open")) {
           return;
@@ -287,7 +300,10 @@ function createEventView(event) {
             if (data.attendees.length > 0) {
               // add attendees
               $.each(data.attendees, function(k, attendee) {
-                $(tmpl).appendTo(attendeesList).find("a").text(attendee.firstName);
+                var elem = tmpl
+                    .replace("{{firstName}}", attendee.firstName)
+                    .replace("{{userId}}", attendee.userId);
+                $(elem).appendTo(attendeesList);
               });
             } else {
               $(tmpl).appendTo(attendeesList).find("a").text("No attendee");
@@ -429,6 +445,11 @@ function editEvent(elem) {
   turnEventEdit();
 
   // unformat and populate
+  updateEventForm(event);
+}
+
+function updateEventForm(event) {
+  // unformat and populate
   var start = new Date(event.startDateTime);
   var end = new Date(event.endDateTime);
 
@@ -442,6 +463,7 @@ function editEvent(elem) {
   form.find('input[name="eventId"]').val(event.eventId);
   form.find('select[name="calendarId"]').val(event.calendarId);
 
+  // update number of characters remaining in description field
   updateCountdown();
 }
 
@@ -478,4 +500,14 @@ function resetEventForm() {
   $("#event_form").trigger('reset');
   turnEventCreate();
   updateCountdown();
+}
+
+// Removes an attendee from an event (admin feature)
+function removeAttendee(userId) {
+  // TODO: call the right api
+}
+
+// Removes an event from list of saved event templates
+function removeSavedEvent(eventId) {
+  // TODO: call the right api
 }

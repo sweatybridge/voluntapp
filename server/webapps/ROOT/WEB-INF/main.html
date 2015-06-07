@@ -32,21 +32,25 @@
     <![endif]-->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
+        <div class="navbar-header text-center">
+          <button type="button" class="navbar-toggle toggle-left">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><strong>WebApp</strong> beta</a>
+          <a class="navbar-brand" href="#"><strong>Voluntap</strong> beta</a>
+          <button type="button" class="navbar-toggle toggle-right">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
+        <div id="navbar" class="navbar-collapse">
           <ul class="nav navbar-nav">
             <li><a id="b_refresh" href="#">Refresh</a></li>
-            <li class="active"><a id="b_hide_left" href="#">Left sidebar</a></li>
+            <li><a id="b_hide_left" href="#">Left sidebar</a></li>
             <li class="active"><a id="b_hide_weekend" href="#">Weekend</a></li>
-            <li class="active"><a id="b_hide_right" href="#">Right sidebar</a></li>
+            <li><a id="b_hide_right" href="#">Right sidebar</a></li>
             <li><a id="b_logout" href="#">Logout</a></li>
           </ul>
           <p id="p_time" class="navbar-text navbar-right"></p>
@@ -54,17 +58,23 @@
       </div>
     </nav>
     
-    <div class="container-fluid">
-      <div class="row">
-        <div id="d_left_sidebar" class="col-sm-2">
+    <!-- <div class="container"> -->
+      <div class="app">
+        <!-- LEFT SIDE BAR -->
+
+        <div id="d_left_sidebar" class="sidebar">
           <p class="lead">Welcome, <span data-bind="firstName">[firstName]</span></p>
           <p>You haven't logged in since <strong data-bind="lastSeen">[lastSeen]</strong></p>
-          
+          <div>
+            <label>Start date: </label>
+            <input type="text" id="pickStartDate">
+          </div>
+          <br>
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="false" aria-controls="collapseOne">
                 <h4 class="panel-title">
-                    My calendars
+                  My calendars
                 </h4>
               </div>
               <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
@@ -102,7 +112,7 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                 <h4 class="panel-title">
-                    My profile
+                  My profile
                 </h4>
               </div>
               <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
@@ -135,7 +145,7 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingThree" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                 <h4 class="panel-title">
-                    Past events
+                  Saved events
                 </h4>
               </div>
               <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
@@ -148,7 +158,7 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingFour" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                 <h4 class="panel-title">
-                    Saved events
+                  Settings
                 </h4>
               </div>
               <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
@@ -160,7 +170,7 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingFive" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
                 <h4 class="panel-title">
-                    Help
+                  Help
                 </h4>
               </div>
               <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
@@ -172,38 +182,44 @@
           </div>
         </div>
         
-        <div id="d_main_col" class="col-sm-8">
-          <label>Start date: </label>
-          <input type="text" id="pickStartDate">
-          <div class="lead inline">
+          <!-- MAIN CALENDAR VIEW -->
+
+        <div id="d_main_col">
+          <div class="lead">
             <strong>
                 <a id="prev_day" href="#">&lt;&lt;</a> <span></span> - <span></span> <a id="next_day" href="#">&gt;&gt;</a>
             </strong>
           </div>
           <table id="t_calendar" class="table">
             <tr id="t_calendar_heading">
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
+              <td>Mon</td>
+              <td>Tue</td>
+              <td class="hidden-xxs">Wed</td>
+              <td class="hidden-xxs hidden-xs">Thu</td>
+              <td class="hidden-xxs hidden-xs">Fri</td>
+              <td class="hidden-xxs hidden-xs hidden-sm">Sat</td>
+              <td class="hidden-xxs hidden-xs hidden-sm hidden-md">Sun</td>
+              <td class="hidden-xxs hidden-xs hidden-sm hidden-md hidden-lg">Mon</td>
+              <td class="hidden-xxs hidden-xs hidden-sm hidden-md hidden-lg">Tue</td>
             </tr>
             <tr id="t_calendar_body">
               <td></td>
               <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              <td class="hidden-xxs"></td>
+              <td class="hidden-xxs hidden-xs"></td>
+              <td class="hidden-xxs hidden-xs"></td>
+              <td class="hidden-xxs hidden-xs hidden-sm"></td>
+              <td class="hidden-xxs hidden-xs hidden-sm hidden-md"></td>
+              <td class="hidden-xxs hidden-xs hidden-sm hidden-md hidden-lg"></td>
+              <td class="hidden-xxs hidden-xs hidden-sm hidden-md hidden-lg"></td>
             </tr>
           </table>
         </div>
-        
-        <div id="d_right_sidebar" class="col-sm-2">
-          <div id="d_right_sidebar" role="tabpanel">
+
+        <!-- RIGHT SIDE BAR -->
+
+        <div id="d_right_sidebar" class="sidebar">
+          <div role="tabpanel">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs nav-justified" role="tablist" id="nav_create_tabs">
               <li role="presentation" class="active"><a href="#crt_event" aria-controls="event" role="tab" data-toggle="tab">Event</a></li>
@@ -252,12 +268,10 @@
                 </form>
               </div>
             </div>
-
           </div>
         </div>
-        
-      </div> <!-- End of row -->
-    </div> <!-- /container -->
+      </div>
+    <!-- </div> -->
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
