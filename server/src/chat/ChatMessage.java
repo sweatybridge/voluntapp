@@ -7,7 +7,11 @@ import com.google.gson.Gson;
 
 public class ChatMessage {
   private static final Gson gson = new Gson();
-
+  /**
+   * update/event    -
+   * update/calendar -
+   * delete/event    - 
+   */
   private String type;
   private List<Integer> destinationIds;
   private Integer sourceId;

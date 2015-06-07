@@ -53,6 +53,24 @@ public class CalendarIdUserIdMap {
     return null;
   }
   
+  /**
+   * Given the calnedar ID and the user ID, remove the mapping from the map.
+   * 
+   * @param calendarId
+   * @param userId
+   */
+  public void remove(Integer calendarId, Integer userId) {
+    ConcurrentHashSet<Integer> set = map.get(calendarId);
+    if (set != null) {
+      set.remove(userId);
+      /* Remove the mapping for calendar ID if no online user is subscribed
+       * to that calendar. */
+      if (set.isEmpty()) {
+        map.remove(calendarId);
+      }
+    }
+  }
+  
   /** 
    * Called when the user logs out to remove his calendar subscriptions from
    * the map.
@@ -67,6 +85,11 @@ public class CalendarIdUserIdMap {
         ConcurrentHashSet<Integer> set = map.get(calendarId);
         if (set != null) {
           set.remove(userId);
+          /* Remove the mapping for calendar ID if no online user is subscribed
+           * to that calendar. */
+          if (set.isEmpty()) {
+            map.remove(calendarId);
+          }
         }
         return true;
       }
