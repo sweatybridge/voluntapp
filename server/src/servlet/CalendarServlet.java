@@ -17,6 +17,8 @@ import resp.Response;
 import resp.SuccessResponse;
 import utils.ServletUtils;
 
+import chat.DynamicUpdate;
+
 import com.google.gson.Gson;
 
 import db.CodeGenerator;
@@ -152,7 +154,9 @@ public class CalendarServlet extends HttpServlet {
     }
 
     try {
-      db.deleteCalendar(Integer.parseInt(id));
+      Integer calendarId = Integer.parseInt(id);
+      CalendarResponse resp = db.deleteCalendar(calendarId);
+      DynamicUpdate.sendCalendarDelete(calendarId, resp);
       result = new SuccessResponse("Calendar was successfully deleted.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse(

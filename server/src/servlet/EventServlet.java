@@ -186,7 +186,8 @@ public class EventServlet extends HttpServlet {
       }
       /* Delete the event. */
       try {
-        db.deleteEvent(eventID);
+        EventResponse resp = db.deleteEvent(eventID);
+        DynamicUpdate.sendEventDelete(resp.getCalendarId(), resp);
         request.setAttribute(Response.class.getSimpleName(),
             new SuccessResponse("The event was successfully deleted."));
       } catch (EventNotFoundException e) {

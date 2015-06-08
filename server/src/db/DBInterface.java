@@ -284,15 +284,15 @@ public class DBInterface {
   }
 
   /**
-   * TODO: implement this
+   * Deletes a specified calendar from the database given the calendarId
    * 
    * @param calendarId
-   * @return
+   * @return CalendarResponse from the database that is deleted
    * @throws SQLException
    * @throws InconsistentDataException
    * @throws CalendarNotFoundException
    */
-  public boolean deleteCalendar(int calendarId) throws SQLException,
+  public CalendarResponse deleteCalendar(int calendarId) throws SQLException,
       InconsistentDataException, CalendarNotFoundException {
     CalendarResponse cr = new CalendarResponse(calendarId, false);
     int deletedRows = update(cr);
@@ -303,7 +303,7 @@ public class DBInterface {
       throw new CalendarNotFoundException(
           "No calendar with the specified ID was found.");
     }
-    return true;
+    return cr;
   }
 
   /**
