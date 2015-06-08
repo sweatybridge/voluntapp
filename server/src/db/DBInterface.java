@@ -558,7 +558,7 @@ public class DBInterface {
    * 
    * @param eventId
    *          Event to be marked
-   * @return EventResponse which is not null if the deletion was successfull
+   * @return EventResponse which is not null if the deletion was successful
    * @throws EventNotFoundException
    *           When the eventId given was not found in the database
    * @throws InconsistentDataException

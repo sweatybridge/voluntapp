@@ -123,6 +123,38 @@ The basics of our application have already been covered in introduction and proj
 \caption{System Architecture Diagram}
 \end{figure}    
 
+\section{Dynamic Updates}
+In order to prevent the necessity to refresh the page every time calendar or event data changes, we had to design a mechanism which would allow the server to dynamically inform the user about the 
+changes of the calendar or event data an re-render the parts of the view affected by the change instantly, making the website more responsive. The technology that we utilised to 
+achieve our aim are WebSockets, which are a good fit due to the widespread support (86\% of web-browsers), responsiveness and the fact that they are already utilised by the chat server, hence
+the client could re-use the same TCP connection to send also the updated data.
+
+Our solution utilises \textbf{observer pattern}, by subscribing to a given calendar the user (observer) registers his intent to receive the relevant dynamic updates. Every time event is updated 
+or added to/deleted from the calendar, all the users subscribed to the corresponding calendar, which are currently online, will receive an update. In order to make filtering the users
+subscribed to a given calendar faster and reduce the database traffic, we used \textbf{caching} to store the mapping between calendar IDs and user IDs of subscribers. The cache was implemented
+as a ConcurrentMap of Integers and Sets. To ensure thread-safety when accessing and modifying the set of subscribers of a given calendar, a \textbf{decorator pattern} was used and the standard
+hashSet was wrapped inside a ConcurrentHashSet class, decorated with a read-write lock.
+
+\section{Design Patterns}
+\begin{enumerate}
+ \item Strategy -        was used extensively in the backend implementation, especially in the DBInterface class, which is responsible for passing queries to the database. 
+                         \verb|query, insert, update| and \verb|delete| methods take as a parameter an interface, which represents an appropriate SQL query (\verb|SELECT| 
+                         query, \verb|INSERT| query, \verb|UPDATE| query, \verb|DELETE| query), and hence allows the methods to be reused for different queries, provided 
+                         that they implement appropriate interface.
+ \item Template Method - 
+ \item Observer -        this pattern was utilised in order to implement the dynamic update of event (and calendar) data, i.e. prevent the the user from having to refresh the
+                         page every time a data about one of the events or calendars (to which the user subscribed) changed.  
+ \item Singleton - 
+ \item Builder -
+ \item Decorator -       in order to create a thread-safe version of HashSet, a wrapper class ConcurrentHashSet was implemented, which uses internally a read-write lock to
+                         ensure thread-safety while accessing and modifying the set.
+ \item Facade - 
+ \begin{comment}
+  - callback - theoretically not a pattern 
+  - caching  - desing pattern???
+ \end{comment}
+\end{enumerate}
+
 
 \section{Libraries}
 Libraries that are used in the front-end:
