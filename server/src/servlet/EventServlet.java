@@ -182,7 +182,9 @@ public class EventServlet extends HttpServlet {
       /* Verify if the user is allowed to delete events from the specified 
        * calendar - is an editor. */
       int eventID = Integer.parseInt(eventId);
-      if (!checkAccessRights(0, eventID, userId, AuthLevel.EDITOR)) {
+      int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventID));
+      AuthLevel level = db.authoriseUser(userId, calendarId);
+      if (level.ordinal() < AuthLevel.EDITOR.ordinal()) {
         setUnauthorisedAccessErrorResponse(request);
         return;
       }
@@ -190,7 +192,7 @@ public class EventServlet extends HttpServlet {
       try {
         EventResponse resp = db.deleteEvent(eventID);
         // Send dynamic update to the online subscribers
-        DynamicUpdate.sendEventDelete(resp.getCalendarId(), resp);
+        DynamicUpdate.sendEventDelete(calendarId, resp);
         request.setAttribute(Response.class.getSimpleName(),
             new SuccessResponse("The event was successfully deleted."));
       } catch (EventNotFoundException e) {
