@@ -16,6 +16,8 @@ import utils.AuthLevel;
 import utils.CalendarEventIdQuery;
 import utils.ServletUtils;
 
+import chat.DynamicUpdate;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -34,8 +36,6 @@ public class EventSubscriptionServlet extends HttpServlet {
     this.gson = gson;
     this.db = db;
   }
-
-  // TODO: THIS IS ALL UNTESTED
 
   /**
    * Given the ID of the user (retrieved from the attribute of the request) get
@@ -66,20 +66,20 @@ public class EventSubscriptionServlet extends HttpServlet {
     int userId = ServletUtils.getUserId(request);
 
     /* Get and validate the event ID. */
-    String eventId = request.getPathInfo().substring(1);
-    if (eventId == null) {
+    String eventIdS = request.getPathInfo().substring(1);
+    if (eventIdS == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No event ID was specified."));
       return;
     }
-    int eventID = Integer.parseInt(eventId);
+    int eventId = Integer.parseInt(eventIdS);
 
     /*
      * Check if the user is subscribed to the calendar corresponding to the
      * given event.
      */
-    if (db.authoriseUser(userId, db.getCalendarId(
-        new CalendarEventIdQuery(eventID))) == AuthLevel.NONE) {
+    int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
+    if (db.authoriseUser(userId, calendarId) == AuthLevel.NONE) {
       request
           .setAttribute(
               Response.class.getSimpleName(),
@@ -90,7 +90,7 @@ public class EventSubscriptionServlet extends HttpServlet {
 
     /* Disallow joining the past events. */
     try {
-      if (db.isPastEvent(eventID)) {
+      if (db.isPastEvent(eventId)) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "You cannot join events that have already finished."));
         return;
@@ -104,7 +104,9 @@ public class EventSubscriptionServlet extends HttpServlet {
     /* Register user subscription. */
     Response subResp;
     try {
-      subResp = db.putEventSubscription(eventID, userId);
+      subResp = db.putEventSubscription(eventId, userId);
+      // Send dynamic update
+      DynamicUpdate.sendEventJoin(calendarId, new EventSubscriptionRequest(userId, eventId));
     } catch (SQLException e) {
       subResp = new ErrorResponse(
           "Error while registering event subscription.");

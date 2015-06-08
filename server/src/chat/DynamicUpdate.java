@@ -3,8 +3,10 @@ package chat;
 import java.util.Arrays;
 
 import req.CalendarSubscriptionRequest;
+import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
+import utils.AuthLevel;
 import db.CalendarIdUserIdMap;
 
 /**
@@ -103,6 +105,20 @@ public class DynamicUpdate {
     ChatMessage cm = new ChatMessage(MessageType.CALENDAR_JOIN.getType(),
         Arrays.asList(destinationIds), -1, false, req);
     ChatServer.routeChatMessage(cm);
+  }
+
+  /**
+   * Sends an event join update when somebody joins an event
+   * 
+   * @param calenderId
+   *          CalendarId of the event, online people in the calendar will be
+   *          notified
+   * @param req
+   *          EventSubscriptionRequest that is sent
+   */
+  public static void sendEventJoin(Integer calenderId,
+      EventSubscriptionRequest req) {
+    sendObj(calenderId, MessageType.EVENT_JOIN, req);
   }
 
 }

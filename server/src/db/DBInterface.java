@@ -338,7 +338,7 @@ public class DBInterface {
    *           Thrown when there was an error interacting with the database.
    * @throws InvalidActionException
    */
-  public Response putEventSubscription(int eventId, int userId)
+  public EventSubscriptionResponse putEventSubscription(int eventId, int userId)
       throws SQLException, InvalidActionException {
     // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(eventId,

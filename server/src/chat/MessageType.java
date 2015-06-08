@@ -10,6 +10,7 @@ package chat;
 public enum MessageType {
   EVENT_UPDATE("update/event"),
   EVENT_DELETE("delete/event"),
+  EVENT_JOIN("join/event"),
   
   CALENDAR_JOIN("join/calendar"),
   CALENDAR_UPDATE("update/calendar"),
