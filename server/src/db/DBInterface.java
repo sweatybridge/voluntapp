@@ -157,7 +157,7 @@ public class DBInterface {
    * @return CalendarResponse
    * @throws SQLException
    */
-  public Response putCalendarSubscription(int userId, String joinCode)
+  public CalendarResponse putCalendarSubscription(int userId, String joinCode)
       throws SQLException {
     CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
         userId, joinCode);
@@ -284,15 +284,15 @@ public class DBInterface {
   }
 
   /**
-   * TODO: implement this
+   * Deletes a specified calendar from the database given the calendarId
    * 
    * @param calendarId
-   * @return
+   * @return CalendarResponse from the database that is deleted
    * @throws SQLException
    * @throws InconsistentDataException
    * @throws CalendarNotFoundException
    */
-  public boolean deleteCalendar(int calendarId) throws SQLException,
+  public CalendarResponse deleteCalendar(int calendarId) throws SQLException,
       InconsistentDataException, CalendarNotFoundException {
     CalendarResponse cr = new CalendarResponse(calendarId, false);
     int deletedRows = update(cr);
@@ -303,7 +303,7 @@ public class DBInterface {
       throw new CalendarNotFoundException(
           "No calendar with the specified ID was found.");
     }
-    return true;
+    return cr;
   }
 
   /**
@@ -338,7 +338,7 @@ public class DBInterface {
    *           Thrown when there was an error interacting with the database.
    * @throws InvalidActionException
    */
-  public Response putEventSubscription(int eventId, int userId)
+  public EventSubscriptionResponse putEventSubscription(int eventId, int userId)
       throws SQLException, InvalidActionException {
     // Untested
     EventSubscriptionResponse response = new EventSubscriptionResponse(eventId,
@@ -533,10 +533,19 @@ public class DBInterface {
     return updateRowCheckHelper(er);
   }
 
-  public boolean updateCalendar(int calendarId, CalendarRequest creq)
+  /**
+   * Updates calendar details given a calendarId and a request
+   * @param calendarId
+   * @param creq
+   * @return null if request is null, CalendarResponse of the updated event otherwise
+   * @throws SQLException
+   * @throws InconsistentDataException
+   * @throws CalendarNotFoundException
+   */
+  public CalendarResponse updateCalendar(int calendarId, CalendarRequest creq)
       throws SQLException, InconsistentDataException, CalendarNotFoundException {
     if (creq == null) {
-      return true;
+      return null;
     }
 
     CalendarResponse cr = new CalendarResponse(calendarId, creq.getName(),
@@ -550,7 +559,7 @@ public class DBInterface {
       throw new CalendarNotFoundException(
           "No calendar with the specified ID was found.");
     }
-    return rows == 1;
+    return cr;
   }
 
   /**

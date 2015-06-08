@@ -96,6 +96,7 @@ public class EventServlet extends HttpServlet {
 
     try {
       EventResponse resp = db.putEvent(eventReq);
+      // Send dynamic update to the online subscribers
       DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
@@ -141,6 +142,7 @@ public class EventServlet extends HttpServlet {
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
         } else {
+          // Send dynamic update to the online subscribers
           DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
           request.setAttribute(Response.class.getSimpleName(),
               new SuccessResponse("Event data were updated successfully."));
@@ -174,36 +176,42 @@ public class EventServlet extends HttpServlet {
   public void doDelete(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     int userId = ServletUtils.getUserId(request);
-    String eventId = request.getPathInfo().substring(1);
+    String eventIdString = request.getPathInfo().substring(1);
 
-    if (eventId != null) {
-      /* Verify if the user is allowed to delete events from the specified 
-       * calendar - is an editor. */
-      int eventID = Integer.parseInt(eventId);
-      if (!checkAccessRights(0, eventID, userId, AuthLevel.EDITOR)) {
-        setUnauthorisedAccessErrorResponse(request);
-        return;
-      }
-      /* Delete the event. */
-      try {
-        db.deleteEvent(eventID);
-        request.setAttribute(Response.class.getSimpleName(),
-            new SuccessResponse("The event was successfully deleted."));
-      } catch (EventNotFoundException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "No event with specified event ID exists in the database."));
-      } catch (SQLException e) {
-        e.printStackTrace();
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Error while deleting the data from the database."));
-      } catch (InconsistentDataException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Update left the database in an inconsistent state, "
-                + "more than one row was deleted."));
-      }
-    } else {
+    if (eventIdString == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No event ID was specified."));
+      return;
+    }
+    
+    /* Verify if the user is allowed to delete events from the specified 
+     * calendar - is an editor. */
+    int eventId = Integer.parseInt(eventIdString);
+    int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
+    AuthLevel level = db.authoriseUser(userId, calendarId);
+    if (level.ordinal() < AuthLevel.EDITOR.ordinal()) {
+      setUnauthorisedAccessErrorResponse(request);
+      return;
+    }
+    
+    /* Delete the event. */
+    try {
+      EventResponse resp = db.deleteEvent(eventId);
+      // Send dynamic update to the online subscribers
+      DynamicUpdate.sendEventDelete(calendarId, resp);
+      request.setAttribute(Response.class.getSimpleName(),
+          new SuccessResponse("The event was successfully deleted."));
+    } catch (EventNotFoundException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No event with specified event ID exists in the database."));
+    } catch (SQLException e) {
+      e.printStackTrace();
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Error while deleting the data from the database."));
+    } catch (InconsistentDataException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Update left the database in an inconsistent state, "
+              + "more than one row was deleted."));
     }
   }
    
