@@ -148,8 +148,20 @@ Both the serialization/deserialization and basic authentication (is the session 
 \\
 \subsubsection{Interfacing with the database}
 \noindent We decided to create one class to wrap all of the database accesses, which lead to the simplification of the servlet classes. It also allowed us to group all of the related SQL queries onto the response classes, whose methods the database interface class methods would use in order to retrieve the relevant queries. When designing database interface class, we made and extensive use of \textbf{strategy pattern}. We generalized the database interactions into four methods: \verb|query, insert, update| and \verb|delete| that take as a parameter an interface, which represents an appropriate SQL query (\verb|SELECT| query, \verb|INSERT| query, \verb|UPDATE| query, \verb|DELETE| query), and hence allows the methods to be reused for different queries, provided that they implement appropriate interface. This made adding new features quick and easy as there were only a set of few places that needed to be changed: the query added to the relevant response object, a method added to the database interface (in some cases) and a servlet method created to deal with the request. In our implementation of response objcts \textbf{template method pattern} was used, all objects are subclasses of Response class, which implements pieces of functionality common to all of them, which allowed us to limit the amount of code duplication. We also made a use of \textbf{singleton pattern} when creating a DataSourceProvider class, which initialises the database connection. The motivation for using the singleton pattern in this case is to ensure that no more than one data pool connection is created. 
-\\
-\\
+
+\subsubsection{Chat Server}
+Initially we were going to use a off the shelf, widely used XMPP server such as ejabberd. However, we realized it would not integrate well with our current back-end in various ways such as authentication and sending dynamic updates of JSON objects. Therefore, we implemented our websocket based chat server. In its core it has ChatMessage objects which are routed by the server. A ChatMessage has 6 fields which are inspired by the TCP protocol. The ChatMessage object is sent as JSON strings through the websocket connections. The fields are:
+\begin{description}
+\item[type] - Specifies what the payload contains. For example, "update/event" indicates that it is an update message containing an event object in the payload which is updated.
+\item[destinationIds] - An array of user Ids which this message is addressed at.
+\item[sourceId] - The user Id which created this chat message. If it is an update from the server, then the value is -1 indicating that the message originated at the server and not sent by an actual user.
+\item[date] - A timestamp when the message was created, not sent. This is mainly used to store messages offline.
+\item[storeOffline] - Boolean field to indicate whether message should be stored if the destination Id is currently offline.
+\item[payload] - The actual data that is sent which is serialized to JSON as well.
+\end{description}
+
+Using this structure, all the Chat Server does is route messages based on their destination Ids and store in the database if they are offline. To know which sockets to route to, the server maintains a ConcurrentMap of UserIds to ConcurrentHashSet of open Sessions. Hence, even if the same user logs on different machines, the server is able to route the message to all of the open sessions of the user (which is not a standard feature of XMPP servers which implement sessions priority to route).
+
 \subsubsection{Dynamic Updates}
 In order to prevent the necessity to refresh the page every time calendar or event data changes, we had to design a mechanism which would allow the server to dynamically inform the user about the 
 changes of the calendar or event data an re-render the parts of the view affected by the change instantly, making the website more responsive. The technology that we utilised to 
