@@ -70,7 +70,12 @@ $(function() {
 
 // Update calendars
 function refreshCalendars() {
-  var cal_html = '<div data-calid="{{id}}" class="calendar"> \
+  var cal_html =
+      '<li role="presentation" data-calid="{{id}}">'+
+        '<a href="#">{{name}}<span class="label label-warning pull-right">{{joinCode}}</span></a>'+
+      '</li>';
+/*
+'<div data-calid="{{id}}" class="calendar"> \
   <div class="checkbox"> \
     <span class="subcheck"> \
       <input type="checkbox"> {{name}}   \
@@ -84,10 +89,12 @@ function refreshCalendars() {
     <button type="button" class="btn btn-info">Edit</button> \
   </div> \
 </div>';
+*/
   $.get("/api/subscription/calendar", function(data) {
     app.calendars = data.calendars;
+    var myCalendar = $("#d_user_calendars");
     // Clean current visible data
-    $("#d_user_calendars").html("It seems like you haven't joined to or created any calendars...");
+    myCalendar.html("It seems like you haven't joined to or created any calendars...");
     $("#select_calendar").empty();
     
     // Check if there is any calendars returned
@@ -97,43 +104,48 @@ function refreshCalendars() {
     }
     
     // We got calendars, clear division to repopulate
-    $("#d_user_calendars").empty();
+    myCalendar.empty();
     // If there is any, create calendar elements
     $.each(data.calendars, function(index, calendar) {
-      var cal_div = $(cal_html.replace("{{id}}", calendar.calendarId)
-         .replace("{{name}}", calendar.name)
-         .replace("{{joinCode}}", calendar.joinCode)
-         .replace("{{joinEnabled}}", calendar.joinEnabled)).appendTo("#d_user_calendars");
+      var code = calendar.joinEnabled ? calendar.joinCode : "disabled";
+      var cal_div = $(cal_html
+          .replace("{{id}}", calendar.calendarId)
+          .replace("{{name}}", calendar.name)
+          .replace("{{joinCode}}", code))
+          .appendTo(myCalendar);
       if (calendar.role === "admin" || calendar.role === "owner") {
-          cal_div.find(".calendar-unsub").toggle();
+        // cal_div.find(".calendar-unsub").toggle();
       }      
 
-      cal_div.find("input").change(function() {
+      cal_div.click(function() {
+        cal_div.toggleClass("active");
         if (calendar.role === "admin" || calendar.role === "owner") {
-          cal_div.find(".calendar-extras").toggle();
+          // cal_div.find(".calendar-extras").toggle();
         }
         refreshEvents();
       });
 
       // Add unsubscribing from events
+      /*
       if (calendar.role === "basic" || calendar.role === "editor") {
-		  cal_div.find("a").click(function() {
-		    var calid = $(this).parent().parent().data("calid");
-		    var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
-		    $.ajax("/api/subscription/calendar/"+calid, {
-				data: JSON.stringify({targetUserEmail : app.user.email}),
-				method: "DELETE",
-				success: function(data) {
-				  toastr.warning("Unsubscribed from " + name);
-				  refreshCalendars();
-				},
-				error: function(data) {
-				  toastr.error("Could not unscubscribe from " + name);
-				  refreshCalendars();
-				}
-		    });
-		  });
-      } 
+  		  cal_div.find("a").click(function() {
+  		    var calid = $(this).parent().parent().data("calid");
+  		    var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
+  		    $.ajax("/api/subscription/calendar/"+calid, {
+  				data: JSON.stringify({targetUserEmail : app.user.email}),
+  				method: "DELETE",
+  				success: function(data) {
+  				  toastr.warning("Unsubscribed from " + name);
+  				  refreshCalendars();
+  				},
+  				error: function(data) {
+  				  toastr.error("Could not unscubscribe from " + name);
+  				  refreshCalendars();
+  				}
+  		    });
+  		  });
+      }
+      */
       
       // Check calendar rights
       if (calendar.role === "admin" || calendar.role === "owner") {
@@ -142,7 +154,7 @@ function refreshCalendars() {
          .append($("<option></option>")
          .attr("value",calendar.calendarId)
          .text(calendar.name));
-       
+        /*
         cal_div.find("button").click(function() {
           var calid = $(this).parent().parent().data("calid");
           $("#d_edit_calendar input[name='name']").val(calendar.name);
@@ -150,10 +162,11 @@ function refreshCalendars() {
           $("#d_user_calendars").toggle();
           $("#d_edit_calendar").data("calid", calid).toggle();
         });
+        */
       }
     });
     // Refresh events for the calendars
-    $("#d_user_calendars input").first().prop("checked", "true").change();
+    $("#d_user_calendars").children().first().click();
   });
 }
 
@@ -199,10 +212,8 @@ function updateCalendarDates(startDate) {
 // Get active_calendar ids
 function getActiveCalendarIds() {
   var active_calendars = [];
-  $("#calendars_collapse .calendar").each(function(index) {
-    if ($(this).find("input").is(":checked")) {
-      active_calendars.push($(this).data("calid"));
-    }
+  $("#d_user_calendars").children(".active").each(function(index, elem) {
+    active_calendars.push($(elem).data("calid"));
   });
   return active_calendars;
 }
