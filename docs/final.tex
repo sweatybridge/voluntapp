@@ -29,10 +29,39 @@
 Our project is a web based application that complements the process of creating and tracking of events and people who are attending the event. It also provides facilities to allow for participants to ask questions and find out information from the event organisers and for event organisers to control groups of people who are able to create events. 
 \\
 \\
-\noindent This application contains several entities:
+\noindent This application contains two main entities:
 \begin{description}
-\item[Calendars] - these are entities that any user can create. They contain   
+\item[Calendars] - these are entities that any user can create. User can subscribe to other peoples calendars where they can then be promoted to editors or admins. Depending on their role they will have different rights and available actions is described \textbf{put-link-here}.
+\item[Events] - events are things that are created on the calendar they are available to join to anyone who is subscribed. They contain the following information, a title, a start date and time, an end end and time, a location, a max capacity (possibly unlimited) and a description.
 \end{description}
+
+\noindent We decided on creating this application due to a problem that one of our team members spotted during volunteering for the collage. This problem was with the way things were organised, which typically involves large quantities of emails to, send out the information, get responses back from interesting volunteers and either send out more telling people they are oversubscribed or asking for more people as they didn't get enough.
+\\
+\\
+\noindent Our aims for this project were to improve our understanding of how to build a products by working with the purposed end users. We also aimed to gain an understanding of web development and database management along with a new range of technology in which most of us were novices. We have been working quite closely with the users to ensure that the features we have been implementing will appeal to them and can be integrated into their current work processes.
+\\
+\\
+\noindent The basic requirements for our project were to make event organising easier (to do away with the huge amount of emails). We also gained quite a few requirements/possible extensions from conversing with the user.
+\\
+\\
+\noindent There were (from meeting minutes):
+\begin{itemize}
+\setlength\itemsep{0.1em}
+\item Allow event details to be edited after creation.
+\item Allow admins to check who has signed up for an event they have created.
+\item Allow for multiple admins on the same calendar to collaborate in setting up events. 
+\item Make it so events can have prerequisites which users must identify they have read before they can sign up.
+\item Allow admins to remove people from the events if they do not meet the prerequisites (or for any other reason).
+\item Always start the calendar view on a Monday and highlight the current day.
+\item Admin approval for events that were created by editors.
+\item In-app live chat and offline messages for volunteers to ask questions and get answers.
+\item Real time updates for new events and event subscriptions.
+\item Make it easy to join and edit events from a mobile browser.  
+\end{itemize}
+\noindent We also got a lot more suggestions which we have either discarded due to coming up with a better alternative or put off in favour of more important features. Examples of these are email alerts of upcoming/important events, statistics on how much a user has volunteered (what events they have attended), report generation for events that have been created for each week, etc...
+
+\section{Project Management}
+
 
 \section{Libraries}
 Libraries that are used in the front-end:
@@ -48,4 +77,9 @@ Libraries that are used in the back-end:
 \item[Google GSON] - The GSON library is used to serialize and deserialize Java objects into Json strings when they are sent to and recieved from the front-end. It is licensed under the Apache License 2.0. https://code.google.com/p/google-gson/
 \item[PostgreSQL JDBC Driver] - The Java back-end is linked to the group database using the driver. Licensed under BSD license. https://jdbc.postgresql.org/
 \end{description}
+     
+\newpage
+\newpage
+\section{To put somewhere later}
+Admins are able to change the calendar information, kick people from the calendar and create/delete/modify \textbf{events} whereas editors can only create/delete/modify events. Everyone who is subscribed to the calendar has the right to join any of the calendars events.
 \end{document}
