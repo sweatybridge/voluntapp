@@ -96,6 +96,7 @@ public class EventServlet extends HttpServlet {
 
     try {
       EventResponse resp = db.putEvent(eventReq);
+      // Send dynamic update to the online subscribers
       DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
@@ -141,6 +142,7 @@ public class EventServlet extends HttpServlet {
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
                   "Update of the event data was not successful."));
         } else {
+          // Send dynamic update to the online subscribers
           DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
           request.setAttribute(Response.class.getSimpleName(),
               new SuccessResponse("Event data were updated successfully."));
@@ -187,6 +189,7 @@ public class EventServlet extends HttpServlet {
       /* Delete the event. */
       try {
         EventResponse resp = db.deleteEvent(eventID);
+        // Send dynamic update to the online subscribers
         DynamicUpdate.sendEventDelete(resp.getCalendarId(), resp);
         request.setAttribute(Response.class.getSimpleName(),
             new SuccessResponse("The event was successfully deleted."));
