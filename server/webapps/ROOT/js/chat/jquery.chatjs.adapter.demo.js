@@ -1,3 +1,19 @@
+/// <reference path="jquery.chatjs.adapter.ts" />
+var DemoAdapterConstants = (function () {
+    function DemoAdapterConstants() {
+    }
+    DemoAdapterConstants.CURRENT_USER_ID = 1;
+
+    DemoAdapterConstants.ECHOBOT_USER_ID = 2;
+
+    DemoAdapterConstants.DEFAULT_ROOM_ID = 1;
+
+    DemoAdapterConstants.ECHOBOT_TYPING_DELAY = 1000;
+
+    DemoAdapterConstants.ECHOBOT_REPLY_DELAY = 3000;
+    return DemoAdapterConstants;
+})();
+
 var DemoClientAdapter = (function () {
     function DemoClientAdapter() {
         this.messagesChangedHandlers = [];
@@ -37,71 +53,46 @@ var DemoClientAdapter = (function () {
 })();
 
 var DemoServerAdapter = (function () {
-    var DEFAULT_ROOM_ID = 1;
-    DemoServerAdapter.prototype.handleRoster = function (roster) {
-      this.users = roster.map(function(user) {
-        // configure user info
-        var userInfo = new ChatUserInfo();
-        userInfo.Id = user.userId;
-        userInfo.RoomId = DEFAULT_ROOM_ID;
-        userInfo.Name = user.firstName + " " + user.lastName;
-        userInfo.Email = user.email;
-        userInfo.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
-        userInfo.Status = 1 /* Online */;
-        return userInfo;
-      });
-
-      // configuring rooms
-      var defaultRoom = new ChatRoomInfo();
-      defaultRoom.Id = 1;
-      defaultRoom.Name = "Default Room";
-      defaultRoom.UsersOnline = this.users.length;
-
-      this.rooms = [defaultRoom];
-      DemoServerAdapter.prototype.enterRoom(1);
-    }
-
     function DemoServerAdapter(clientAdapter) {
         this.clientAdapter = clientAdapter;
 
-        var cookie = getCookie("token");
-        if (!cookie) {
-          console.log("No token.");
-          return;
-        }
+        // configuring users
+        var myUser = new ChatUserInfo();
+        myUser.Id = DemoAdapterConstants.CURRENT_USER_ID;
+        myUser.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
+        myUser.Name = "André Pena";
+        myUser.Email = "andrerpena@gmail.com";
+        myUser.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
+        myUser.Status = 1 /* Online */;
 
-        // open websocket connection
-        var host = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
-        host += window.location.host + "/chat?token="+cookie;
-        this.socket = new WebSocket(host);
+        // Echobot is the guy that will repeat everything you say
+        var echoBotUser = new ChatUserInfo();
+        echoBotUser.Id = DemoAdapterConstants.ECHOBOT_USER_ID;
+        echoBotUser.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
+        echoBotUser.Name = "Echobot";
+        echoBotUser.Email = "echobot1984@gmail.com";
+        echoBotUser.ProfilePictureUrl = "http://www.gravatar.com/avatar/4ec6b20c5fed48b6b01e88161c0a3e20.jpg";
+        echoBotUser.Status = 1 /* Online */;
 
-        // Bind on open function
-        this.socket.onopen = function () {
-          console.log('Info: WebSocket connection opened.');
-        };
-
-        // Bind on close function
-        this.socket.onclose = function () {
-          console.log('Info: WebSocket closed.');
-        };
-
-        // Main message handler
-        this.socket.onmessage = function (e) {
-          // Parse the data, we are expecting a ChatMessage
-          // having fields: -type, -destinationIds, -sourceId
-          // -date, -storeOffline, -payload
-          var msg = JSON.parse(e.data);
-          switch (msg.type) {
-            case 'roster':
-              DemoServerAdapter.prototype.handleRoster(msg.payload.roster);
-              break;
-          }
-          console.log(msg);
-          toastr.info(e.data);
-        };
-
+        // adds the users in the global user list
         this.users = new Array();
+        this.users.push(myUser);
+        this.users.push(echoBotUser);
+
+        // configuring rooms
+        var defaultRoom = new ChatRoomInfo();
+        defaultRoom.Id = 1;
+        defaultRoom.Name = "Default Room";
+        defaultRoom.UsersOnline = this.users.length;
+
         this.rooms = new Array();
+        this.rooms.push(defaultRoom);
+
+        // configuring client to return every event to me
+        this.clientAdapter.onMessagesChanged(function (message) {
+            return function () {
+            };
+        });
     }
     DemoServerAdapter.prototype.sendMessage = function (roomId, conversationId, otherUserId, messageText, clientGuid, done) {
         var _this = this;
@@ -111,8 +102,8 @@ var DemoServerAdapter = (function () {
         // in chatjs, when you send a message to someone, the same message bounces back to the user
         // just so that all browser windows are synchronized
         var bounceMessage = new ChatMessageInfo();
-        bounceMessage.UserFromId = app.user.userId; // It will from our user
-        bounceMessage.UserToId = otherUserId;
+        bounceMessage.UserFromId = DemoAdapterConstants.CURRENT_USER_ID; // It will from our user
+        bounceMessage.UserToId = DemoAdapterConstants.ECHOBOT_USER_ID; // ... to the Echobot
         bounceMessage.RoomId = roomId;
         bounceMessage.ConversationId = conversationId;
         bounceMessage.Message = messageText;
@@ -122,7 +113,39 @@ var DemoServerAdapter = (function () {
             _this.clientAdapter.triggerMessagesChanged(bounceMessage);
         }, 300);
 
-        this.socket.send(JSON.stringify(bounceMessage));
+        // now let's send a message as if it was from the Echobot
+        setTimeout(function () {
+            _this.getUserInfo(otherUserId, function (echobotUserInfo) {
+                var typingSignal = new ChatTypingSignalInfo();
+                typingSignal.ConversationId = conversationId;
+                typingSignal.RoomId = roomId;
+                typingSignal.UserFrom = echobotUserInfo;
+
+                // if it's not a private message, the echo message will be to the current user
+                if (!roomId && !conversationId)
+                    typingSignal.UserToId = DemoAdapterConstants.CURRENT_USER_ID;
+
+                _this.clientAdapter.triggerTypingSignalReceived(typingSignal);
+
+                setTimeout(function () {
+                    // if otherUserId is not null, this is a private message
+                    // if roomId is not null, this is a message to a room
+                    // if conversationId is not null, this is a message to a conversation (group of people talking as if it was a room)
+                    var echoMessage = new ChatMessageInfo();
+                    echoMessage.UserFromId = DemoAdapterConstants.ECHOBOT_USER_ID; // It will be from Echobot
+                    echoMessage.RoomId = roomId;
+                    echoMessage.ConversationId = conversationId;
+                    echoMessage.Message = "You said: " + messageText;
+
+                    // if it's not a private message, the echo message will be to the current user
+                    if (!roomId && !conversationId)
+                        echoMessage.UserToId = DemoAdapterConstants.CURRENT_USER_ID;
+
+                    // this will send a message to the user 1 (you) as if it was from user 2 (Echobot)
+                    _this.clientAdapter.triggerMessagesChanged(echoMessage);
+                }, DemoAdapterConstants.ECHOBOT_REPLY_DELAY);
+            });
+        }, DemoAdapterConstants.ECHOBOT_TYPING_DELAY);
     };
 
     DemoServerAdapter.prototype.sendTypingSignal = function (roomId, conversationId, userToId, done) {
@@ -150,7 +173,7 @@ var DemoServerAdapter = (function () {
 
     DemoServerAdapter.prototype.getUserList = function (roomId, conversationId, done) {
         console.log("DemoServerAdapter: getUserList");
-        if (roomId == DEFAULT_ROOM_ID) {
+        if (roomId == DemoAdapterConstants.DEFAULT_ROOM_ID) {
             done(this.users);
             return;
         }
@@ -160,11 +183,11 @@ var DemoServerAdapter = (function () {
     DemoServerAdapter.prototype.enterRoom = function (roomId, done) {
         console.log("DemoServerAdapter: enterRoom");
 
-        if (roomId != DEFAULT_ROOM_ID)
+        if (roomId != DemoAdapterConstants.DEFAULT_ROOM_ID)
             throw "Only the default room is supported in the demo adapter";
 
         var userListChangedInfo = new ChatUserListChangedInfo();
-        userListChangedInfo.RoomId = DEFAULT_ROOM_ID;
+        userListChangedInfo.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
         userListChangedInfo.UserList = this.users;
 
         this.clientAdapter.triggerUserListChanged(userListChangedInfo);
@@ -196,3 +219,4 @@ var DemoAdapter = (function () {
     };
     return DemoAdapter;
 })();
+//# sourceMappingURL=jquery.chatjs.adapter.demo.js.map
