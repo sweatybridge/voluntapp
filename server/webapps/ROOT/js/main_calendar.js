@@ -72,7 +72,7 @@ $(function() {
 function refreshCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
-        '<a href="#">{{name}}<span class="label label-warning pull-right">{{joinCode}}</span></a>'+
+        '<a href="#">{{name}}<span class="label label-default pull-right">{{joinCode}}</span></a>'+
       '</li>';
 /*
 '<div data-calid="{{id}}" class="calendar"> \

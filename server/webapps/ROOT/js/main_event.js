@@ -114,7 +114,7 @@ $(function() {
       var tmpl = 
           '<a href="#" class="list-group-item">'+
             '<span>{{title}}</span>'+
-            '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent({{eventId}})></span>'+
+            '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent({{eventId}})></span>'+
           '</a>';
       $.each(data.joinedEvents, function(k, event) {
         var elem = tmpl
@@ -286,7 +286,7 @@ function createEventView(event) {
           '<li data-user-id="{{userId}}" role="presentation">'+
             '<a role="menuitem" tabindex="-1" href="#">'+
               '<span>{{firstName}}</span>'+
-              '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick="removeAttendee(this)"></span>'+
+              '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick="removeAttendee(this)"></span>'+
             '</a>'+
           '</li>';
         // By the time we get here it is considered open
