@@ -1,11 +1,11 @@
 package chat;
 
 import java.util.Arrays;
-import java.util.Date;
 
-import db.CalendarIdUserIdMap;
+import req.CalendarSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
+import db.CalendarIdUserIdMap;
 
 /**
  * Sends dynamic updates to the calendar subscribers through the chat server. It
@@ -31,7 +31,7 @@ public class DynamicUpdate {
   private static void sendObj(Integer calendarId, MessageType mType, Object obj) {
     CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
     ChatMessage cm = new ChatMessage(mType.getType(), Arrays.asList(map
-        .getUserIds(calendarId)), -1, new Date(), false, obj);
+        .getUserIds(calendarId)), -1, false, obj);
     ChatServer.routeChatMessage(cm);
   }
 
@@ -60,6 +60,19 @@ public class DynamicUpdate {
   }
 
   /**
+   * Sends a "update/calendar" to subscribers to the calendar
+   * 
+   * @param calendarId
+   *          CalendarId of which the ONLINE subscribers will be notified
+   * @param calendar
+   *          CalendarResponse to be sent
+   */
+  public static void sendCalendarUpdate(Integer calendarId,
+      CalendarResponse calendar) {
+    sendObj(calendarId, MessageType.CALENDAR_UPDATE, calendar);
+  }
+
+  /**
    * Sends a "delete/calendar" to subscribers to the calendar
    * 
    * @param calendarId
@@ -73,16 +86,23 @@ public class DynamicUpdate {
   }
 
   /**
-   * Sends a "update/calendar" to subscribers to the calendar
+   * Sends a joined update to the owner.
    * 
-   * @param calendarId
-   *          CalendarId of which the ONLINE subscribers will be notified
-   * @param calendar
-   *          CalendarResponse to be sent
+   * @param ownerId
+   *          DestinationId of the owner
+   * @param resp
+   *          CalendarSubscriptionResponse to be sent
    */
-  public static void sendCalendarUpdate(Integer calendarId,
-      CalendarResponse calendar) {
-    sendObj(calendarId, MessageType.CALENDAR_UPDATE, calendar);
+  public static void sendCalendarJoin(Integer ownerId,
+      CalendarSubscriptionRequest req) {
+    // NOTE: that if the owner is not online, the chat server will discard this
+    // message for us as store offline is set to false, if you want it to be
+    // stored change false parameter to true and the owner will receive the
+    // update message on log on.
+    Integer[] destinationIds = new Integer[] { ownerId };
+    ChatMessage cm = new ChatMessage(MessageType.CALENDAR_JOIN.getType(),
+        Arrays.asList(destinationIds), -1, false, req);
+    ChatServer.routeChatMessage(cm);
   }
 
 }

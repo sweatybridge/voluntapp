@@ -192,6 +192,10 @@ public class CalendarResponse extends Response {
     this.calendarId = id;
   }
 
+  public int getUserId() {
+    return userId;
+  }
+
   public void setEvents(List<EventResponse> events) {
     this.events = events;
   }

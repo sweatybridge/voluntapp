@@ -157,7 +157,7 @@ public class DBInterface {
    * @return CalendarResponse
    * @throws SQLException
    */
-  public Response putCalendarSubscription(int userId, String joinCode)
+  public CalendarResponse putCalendarSubscription(int userId, String joinCode)
       throws SQLException {
     CalendarSubscriptionResponse subResp = new CalendarSubscriptionResponse(
         userId, joinCode);
