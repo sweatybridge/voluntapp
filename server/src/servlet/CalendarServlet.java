@@ -226,7 +226,8 @@ public class CalendarServlet extends HttpServlet {
     }
 
     try {
-      db.updateCalendar(cid, calendarRequest);
+      CalendarResponse resp = db.updateCalendar(cid, calendarRequest);
+      DynamicUpdate.sendCalendarUpdate(cid, resp);
       result = new SuccessResponse("Calendar data was successfully updated.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse("One of the specified dates was invalid.");

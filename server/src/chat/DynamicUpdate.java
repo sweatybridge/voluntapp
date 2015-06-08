@@ -9,6 +9,13 @@ import resp.EventResponse;
 
 public class DynamicUpdate {
   
+  private static void sendObj(Integer calendarId, MessageType mType, Object obj) {
+    CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+    ChatMessage cm = new ChatMessage(mType.getType(),
+        Arrays.asList(map.getUserIds(calendarId)), -1, new Date(), false, obj);
+    ChatServer.routeChatMessage(cm);
+  }
+  
   public static void sendEventUpdate(Integer calendarId, EventResponse event) {
     sendObj(calendarId, MessageType.EVENT_UPDATE, event);
   }
@@ -21,10 +28,8 @@ public class DynamicUpdate {
     sendObj(calendarId, MessageType.CALENDAR_DELETE, calendar);
   }
   
-  private static void sendObj(Integer calendarId, MessageType mType, Object obj) {
-    CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-    ChatMessage cm = new ChatMessage(mType.getType(),
-        Arrays.asList(map.getUserIds(calendarId)), -1, new Date(), false, obj);
-    ChatServer.routeChatMessage(cm);
+  public static void sendCalendarUpdate(Integer calendarId, CalendarResponse resp) {
+    sendObj(calendarId, MessageType.CALENDAR_UPDATE, resp);
   }
+  
 }

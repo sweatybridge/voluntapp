@@ -533,10 +533,19 @@ public class DBInterface {
     return updateRowCheckHelper(er);
   }
 
-  public boolean updateCalendar(int calendarId, CalendarRequest creq)
+  /**
+   * Updates calendar details given a calendarId and a request
+   * @param calendarId
+   * @param creq
+   * @return null if request is null, CalendarResponse of the updated event otherwise
+   * @throws SQLException
+   * @throws InconsistentDataException
+   * @throws CalendarNotFoundException
+   */
+  public CalendarResponse updateCalendar(int calendarId, CalendarRequest creq)
       throws SQLException, InconsistentDataException, CalendarNotFoundException {
     if (creq == null) {
-      return true;
+      return null;
     }
 
     CalendarResponse cr = new CalendarResponse(calendarId, creq.getName(),
@@ -550,7 +559,7 @@ public class DBInterface {
       throw new CalendarNotFoundException(
           "No calendar with the specified ID was found.");
     }
-    return rows == 1;
+    return cr;
   }
 
   /**

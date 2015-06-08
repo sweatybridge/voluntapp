@@ -4,6 +4,7 @@ public enum MessageType {
   EVENT_UPDATE("update/event"),
   EVENT_DELETE("delete/event"),
   
+  CALENDAR_UPDATE("update/calendar"),
   CALENDAR_DELETE("delete/calendar");
   
   private String type;
