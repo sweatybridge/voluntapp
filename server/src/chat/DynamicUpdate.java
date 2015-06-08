@@ -120,5 +120,19 @@ public class DynamicUpdate {
       EventSubscriptionRequest req) {
     sendObj(calenderId, MessageType.EVENT_JOIN, req);
   }
+  
+  /**
+   * Sends an event unjoin update when somebody joins an event
+   * 
+   * @param calenderId
+   *          CalendarId of the event, online people in the calendar will be
+   *          notified
+   * @param req
+   *          EventSubscriptionRequest that is sent
+   */
+  public static void sendEventUnJoin(Integer calenderId,
+      EventSubscriptionRequest req) {
+    sendObj(calenderId, MessageType.EVENT_UNJOIN, req);
+  }
 
 }

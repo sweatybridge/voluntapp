@@ -66,13 +66,13 @@ public class EventSubscriptionServlet extends HttpServlet {
     int userId = ServletUtils.getUserId(request);
 
     /* Get and validate the event ID. */
-    String eventIdS = request.getPathInfo().substring(1);
-    if (eventIdS == null) {
+    String eventIdString = request.getPathInfo().substring(1);
+    if (eventIdString == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No event ID was specified."));
       return;
     }
-    int eventId = Integer.parseInt(eventIdS);
+    int eventId = Integer.parseInt(eventIdString);
 
     /*
      * Check if the user is subscribed to the calendar corresponding to the
@@ -105,7 +105,7 @@ public class EventSubscriptionServlet extends HttpServlet {
     Response subResp;
     try {
       subResp = db.putEventSubscription(eventId, userId);
-      // Send dynamic update
+      // Send dynamic update to the online subscribers
       DynamicUpdate.sendEventJoin(calendarId, new EventSubscriptionRequest(userId, eventId));
     } catch (SQLException e) {
       subResp = new ErrorResponse(
@@ -139,20 +139,20 @@ public class EventSubscriptionServlet extends HttpServlet {
     int userToDelete;
 
     /* Get and validate the event ID. */
-    String eventId = request.getPathInfo().substring(1);
-    if (eventId == null) {
+    String eventIdString = request.getPathInfo().substring(1);
+    if (eventIdString == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No event ID was specified."));
       return;
     }
-    int eventID = Integer.parseInt(eventId);
+    int eventId = Integer.parseInt(eventIdString);
 
     /*
      * Check if the user is an admin of the calendar, if yes then serialise the
      * submitted user IDs.
      */
-    if (db.authoriseUser(userId, db.getCalendarId(
-        new CalendarEventIdQuery(eventID))) == AuthLevel.ADMIN) {
+    int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
+    if (db.authoriseUser(userId, calendarId) == AuthLevel.ADMIN) {
       try {
         EventSubscriptionRequest req = gson.fromJson(request.getReader(),
             EventSubscriptionRequest.class);
@@ -172,7 +172,7 @@ public class EventSubscriptionServlet extends HttpServlet {
 
     /* Prevent deleting subscription from past events. */
     try {
-      if (db.isPastEvent(eventID)) {
+      if (db.isPastEvent(eventId)) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "You cannot delete subscription to a past event."));
         return;
@@ -185,8 +185,10 @@ public class EventSubscriptionServlet extends HttpServlet {
     /* Delete event subscription(s). */
     Response resp = null;
     try {
-      if (db.deleteEventSubscription(eventID, userToDelete)) {
+      if (db.deleteEventSubscription(eventId, userToDelete)) {
         resp = new SuccessResponse("Unsubscribed from event");
+        // Send dynamic update to the online subscribers
+        DynamicUpdate.sendEventUnJoin(calendarId, new EventSubscriptionRequest(userToDelete, eventId));
       } else {
         resp = new ErrorResponse("Unsubscribing failed, you are not subscribed");
       }
