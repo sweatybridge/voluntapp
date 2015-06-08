@@ -12,7 +12,7 @@ public enum MessageType {
   EVENT_DELETE("delete/event"),
   EVENT_JOIN("join/event"),
   EVENT_UNJOIN("unjoin/event"),
-  
+
   CALENDAR_JOIN("join/calendar"),
   CALENDAR_UPDATE("update/calendar"),
   CALENDAR_DELETE("delete/calendar");
@@ -23,6 +23,11 @@ public enum MessageType {
     this.type = type;
   }
 
+  /**
+   * Returns ChatMessage type of the Enum.
+   * 
+   * @return String ChatMessage type
+   */
   public String getType() {
     return type;
   }

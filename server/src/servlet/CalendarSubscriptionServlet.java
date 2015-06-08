@@ -97,6 +97,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         map.put(resp.getCalendarId(), userId);
         // Send dynamic update to the owner (creator)
+        subReq.setUserId(userId);
         DynamicUpdate.sendCalendarJoin(resp.getUserId(), subReq);
         request.setAttribute(Response.class.getSimpleName(), resp);
       } catch (SQLException e) {

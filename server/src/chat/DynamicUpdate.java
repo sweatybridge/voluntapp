@@ -6,7 +6,6 @@ import req.CalendarSubscriptionRequest;
 import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
-import utils.AuthLevel;
 import db.CalendarIdUserIdMap;
 
 /**
