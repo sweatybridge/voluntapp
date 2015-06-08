@@ -283,10 +283,10 @@ function createEventView(event) {
       view.find(".count").dropdown().click(function() {
         var attendeesList = $(this).next();
         var tmpl =
-          '<li role="presentation">'+
+          '<li data-user-id="{{userId}}" role="presentation">'+
             '<a role="menuitem" tabindex="-1" href="#">'+
               '<span>{{firstName}}</span>'+
-              '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick=removeAttendee({{userId}})></span>'+
+              '<span class="glyphicon glyphicon-remove pull-right btn-remove" onclick="removeAttendee(this)"></span>'+
             '</a>'+
           '</li>';
         // By the time we get here it is considered open
@@ -300,10 +300,14 @@ function createEventView(event) {
             if (data.attendees.length > 0) {
               // add attendees
               $.each(data.attendees, function(k, attendee) {
-                var elem = tmpl
-                    .replace("{{firstName}}", attendee.firstName)
-                    .replace("{{userId}}", attendee.userId);
-                $(elem).appendTo(attendeesList);
+                var elem = $(tmpl
+                    .replace("{{userId}}", attendee.userId)
+                    .replace("{{firstName}}", attendee.firstName));
+                // disable removing admin himself from event (use unjoin instead)
+                if (attendee.userId === app.user.userId) {
+                  elem.find(".btn-remove").hide();
+                }
+                elem.appendTo(attendeesList);
               });
             } else {
               $(tmpl).appendTo(attendeesList).find("a").text("No attendee");
@@ -503,8 +507,25 @@ function resetEventForm() {
 }
 
 // Removes an attendee from an event (admin feature)
-function removeAttendee(userId) {
-  // TODO: call the right api
+function removeAttendee(elem) {
+  var user = $(elem).closest("li");
+  var event = $(elem).closest(".event");
+
+  // unsubscribe user from event
+  $.ajax("/api/subscription/event/" + event.data("eventId"), {
+    method: "DELETE",
+    data: JSON.stringify({userId: user.data("userId")}),
+    success: function(data) {
+      user.remove();
+      var countBadge = event.find(".count");
+      var count = countBadge.text().split("/");
+      count[0] = parseInt(count[0]) - 1;
+      countBadge.text(count.join("/"));
+    },
+    error: function(data) {
+      toastr.error(data.responseJSON.message);
+    }
+  });
 }
 
 // Removes an event from list of saved event templates

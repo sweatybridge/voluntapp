@@ -29,7 +29,7 @@ Chat.connect = function(host) {
     // having fields: -type, -destinationIds, -sourceId
     // -date, -storeOffline, -payload
     var msg = JSON.parse(e.data);
-    console.log(msg);
+    toastr.info(e.data);
   };
 };
 
