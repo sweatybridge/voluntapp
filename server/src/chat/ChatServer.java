@@ -3,7 +3,6 @@ package chat;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +40,14 @@ public class ChatServer {
 
   private static final ConcurrentMap<Integer, ConcurrentHashSet<Session>> connections = new ConcurrentHashMap<Integer, ConcurrentHashSet<Session>>();
 
+  /**
+   * Callback function invoked on websocket session start. Checks token and
+   * authenticates user. Expects token as a get parameter in the url, ?token=..
+   * Then the user roster is sent, and then the offline messages of the user.
+   * The session is stored in the connections map afterwards.
+   * 
+   * @param session
+   */
   @OnOpen
   public void onOpen(Session session) {
     // Authenticate user
@@ -92,25 +99,33 @@ public class ChatServer {
       // Send the user roster
       List<Integer> destinationIds = new ArrayList<Integer>(2);
       destinationIds.add(userId);
-      ChatMessage roster = new ChatMessage("roster", destinationIds, -1,
-          false, db.getRoster(userId));
+      ChatMessage roster = new ChatMessage("roster", destinationIds, -1, false,
+          db.getRoster(userId));
       session.getBasicRemote().sendText(roster.toString());
-      
+
       // Return any offline messages
       List<ChatMessage> cms = db.getMessages(userId);
       if (cms != null) {
-        for (ChatMessage cm: cms) {
+        for (ChatMessage cm : cms) {
           session.getBasicRemote().sendText(cm.toString());
         }
       }
-      
+
     } catch (IOException | SQLException e) {
       e.printStackTrace();
-      System.err.println("Could not send user roster or offline messages at start.");
+      System.err
+          .println("Could not send user roster or offline messages at start.");
     }
 
   }
 
+  /**
+   * Callback function invoked on websocket session close. Updates connections
+   * map and CalendarIdUserIdMap.
+   * 
+   * @param session
+   *          Session that has been closed.
+   */
   @OnClose
   public void onClose(Session session) {
     // Remove this session from the connections map
@@ -126,18 +141,32 @@ public class ChatServer {
     }
   }
 
+  /**
+   * Callback function for websocket onMessage. Deserializes message and calls
+   * routeChatMessage
+   * 
+   * @param message
+   *          JSON string of a ChatMessage
+   */
   @OnMessage
   public void onMessage(String message) {
     // Get ChatMessage and set time to now so it can't be forged
     ChatMessage chatMessage = ChatMessage.fromJson(message, true);
-    System.out.println("Routing: "+chatMessage.toString()); // TODO: Remove after debugging
     routeChatMessage(chatMessage);
   }
 
+  /**
+   * Callback function invoked on websocket errors, prints stack trace and logs
+   * error.
+   * 
+   * @param t
+   *          Error that has occurred of which the stack trace is printed.
+   * @throws Throwable
+   */
   @OnError
   public void onError(Throwable t) throws Throwable {
-    t.printStackTrace();
     System.err.println("ChatServer Error: " + t.toString());
+    t.printStackTrace();
   }
 
   /**
@@ -165,12 +194,14 @@ public class ChatServer {
 
       // Get their list of active sessions
       ConcurrentHashSet<Session> sessions = connections.get(destinationId);
-      if ((sessions == null || sessions.isEmpty()) && chatMessage.isStoreOffline()) {
+      if ((sessions == null || sessions.isEmpty())
+          && chatMessage.isStoreOffline()) {
         // Store message offline
         try {
           db.insertMessage(chatMessage, destinationId);
         } catch (SQLException e) {
-          System.err.println("Unable to store offline message to "+destinationId);
+          System.err.println("Unable to store offline message to "
+              + destinationId);
           e.printStackTrace();
         }
         continue;

@@ -20,6 +20,8 @@ import utils.AuthLevel;
 import utils.CalendarJoinCodeIdQuery;
 import utils.ServletUtils;
 
+import chat.DynamicUpdate;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -87,18 +89,21 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       return;
     }
     
+    // Check if they can join the calendar
     if (canJoin(userId, subReq.getJoinCode())) {
-      Response subResp;
       try {
-        subResp = db.putCalendarSubscription(userId, subReq.getJoinCode());
+        CalendarResponse resp = db.putCalendarSubscription(userId, subReq.getJoinCode());
         /* Register calendar ID to user ID mapping. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-        map.put(((CalendarResponse) subResp).getCalendarId(), userId);
+        map.put(resp.getCalendarId(), userId);
+        // Send dynamic update to the owner (creator)
+        subReq.setUserId(userId);
+        DynamicUpdate.sendCalendarJoin(resp.getUserId(), subReq);
+        request.setAttribute(Response.class.getSimpleName(), resp);
       } catch (SQLException e) {
-        subResp = new ErrorResponse("Error while registering user's calendar "
-            + "subscription.");
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse("Error while registering user's calendar "
+            + "subscription."));
       }
-      request.setAttribute(Response.class.getSimpleName(), subResp);
     } else {
       request.setAttribute(Response.class.getSimpleName(), 
           new ErrorResponse("Cannot join the specified calendar."));

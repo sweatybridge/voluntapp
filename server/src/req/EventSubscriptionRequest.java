@@ -3,6 +3,7 @@ package req;
 public class EventSubscriptionRequest implements Request {
 
   private int userId;
+  private int eventId;
   /**
    * Fields excluded from deserialisation.
    */
@@ -11,6 +12,11 @@ public class EventSubscriptionRequest implements Request {
    * No-arg constructor for compatibility with gson serialiser.
    */
   public EventSubscriptionRequest() {
+  }
+  
+  public EventSubscriptionRequest(int userId, int eventId) {
+    this.userId = userId;
+    this.eventId = eventId;
   }
 
   @Override
