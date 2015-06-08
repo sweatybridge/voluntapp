@@ -3,8 +3,10 @@ package chat;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -16,7 +18,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import resp.RosterResponse;
 import resp.SessionResponse;
+import resp.RosterResponse.RosterEntry;
 import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
 import db.CalendarIdUserIdMap;
@@ -86,22 +90,33 @@ public class ChatServer {
     session.getUserProperties().put("userId", userId);
 
     // Add it to the active list of connections
+    boolean userCameOnline = false;
     ConcurrentHashSet<Session> sessions = connections.get(userId);
     if (sessions == null) {
       ConcurrentHashSet<Session> userSessions = new ConcurrentHashSet<>();
       userSessions.add(session);
       connections.put(Integer.valueOf(userId), userSessions);
+      userCameOnline = true;
     } else {
       sessions.add(session);
     }
 
     try {
-      // Send the user roster
+      RosterResponse roster = db.getRoster(userId);
+      // Signal that the user came online if we have to
+      if (userCameOnline) {
+        Set<Integer> calendarIds = new HashSet<Integer>();
+        for (RosterEntry entry : roster.getRosterEntries()) {
+          calendarIds.add(entry.getcid());
+        }
+        DynamicUpdate.sendOnlineUser(calendarIds, userId);
+      }
+      
+      // Send the actual user roster
       List<Integer> destinationIds = new ArrayList<Integer>(2);
       destinationIds.add(userId);
-      ChatMessage roster = new ChatMessage("roster", destinationIds, -1, false,
-          db.getRoster(userId));
-      session.getBasicRemote().sendText(roster.toString());
+      ChatMessage rosterMessage = new ChatMessage("roster", destinationIds, -1, false, roster);
+      session.getBasicRemote().sendText(rosterMessage.toString());
 
       // Return any offline messages
       List<ChatMessage> cms = db.getMessages(userId);
@@ -135,8 +150,12 @@ public class ChatServer {
       sessions.remove(session);
       // Check if the user is logged off entirely
       if (sessions.isEmpty()) {
+        // Remove the HashSet from the mapping, it will be garbage collected
+        connections.remove(userId);
         // Remove the calendar Id map
-        CalendarIdUserIdMap.getInstance().deleteUser(userId);
+        Set<Integer> calendarIds = CalendarIdUserIdMap.getInstance().deleteUser(userId);
+        // Signal that the user actually went offline
+        DynamicUpdate.sendOfflineUser(calendarIds, userId);
       }
     }
   }

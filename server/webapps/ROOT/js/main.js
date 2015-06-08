@@ -111,7 +111,7 @@ $(function() {
   refreshCalendars();
   
   // Initialize chat service
-  Chat.init();
+  // Chat init moved to success callback of refreshCalendars
   
   // Activate time
   // http://stackoverflow.com/questions/18229022/how-to-show-current-time-in-javascript-in-the-format-hhmmss

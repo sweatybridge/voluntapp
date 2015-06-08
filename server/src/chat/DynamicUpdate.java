@@ -1,6 +1,7 @@
 package chat;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import req.CalendarSubscriptionRequest;
 import req.EventSubscriptionRequest;
@@ -31,9 +32,42 @@ public class DynamicUpdate {
    */
   private static void sendObj(Integer calendarId, MessageType mType, Object obj) {
     CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-    ChatMessage cm = new ChatMessage(mType.getType(), Arrays.asList(map
-        .getUserIds(calendarId)), -1, false, obj);
-    ChatServer.routeChatMessage(cm);
+    // Check if there any online users for the calendar
+    Integer[] calendarIds = map.getUserIds(calendarId);
+    if (calendarIds != null) {
+      ChatMessage cm = new ChatMessage(mType.getType(), Arrays.asList(calendarIds), -1, false, obj);
+      ChatServer.routeChatMessage(cm);
+    }
+  }
+
+  /**
+   * Notifies every online user in the given calendar Ids that the given user Id
+   * came online
+   * 
+   * @param calendarIds
+   *          Set of calendar Ids of which the people will be notified
+   * @param userId
+   *          The user Id which came online
+   */
+  public static void sendOnlineUser(Set<Integer> calendarIds, Integer userId) {
+    for (Integer cid : calendarIds) {
+      sendObj(cid, MessageType.USER_ONLINE, "{\"userid\":" + userId + "}");
+    }
+  }
+
+  /**
+   * Notifies every online user in the given calendar Ids that the given user Id
+   * went offline
+   * 
+   * @param calendarIds
+   *          Set of calendar Ids of which the people will be notified
+   * @param userId
+   *          The user Id which went offline
+   */
+  public static void sendOfflineUser(Set<Integer> calendarIds, Integer userId) {
+    for (Integer cid : calendarIds) {
+      sendObj(cid, MessageType.USER_OFFLINE, "{\"userid\":" + userId + "}");
+    }
   }
 
   /**
@@ -119,7 +153,7 @@ public class DynamicUpdate {
       EventSubscriptionRequest req) {
     sendObj(calenderId, MessageType.EVENT_JOIN, req);
   }
-  
+
   /**
    * Sends an event unjoin update when somebody joins an event
    * 
