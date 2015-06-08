@@ -163,6 +163,26 @@ as a ConcurrentMap of Integers and Sets. To ensure thread-safety when accessing 
 HashSet was wrapped inside a ConcurrentHashSet class, decorated with a read-write lock.
 
 \subsection{Front End}
+\subsubsection{Static files with AJAX}
+The front-end structure is based on the HTML5 boiler plate (https://html5boilerplate.com/) organizing our static files under directories such as js, css, fonts. The crucial aspect of the front-end is that it only contains static files under the root directory, in other words, there isn't any data in the html files or in the javascript code. Our app only contains to main pages: the login page and the main calendar app page. When either of these files are requested, they initially bind all the UI functions such as button presses and then make AJAX calls to our API. This asynchronous data loading has several implications on the how the app front-end behaves. Firstly, the front-end acts only as a view in the overall model-view-controller structure of the app. Hence, it is completely independent of the data source, ie the back-end. This separation allows us to host the static files (ie the view etc) somewhere else such as Google App Engine where serving static files are free, and only host the API. Secondly, front-end can load without any data. Even though there will be an empty frame saying that the user, for example, does not have any events, it will be loaded nonetheless. This AJAX loading method ensures that the front-end is visible to the user even if the back-end encounters a fatal error.
+
+\subsubsection{Data to Rendering}
+The javascript code is organized into several layers that separate the concerns of individual functions and parts. Firstly, the code is divided into 3 sections: user, calendar and event code. Each section is refactored into a separate javascript file which deal with getting the data to rendering it on the screen. All of the data corresponding to the state of the app is stored in a global javascript object called app. This object is global because different parts of the application such events, calendars functions require the data of other sections of the app rather than making a train wreck of passed parameters to the function call hierarchy. They all follow the similar pattern of:
+\begin{description}
+\item[Refresh] - Initially the refresh function is called for the corresponding part. For example, refreshCalendars updates user's calendars. This function is responsible of \textbf{fetching} the data from the back-end using the provided API calls. Then it stores the information under the global app object, app.calendars in this case. Finally, the rendering is invoked.
+\item[Render Items] - This function first clears the whatever is currently rendered and then for each of the item in the corresponding section of the global app object calls the appropriate render item function.
+\item[Render Item] - The heart of the rendering happens in functions which render individual items such as events on the screen. The rendering is achieved by created new DOM elements using jQuery which are then inserted in the right place on the screen. For example, renderEvent function renders a single event on the main calendar table.
+\end{description}
+It is important to note that this refresh to rendering cycle only happens when the page is loaded for the first time. Then only the rendering functions are used in correspondence with the dynamic update messages received from the back-end. This method significantly reduces the AJAX overhead of fetching the entire data again even if only one event is changed.
+
+\subsubsection{User Interactions}
+TODO: Mention the milestone interactions plus the user-user interaction. User-user is more crucial here.
+
+\subsubsection{UI Design}
+TODO: Put a screen shot, discuss why the elements are where they are. Talk about the flow of the creating events to changing / joining stuff. Mention
+
+\subsubsection{Mobile Optimizations}
+TODO: Mention what were challenges faced with mobile such as side bars, calendar columns. Resizing events. Making things touch friendly (swipes etc).
 
 \section{Libraries}
 Libraries that are used in the front-end:
