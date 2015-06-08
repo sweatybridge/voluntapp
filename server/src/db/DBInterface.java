@@ -28,6 +28,7 @@ import resp.EventSubscriptionResponse;
 import resp.MessageResponse;
 import resp.Response;
 import resp.RosterResponse;
+import resp.SavedEventResponse;
 import resp.SessionResponse;
 import resp.UserResponse;
 import resp.ValidationResponse;
@@ -882,6 +883,55 @@ public class DBInterface {
     MessageResponse mr = new MessageResponse(userId);
     query(mr);
     return mr.getMessages();
+  }
+  
+  /**
+   * Given the ID of the user, returns the events that the user saved (together
+   * with the appropriate timestamps).
+   * 
+   * @param userId
+   * @return List of EventResponse objects and corresponding timestamps.
+   * @throws SQLException
+   */
+  public SavedEventResponse getSavedEvents(int userId) throws SQLException {
+    SavedEventResponse query = new SavedEventResponse(userId);
+    query(query);
+    return query;
+  }
+  
+  /**
+   * Saves the event with specified ID for the given user.
+   * 
+   * @param userId
+   * @param eventId
+   * @return whether the event was successfully saved
+   * @throws SQLException 
+   */
+  public boolean saveEvent(int userId, int eventId) throws SQLException {
+    SavedEventResponse resp = new SavedEventResponse(userId, eventId);
+    int rows = insert(resp);
+    return rows == 1;
+  }
+  
+  /**
+   * Given the ID of the event, it removes the event from the list of saved
+   * events of the specified user.
+   * 
+   * @param userId
+   * @param eventId
+   * @return whether the deletion was successful
+   * @throws SQLException
+   * @throws InconsistentDataException - thrown when more than one row is deleted
+   */
+  public boolean deleteSavedEvent(int userId, int eventId) 
+      throws SQLException, InconsistentDataException {
+    SavedEventResponse resp = new SavedEventResponse(userId, eventId);
+    int rows = delete(resp);
+    if (rows > 1) {
+      throw new InconsistentDataException(
+          "More than one event from the list of saved events was deleted.");
+    }
+    return rows == 1;
   }
 
 }
