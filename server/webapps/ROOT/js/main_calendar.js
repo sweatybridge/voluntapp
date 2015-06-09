@@ -14,8 +14,14 @@ $(function() {
   
   // Bind edit calendar buttons and forms
   $("#b_cancel_calendar").click(function() {
+    $("#d_edit_calendar").hide();
+    //$("#d_user_calendars").toggle();
+  });
+  $("#b_edit_calendar").click(function(e) {
+    if (!$(this).closest(".panel-heading").hasClass("collapsed")) {
+      e.stopPropagation();
+    }
     $("#d_edit_calendar").toggle();
-    $("#d_user_calendars").toggle();
   });
   
   $("#b_delete_calendar").click(function() {
@@ -62,8 +68,8 @@ $(function() {
   });
   
   // Render calendar from yesterday
-  // updateCalendarDates(getMonday());
-  app.current_start_date = getMonday();
+  updateCalendarDates(getMonday());
+  //app.current_start_date = getMonday();
 
   //rebuildCalendar();
 }); // End of document ready

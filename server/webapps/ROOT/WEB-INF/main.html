@@ -74,7 +74,7 @@
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="false" aria-controls="collapseOne">
                 <h4 class="panel-title">
-                  My calendars<span class="glyphicon glyphicon-pencil pull-right"></span>
+                  My calendars<span id="b_edit_calendar" class="glyphicon glyphicon-pencil pull-right"></span>
                 </h4>
               </div>
               <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
@@ -83,8 +83,9 @@
                   <ul id="d_user_calendars" class="nav nav-pills nav-stacked"></ul>
                 </div>
                 <div id="d_edit_calendar" class="panel-body" style="display: none;">
+                  <button id="b_unsub_calendar" type="button" class="btn btn-primary">Unsubscribe</button>
                   <p>Deleting a calendar will delete all corresponding events as well. Click CANCEL to close this window.</p>
-                  <button id="b_delete_calendar" type="button" class="btn btn-danger">Delete this calendar</button>
+                  <button id="b_delete_calendar" type="button" class="btn btn-danger">Delete selected calendars</button>
                   <form role="form" id="user_promotion_form" action="/api/subscription/calendar" method="put" autocomplete="off">
                     <p>Enter the user email that you want the perform the action. Remember that the user must be part of this calendar by joining.</p>
                     <div class="form-group"><input type="email" class="form-control" name="targetUserEmail" placeholder="User email" required>
@@ -111,7 +112,7 @@
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              <div class="panel-heading collapsed" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                 <h4 class="panel-title">
                   My profile
                 </h4>
@@ -144,7 +145,7 @@
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingThree" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              <div class="panel-heading collapsed" role="tab" id="headingThree" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                 <h4 class="panel-title">
                   Saved events
                 </h4>
@@ -157,7 +158,7 @@
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingFour" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              <div class="panel-heading collapsed" role="tab" id="headingFour" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                 <h4 class="panel-title">
                   Settings
                 </h4>
@@ -169,7 +170,7 @@
               </div>
             </div>
             <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="headingFive" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+              <div class="panel-heading collapsed" role="tab" id="headingFive" data-toggle="collapse" data-parent="#accordion" href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
                 <h4 class="panel-title">
                   Help
                 </h4>
