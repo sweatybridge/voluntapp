@@ -65,17 +65,16 @@
 
         <div id="d_left_sidebar" class="sidebar">
           <p class="lead">Welcome, <span data-bind="firstName">[firstName]</span></p>
-          <p>You haven't logged in since <strong data-bind="lastSeen">[lastSeen]</strong></p>
+          <!--<p>You haven't logged in since <strong data-bind="lastSeen">[lastSeen]</strong></p>-->
           <div>
-            <label>Start date: </label>
-            <input type="text" id="pickStartDate">
+            <p>Here are the upcoming events on your calendars since <input type="text" id="pickStartDate"></p>
           </div>
           <br>
           <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
               <div class="panel-heading" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion" href="#calendars_collapse" aria-expanded="false" aria-controls="collapseOne">
                 <h4 class="panel-title">
-                  My calendars
+                  My calendars<span class="glyphicon glyphicon-pencil pull-right"></span>
                 </h4>
               </div>
               <div id="calendars_collapse" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">

@@ -72,7 +72,7 @@ $(function() {
 function refreshCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
-        '<a href="#">{{name}}<span class="label label-default pull-right">{{joinCode}}</span></a>'+
+        '<a href="#">{{name}}<span class="label label-primary join-code">{{joinCode}}</span></a>'+
       '</li>';
 /*
 '<div data-calid="{{id}}" class="calendar"> \
@@ -107,7 +107,7 @@ function refreshCalendars() {
     myCalendar.empty();
     // If there is any, create calendar elements
     $.each(data.calendars, function(index, calendar) {
-      var code = calendar.joinEnabled ? calendar.joinCode : "disabled";
+      var code = calendar.joinEnabled ? calendar.joinCode : "private";
       var cal_div = $(cal_html
           .replace("{{id}}", calendar.calendarId)
           .replace("{{name}}", calendar.name)

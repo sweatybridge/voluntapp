@@ -210,9 +210,23 @@ My calendar
 #d_user_calendars > li.active > a {
   background-color: #eee;
   color: #337ab7;
+  font-weight: 700;
 }
-#d_user_calendars > li > a > span {
+.join-code {
+  position: absolute;
+  right: 10px;
   font-size: 96%;
+  font-weight: 400;
+  /*background-color: #999;*/
+}
+#pickStartDate {
+  border: 0px;
+  border-bottom: dotted 1px;
+  width: 100px;
+  background-color: #eee;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1;
 }
 
 /*
