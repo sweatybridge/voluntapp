@@ -110,6 +110,9 @@ $(function() {
   // Request calendar information
   refreshCalendars();
   
+  // Initialize chat service
+  // Chat init moved to success callback of refreshCalendars
+  
   // Activate time
   // http://stackoverflow.com/questions/18229022/how-to-show-current-time-in-javascript-in-the-format-hhmmss
   (function () {
@@ -130,6 +133,7 @@ $(function() {
     startTime();
   })();
 
+  // TODO: handle device orientation change
   //$(window).resize(rebuildCalendar);
 }); // End of document ready
 
@@ -142,6 +146,29 @@ function refreshUser() {
       $("[data-bind='firstName']").text(data.firstName).val(data.firstName);
       $("[data-bind='lastName']").text(data.lastName).val(data.lastName);
       $("[data-bind='lastSeen']").text(data.lastSeen).val(data.lastSeen);
+
+      Modernizr.load({
+        test: Modernizr.websockets,
+        // nope: 'geo-polyfill.js',
+        complete: function() {
+          // initialise first for easier debugging
+          app.adapter = new DemoAdapter();
+          $.chat({
+            // your user information
+            userId: app.user.userId,
+            // id of the room. The friends list is based on the room Id
+            roomId: 1,
+            // text displayed when the other user is typing
+            //typingText: ' is typing...',
+            // text displayed when there's no other users in the room
+            //emptyRoomText: "There's no one around here. You can still open a session in another browser and chat with yourself :)",
+            // path to chatjs files
+            chatJsContentPath: '/',
+            // the adapter you are using
+            adapter: app.adapter
+          });
+        }
+      });
   });
 }
 
