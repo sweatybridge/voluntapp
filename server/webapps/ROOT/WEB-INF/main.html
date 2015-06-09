@@ -232,19 +232,20 @@
               <div role="tabpanel" class="tab-pane fade in active" id="crt_event">
                 <form class="form-centre" role="form" id="event_form" action="/api/event" method="post" autocomplete="off">
                   <div class="form-group">
-                  <select id="select_calendar" class="form-control" name="calendarId">
-                    <option value="-1">[None]</option>
-                  </select>
-                  <input type="hidden" name="eventId">
-                  <input type="text" name="title" class="form-control" placeholder="Title" required>
-                  <input type="text" name="startDate" class="form-control datetimepicker" placeholder="Start date time" required>
-                  <input type="text" name="endDate" class="form-control datetimepicker" placeholder="End date time" required>
-                  <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
-                  <input type="number" name="max" class="form-control" min="-1" placeholder="Maximum Size" required>
-                  <textarea class="form-control" name="description" rows="5" placeholder="Description" maxlength="255"></textarea>
-                  <span class="countdown"></span>
+                    <select id="select_calendar" class="form-control" name="calendarId">
+                      <option value="-1">[None]</option>
+                    </select>
+                    <input type="hidden" name="eventId">
+                    <input type="text" name="title" class="form-control" placeholder="Title" required>
+                    <input type="text" name="startDate" class="form-control datetimepicker" placeholder="Start date time" required>
+                    <input type="text" name="endDate" class="form-control datetimepicker" placeholder="End date time" required>
+                    <input type="text" name="location" class="form-control" placeholder="Location (Optional)">
+                    <input type="number" name="max" class="form-control" min="-1" placeholder="Maximum Size" required>
+                    <textarea class="form-control" name="description" rows="5" placeholder="Description" maxlength="255"></textarea>
+                    <span class="countdown"></span>
                   </div>
                   <input class="btn btn-primary" type="submit" value="Create Event" id="btn_event_create">
+                  <input class="btn btn-default" type="button" value="Clear" id="btn_event_clear">
                   <input class="btn btn-primary" type="button" value="Save" style="display: none;" id="btn_event_save">
                   <input class="btn btn-danger" type="button" value="Delete" style="display: none;" id="btn_event_delete">
                   <input class="btn btn-default" type="button" value="Cancel" style="display: none;" id="btn_event_cancel">

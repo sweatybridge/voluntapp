@@ -38,7 +38,7 @@ $(function() {
     })
   });
 
-  $("#btn_event_cancel").click(resetEventForm);
+  $("#btn_event_clear, #btn_event_cancel").click(resetEventForm);
 
   // delete event
   $("#btn_event_delete").click(function() {
@@ -98,10 +98,7 @@ $(function() {
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
   });
-  
-  // bind click to empty space on calendar
-  $("#d_main_col").click(resetEventForm);
-  
+
   // Refresh description count
   $('#event_form textarea[name="description"]').change(updateCountdown);
   $('#event_form textarea[name="description"]').keyup(updateCountdown);
@@ -483,13 +480,13 @@ function formatEventForm(formObj) {
 
 // Shows event create button and hide the rest
 function turnEventCreate() {
-  $("#btn_event_create").show();
+  $("#btn_event_create, #btn_event_clear").show();
   $("#btn_event_save, #btn_event_delete, #btn_event_cancel").hide();
 }
 
 // Shows event editing buttons and hides the create
 function turnEventEdit() {
-  $("#btn_event_create").hide();
+  $("#btn_event_create, #btn_event_clear").hide();
   $("#btn_event_save, #btn_event_delete, #btn_event_cancel").show();
 }
 
