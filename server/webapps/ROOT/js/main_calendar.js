@@ -118,7 +118,7 @@ function refreshCalendars() {
       }      
 
       cal_div.click(function() {
-        cal_div.toggleClass("active");
+        cal_div.toggleClass("active").children().blur();
         if (calendar.role === "admin" || calendar.role === "owner") {
           // cal_div.find(".calendar-extras").toggle();
         }
