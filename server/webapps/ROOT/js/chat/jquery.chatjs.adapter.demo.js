@@ -74,10 +74,46 @@ var DemoServerAdapter = (function () {
         echoBotUser.ProfilePictureUrl = "http://www.gravatar.com/avatar/4ec6b20c5fed48b6b01e88161c0a3e20.jpg";
         echoBotUser.Status = 1 /* Online */;
 
+        var echoBotUser2 = new ChatUserInfo();
+        echoBotUser2.Id = 3;
+        echoBotUser2.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
+        echoBotUser2.Name = "Echobot";
+        echoBotUser2.Email = "echobot1984@gmail.com";
+        echoBotUser2.ProfilePictureUrl = "http://www.gravatar.com/avatar/4ec6b20c5fed48b6b01e88161c0a3e20.jpg";
+        echoBotUser2.Status = 1 /* Online */;
+
+        var echoBotUser3= new ChatUserInfo();
+        echoBotUser3.Id = 4;
+        echoBotUser3.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
+        echoBotUser3.Name = "Echobot";
+        echoBotUser3.Email = "echobot1984@gmail.com";
+        echoBotUser3.ProfilePictureUrl = "http://www.gravatar.com/avatar/4ec6b20c5fed48b6b01e88161c0a3e20.jpg";
+        echoBotUser3.Status = 1 /* Online */;
+
+        var echoBotUser4 = new ChatUserInfo();
+        echoBotUser4.Id = 5;
+        echoBotUser4.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
+        echoBotUser4.Name = "Echobot";
+        echoBotUser4.Email = "echobot1984@gmail.com";
+        echoBotUser4.ProfilePictureUrl = "http://www.gravatar.com/avatar/4ec6b20c5fed48b6b01e88161c0a3e20.jpg";
+        echoBotUser4.Status = 1 /* Online */;
+
+        var echoBotUser5 = new ChatUserInfo();
+        echoBotUser5.Id = 6;
+        echoBotUser5.RoomId = DemoAdapterConstants.DEFAULT_ROOM_ID;
+        echoBotUser5.Name = "Echobot";
+        echoBotUser5.Email = "echobot1984@gmail.com";
+        echoBotUser5.ProfilePictureUrl = "http://www.gravatar.com/avatar/4ec6b20c5fed48b6b01e88161c0a3e20.jpg";
+        echoBotUser5.Status = 1 /* Online */;
+
         // adds the users in the global user list
         this.users = new Array();
         this.users.push(myUser);
         this.users.push(echoBotUser);
+        this.users.push(echoBotUser2);
+        this.users.push(echoBotUser3);
+        this.users.push(echoBotUser4);
+        this.users.push(echoBotUser5);
 
         // configuring rooms
         var defaultRoom = new ChatRoomInfo();

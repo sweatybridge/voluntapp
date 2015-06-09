@@ -115,6 +115,9 @@
     overflow-y: auto;
 }
 
+    .chat-window-inner-content.user-list {
+        height: 100% !important;
+    }
     .chat-window-inner-content .loading-box {
         background-position: center center;
         background-repeat: no-repeat;
@@ -396,12 +399,12 @@ ul.horizontal-tab li.selected {
         font-weight: bold;
         margin: 0 10px;
     }
-
-/*.tab-content {
+/*
+.tab-content {
     display: none;
     overflow: hidden;
-}*/
-
+}
+*/
     .tab-content.selected-tab {
         display: block;
     }

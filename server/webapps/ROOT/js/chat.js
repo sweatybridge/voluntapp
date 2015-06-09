@@ -37,69 +37,10 @@ var DemoClientAdapter = (function () {
 })();
 
 var DemoServerAdapter = (function () {
-    var DEFAULT_ROOM_ID = 1;
-    DemoServerAdapter.prototype.handleRoster = function (roster) {
-      this.users = roster.map(function(user) {
-        // configure user info
-        var userInfo = new ChatUserInfo();
-        userInfo.Id = user.userId;
-        userInfo.RoomId = DEFAULT_ROOM_ID;
-        userInfo.Name = user.firstName + " " + user.lastName;
-        userInfo.Email = user.email;
-        userInfo.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
-        userInfo.Status = 1 /* Online */;
-        return userInfo;
-      });
-
-      // configuring rooms
-      var defaultRoom = new ChatRoomInfo();
-      defaultRoom.Id = 1;
-      defaultRoom.Name = "Default Room";
-      defaultRoom.UsersOnline = this.users.length;
-
-      this.rooms = [defaultRoom];
-      DemoServerAdapter.prototype.enterRoom(1);
-    }
-
-    function DemoServerAdapter(clientAdapter) {
+    this.DEFAULT_ROOM_ID = 1;
+    function DemoServerAdapter(clientAdapter, socket) {
         this.clientAdapter = clientAdapter;
-
-        var cookie = getCookie("token");
-        if (!cookie) {
-          console.log("No token.");
-          return;
-        }
-
-        // open websocket connection
-        var host = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
-        host += window.location.host + "/chat?token="+cookie;
-        this.socket = new WebSocket(host);
-
-        // Bind on open function
-        this.socket.onopen = function () {
-          console.log('Info: WebSocket connection opened.');
-        };
-
-        // Bind on close function
-        this.socket.onclose = function () {
-          console.log('Info: WebSocket closed.');
-        };
-
-        // Main message handler
-        this.socket.onmessage = function (e) {
-          // Parse the data, we are expecting a ChatMessage
-          // having fields: -type, -destinationIds, -sourceId
-          // -date, -storeOffline, -payload
-          var msg = JSON.parse(e.data);
-          switch (msg.type) {
-            case 'roster':
-              DemoServerAdapter.prototype.handleRoster(msg.payload.roster);
-              break;
-          }
-          console.log(msg);
-          toastr.info(e.data);
-        };
-
+        this.socket = socket;
         this.users = new Array();
         this.rooms = new Array();
     }
@@ -190,9 +131,73 @@ var DemoAdapter = (function () {
     }
     // called when the adapter is initialized
     DemoAdapter.prototype.init = function (done) {
+        var _this = this;
+        // get authorization token
+        var cookie = getCookie("token");
+        if (!cookie) {
+            console.log("No token.");
+            return;
+        }
+
+        // open websocket connection
+        var host = (window.location.protocol === 'http:') ? 'ws://' : 'wss://';
+        host += window.location.host + "/chat?token="+cookie;
+        this.socket = new WebSocket(host);
+
+        // build client and server adapters
         this.client = new DemoClientAdapter();
-        this.server = new DemoServerAdapter(this.client);
+        this.server = new DemoServerAdapter(this.client, this.socket);
+
+        // Bind on open function
+        this.socket.onopen = function () {
+            console.log('Info: WebSocket connection opened.');
+        };
+
+        // Bind on close function
+        this.socket.onclose = function () {
+            console.log('Info: WebSocket closed.');
+        };
+
+        // Main message handler
+        this.socket.onmessage = function (e) {
+            // Parse the data, we are expecting a ChatMessage
+            // having fields: -type, -destinationIds, -sourceId
+            // -date, -storeOffline, -payload
+            var msg = JSON.parse(e.data);
+            switch (msg.type) {
+                case 'roster':
+                    _this.handleRoster(msg.payload.roster);
+                    break;
+            }
+            console.log(msg);
+            toastr.info(e.data);
+        };
+
         done();
     };
+
+    DemoAdapter.prototype.handleRoster = function (roster) {
+        this.server.users = roster.map(function(user) {
+            // configure user info
+            var userInfo = new ChatUserInfo();
+            userInfo.Id = user.uid;
+            userInfo.RoomId = DEFAULT_ROOM_ID;
+            userInfo.Name = user.firstName + " " + user.lastName;
+            //userInfo.Email = user.email;
+            userInfo.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
+            userInfo.Status = 1 /* Online */;
+            return userInfo;
+        });
+
+        // configuring rooms
+        var defaultRoom = new ChatRoomInfo();
+        defaultRoom.Id = 1;
+        defaultRoom.Name = "Default Room";
+        defaultRoom.UsersOnline = this.server.users.length;
+
+        this.server.rooms = [defaultRoom];
+        this.server.enterRoom(1);
+    };
+
     return DemoAdapter;
 })();
