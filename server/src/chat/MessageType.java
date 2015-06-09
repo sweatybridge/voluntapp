@@ -8,6 +8,9 @@ package chat;
  * 
  */
 public enum MessageType {
+  USER_ONLINE("online/user"),
+  USER_OFFLINE("offline/user"),
+  
   EVENT_UPDATE("update/event"),
   EVENT_DELETE("delete/event"),
   EVENT_JOIN("join/event"),

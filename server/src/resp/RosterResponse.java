@@ -70,6 +70,10 @@ public class RosterResponse extends Response {
     public int getuid() {
       return uid;
     }
+    
+    public int getcid() {
+      return cid;
+    }
   }
 
   /**
@@ -85,6 +89,10 @@ public class RosterResponse extends Response {
   
   public int getUserId() {
     return userId;
+  }
+  
+  public List<RosterEntry> getRosterEntries() {
+    return roster;
   }
 
   @Override

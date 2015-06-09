@@ -2,7 +2,6 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -19,7 +18,6 @@ import resp.UserResponse;
 import utils.AuthLevel;
 import utils.CalendarJoinCodeIdQuery;
 import utils.ServletUtils;
-
 import chat.DynamicUpdate;
 
 import com.google.gson.Gson;
