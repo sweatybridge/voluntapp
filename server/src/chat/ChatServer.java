@@ -18,6 +18,8 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import resp.CalendarResponse;
+import resp.CalendarSubscriptionResponse;
 import resp.RosterResponse;
 import resp.SessionResponse;
 import resp.RosterResponse.RosterEntry;
@@ -109,13 +111,19 @@ public class ChatServer {
         for (RosterEntry entry : roster.getRosterEntries()) {
           calendarIds.add(entry.getcid());
         }
+        /* Record that a user is subscribed to given calendars. */
+        CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+        for (Integer calendarId : calendarIds) {
+          map.put(calendarId, userId);
+        }
         DynamicUpdate.sendOnlineUser(calendarIds, userId);
       }
-      
+
       // Send the actual user roster
       List<Integer> destinationIds = new ArrayList<Integer>(2);
       destinationIds.add(userId);
-      ChatMessage rosterMessage = new ChatMessage("roster", destinationIds, -1, false, roster);
+      ChatMessage rosterMessage = new ChatMessage("roster", destinationIds, -1,
+          false, roster);
       session.getBasicRemote().sendText(rosterMessage.toString());
 
       // Return any offline messages
@@ -153,7 +161,8 @@ public class ChatServer {
         // Remove the HashSet from the mapping, it will be garbage collected
         connections.remove(userId);
         // Remove the calendar Id map
-        Set<Integer> calendarIds = CalendarIdUserIdMap.getInstance().deleteUser(userId);
+        Set<Integer> calendarIds = CalendarIdUserIdMap.getInstance()
+            .deleteUser(userId);
         // Signal that the user actually went offline
         DynamicUpdate.sendOfflineUser(calendarIds, userId);
       }

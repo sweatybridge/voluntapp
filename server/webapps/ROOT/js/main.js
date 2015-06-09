@@ -143,7 +143,8 @@ function refreshUser() {
       $("[data-bind='firstName']").text(data.firstName).val(data.firstName);
       $("[data-bind='lastName']").text(data.lastName).val(data.lastName);
       $("[data-bind='lastSeen']").text(data.lastSeen).val(data.lastSeen);
-
+      
+      // Chat initialize
       Modernizr.load({
         test: Modernizr.websockets,
         // nope: 'geo-polyfill.js',
@@ -156,7 +157,7 @@ function refreshUser() {
             // id of the room. The friends list is based on the room Id
             roomId: 1,
             // text displayed when the other user is typing
-            //typingText: ' is typing...',
+            typingText: ' is typing...',
             // text displayed when there's no other users in the room
             //emptyRoomText: "There's no one around here. You can still open a session in another browser and chat with yourself :)",
             // path to chatjs files

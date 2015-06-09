@@ -54,12 +54,6 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     Response subResp;
     try {
       subResp = db.getUsersCalendars(userId);
-      /* Record that a user is subscribed to given calendars. */
-      CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-      for (CalendarResponse calendar : 
-        ((CalendarSubscriptionResponse) subResp).getCalendars()) {
-        map.put(calendar.getCalendarId(), userId);
-      }
     } catch (SQLException | InconsistentDataException e) {
       subResp = new ErrorResponse("Error while retirieving the calendar IDs "
           + "from the database." + e.getMessage());

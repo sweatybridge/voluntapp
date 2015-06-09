@@ -13,7 +13,7 @@ public class ChatMessage {
    * delete/event    - 
    */
   private String type;
-  private transient List<Integer> destinationIds;
+  private List<Integer> destinationIds;
   private Integer sourceId;
   private Date date;
   private boolean storeOffline;
