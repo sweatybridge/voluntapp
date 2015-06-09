@@ -168,8 +168,6 @@ function refreshCalendars() {
     // Refresh events for the calendars
     $("#d_user_calendars").children().first().click();
     
-    // Initialize chat service
-    Chat.init();
   });
 }
 
