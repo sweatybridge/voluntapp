@@ -26,44 +26,556 @@
 \maketitle
 
 \section{Introduction}
-Our project is a web based application that complements the process of creating and tracking of events and people who are attending the event. It also provides facilities to allow for participants to ask questions and find out information from the event organisers and for event organisers to control groups of people who are able to create events. 
+Our project is a web based application that complements the process of creating 
+and tracking of events and people who are attending them. It also provides 
+facilities to allow for participants to ask questions and find out information 
+from the event organisers and for event organisers to control groups of people 
+who are able to create events. 
 \\
 \\
 \noindent This application contains two main entities:
 \begin{description}
-\item[Calendars] - these are entities that any user can create. User can subscribe to other peoples calendars where they can then be promoted to editors or admins. Depending on their role they will have different rights and available actions is described \textbf{put-link-here}.
-\item[Events] - events are things that are created on the calendar they are available to join to anyone who is subscribed. They contain the following information, a title, a start date and time, an end end and time, a location, a max capacity (possibly unlimited) and a description.
+\item[Calendars] - these are entities that any user can create. User can 
+subscribe to other peoples calendars where they can then be promoted to editors 
+or admins. Depending on their role they will have different rights and available 
+actions is described \textbf{put-link-here}.
+\item[Events] - events are entities that are created on the calendar and are 
+available to join to anyone who has subscribed. They contain the following 
+information: a title, a start date and time, an end end and time, a location, a 
+max capacity (possibly unlimited) and a description.
 \end{description}
 
-\noindent We decided on creating this application due to a problem that one of our team members spotted during volunteering for the collage. This problem was with the way things were organised, which typically involves large quantities of emails to, send out the information, get responses back from interesting volunteers and either send out more telling people they are oversubscribed or asking for more people as they didn't get enough.
+\noindent We decided on creating this application due to a problem that one of 
+our team members spotted during volunteering for the collage. This problem was 
+with the process of organising events, which typically involves large quantities of 
+emails to send out the information and get responses back from interested 
+volunteers and either send out more email telling people that events are oversubscribed or 
+asking for more people as they didn't get enough.
 \\
 \\
-\noindent Our aims for this project were to improve our understanding of how to build a products by working with the purposed end users. We also aimed to gain an understanding of web development and database management along with a new range of technology in which most of us were novices. We have been working quite closely with the users to ensure that the features we have been implementing will appeal to them and can be integrated into their current work processes.
+\noindent Our aims for this project were to improve our understanding of how to 
+build products by working with the purposed end users. We also aimed to gain 
+greater understanding of web development and database management along with a new 
+range of technology in which most of us were novices. We have been working quite 
+closely with the users to ensure that the features we have been implementing 
+will appeal to them and can be integrated into their current work processes.
 \\
 \\
-\noindent The basic requirements for our project were to make event organising easier (to do away with the huge amount of emails). We also gained quite a few requirements/possible extensions from conversing with the user.
+\noindent The basic requirements for our project were to make event organising 
+easier (to do away with the huge amount of emails). We also gained quite a few 
+requirements/possible extensions from conversing with the user.
 \\
 \\
-\noindent There were (from meeting minutes):
+\noindent These were (from meeting minutes):
 \begin{itemize}
 \setlength\itemsep{0.1em}
 \item Allow event details to be edited after creation.
 \item Allow admins to check who has signed up for an event they have created.
-\item Allow for multiple admins on the same calendar to collaborate in setting up events. 
-\item Make it so events can have prerequisites which users must identify they have read before they can sign up.
-\item Allow admins to remove people from the events if they do not meet the prerequisites (or for any other reason).
+\item Allow for multiple admins on the same calendar to collaborate in setting 
+up events. 
+\item Make it so events can have prerequisites which users must identify they 
+have read before they can sign up.
+\item Allow admins to remove people from the events if they do not meet the 
+prerequisites (or for any other reason).
 \item Always start the calendar view on a Monday and highlight the current day.
 \item Admin approval for events that were created by editors.
-\item In-app live chat and offline messages for volunteers to ask questions and get answers.
+\item In-app live chat and offline messages for volunteers to ask questions and 
+get answers.
 \item Real time updates for new events and event subscriptions.
 \item Make it easy to join and edit events from a mobile browser.  
 \end{itemize}
-\noindent We also got a lot more suggestions which we have either discarded due to coming up with a better alternative or put off in favour of more important features. Examples of these are email alerts of upcoming/important events, statistics on how much a user has volunteered (what events they have attended), report generation for events that have been created for each week, etc...
+\noindent We also got a lot more suggestions which we have either discarded due 
+to coming up with a better alternative or put off in favour of more important 
+features. Examples of these are email alerts of upcoming/important events, 
+statistics on how much a user has volunteered (what events they have attended), 
+report generation for events that have been created for each week, etc...
 
 \section{Project Management}
-     
-\newpage
-\newpage
-\section{To put somewhere later}
-Admins are able to change the calendar information, kick people from the calendar and create/delete/modify \textbf{events} whereas editors can only create/delete/modify events. Everyone who is subscribed to the calendar has the right to join any of the calendars events.
+
+\noindent The management of our project was realised with daily meetings to 
+discuss progress and work out what we needed to work on each day. As we spend 
+most of the time working in close proximity with each other it allowed us to 
+communicate quickly on all matters and minimize redundant work (writing emails
+or other sort of messages). Using Trello board allowed our team to manage
+ideas in a consistent manner, set up goals and track our progress effectively. 
+We also took advantage of the user meetings (mentioned above) to help keep us on track. 
+
+\subsection{Group Structure}
+\noindent We divided our group responsibilities based on our individual 
+strengths. Han has done extensive development work on both server and client 
+side applications in past internships and part time jobs and hence was the most 
+suitable candidate for the role of group leader. The group leader was responsible 
+for guiding the choices of technology together with ensuring a schedule for the 
+timely completion of the project. In addition, he was also responsible for 
+managing the team during evaluations of the project requirements and the 
+suitability of different technology stacks in fulfilling our design goals.
+\\
+\\
+\noindent
+More specifically, our team members were initially in charge of working on 
+following areas.
+
+\begin{itemize}
+  \item Client-side presentation - Nuri
+  \item Client-side interaction - Nuri / Han
+  \item Server-side processing - Bradley / Piotr / Han
+  \item Database set-up - Bradley / Piotr
+\end{itemize}
+
+\noindent However as some tasks take longer than others, all of us ended up 
+working together of different parts of the project, outside the initial setup.
+This was enabled by our close working conditions which meant that we could quickly ask 
+the person who had implemented particular piece of functionality to explain the ideas 
+or help fix bugs. We believe this was a good thing as it allowed us all to gain a general 
+understanding of the bits we weren't assigned to, as well as a deep 
+understanding of the bits we were. This helped us achieve our aims of getting a 
+feel of the whole web application stack.   
+
+\subsection{Implementation Choices}
+
+Although we chose to use HTML, CSS, and JavaScript for the front end (for 
+compatibility reasons), we have considered a wide variety of web development 
+frameworks, ranging from full blown MVC frameworks such as AngularJS, MeteorJS, 
+and Django templates, to minimalistic libraries such as jQuery, Backbone.js, and 
+HTML5 Boilerplate. As the team was relatively new to web development, we decided 
+to use frameworks that more closely represent the fundamental DOM layout to 
+enhance our understanding. This means that HTML5 Boilerplate is a good choice 
+because it consolidates the best practices of using modern web technologies 
+without adding extra layers of abstraction. In addition, we have chosen to use 
+the Bootstrap framework to enhance the visual presentation of our web app. 
+Lastly, we decided to separate our data models from the views by fetching data 
+asynchronously as JSON objects from our back end using RESTful APIs. Using 
+RESTful APIs allows for easy integration with mobile clients while using JSON as 
+the data format allows for transfer of rich data structures like nested objects 
+and arrays.
+\begin{comment}
+  see also, closure, scala, dart, go, c++
+\end{comment}
+\\
+\\
+\noindent
+We have picked a statically typed language, Java, as the implementation language 
+for our back end. Although it may increase the amount of time needed to write our 
+App, we believe the extra type safety combined with an active developer 
+community makes it a good trade-off over other dynamically typed languages such 
+as Python, node.js, and PHP. As most of us are familiar with Java, it is also 
+easier to apply sound software design patterns that we have learnt over the 
+course of our studies, such as singleton pattern or dependency 
+injection/inversion. With the support of testing frameworks like JUnit and 
+Mockito, we are able to provide good test coverage on our back end code base to 
+ensure long term maintainability. This is especially important for our target 
+market - enterprise web apps (see our App description). More generally, Java 
+code is more habitable and allows for easier extension with its wide range of 
+third party libraries. We also believe it will keep our options open going 
+forward as it is very portable and platform independent.
+\\
+\\
+%might want to expand on the use of Tomcat and PostgreSQL
+\noindent
+Lastly, we have decided to use Apache Tomcat as the web container and PostgreSQL 
+as the database engine because they have been conveniently set up by CSG on lab 
+machines.
+
+\subsection{Design Processes}
+
+As we tried to create as little coupling as possible between the front end and 
+the back end, we used slightly different processes in designing and creating 
+each one.  
+\\
+\\
+\noindent For the front end we decided to first build a basic UI without any 
+functionality. It allowed us to get an interface that was easy to understand, 
+usable and fluid. It meant that half of the group could just focus on that for 
+the start of the project. Next we added some basic functionality to see if it 
+worked well and adjusted things if we thought they could be improved. From there 
+we performed iterations of adding UI features $\rightarrow$ adding in the 
+functionality $\rightarrow$ adjusting to achieve the desired look and feel of 
+the components.
+\\
+\\
+\noindent The back end design started with sketching out an outline the for API 
+which achieved the basic functionality that we needed for the first set of 
+features. Then we spent a fair amount of time re-factoring to improve 
+readability , trying to include as many best practices as we could find and 
+writing some tests to ensure that we hit all of the edge cases. Then we joined 
+the design process for the front end in iterations of adding features 
+$\rightarrow$ wiring them up to the front end $\rightarrow$ re-factoring if 
+possible.     
+
+\subsection{Backup Systems}
+
+%Im not 100% sure what to write here
+Gitlab came up as our method of choice for version control and backups (the 
+choice was arbitrary). It has allowed us to ensure that all of our committed 
+work is backed up and helps organise the project into different branches so that it was less 
+likely for any work to be accidentally altered or deleted. As far as database backups, 
+we have not needed one so far as we have been regularly wiping it for table 
+changes or because of inconsistent data used for testing. 
+
+\section{Program and Implementation}
+
+The basics of our application have already been covered in introduction and 
+project management sections. Now we will go into details, starting with the 
+overall system architecture and then going into the specific parts of the 
+system.
+
+\subsection{Overview}
+
+\noindent Our system contains three independent parts, the front end (static web 
+pages + JavaScript to provide calls to the API) the back end (the API, provides 
+methods to access the main functionality of our system) and the database. The 
+interactions are shown in the diagram below.
+
+\begin{figure}[H]
+\centerline{\includegraphics[scale=0.58,trim=0 0 100 0]{sysarch}}
+\caption{System Architecture Diagram}
+\end{figure}    
+
+
+\subsection{Back End}
+
+\subsubsection{Overview}
+When designing the API of the back end, we followed REST architecture style and 
+aimed to implement the the Level 2 of the Richardson Maturity Model. Our back 
+end contains multiple servlets which allow the calendar resources to be uniquely 
+identified. We also used proper semantics of HTTP methods and returned various 
+HTTP status codes to represent the effects of user's actions. JSON format was 
+used to send client requests to the API. The object is then processed by the 
+back end and a response object is returned (also serialized as a JSON string), 
+the response will either be an error response, a success response (if no data 
+was expected) or the appropriate data response object. This design could be used 
+in the future to easily allow either clients to be written on different 
+platforms or for people to build other tools to interact with the data and 
+extend back end functionality. 
+\\
+\\
+\noindent For the main bulk of the API, we have a range of servlets which 
+respond to requests. They all follow a similar structure:
+\begin{quote}
+\centering
+Get the request object $\rightarrow$ Check user can make the request 
+$\rightarrow$ Call the related database interface method with the request object 
+$\rightarrow$ Check for and deal with errors $\rightarrow$ Get/Create the 
+correct response object $\rightarrow$ Set the response to be returned to the 
+user.
+\end{quote}
+Both the serialization/deserialization and basic authentication (is the session 
+ID valid and whose is it) are done though filters which all of the 
+request/response objects get run though.
+\\
+\\
+\subsubsection{User verification and session management}
+\noindent We have implemented a complete login and session management system. We 
+allow the users to create and account or login via calls to our API, on return 
+we set a cookie on the users client with there session ID. All subsequent calls 
+to the API must contain this session ID as to identify who the client is and 
+give them the correct privileges. The session IDs expire after a certain amount 
+of time to increase security. However, as to not inconvenience the user, if they 
+make any request to the API with a session that is about to expire it gets 
+automatically refreshed and a new session ID is sent to them. When the user logs 
+out of the systems the session IDs are deleted so they can not be used to 
+compromise the users identity.
+\\
+\\
+\noindent In the login system we have been very careful how to deal with the 
+users password, we opted to use the provided Java cryptographic library SecretKey class 
+to perform the encoding of the password and salt. The salt is generated from the 
+Java security library’s SecureRandom class, and is saved along with pass hash 
+into the database. We have also set up a verification system so that we know the 
+user of each account has the email they signed up with. It works by sending a 
+code to the user's email after they register that they have to enter the first 
+time they log in. As for this we had to add email support we also included a 
+password reset function which sends a temporary password that the user can log 
+on with.  
+\\
+\\
+\subsubsection{Interfacing with the database}
+\noindent We decided to create one class to wrap all of the database accesses, 
+which lead to the simplification of the servlet classes. It also allowed us to 
+group all of the related SQL queries onto the response classes, whose methods 
+the database interface class methods would use in order to retrieve the relevant 
+queries. When designing database interface class, we made and extensive use of 
+\textbf{strategy pattern}. We generalized the database interactions into four 
+methods: \verb|query, insert, update| and \verb|delete| that take as a parameter 
+an interface, which represents an appropriate SQL query (\verb|SELECT| query, 
+\verb|INSERT| query, \verb|UPDATE| query, \verb|DELETE| query), and hence allows 
+the methods to be reused for different queries, provided that they implement 
+appropriate interface. This made adding new features quick and easy as there 
+were only a set of few places that needed to be changed: the query added to the 
+relevant response object, a method added to the database interface (in some 
+cases) and a servlet method created to deal with the request. In our 
+implementation of response objects \textbf{template method pattern} was used, all 
+objects are subclasses of Response class, which implements pieces of 
+functionality common to all of them, which allowed us to limit the amount of 
+code duplication. We also made a use of \textbf{singleton pattern} when creating 
+a DataSourceProvider class, which initialises the database connection. The 
+motivation for using the singleton pattern in this case is to ensure that no 
+more than one data pool connection is created. 
+
+\subsubsection{Chat Server}
+Initially we were going to use a off the shelf, widely used XMPP server such as 
+ejabberd. However, we realized it would not integrate well with our current 
+back-end in various ways such as authentication and sending dynamic updates of 
+JSON objects. Therefore, we implemented our websocket based chat server. In its 
+core it has ChatMessage objects which are routed by the server. A ChatMessage 
+has six fields which are inspired by the TCP protocol. The ChatMessage object is 
+sent as JSON strings through the websocket connections. The fields are:
+\begin{description}
+\item[type] - Specifies what the payload contains. For example, "update/event" 
+indicates that it is an update message containing an event object in the payload 
+which is updated.
+\item[destinationIds] - An array of user Ids which this message is addressed at.
+\item[sourceId] - The user Id which created this chat message. If it is an 
+update from the server, then the value is -1 indicating that the message 
+originated at the server and not sent by an actual user.
+\item[date] - A timestamp when the message was created, not sent. This is mainly 
+used to store messages offline.
+\item[storeOffline] - Boolean field to indicate whether message should be stored 
+if the destination Id is currently offline.
+\item[payload] - The actual data that is sent which is serialized to JSON as 
+well.
+\end{description}
+
+\noindent Using this structure, all the Chat Server does is route messages based on their 
+destination Ids and store in the database if they are offline. To know which 
+sockets to route to, the server maintains a ConcurrentMap of UserIds to 
+ConcurrentHashSet of open Sessions. Hence, even if the same user logs on 
+different machines, the server is able to route the message to all of the open 
+sessions of the user (which is not a standard feature of XMPP servers which 
+implement sessions priority to route).
+
+\subsubsection{Dynamic Updates}
+In order to prevent the necessity to refresh the page every time calendar or 
+event data changes, we had to design a mechanism which would allow the server to 
+dynamically inform the user about the 
+changes of the calendar or event data an re-render the parts of the view 
+affected by the change instantly, making the website more responsive. The 
+technology that we utilised to 
+achieve our aim are WebSockets, which are a good fit due to the widespread 
+browser support, responsiveness and the fact that they are 
+already utilised by the chat server, hence
+the client could re-use the same TCP connection to send also the updated data.
+\\
+\\
+\noindent Our solution utilises \textbf{observer pattern}, by subscribing to a given 
+calendar the user (observer) registers his intent to receive the relevant 
+dynamic updates. Every time event is updated 
+or added to/deleted from the calendar, all the users subscribed to the 
+corresponding calendar, which are currently online, will receive an update. In 
+order to make filtering the users
+subscribed to a given calendar faster and reduce the database traffic, we used 
+\textbf{caching} to store the mapping between calendar IDs and user IDs of 
+subscribers. The cache was implemented
+as a ConcurrentMap of Integers and Sets. To ensure thread-safety when accessing 
+and modifying the set of subscribers of a given calendar, a \textbf{decorator 
+pattern} was used and the standard
+HashSet was wrapped inside a ConcurrentHashSet class, decorated with a 
+read-write lock.
+
+\subsection{Front End}
+\subsubsection{Static files with AJAX}
+The front-end structure is based on the HTML5 boiler plate 
+(https://html5boilerplate.com/) organizing our static files under directories 
+such as js, css, fonts. The crucial aspect of the front end is that it only 
+contains static files under the root directory, in other words, there isn't any 
+data in the html files or in the JavaScript code. Our app only contains two main 
+pages: the login page and the main calendar app page. When either of these files 
+are requested, they initially bind all the UI functions such as button presses 
+and then make AJAX calls to our API. This asynchronous data loading has several 
+implications on the how the app front-end behaves. Firstly, the front end acts 
+only as a view in the overall model-view-controller structure of the app. Hence, 
+it is completely independent of the data source, i.e. the back end. This 
+separation allows us to host the static files (i.e. the view etc) somewhere else 
+such as Google App Engine where serving static files are free, and only host the 
+API. Secondly, front end can load without any data. Even though there will be an 
+empty frame saying that the user, for example, does not have any events, it will 
+be loaded nonetheless. This AJAX loading method ensures that the front-end is 
+visible to the user even if the back-end encounters a fatal error.
+
+\subsubsection{Data to Rendering}
+The JavaScript code is organized into several layers that separate the concerns 
+of individual functions and parts. Firstly, the code is divided into three sections: 
+user, calendar and event code. Each section is refactored into a separate 
+JavaScript file which deal with getting the data to rendering it on the screen. 
+All of the data corresponding to the state of the app is stored in a global 
+JavaScript object called app. This object is global because different parts of 
+the application such events, calendars functions require the data of other 
+sections of the app rather than making a train wreck of passed parameters to the 
+function call hierarchy. They all follow the similar pattern of:
+\begin{description}
+\item[Refresh] - Initially the refresh function is called for the corresponding 
+part. For example, refreshCalendars updates user's calendars. This function is 
+responsible for \textbf{fetching} the data from the back end using the provided 
+API calls. Then it stores the information under the global app object, 
+app.calendars in this case. Finally, the rendering is invoked.
+\item[Render Items] - This function first clears the whatever is currently 
+rendered and then for each of the item in the corresponding section of the 
+global app object calls the appropriate render item function.
+\item[Render Item] - The heart of the rendering happens in functions which 
+render individual items such as events on the screen. The rendering is achieved 
+by created new DOM elements using jQuery which are then inserted in the right 
+place on the screen. For example, renderEvent function renders a single event on 
+the main calendar table.
+\end{description}
+It is important to note that this refresh to rendering cycle only happens when 
+the page is loaded for the first time. Then only the rendering functions are 
+used in correspondence with the dynamic update messages received from the 
+back end. This method significantly reduces the AJAX overhead of fetching the 
+entire data again even if only one event is changed.
+
+\subsubsection{User Interactions}
+The basic idea is that there are two types of users (per calendar), the 
+administrators and the ordinary users (subscribers). They will interact with the 
+calendars in diﬀerent ways and have various typical uses. Note that any user can 
+create a calendar or join other calendars so these roles are not absolute.
+\\
+\\
+\noindent
+A subscriber of a calendar is able to see calendar’s events in a clear manner 
+and easily access the details of an event, like time, location, duration and 
+short description, together with a feedback on the interest about the event 
+(number of people already registered to the event). Users also need the ability 
+to sign up for the event they wish to attend (depending on the event this may 
+require some requirements being met). In addition, users can change between the 
+calendars they are subscribed to and create a dynamically-customisable view 
+including only the calendars that interest them at a particular time. The view 
+enables the users to preview the information about events occurring in a certain 
+time interval (for example, a week from a selected). Finally, all users of the 
+application are be able to create calendars and gain administrator privilege on 
+them.
+\\
+\\
+\noindent
+The administrations of a calendar have extra abilities in addition to those of a subscriber. They can create, modify details of and delete any event on their calendars along with the ability to see the number of people who have signed up and their identities. In addition, they can delete whole calendars and invite people to subscribe via an invite code which they can give out to anyone who may be interested.
+\\
+\\
+\noindent
+We also decided to implement a chat feature whereby subscribers to the admins and editors of calendars and admins/editors and chat among themselves. It is intended to be used to aid the event organisation process as well as to allow people to pose questions about the events to the organisers. This give our app some much needed user-user interaction to hopefully extend the time that users will spent interacting with the app and the other people who use it.
+\\
+\\
+\noindent Some examples of typical user interaction can be found in \cref{sec:fd} (as in the milestone report).   
+
+\subsubsection{UI Design}
+TODO: Put a screen shot, discuss why the elements are where they are. Talk about 
+the flow of the creating events to changing / joining stuff. Mention
+
+\subsubsection{Mobile Optimizations}
+As mobile traffic has been the main driving force of internet growth today, we wanted to create a great experience for our users on mobile devices. The bootstrap framework includes a responsive grid layout system that automatically adapts to different screen sizes, however it was not enough to fulfill the needs of our application. In our application, we have handcrafted a unique user interface based on iterative feedback from weekly meetings with actual users of our application and in order to bring the same optimized experience to mobile, we had to fine tune the media queries for phone, tablet, and desktop by ourselves.
+\\
+\\
+\noindent As seen from the screenshots in UI Design, the transition of our user interface across different form factors is seamless. The sliding in and sliding out animations of the application drawers were rendered completely in CSS to achieve the maximum possible performance on less powerful mobile devices. Days on the calendar that do not fit into the the current viewport size are also hidden by CSS styles rather than being removed from the DOM for the same performance reasons. To enable accurate detection of swipe gestures, we customized a subset of jQuery Mobile UI component and added custom event handlers to “swipeleft” and “swiperight”. Last but not least, the default navigation bar provided by Bootstrap has to be customized to remove any collapsable toggles on mobile screens so that it does not interfere with our custom UI.
+
+\section{Libraries}
+Libraries that are used in the front-end:
+\begin{description}
+\item[jQuery] - We use version 2.1.4 which like any other version is licensed 
+under the MIT license that permits any applicable usage. Although we could, we 
+did not modify any sections of the library. https://jquery.com
+\item[jQuery Datetime Picker] - We use this library to bind picking of date time 
+input fields in the forms. Like jQuery the library is under the MIT license. 
+http://xdsoft.net/jqplugins/datetimepicker/
+\item[Bootstrap] - Bootstrap is also licensed under MIT. 
+http://getbootstrap.com/
+\item[Toastr Js] - Used to conveniently display toast messages.
+MIT license. https://github.com/CodeSeven/toastr
+\item[Javascript Timezone] - Used for automatic timezone detection on the client.
+MIT license. http://pellepim.bitbucket.org/jstz/
+\item[Chat JS] - Facebook sytle chat UI. MIT license. http://chatjs.net/
+\end{description}
+It is important to note that all of the libraries the front-end uses are under 
+the MIT license which means that we have the permission to reuse within 
+proprietary software, for example we do not disclose the source code and charge 
+for the usage, provided that all copies of the licensed software include a copy 
+of the MIT License terms and the copyright notice. \\ \\
+Libraries that are distributed in the back-end:
+\begin{description}
+\item[Google GSON] - The GSON library is used to serialize and deserialize Java 
+objects into Json strings when they are sent to and recieved from the front-end. 
+It is licensed under the Apache License 2.0 which means we are allowed to redistribute
+the software and our derivative work as long as we include the copyright notice.
+https://code.google.com/p/google-gson/
+\item[Google Guava] - Implementations of convenient data structures like immutable 
+collections, caches, preconditions, etc. Apache License 2.0. https://github.com/google/guava
+\item[Apache Commons Validator] - Well tested validation methods for date strings, 
+alphanumeric input, etc. Apache License 2.0. https://commons.apache.org/
+\item[JavaMail API] - API for sending emails from our backend. There is no
+copyright to APIs so we can use it freely.
+\item[Servlet API 3.0] - Annotations for conveniently creating servlets that
+serves our REST backend. No copyright to APIs.
+\item[PostgreSQL JDBC Driver] - The Java back-end is linked to the group 
+database using the driver. Licensed under BSD license. 
+https://jdbc.postgresql.org/
+\end{description}
+
+\section{Conclusion}
+ \subsection{Piotr's Conclusion}
+ Overall I am very satisfied with the outcome of our work. We managed to design 
+a practical application which has a high chance of being used on Imperial 
+Campus. Close cooperation with Imperial Outreach Office allowed us to gather 
+many important insights that we used to enhance usability and add more features 
+to our app. When it comes to my experiences with working on the project, I 
+learned a lot about back end development, which was my primary focus, as I had 
+never worked on the Internet application back end before and wanted to gain some 
+skills in that area. I am very satisfied with my cooperation with the rest of 
+the team, the atmosphere was friendly and due to daily meetings in the labs, we 
+managed to develop the project at fast pace. On the downside, I did not manage 
+to create a complete test suite for the implemented functionality, which should 
+be done before the release of our app. However, due to the dynamically-changing 
+requirements for our project (set by Outreach Office) the implementation had 
+been changing a lot in the process, which made writing test suite difficult. 
+ 
+ \subsection{Bradley's Conclusion}
+ I think this project went fairly well, we managed to achieve most of the aims 
+that we set out to do. I managed to get a good understanding of the whole web 
+application building process. Although most of my work was on the database 
+set-up and interaction I feel that it has also given me a decent understanding 
+of the client facing aspects as well. If we were to redo this project I would 
+have allocated more time to fully design the different sections of the system 
+and how the interact before starting the implementation. We had to rework our 
+back end design a few times in the early stages so that it would be primed for 
+extension for the features that were considering to add in the future. Hopefully 
+we have managed to structure the system in such a way that it should be 
+relatively painless to continue to develop this application and add new features 
+when we need to.  
+
+ \subsection{Nuri's Conclusion}
+ As far as the group projects go, I think this was best in many ways. Firstly, 
+we were building an actual product with potential customers. It did not feel 
+like after we click the yellow hand-in button on cate that it will become 
+history. This aspect not only motivated the team but also pushed it to design, 
+develop and possibly deploy right code. Secondly, building a web app I think 
+incorporated many different technologies and allowed for a good work divide 
+within the group. Anything from the front-end javascript code to database 
+queries, there was a challenge for us which we solved using our combined 
+knowledge and often along way argued which solution is considered best practice. 
+Finally, having a human centred design perspective as we regularly met with 
+people from the Outreach Office, added an extra business side to the project. We 
+tried to implement their needs, but sometimes even discarded them as we had to 
+carefully judge what could be done within the time limit we got which is quite 
+similar to a real world software development cycle. Overall, I think as a team, 
+we went beyond the basic requirements of the coursework and built a viable web 
+application recreates the event organization experience on campus.
+
+\subsection{Han's Conclusion}
+This webapp project has been a great learning experience for me. It is the first time I’m building an enterprise application and that has impacted our design and implementation decisions significantly. For instance, testing has been a priority from the start of the project because the application has to be stable for enterprise users from day one. It was also my first time building a web application with the first mobile approach. This brought a new perspective to the way I think about CSS styles, starting from a mobile screen size and gradually expanding to bigger screen sizes with media queries. Overall, the team has accomplished what we set out to do, to make a web application that replaces the current email system used by school administrators to organise events.
+
+\appendix
+\label{appendix}
+
+\section{User Interaction Diagrams}
+\label{sec:fd}
+\begin{figure}[H]
+\centering
+\begin{minipage}{.4\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{user_event}
+  \caption{Use flow of a user signing up}
+\end{minipage}%
+\begin{minipage}{.7\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{calendar_user}
+  \caption{Use flow of a new user creating a calendar}
+\end{minipage}
+\end{figure}
+
 \end{document}
