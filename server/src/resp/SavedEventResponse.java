@@ -1,14 +1,14 @@
 package resp;
 
-import java.awt.Event;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import sql.SQLDelete;
+import java.util.ListIterator;
+import utils.Pair;
 
 public class SavedEventResponse extends Response {
   
@@ -19,32 +19,16 @@ public class SavedEventResponse extends Response {
   /**
    * SavedEvents returned to the client.
    */
-  private List<SavedEvent> savedEvents = new ArrayList<SavedEvent>();
+  private List<EventResponse> savedEvents = new ArrayList<EventResponse>();
   
   /**
    * Fields excluded from serialisation.
    */
   private transient int userId;
   private transient int eventId;
+  private transient List<Pair<Timestamp, EventResponse>> tempEventList = 
+      new ArrayList<Pair<Timestamp, EventResponse>>();
   
-  
-  /**
-   * Inner class used to represent the saved event (the event and the timestamp).
-   */
-  private class SavedEvent {
-    private EventResponse event;
-    private Timestamp timestamp;
-    
-    /**
-     * No-arg constructor for compatibility with gson serialiser.
-     */
-    public SavedEvent() {}
-    
-    public SavedEvent(EventResponse event, Timestamp timestamp) {
-      this.event = event;
-      this.timestamp = timestamp;
-    }
-  }
   
   /**
    * No-arg constructor for compatibility with gson serialiser.
@@ -84,10 +68,26 @@ public class SavedEventResponse extends Response {
       EventResponse event;
       do {
         event = new EventResponse();
-        event.setResult(result);   
-        savedEvents.add(
-            new SavedEvent(event, result.getTimestamp(TIMESTAMP_COLUMN)));
+        event.setResult(result);
+        if (!event.isFound()) break;
+        if (event.isFound()) System.out.println(event.getEventId());
+        tempEventList.add(
+            new Pair<Timestamp, EventResponse>(result.getTimestamp(TIMESTAMP_COLUMN), event));
       } while(event.isFound());
+      // Sort the saved events in reverse-chronological order
+      Collections.sort(tempEventList);
+      ListIterator<Pair<Timestamp, EventResponse>> iter = 
+          tempEventList.listIterator(tempEventList.size());
+      /*for (Pair<Timestamp, EventResponse> pair : tempEventList) {
+        savedEvents.add(pair.getValue()); 
+      }
+      while(iter.hasPrevious()) {
+        System.out.println("TEST");
+        savedEvents.add(iter.previous().getValue()); 
+      }*/
+      for (int i=tempEventList.size() - 1; i>0; i--) {
+        savedEvents.add(tempEventList.get(i).getValue());
+      }
     } catch (SQLException e) {
       System.err.println("Error while getting the list of saved events.");
       e.printStackTrace();

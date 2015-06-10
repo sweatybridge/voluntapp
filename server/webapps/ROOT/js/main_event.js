@@ -116,13 +116,13 @@ $(function() {
             '<span>{{title}}</span>'+
             '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent(this)></span>'+
           '</a>';
-      $.each(data.savedEvents, function(k, obj) {
+      $.each(data.savedEvents, function(k, event) {
         var elem = tmpl
-            .replace("{{title}}", obj.event.title)
-            .replace("{{eventId}}", obj.event.eventId);
+            .replace("{{title}}", event.title)
+            .replace("{{eventId}}", event.eventId);
         $(elem).click(function() {
           // update event creation form
-          updateEventForm(obj.event);
+          updateEventForm(event);
         }).appendTo(saved);
       });
     },
