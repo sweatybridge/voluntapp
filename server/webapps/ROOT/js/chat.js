@@ -183,8 +183,8 @@ var DemoAdapter = (function() {
     var bounceMessage = new ChatMessageInfo();
     bounceMessage.UserFromId = fromId; // It will from our user
     bounceMessage.UserToId = app.user.userId;
-    bounceMessage.RoomId = 1;
-    bounceMessage.ConversationId = 1;
+    //bounceMessage.RoomId = 1;
+    //bounceMessage.ConversationId = 1;
     bounceMessage.Message = text;
     bounceMessage.ClientGuid = null;
     this.client.triggerMessagesChanged(bounceMessage);
@@ -195,11 +195,11 @@ var DemoAdapter = (function() {
       // configure user info
       var userInfo = new ChatUserInfo();
       userInfo.Id = user.uid;
-      userInfo.RoomId = DEFAULT_ROOM_ID;
+      //userInfo.RoomId = DEFAULT_ROOM_ID;
       userInfo.Name = user.firstName + " " + user.lastName;
       //userInfo.Email = user.email;
       userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
-      userInfo.Status = 1 /* Online */ ;
+      userInfo.Status = user.isOnline /* Online */ ;
       return userInfo;
     });
 

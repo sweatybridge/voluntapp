@@ -43,6 +43,7 @@ public class RosterResponse extends Response {
     private String firstName;
     private String lastName;
     private List<String> calNames = new ArrayList<String>();
+    private boolean isOnline = false;
 
     public RosterEntry(int uid, int cid, String firstName, String lastName) {
       this.uid = uid;
@@ -73,6 +74,10 @@ public class RosterResponse extends Response {
     
     public int getcid() {
       return cid;
+    }
+    
+    public void setIsOnline(boolean isOnline) {
+      this.isOnline = isOnline;
     }
   }
 

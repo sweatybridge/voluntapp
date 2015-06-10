@@ -108,6 +108,7 @@ public class ChatServer {
         Set<Integer> calendarIds = new HashSet<Integer>();
         for (RosterEntry entry : roster.getRosterEntries()) {
           calendarIds.add(entry.getcid());
+          entry.setIsOnline(connections.get(entry.getuid()) != null);
         }
         /* Record that a user is subscribed to given calendars. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
