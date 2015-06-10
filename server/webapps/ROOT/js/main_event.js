@@ -504,6 +504,16 @@ function resetEventForm() {
   updateCountdown();
 }
 
+// increment or decrement attendee count by delta
+function updateAttendeeCount(view, delta) {
+  var eid = view.data("eventId");
+  var event = $.grep(app.events, function(e){return e.eventId === eid})[0];
+  if (event) {
+    event.currentCount += delta;
+    view.find(".count").text(event.currentCount + "/" + event.max);
+  }
+}
+
 // Removes an attendee from an event (admin feature)
 function removeAttendee(elem) {
   var user = $(elem).closest("li");
@@ -515,10 +525,7 @@ function removeAttendee(elem) {
     data: JSON.stringify({userId: user.data("userId")}),
     success: function(data) {
       user.remove();
-      var countBadge = event.find(".count");
-      var count = countBadge.text().split("/");
-      count[0] = parseInt(count[0]) - 1;
-      countBadge.text(count.join("/"));
+      updateAttendeeCount(event, -1);
     },
     error: function(data) {
       toastr.error(data.responseJSON.message);

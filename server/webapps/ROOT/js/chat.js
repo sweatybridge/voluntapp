@@ -178,6 +178,12 @@ var DemoAdapter = (function() {
         case 'offline/user':
           _this.handleOffline(msg.payload.userId);
           break;
+        case 'join/event':
+          _this.handleJoinEvent(msg.payload);
+          break;
+        case 'unjoin/event':
+          _this.handleUnjoinEvent(msg.payload);
+          break;
         case 'update/event':
           _this.handleUpdateEvent(msg.payload);
           break;
@@ -190,6 +196,34 @@ var DemoAdapter = (function() {
 
   DemoAdapter.prototype.handleUpdateEvent = function(fromId, text) {
     // TODO: implement this
+  };
+
+  DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {
+    // ignore message to self
+    if (app.user.userId === unjoin.userId) {
+      return;
+    }
+    // update count badge if event is rendered in calendar
+    $(".event").each(function(k, elem) {
+      var event = $(elem);
+      if (event.data("eventId") === unjoin.eventId) {
+        updateAttendeeCount(event, -1);
+      }
+    });
+  };
+
+  DemoAdapter.prototype.handleJoinEvent = function(join) {
+    // ignore message to self
+    if (app.user.userId === join.userId) {
+      return;
+    }
+    // update count badge if event is rendered in calendar
+    $(".event").each(function(k, elem) {
+      var event = $(elem);
+      if (event.data("eventId") === join.eventId) {
+        updateAttendeeCount(event, 1);
+      }
+    });
   };
 
   DemoAdapter.prototype.handleOffline = function(userId) {
