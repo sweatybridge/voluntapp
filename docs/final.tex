@@ -461,8 +461,9 @@ TODO: Put a screen shot, discuss why the elements are where they are. Talk about
 the flow of the creating events to changing / joining stuff. Mention
 
 \subsubsection{Mobile Optimizations}
-TODO: Mention what were challenges faced with mobile such as side bars, calendar 
-columns. Resizing events. Making things touch friendly (swipes etc).
+As mobile traffic has been the main driving force of internet growth today, we wanted to create a great experience for our users on mobile devices. The bootstrap framework includes a responsive grid layout system that automatically adapts to different screen sizes, however it was not enough to fulfill the needs of our application. In our application, we have handcrafted a unique user interface based on iterative feedback from weekly meetings with actual users of our application and in order to bring the same optimized experience to mobile, we had to fine tune the media queries for phone, tablet, and desktop by ourselves.
+
+As seen from the screenshots in UI Design, the transition of our user interface across different form factors is seamless. The sliding in and sliding out animations of the application drawers were rendered completely in CSS to achieve the maximum possible performance on less powerful mobile devices. Days on the calendar that do not fit into the the current viewport size are also hidden by CSS styles rather than being removed from the DOM for the same performance reasons. To enable accurate detection of swipe gestures, we customized a subset of jQuery Mobile UI component and added custom event handlers to “swipeleft” and “swiperight”. Last but not least, the default navigation bar provided by Bootstrap has to be customized to remove any collapsable toggles on mobile screens so that it does not interfere with our custom UI.
 
 \section{Libraries}
 Libraries that are used in the front-end:
@@ -475,19 +476,32 @@ input fields in the forms. Like jQuery the library is under the MIT license.
 http://xdsoft.net/jqplugins/datetimepicker/
 \item[Bootstrap] - Bootstrap is also licensed under MIT. 
 http://getbootstrap.com/
-\item[Toastr Js] - MIT license. https://github.com/CodeSeven/toastr
+\item[Toastr Js] - Used to conveniently display toast messages.
+MIT license. https://github.com/CodeSeven/toastr
+\item[Javascript Timezone] - Used for automatic timezone detection on the client.
+MIT license. http://pellepim.bitbucket.org/jstz/
+\item[Chat JS] - Facebook sytle chat UI. MIT license. http://chatjs.net/
 \end{description}
 It is important to note that all of the libraries the front-end uses are under 
 the MIT license which means that we have the permission to reuse within 
 proprietary software, for example we do not disclose the source code and charge 
 for the usage, provided that all copies of the licensed software include a copy 
 of the MIT License terms and the copyright notice. \\ \\
-Libraries that are used in the back-end:
+Libraries that are distributed in the back-end:
 \begin{description}
 \item[Google GSON] - The GSON library is used to serialize and deserialize Java 
 objects into Json strings when they are sent to and recieved from the front-end. 
-It is licensed under the Apache License 2.0. 
+It is licensed under the Apache License 2.0 which means we are allowed to redistribute
+the software and our derivative work as long as we include the copyright notice.
 https://code.google.com/p/google-gson/
+\item[Google Guava] - Implementations of convenient data structures like immutable 
+collections, caches, preconditions, etc. Apache License 2.0. https://github.com/google/guava
+\item[Apache Commons Validator] - Well tested validation methods for date strings, 
+alphanumeric input, etc. Apache License 2.0. https://commons.apache.org/
+\item[JavaMail API] - API for sending emails from our backend. There is no
+copyright to APIs so we can use it freely.
+\item[Servlet API 3.0] - Annotations for conveniently creating servlets that
+serves our REST backend. No copyright to APIs.
 \item[PostgreSQL JDBC Driver] - The Java back-end is linked to the group 
 database using the driver. Licensed under BSD license. 
 https://jdbc.postgresql.org/
@@ -541,6 +555,9 @@ carefully judge what could be done within the time limit we got which is quite
 similar to a real world software development cycle. Overall, I think as a team, 
 we went beyond the basic requirements of the coursework and built a viable web 
 application recreates the event organization experience on campus.
+
+\subsection{Han's Conclusion}
+This webapp project has been a great learning experience for me. It is the first time I’m building an enterprise application and that has impacted our design and implementation decisions significantly. For instance, testing has been a priority from the start of the project because the application has to be stable for enterprise users from day one. It was also my first time building a web application with the first mobile approach. This brought a new perspective to the way I think about CSS styles, starting from a mobile screen size and gradually expanding to bigger screen sizes with media queries. Overall, the team has accomplished what we set out to do, to make a web application that replaces the current email system used by school administrators to organise events.
 
 \appendix
 \label{appendix}
