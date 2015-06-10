@@ -187,6 +187,18 @@ var DemoAdapter = (function() {
         case 'update/event':
           _this.handleUpdateEvent(msg.payload);
           break;
+        case 'delete/event':
+          _this.handleDeleteEvent(msg.payload);
+          break;
+        case 'join/calendar':
+          _this.handleJoinCalendar(msg.payload);
+          break;
+        case 'update/calendar':
+          _this.handleUpdateCalendar(msg.payload);
+          break;
+        case 'delete/calendar':
+          _this.handleDeleteCalendar(msg.payload);
+          break;
       }
       //toastr.info(e.data);
     };
@@ -194,8 +206,44 @@ var DemoAdapter = (function() {
     done();
   };
 
-  DemoAdapter.prototype.handleUpdateEvent = function(fromId, text) {
-    // TODO: implement this
+  DemoAdapter.prototype.handleDeleteCalendar = function(calendar) {
+    // ignore message to self
+    if (app.user.userId === calendar.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
+    // ignore message to self
+    if (app.user.userId === calendar.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleJoinCalendar = function(join) {
+    // ignore message to self
+    if (app.user.userId === join.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleDeleteEvent = function(event) {
+    // ignore message to self
+    if (app.user.userId === event.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleUpdateEvent = function(event) {
+    // ignore message to self
+    if (app.user.userId === event.userId) {
+      return;
+    }
+    // TODO: need calendar id
   };
 
   DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {
