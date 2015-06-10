@@ -47,7 +47,7 @@ var DemoServerAdapter = (function() {
   }
   DemoServerAdapter.prototype.sendMessage = function(roomId, conversationId, otherUserId, messageText, clientGuid, done) {
     var _this = this;
-    console.log("DemoServerAdapter: sendMessage");
+    //console.log("DemoServerAdapter: sendMessage");
 
     // we have to send the current message to the current user first
     // in chatjs, when you send a message to someone, the same message bounces back to the user
@@ -60,32 +60,43 @@ var DemoServerAdapter = (function() {
     bounceMessage.Message = messageText;
     bounceMessage.ClientGuid = clientGuid;
 
-    setTimeout(function() {
+    /*setTimeout(function() {
       _this.clientAdapter.triggerMessagesChanged(bounceMessage);
-    }, 300);
+    }, 300);*/
 
     // Create our own ChatMessage that the server is going to route
     var chatMessage = {
       type: "text",
       destinationIds: [otherUserId],
       sourceId: app.user.userId,
-      storeOffline: false,
+      storeOffline: true,
       payload: messageText
+    };
+    this.socket.send(JSON.stringify(chatMessage));
+    _this.clientAdapter.triggerMessagesChanged(bounceMessage);
+  };
+
+  DemoServerAdapter.prototype.sendTypingSignal = function(roomId, conversationId, userToId, done) {
+    //console.log("DemoServerAdapter: sendTypingSignal");
+    // Create our own ChatMessage that the server is going to route
+    var chatMessage = {
+      type: "typing",
+      destinationIds: [userToId],
+      sourceId: app.user.userId,
+      storeOffline: false,
+      payload: {}
     };
     this.socket.send(JSON.stringify(chatMessage));
   };
 
-  DemoServerAdapter.prototype.sendTypingSignal = function(roomId, conversationId, userToId, done) {
-    console.log("DemoServerAdapter: sendTypingSignal");
-  };
-
   DemoServerAdapter.prototype.getMessageHistory = function(roomId, conversationId, otherUserId, done) {
-    console.log("DemoServerAdapter: getMessageHistory");
+    //console.log("DemoServerAdapter: getMessageHistory");
+    // We don't support message history yet
     done([]);
   };
 
   DemoServerAdapter.prototype.getUserInfo = function(userId, done) {
-    console.log("DemoServerAdapter: getUserInfo");
+    //console.log("DemoServerAdapter: getUserInfo");
     var user = null;
     for (var i = 0; i < this.users.length; i++) {
       if (this.users[i].Id == userId) {
@@ -99,7 +110,7 @@ var DemoServerAdapter = (function() {
   };
 
   DemoServerAdapter.prototype.getUserList = function(roomId, conversationId, done) {
-    console.log("DemoServerAdapter: getUserList");
+    //console.log("DemoServerAdapter: getUserList");
     if (roomId == DEFAULT_ROOM_ID) {
       done(this.users);
       return;
@@ -108,7 +119,7 @@ var DemoServerAdapter = (function() {
   };
 
   DemoServerAdapter.prototype.enterRoom = function(roomId, done) {
-    console.log("DemoServerAdapter: enterRoom");
+    //console.log("DemoServerAdapter: enterRoom");
 
     if (roomId != DEFAULT_ROOM_ID)
       throw "Only the default room is supported in the demo adapter";
@@ -172,6 +183,8 @@ var DemoAdapter = (function() {
         case 'text':
           _this.handleText(msg.sourceId, msg.payload);
           break;
+        case 'typing':
+          _this.handleTyping(msg.sourceId);
         case 'online/user':
           _this.handleOnline(msg.payload.userId);
           break;
@@ -302,6 +315,22 @@ var DemoAdapter = (function() {
     bounceMessage.ClientGuid = null;
     this.client.triggerMessagesChanged(bounceMessage);
   };
+  
+  DemoAdapter.prototype.handleTyping = function(fromId) {
+    // Create the typing signal object, it is used in trigger function
+    var typingSignal = { UserToId: app.user.userId };
+    // Look for the user who sent this
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == fromId) {
+        // Attach the user to the typingSignal
+        typingSignal.UserFrom = this.server.users[i];
+        // Trigger typing
+        this.client.triggerTypingSignalReceived(typingSignal);
+        return;
+      }
+    }
+    // Otherwise we don't know who this is
+  };
 
   DemoAdapter.prototype.handleRoster = function(roster) {
     this.server.users = roster.map(function(user) {
@@ -311,8 +340,8 @@ var DemoAdapter = (function() {
       userInfo.RoomId = DEFAULT_ROOM_ID;
       userInfo.Name = user.firstName + " " + user.lastName;
       //userInfo.Email = user.email;
-      userInfo.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
-      userInfo.Status = 1 /* Online */ ;
+      userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
+      userInfo.Status = user.isOnline /* Online */ ;
       return userInfo;
     });
 
@@ -321,7 +350,7 @@ var DemoAdapter = (function() {
     me.RoomId = DEFAULT_ROOM_ID;
     me.Name = app.user.firstName + " " + app.user.lastName;
     me.Email = app.user.email;
-    me.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
+    me.ProfilePictureUrl = "img/user_chat_icon.png";
     me.Status = 1 /* Online */ ;
     this.server.users.push(me);
 
@@ -329,7 +358,7 @@ var DemoAdapter = (function() {
     var defaultRoom = new ChatRoomInfo();
     defaultRoom.Id = 1;
     defaultRoom.Name = "Default Room";
-    defaultRoom.UsersOnline = this.server.users.length;
+    //defaultRoom.UsersOnline = this.server.users.length;
 
     this.server.rooms = [defaultRoom];
     this.server.enterRoom(1);

@@ -38,10 +38,11 @@ public class RosterResponse extends Response {
    */
   public class RosterEntry {
     private int uid;
-    private List<Integer> cids;
+    private List<Integer> cids = new ArrayList<Integer>();
     private String firstName;
     private String lastName;
     private List<String> calNames = new ArrayList<String>();
+    private boolean isOnline = false;
 
     public RosterEntry(int uid, String firstName, String lastName) {
       this.uid = uid;
@@ -73,8 +74,12 @@ public class RosterResponse extends Response {
       return uid;
     }
     
-    public int getcid() {
-      return cid;
+    public List<Integer> getcids() {
+      return cids;
+    }
+    
+    public void setIsOnline(boolean isOnline) {
+      this.isOnline = isOnline;
     }
   }
 

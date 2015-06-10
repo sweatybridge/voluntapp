@@ -33,6 +33,7 @@ public class EventResponse extends Response {
    * Event details returned to the client. Always in UTC.
    */
   private int eventId = -1;
+  private int calendarId = -1;
   private String title;
   private String description;
   private String location;
@@ -59,7 +60,6 @@ public class EventResponse extends Response {
   /**
    * Fields excluded from serialisation.
    */
-  private transient int calendarId = -1;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.

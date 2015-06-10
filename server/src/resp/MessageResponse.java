@@ -108,9 +108,11 @@ public class MessageResponse extends Response {
    */
   @Override
   public String getSQLQuery() {
-    return String.format(
-        "SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM \"MESSAGE\" WHERE \"%s\"=?;",
-        FROM_COLUMN, TO_COLUMN, TIME_COLUMN, PAYLOAD_COLUMN, TYPE_COLUMN, TO_COLUMN);
+    return String
+        .format(
+            "DELETE FROM \"MESSAGE\" WHERE \"%s\"=? RETURNING \"%s\",\"%s\",\"%s\",\"%s\",\"%s\";",
+            TO_COLUMN, FROM_COLUMN, TO_COLUMN, TIME_COLUMN, PAYLOAD_COLUMN,
+            TYPE_COLUMN);
   }
 
   /*
@@ -151,10 +153,9 @@ public class MessageResponse extends Response {
       return null;
     }
     do {
-      messages
-          .add(new ChatMessage(rs.getString(TYPE_COLUMN), Arrays.asList(rs.getInt(TO_COLUMN)), rs
-              .getInt(FROM_COLUMN), timestamp, true, rs
-              .getString(PAYLOAD_COLUMN)));
+      messages.add(new ChatMessage(rs.getString(TYPE_COLUMN), Arrays.asList(rs
+          .getInt(TO_COLUMN)), rs.getInt(FROM_COLUMN), timestamp, true, rs
+          .getString(PAYLOAD_COLUMN)));
 
     } while (rs.next());
     return messages;

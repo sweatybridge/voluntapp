@@ -37,7 +37,8 @@ public class DynamicUpdate {
     // Check if there any online users for the calendar
     Integer[] calendarIds = map.getUserIds(calendarId);
     if (calendarIds != null) {
-      ChatMessage cm = new ChatMessage(mType.getType(), Arrays.asList(calendarIds), -1, false, obj);
+      ChatMessage cm = new ChatMessage(mType.getType(),
+          Arrays.asList(calendarIds), -1, false, obj);
       ChatServer.routeChatMessage(cm);
     }
   }
