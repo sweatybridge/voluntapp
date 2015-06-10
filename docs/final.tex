@@ -197,6 +197,13 @@ A subscriber of a calendar is able to see calendar’s events in a clear manner 
 \\
 \noindent
 The administrations of a calendar have extra abilities in addition to those of a subscriber. They can create, modify details of and delete any event on their calendars along with the ability to see the number of people who have signed up and their identities. In addition, they can delete whole calendars and invite people to subscribe via an invite code which they can give out to anyone who may be interested.
+\\
+\\
+\noindent
+We also decided to implement a chat feature whereby subscribers to the admins and editors of calendars and admins/editors and chat among themselves. It is intended to be used to aid the event organisation process as well as to allow people to pose questions about the events to the organisers. This give our app some much needed user-user interaction to hopefully extend the time that users will spent interacting with the app and the other people who use it.
+\\
+\\
+\noindent Some examples of typical user interaction can be found in \cref{sec:fd} (as in the milestone report).   
 
 \subsubsection{UI Design}
 TODO: Put a screen shot, discuss why the elements are where they are. Talk about the flow of the creating events to changing / joining stuff. Mention
@@ -229,8 +236,23 @@ I think this project went fairly well, we managed to achieve most of the aims th
 \subsection{Nuri's Conclusion}
 As far as the group projects go, I think this was best in many ways. Firstly, we were building an actual product with potential customers. It did not feel like after we click the yellow hand-in button on cate that it will become history. This aspect not only motivated the team but also pushed it to design, develop and possibly deploy right code. Secondly, building a web app I think incorporated many different technologies and allowed for a good work divide within the group. Anything from the front-end javascript code to database queries, there was a challenge for us which we solved using our combined knowledge and often along way argued which solution is considered best practice. Finally, having a human centred design perspective as we regularly met with people from the Outreach Office, added an extra business side to the project. We tried to implement their needs, but sometimes even discarded them as we had to carefully judge what could be done within the time limit we got which is quite similar to a real world software development cycle. Overall, I think as a team, we went beyond the basic requirements of the coursework and built a viable web application recreates the event organization experience on campus.
 
-\newpage
-\newpage
-\section{To put somewhere later}
-Admins are able to change the calendar information, kick people from the calendar and create/delete/modify \textbf{events} whereas editors can only create/delete/modify events. Everyone who is subscribed to the calendar has the right to join any of the calendars events.
+\appendix
+\label{appendix}
+
+\section{User Interaction Diagrams}
+\label{sec:fd}
+\begin{figure}[H]
+\centering
+\begin{minipage}{.4\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{user_event}
+  \caption{Use flow of a user signing up}
+\end{minipage}%
+\begin{minipage}{.7\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{calendar_user}
+  \caption{Use flow of a new user creating a calendar}
+\end{minipage}
+\end{figure}
+
 \end{document}
