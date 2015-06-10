@@ -133,7 +133,7 @@ feel of the whole web application stack.
 
 \subsection{Implementation Choices}
 
-Although we chose to use HTML, CSS, and JavaScript for the frontend (for 
+Although we chose to use HTML, CSS, and JavaScript for the front end (for 
 compatibility reasons), we have considered a wide variety of web development 
 frameworks, ranging from full blown MVC frameworks such as AngularJS, MeteorJS, 
 and Django templates, to minimalistic libraries such as jQuery, Backbone.js, and 
@@ -144,7 +144,7 @@ because it consolidates the best practices of using modern web technologies
 without adding extra layers of abstraction. In addition, we have chosen to use 
 the Bootstrap framework to enhance the visual presentation of our web app. 
 Lastly, we decided to separate our data models from the views by fetching data 
-asynchronously as JSON objects from our backend using RESTful APIs. Using 
+asynchronously as JSON objects from our back end using RESTful APIs. Using 
 RESTful APIs allows for easy integration with mobile clients while using JSON as 
 the data format allows for transfer of rich data structures like nested objects 
 and arrays.
@@ -155,14 +155,14 @@ and arrays.
 \\
 \noindent
 We have picked a statically typed language, Java, as the implementation language 
-for our backend. Although it may increase the amount of time needed to write our 
+for our back end. Although it may increase the amount of time needed to write our 
 App, we believe the extra type safety combined with an active developer 
 community makes it a good trade-off over other dynamically typed languages such 
 as Python, node.js, and PHP. As most of us are familiar with Java, it is also 
 easier to apply sound software design patterns that we have learnt over the 
 course of our studies, such as singleton pattern or dependency 
 injection/inversion. With the support of testing frameworks like JUnit and 
-Mockito, we are able to provide good test coverage on our backend code base to 
+Mockito, we are able to provide good test coverage on our back end code base to 
 ensure long term maintainability. This is especially important for our target 
 market - enterprise web apps (see our App description). More generally, Java 
 code is more habitable and allows for easier extension with its wide range of 
@@ -198,7 +198,7 @@ which achieved the basic functionality that we needed for the first set of
 features. Then we spent a fair amount of time re-factoring to improve 
 readability , trying to include as many best practices as we could find and 
 writing some tests to ensure that we hit all of the edge cases. Then we joined 
-the design process for the frontend in iterations of adding features 
+the design process for the front end in iterations of adding features 
 $\rightarrow$ wiring them up to the front end $\rightarrow$ re-factoring if 
 possible.     
 
@@ -222,7 +222,7 @@ system.
 \subsection{Overview}
 
 \noindent Our system contains three independent parts, the front end (static web 
-pages + Javascript to provide calls to the API) the back end (the API, provides 
+pages + JavaScript to provide calls to the API) the back end (the API, provides 
 methods to access the main functionality of our system) and the database. The 
 interactions are shown in the diagram below.
 
@@ -237,7 +237,7 @@ interactions are shown in the diagram below.
 \subsubsection{Overview}
 When designing the API of the back end, we followed REST architecture style and 
 aimed to implement the the Level 2 of the Richardson Maturity Model. Our back 
-end contains multiple servlets which allow the calenadr resources to be uniquely 
+end contains multiple servlets which allow the calendar resources to be uniquely 
 identified. We also used proper semantics of HTTP methods and returned various 
 HTTP status codes to represent the effects of user's actions. JSON format was 
 used to send client requests to the API. The object is then processed by the 
@@ -335,6 +335,7 @@ if the destination Id is currently offline.
 \item[payload] - The actual data that is sent which is serialized to JSON as 
 well.
 \end{description}
+
 \noindent Using this structure, all the Chat Server does is route messages based on their 
 destination Ids and store in the database if they are offline. To know which 
 sockets to route to, the server maintains a ConcurrentMap of UserIds to 
