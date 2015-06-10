@@ -70,7 +70,6 @@ public class SavedEventResponse extends Response {
         event = new EventResponse();
         event.setResult(result);
         if (!event.isFound()) break;
-        if (event.isFound()) System.out.println(event.getEventId());
         tempEventList.add(
             new Pair<Timestamp, EventResponse>(result.getTimestamp(TIMESTAMP_COLUMN), event));
       } while(event.isFound());
@@ -78,15 +77,8 @@ public class SavedEventResponse extends Response {
       Collections.sort(tempEventList);
       ListIterator<Pair<Timestamp, EventResponse>> iter = 
           tempEventList.listIterator(tempEventList.size());
-      /*for (Pair<Timestamp, EventResponse> pair : tempEventList) {
-        savedEvents.add(pair.getValue()); 
-      }
       while(iter.hasPrevious()) {
-        System.out.println("TEST");
         savedEvents.add(iter.previous().getValue()); 
-      }*/
-      for (int i=tempEventList.size() - 1; i>0; i--) {
-        savedEvents.add(tempEventList.get(i).getValue());
       }
     } catch (SQLException e) {
       System.err.println("Error while getting the list of saved events.");

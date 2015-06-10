@@ -23,6 +23,6 @@ public class Pair<T extends Comparable<? super T>, U> implements Comparable<Pair
 
   @Override
   public int compareTo(Pair<T, U> other) {
-    return other.key.compareTo(key);
+    return key.compareTo(other.key);
   }
 }
