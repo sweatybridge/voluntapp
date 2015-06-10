@@ -18,11 +18,10 @@ import java.util.Set;
  */
 /**
  * @author bs2113
- *
+ * 
  */
 public class RosterResponse extends Response {
 
-  
   // List of the people in the roster (JSON target)
   private List<RosterEntry> roster;
 
@@ -32,27 +31,30 @@ public class RosterResponse extends Response {
   private transient Set<Integer> lookup = new HashSet<Integer>();
 
   /**
-   * Anonymous class to store each of the users in the roster. 
+   * Anonymous class to store each of the users in the roster.
    * 
    * @author bs2113
-   *
+   * 
    */
   public class RosterEntry {
     private int uid;
-    private int cid;
+    private List<Integer> cids;
     private String firstName;
     private String lastName;
     private List<String> calNames = new ArrayList<String>();
 
-    public RosterEntry(int uid, int cid, String firstName, String lastName) {
+    public RosterEntry(int uid, String firstName, String lastName) {
       this.uid = uid;
-      this.cid = cid;
       this.firstName = firstName;
       this.lastName = lastName;
     }
 
     public void addCalName(String name) {
       this.calNames.add(name);
+    }
+
+    public void addcid(Integer cid) {
+      this.cids.add(cid);
     }
 
     @Override
@@ -82,7 +84,7 @@ public class RosterResponse extends Response {
     this.roster = new ArrayList<RosterEntry>();
     this.userId = userId;
   }
-  
+
   public int getUserId() {
     return userId;
   }
@@ -94,7 +96,7 @@ public class RosterResponse extends Response {
         .format(
             "SELECT \"%s\",\"%s\",\"%s\",\"%s\",\"%s\" FROM (SELECT \"%s\",\"%s\",\"%s\",\"%s\" "
                 + "FROM (SELECT \"%s\", x.\"%s\" FROM (SELECT \"%s\" FROM \"USER_CALENDAR\" WHERE \"%s\"=?) AS x NATURAL JOIN "
-                + "\"USER_CALENDAR\" AS y WHERE \"%s\"='owner' OR \"%s\"='editor' OR \"%s\"='admin') AS z JOIN \"USER\" ON \"USER\".\"%s\"=z.\"%s\") "
+                + "\"USER_CALENDAR\" AS y WHERE \"%s\"='owner' OR \"%s\"='editor' OR \"%s\"='admin' OR \"%s\"='basic') AS z JOIN \"USER\" ON \"USER\".\"%s\"=z.\"%s\") "
                 + "AS a JOIN \"CALENDAR\" ON a.\"%s\"=\"CALENDAR\".\"%s\" WHERE \"CALENDAR\".\"%s\"=true;",
             CalendarSubscriptionResponse.UID_COLUMN,
             CalendarSubscriptionResponse.CID_COLUMN,
@@ -107,6 +109,7 @@ public class RosterResponse extends Response {
             CalendarSubscriptionResponse.CID_COLUMN,
             CalendarSubscriptionResponse.CID_COLUMN,
             CalendarSubscriptionResponse.UID_COLUMN,
+            CalendarSubscriptionResponse.ROLE_COLUMN,
             CalendarSubscriptionResponse.ROLE_COLUMN,
             CalendarSubscriptionResponse.ROLE_COLUMN,
             CalendarSubscriptionResponse.ROLE_COLUMN, UserResponse.ID_COLUMN,
@@ -127,9 +130,9 @@ public class RosterResponse extends Response {
     if (!lookup.contains(userId)) {
       lookup.add(userId);
       RosterEntry re = new RosterEntry(userId,
-          rs.getInt(CalendarSubscriptionResponse.CID_COLUMN),
           rs.getString(UserResponse.FIRST_NAME_COLUMN),
           rs.getString(UserResponse.LAST_NAME_COLUMN));
+      re.addcid(rs.getInt(CalendarSubscriptionResponse.CID_COLUMN));
       re.addCalName(calName);
       roster.add(re);
     } else {
