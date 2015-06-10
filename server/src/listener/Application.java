@@ -16,6 +16,7 @@ import servlet.CalendarSubscriptionServlet;
 import servlet.DefaultServlet;
 import servlet.EventServlet;
 import servlet.EventSubscriptionServlet;
+import servlet.SavedEventServlet;
 import servlet.SessionServlet;
 import servlet.UserServlet;
 import servlet.ValidationServlet;
@@ -81,6 +82,9 @@ public class Application implements ServletContextListener {
     context.addServlet(EventSubscriptionServlet.class.getName(),
         new EventSubscriptionServlet(gson, db)).addMapping(
         "/api/subscription/event", "/api/subscription/event/*");
+    context.addServlet(SavedEventServlet.class.getName(),
+        new SavedEventServlet(db)).addMapping(
+            "/api/save/event", "/api/save/event/*");
     context.addServlet(ValidationServlet.class.getName(),
         new ValidationServlet(gson, db, cg)).addMapping("/validate");
 

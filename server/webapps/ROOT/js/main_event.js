@@ -104,16 +104,16 @@ $(function() {
   $('#event_form textarea[name="description"]').keyup(updateCountdown);
   updateCountdown();
 
-  $.ajax("/api/subscription/event", {
+  $.ajax("/api/save/event", {
     method: "GET",
     success: function(data) {
       var saved = $("#collapseThree .list-group");
       var tmpl = 
-          '<a href="#" class="list-group-item">'+
+          '<a href="#" class="list-group-item" data-event-id="{{eventId}}">'+
             '<span>{{title}}</span>'+
-            '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent({{eventId}})></span>'+
+            '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent(this)></span>'+
           '</a>';
-      $.each(data.joinedEvents, function(k, event) {
+      $.each(data.savedEvents, function(k, event) {
         var elem = tmpl
             .replace("{{title}}", event.title)
             .replace("{{eventId}}", event.eventId);
@@ -189,7 +189,7 @@ function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
-  '<div class="event">'+
+  '<div class="event" ondblclick="saveEvent(this)">'+
     '<div class="time" onclick="editEvent(this)">'+
       '<dd>{{startTime}}</dd>'+
       '<dd>{{duration}}</dd>'+
@@ -533,7 +533,37 @@ function removeAttendee(elem) {
   });
 }
 
+function saveEvent(elem) {
+  var view = $(elem).closest(".event");
+  var savedEvents = $("#collapseThree .list-group");
+  var eid = view.data("eventId");
+  var title = $(elem).find(".title").html();
+  $.ajax({
+    method: "POST",
+    url: "/api/save/event/" + eid,
+    success: function() {
+      var tmpl = 
+          '<a href="#" class="list-group-item" data-event-id="{{eventId}}">'+
+            '<span>{{title}}</span>'+
+            '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent(this)></span>'+
+          '</a>';
+      var savedEvent = tmpl
+            .replace("{{title}}", title)
+            .replace("{{eventId}}", eid);
+      savedEvents.prepend(savedEvent);
+    }
+  });
+}
+
 // Removes an event from list of saved event templates
-function removeSavedEvent(eventId) {
-  // TODO: call the right api
+function removeSavedEvent(elem) {
+  var event = $(elem).closest("a");
+  address = "api/save/event/";
+  $.ajax({
+    method: "DELETE",
+    url: address.concat(event.data("eventId")),
+    success: function(data) {
+      event.remove();
+    }
+  });
 }
