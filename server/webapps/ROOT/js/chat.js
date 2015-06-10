@@ -47,7 +47,7 @@ var DemoServerAdapter = (function() {
   }
   DemoServerAdapter.prototype.sendMessage = function(roomId, conversationId, otherUserId, messageText, clientGuid, done) {
     var _this = this;
-    console.log("DemoServerAdapter: sendMessage");
+    //console.log("DemoServerAdapter: sendMessage");
 
     // we have to send the current message to the current user first
     // in chatjs, when you send a message to someone, the same message bounces back to the user
@@ -69,7 +69,7 @@ var DemoServerAdapter = (function() {
       type: "text",
       destinationIds: [otherUserId],
       sourceId: app.user.userId,
-      storeOffline: false,
+      storeOffline: true,
       payload: messageText
     };
     this.socket.send(JSON.stringify(chatMessage));
@@ -77,16 +77,26 @@ var DemoServerAdapter = (function() {
   };
 
   DemoServerAdapter.prototype.sendTypingSignal = function(roomId, conversationId, userToId, done) {
-    console.log("DemoServerAdapter: sendTypingSignal");
+    //console.log("DemoServerAdapter: sendTypingSignal");
+    // Create our own ChatMessage that the server is going to route
+    var chatMessage = {
+      type: "typing",
+      destinationIds: [userToId],
+      sourceId: app.user.userId,
+      storeOffline: false,
+      payload: {}
+    };
+    this.socket.send(JSON.stringify(chatMessage));
   };
 
   DemoServerAdapter.prototype.getMessageHistory = function(roomId, conversationId, otherUserId, done) {
-    console.log("DemoServerAdapter: getMessageHistory");
+    //console.log("DemoServerAdapter: getMessageHistory");
+    // We don't support message history yet
     done([]);
   };
 
   DemoServerAdapter.prototype.getUserInfo = function(userId, done) {
-    console.log("DemoServerAdapter: getUserInfo");
+    //console.log("DemoServerAdapter: getUserInfo");
     var user = null;
     for (var i = 0; i < this.users.length; i++) {
       if (this.users[i].Id == userId) {
@@ -100,7 +110,7 @@ var DemoServerAdapter = (function() {
   };
 
   DemoServerAdapter.prototype.getUserList = function(roomId, conversationId, done) {
-    console.log("DemoServerAdapter: getUserList");
+    //console.log("DemoServerAdapter: getUserList");
     if (roomId == DEFAULT_ROOM_ID) {
       done(this.users);
       return;
@@ -109,7 +119,7 @@ var DemoServerAdapter = (function() {
   };
 
   DemoServerAdapter.prototype.enterRoom = function(roomId, done) {
-    console.log("DemoServerAdapter: enterRoom");
+    //console.log("DemoServerAdapter: enterRoom");
 
     if (roomId != DEFAULT_ROOM_ID)
       throw "Only the default room is supported in the demo adapter";
@@ -173,6 +183,8 @@ var DemoAdapter = (function() {
         case 'text':
           _this.handleText(msg.sourceId, msg.payload);
           break;
+        case 'typing':
+          _this.handleTyping(msg.sourceId);
         case 'online/user':
           _this.handleOnline(msg.payload.userId);
           break;
@@ -302,6 +314,22 @@ var DemoAdapter = (function() {
     bounceMessage.Message = text;
     bounceMessage.ClientGuid = null;
     this.client.triggerMessagesChanged(bounceMessage);
+  };
+  
+  DemoAdapter.prototype.handleTyping = function(fromId) {
+    // Create the typing signal object, it is used in trigger function
+    var typingSignal = { UserToId: app.user.userId };
+    // Look for the user who sent this
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == fromId) {
+        // Attach the user to the typingSignal
+        typingSignal.UserFrom = this.server.users[i];
+        // Trigger typing
+        this.client.triggerTypingSignalReceived(typingSignal);
+        return;
+      }
+    }
+    // Otherwise we don't know who this is
   };
 
   DemoAdapter.prototype.handleRoster = function(roster) {
