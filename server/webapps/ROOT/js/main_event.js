@@ -192,7 +192,7 @@ function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
-  '<div class="event">'+
+  '<div class="event" ondblclick="saveEvent(this)">'+
     '<div class="time" onclick="editEvent(this)">'+
       '<dd>{{startTime}}</dd>'+
       '<dd>{{duration}}</dd>'+
@@ -524,6 +524,28 @@ function removeAttendee(elem) {
     },
     error: function(data) {
       toastr.error(data.responseJSON.message);
+    }
+  });
+}
+
+function saveEvent(elem) {
+  var view = $(elem).closest(".event");
+  var savedEvents = $("#collapseThree .list-group");
+  var eid = view.data("eventId");
+  var title = $(elem).find(".title").html();
+  $.ajax({
+    method: "POST",
+    url: "/api/save/event/" + eid,
+    success: function() {
+      var tmpl = 
+          '<a href="#" class="list-group-item" data-event-id="{{eventId}}">'+
+            '<span>{{title}}</span>'+
+            '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent(this)></span>'+
+          '</a>';
+      var savedEvent = tmpl
+            .replace("{{title}}", title)
+            .replace("{{eventId}}", eid);
+      savedEvents.prepend(savedEvent);
     }
   });
 }
