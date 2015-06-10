@@ -335,8 +335,6 @@ if the destination Id is currently offline.
 \item[payload] - The actual data that is sent which is serialized to JSON as 
 well.
 \end{description}
-\\
-\\
 \noindent Using this structure, all the Chat Server does is route messages based on their 
 destination Ids and store in the database if they are offline. To know which 
 sockets to route to, the server maintains a ConcurrentMap of UserIds to 
@@ -462,8 +460,9 @@ the flow of the creating events to changing / joining stuff. Mention
 
 \subsubsection{Mobile Optimizations}
 As mobile traffic has been the main driving force of internet growth today, we wanted to create a great experience for our users on mobile devices. The bootstrap framework includes a responsive grid layout system that automatically adapts to different screen sizes, however it was not enough to fulfill the needs of our application. In our application, we have handcrafted a unique user interface based on iterative feedback from weekly meetings with actual users of our application and in order to bring the same optimized experience to mobile, we had to fine tune the media queries for phone, tablet, and desktop by ourselves.
-
-As seen from the screenshots in UI Design, the transition of our user interface across different form factors is seamless. The sliding in and sliding out animations of the application drawers were rendered completely in CSS to achieve the maximum possible performance on less powerful mobile devices. Days on the calendar that do not fit into the the current viewport size are also hidden by CSS styles rather than being removed from the DOM for the same performance reasons. To enable accurate detection of swipe gestures, we customized a subset of jQuery Mobile UI component and added custom event handlers to “swipeleft” and “swiperight”. Last but not least, the default navigation bar provided by Bootstrap has to be customized to remove any collapsable toggles on mobile screens so that it does not interfere with our custom UI.
+\\
+\\
+\noindent As seen from the screenshots in UI Design, the transition of our user interface across different form factors is seamless. The sliding in and sliding out animations of the application drawers were rendered completely in CSS to achieve the maximum possible performance on less powerful mobile devices. Days on the calendar that do not fit into the the current viewport size are also hidden by CSS styles rather than being removed from the DOM for the same performance reasons. To enable accurate detection of swipe gestures, we customized a subset of jQuery Mobile UI component and added custom event handlers to “swipeleft” and “swiperight”. Last but not least, the default navigation bar provided by Bootstrap has to be customized to remove any collapsable toggles on mobile screens so that it does not interfere with our custom UI.
 
 \section{Libraries}
 Libraries that are used in the front-end:
