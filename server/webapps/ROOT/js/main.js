@@ -62,7 +62,10 @@ $(function() {
   });
   
   // Bind user profile buttons
-  $("#b_update_profile").click(function() {
+  $("#b_update_profile").click(function(e) {
+    if (!$(this).closest(".panel-heading").hasClass("collapsed")) {
+      e.stopPropagation();
+    }
     $("#d_user_profile").toggle();
     $("#profile_form").toggle();
   });

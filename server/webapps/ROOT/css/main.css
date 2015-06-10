@@ -98,6 +98,10 @@ Event view
   display: none;
 }
 
+.event .desc {
+  overflow: hidden;
+}
+
 .event .count {
   line-height: 1.8;
   font-size: 13px;

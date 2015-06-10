@@ -174,16 +174,31 @@ var DemoAdapter = (function() {
           _this.handleText(msg.sourceId, msg.payload);
           break;
         case 'online/user':
-          // Ensure the message came from the server
-          if (msg.sourceId == -1) {
-            _this.handleUserStatusChange(msg.payload.userId, true);
-          }
+          _this.handleOnline(msg.payload.userId);
           break;
         case 'offline/user':
-          // Ensure the message came from the server
-          if (msg.sourceId == -1) {
-            _this.handleUserStatusChange(msg.payload.userId, false);
-          }
+          _this.handleOffline(msg.payload.userId);
+          break;
+        case 'join/event':
+          _this.handleJoinEvent(msg.payload);
+          break;
+        case 'unjoin/event':
+          _this.handleUnjoinEvent(msg.payload);
+          break;
+        case 'update/event':
+          _this.handleUpdateEvent(msg.payload);
+          break;
+        case 'delete/event':
+          _this.handleDeleteEvent(msg.payload);
+          break;
+        case 'join/calendar':
+          _this.handleJoinCalendar(msg.payload);
+          break;
+        case 'update/calendar':
+          _this.handleUpdateCalendar(msg.payload);
+          break;
+        case 'delete/calendar':
+          _this.handleDeleteCalendar(msg.payload);
           break;
       }
       //toastr.info(e.data);
@@ -191,28 +206,99 @@ var DemoAdapter = (function() {
 
     done();
   };
-  
-  DemoAdapter.prototype.handleUserStatusChange = function(userId, isOnline) {
-    // Change the user from the server users list
-    for (var i = 0; i < this.server.users.length; i++) {
-      if (this.server.users[i].Id == userId) {
-        this.server.users[i].Status = isOnline; // Set the user to online
-        // Create notification message
-        var userListData = { RoomId: 1 };
-        userListData.UserList = this.server.users;
-        this.client.triggerUserListChanged(userListData);
-        break;
-      }
+
+  DemoAdapter.prototype.handleDeleteCalendar = function(calendar) {
+    // ignore message to self
+    if (app.user.userId === calendar.userId) {
+      return;
     }
-    // We don't who this user is
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
+    // ignore message to self
+    if (app.user.userId === calendar.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleJoinCalendar = function(join) {
+    // ignore message to self
+    if (app.user.userId === join.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleDeleteEvent = function(event) {
+    // ignore message to self
+    if (app.user.userId === event.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleUpdateEvent = function(event) {
+    // ignore message to self
+    if (app.user.userId === event.userId) {
+      return;
+    }
+    // TODO: need calendar id
+  };
+
+  DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {
+    // ignore message to self
+    if (app.user.userId === unjoin.userId) {
+      return;
+    }
+    // update count badge if event is rendered in calendar
+    $(".event").each(function(k, elem) {
+      var event = $(elem);
+      if (event.data("eventId") === unjoin.eventId) {
+        updateAttendeeCount(event, -1);
+      }
+    });
+  };
+
+  DemoAdapter.prototype.handleJoinEvent = function(join) {
+    // ignore message to self
+    if (app.user.userId === join.userId) {
+      return;
+    }
+    // update count badge if event is rendered in calendar
+    $(".event").each(function(k, elem) {
+      var event = $(elem);
+      if (event.data("eventId") === join.eventId) {
+        updateAttendeeCount(event, 1);
+      }
+    });
+  };
+
+  DemoAdapter.prototype.handleOffline = function(userId) {
+    $.each(this.server.users, function(k, user) {
+      if (user.Id === userId) {
+        user.Status = 0;
+      }
+    });
+    this.server.enterRoom(1);
+  };
+
+  DemoAdapter.prototype.handleOnline = function(userId) {
+    $.each(this.server.users, function(k, user) {
+      if (user.Id === userId) {
+        user.Status = 1;
+      }
+    });
+    this.server.enterRoom(1);
   };
 
   DemoAdapter.prototype.handleText = function(fromId, text) {
     var bounceMessage = new ChatMessageInfo();
     bounceMessage.UserFromId = fromId; // It will from our user
     bounceMessage.UserToId = app.user.userId;
-    //bounceMessage.RoomId = 1;
-    //bounceMessage.ConversationId = 1;
+    bounceMessage.RoomId = 1;
+    bounceMessage.ConversationId = 1;
     bounceMessage.Message = text;
     bounceMessage.ClientGuid = null;
     this.client.triggerMessagesChanged(bounceMessage);
@@ -230,6 +316,15 @@ var DemoAdapter = (function() {
       userInfo.Status = user.isOnline /* Online */ ;
       return userInfo;
     });
+
+    var me = new ChatUserInfo();
+    me.Id = app.user.userId;
+    me.RoomId = DEFAULT_ROOM_ID;
+    me.Name = app.user.firstName + " " + app.user.lastName;
+    me.Email = app.user.email;
+    me.ProfilePictureUrl = "img/user_chat_icon.png";
+    me.Status = 1 /* Online */ ;
+    this.server.users.push(me);
 
     // configuring rooms
     var defaultRoom = new ChatRoomInfo();

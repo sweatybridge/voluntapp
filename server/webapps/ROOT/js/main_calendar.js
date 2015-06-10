@@ -14,27 +14,34 @@ $(function() {
   
   // Bind edit calendar buttons and forms
   $("#b_cancel_calendar").click(function() {
+    $("#d_edit_calendar").hide();
+    //$("#d_user_calendars").toggle();
+  });
+  $("#b_edit_calendar").click(function(e) {
+    if (!$(this).closest(".panel-heading").hasClass("collapsed")) {
+      e.stopPropagation();
+    }
     $("#d_edit_calendar").toggle();
-    $("#d_user_calendars").toggle();
   });
   
   $("#b_delete_calendar").click(function() {
-    var calid = $(this).parent().data("calid");
-    var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
-    if(confirm("Are you sure you want to delete "+name+"?")) {
-      $.ajax("/api/calendar/"+calid, {
-        method: "DELETE",
-        success: function(data) {
-          toastr.warning("Deleted " + name);
-          $("#b_cancel_calendar").click(); // hide this window again
-          refreshCalendars();
-        },
-        error: function(data) {
-          toastr.error("Could not delete " + name);
-          refreshCalendars();
-        }
-      });
-    }
+    $("#d_user_calendars").children(".active").each(function(k, elem) {
+      var calid = $(elem).data("calid");
+      var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
+      if(confirm("Are you sure you want to delete "+name+"?")) {
+        $.ajax("/api/calendar/"+calid, {
+          method: "DELETE",
+          success: function(data) {
+            toastr.warning("Deleted " + name);
+            refreshCalendars();
+          },
+          error: function(data) {
+            toastr.error("Could not delete " + name);
+            refreshCalendars();
+          }
+        });
+      }
+    });
   });
   
   $("#user_promotion_form").submit(function(e) {
@@ -60,10 +67,33 @@ $(function() {
     $(this).attr("action", "/api/calendar/"+calid);
     submitAjaxForm($(this), function(data) { toastr.success("Updated calendar"); $("#b_cancel_calendar").click(); refreshCalendars(); }, $("#calendar_edit_errors"));
   });
-  
+
+  $("#b_unsub_calendar").click(function() {
+    // get the list of selected calendars
+    $("#d_user_calendars").children(".active").each(function(k, elem) {
+      var cal_div = $(elem);
+      var cid = cal_div.data("calid");
+      var calendar = $.grep(app.calendars, function(c) {return c.calendarId === cid;})[0];
+      if (calendar.role === "basic" || calendar.role === "editor") {
+        $.ajax("/api/subscription/calendar/" + cid, {
+          data: JSON.stringify({targetUserEmail : app.user.email}),
+          method: "DELETE",
+          success: function(data) {
+            toastr.warning("Unsubscribed from " + calendar.name);
+            refreshCalendars();
+          },
+          error: function(data) {
+            toastr.error("Could not unscubscribe from " + calendar.name);
+            refreshCalendars();
+          }
+        });
+      }
+    });
+  });
+
   // Render calendar from yesterday
-  // updateCalendarDates(getMonday());
-  app.current_start_date = getMonday();
+  updateCalendarDates(getMonday());
+  //app.current_start_date = getMonday();
 
   //rebuildCalendar();
 }); // End of document ready
@@ -125,28 +155,6 @@ function refreshCalendars() {
         refreshEvents();
       });
 
-      // Add unsubscribing from events
-      /*
-      if (calendar.role === "basic" || calendar.role === "editor") {
-  		  cal_div.find("a").click(function() {
-  		    var calid = $(this).parent().parent().data("calid");
-  		    var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
-  		    $.ajax("/api/subscription/calendar/"+calid, {
-  				data: JSON.stringify({targetUserEmail : app.user.email}),
-  				method: "DELETE",
-  				success: function(data) {
-  				  toastr.warning("Unsubscribed from " + name);
-  				  refreshCalendars();
-  				},
-  				error: function(data) {
-  				  toastr.error("Could not unscubscribe from " + name);
-  				  refreshCalendars();
-  				}
-  		    });
-  		  });
-      }
-      */
-      
       // Check calendar rights
       if (calendar.role === "admin" || calendar.role === "owner") {
         // Update event calendar selection box

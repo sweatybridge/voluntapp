@@ -38,7 +38,7 @@ $(function() {
     })
   });
 
-  $("#btn_event_cancel").click(resetEventForm);
+  $("#btn_event_clear, #btn_event_cancel").click(resetEventForm);
 
   // delete event
   $("#btn_event_delete").click(function() {
@@ -98,10 +98,7 @@ $(function() {
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
     });
   });
-  
-  // bind click to empty space on calendar
-  $("#d_main_col").click(resetEventForm);
-  
+
   // Refresh description count
   $('#event_form textarea[name="description"]').change(updateCountdown);
   $('#event_form textarea[name="description"]').keyup(updateCountdown);
@@ -200,7 +197,9 @@ function createEventView(event) {
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
         '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
-        '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}"></ul>'+
+        '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}">'+
+          '<li role="presentation" class="dropdown-header">List of Attendees</li>'+
+        '</ul>'+
       '</div>'+
     '</div>'+
     '<div class="title" onclick="editEvent(this)">{{title}}</div>'+
@@ -296,7 +295,7 @@ function createEventView(event) {
         $.ajax("/api/event/" + event.eventId, {
           method: "GET",
           success: function(data) {
-            attendeesList.empty();
+            attendeesList.children().remove(":not(.dropdown-header)");
             if (data.attendees.length > 0) {
               // add attendees
               $.each(data.attendees, function(k, attendee) {
@@ -309,12 +308,11 @@ function createEventView(event) {
                 }
                 elem.appendTo(attendeesList);
               });
-            } else {
-              $(tmpl).appendTo(attendeesList).find("a").text("No attendee");
             }
           },
           error: function(data) {
-            console.log("Not admin.");
+            attendeesList.children().remove(":not(.dropdown-header)");
+            $(tmpl).appendTo(attendeesList).find("a").text("- Private -");
           }
         });
       });
@@ -483,13 +481,13 @@ function formatEventForm(formObj) {
 
 // Shows event create button and hide the rest
 function turnEventCreate() {
-  $("#btn_event_create").show();
+  $("#btn_event_create, #btn_event_clear").show();
   $("#btn_event_save, #btn_event_delete, #btn_event_cancel").hide();
 }
 
 // Shows event editing buttons and hides the create
 function turnEventEdit() {
-  $("#btn_event_create").hide();
+  $("#btn_event_create, #btn_event_clear").hide();
   $("#btn_event_save, #btn_event_delete, #btn_event_cancel").show();
 }
 
@@ -506,6 +504,16 @@ function resetEventForm() {
   updateCountdown();
 }
 
+// increment or decrement attendee count by delta
+function updateAttendeeCount(view, delta) {
+  var eid = view.data("eventId");
+  var event = $.grep(app.events, function(e){return e.eventId === eid})[0];
+  if (event) {
+    event.currentCount += delta;
+    view.find(".count").text(event.currentCount + "/" + event.max);
+  }
+}
+
 // Removes an attendee from an event (admin feature)
 function removeAttendee(elem) {
   var user = $(elem).closest("li");
@@ -517,10 +525,7 @@ function removeAttendee(elem) {
     data: JSON.stringify({userId: user.data("userId")}),
     success: function(data) {
       user.remove();
-      var countBadge = event.find(".count");
-      var count = countBadge.text().split("/");
-      count[0] = parseInt(count[0]) - 1;
-      countBadge.text(count.join("/"));
+      updateAttendeeCount(event, -1);
     },
     error: function(data) {
       toastr.error(data.responseJSON.message);
