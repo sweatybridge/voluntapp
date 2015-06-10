@@ -335,8 +335,9 @@ if the destination Id is currently offline.
 \item[payload] - The actual data that is sent which is serialized to JSON as 
 well.
 \end{description}
-
-Using this structure, all the Chat Server does is route messages based on their 
+\\
+\\
+\noindent Using this structure, all the Chat Server does is route messages based on their 
 destination Ids and store in the database if they are offline. To know which 
 sockets to route to, the server maintains a ConcurrentMap of UserIds to 
 ConcurrentHashSet of open Sessions. Hence, even if the same user logs on 
@@ -355,8 +356,9 @@ achieve our aim are WebSockets, which are a good fit due to the widespread
 browser support, responsiveness and the fact that they are 
 already utilised by the chat server, hence
 the client could re-use the same TCP connection to send also the updated data.
-
-Our solution utilises \textbf{observer pattern}, by subscribing to a given 
+\\
+\\
+\noindent Our solution utilises \textbf{observer pattern}, by subscribing to a given 
 calendar the user (observer) registers his intent to receive the relevant 
 dynamic updates. Every time event is updated 
 or added to/deleted from the calendar, all the users subscribed to the 
@@ -445,12 +447,14 @@ them.
 \\
 \\
 \noindent
-The administrations of a calendar have extra abilities in addition to those of a 
-subscriber. They can create, modify details of and delete any event on their 
-calendars along with the ability to see the number of people who have signed up 
-and their identities. In addition, they can delete whole calendars and invite 
-people to subscribe via an invite code which they can give out to anyone who may 
-be interested.
+The administrations of a calendar have extra abilities in addition to those of a subscriber. They can create, modify details of and delete any event on their calendars along with the ability to see the number of people who have signed up and their identities. In addition, they can delete whole calendars and invite people to subscribe via an invite code which they can give out to anyone who may be interested.
+\\
+\\
+\noindent
+We also decided to implement a chat feature whereby subscribers to the admins and editors of calendars and admins/editors and chat among themselves. It is intended to be used to aid the event organisation process as well as to allow people to pose questions about the events to the organisers. This give our app some much needed user-user interaction to hopefully extend the time that users will spent interacting with the app and the other people who use it.
+\\
+\\
+\noindent Some examples of typical user interaction can be found in \cref{sec:fd} (as in the milestone report).   
 
 \subsubsection{UI Design}
 TODO: Put a screen shot, discuss why the elements are where they are. Talk about 
@@ -538,11 +542,23 @@ similar to a real world software development cycle. Overall, I think as a team,
 we went beyond the basic requirements of the coursework and built a viable web 
 application recreates the event organization experience on campus.
 
-\newpage
-\newpage
-\section{To put somewhere later}
-Admins are able to change the calendar information, kick people from the 
-calendar and create/delete/modify \textbf{events} whereas editors can only 
-create/delete/modify events. Everyone who is subscribed to the calendar has the 
-right to join any of the calendars events.
+\appendix
+\label{appendix}
+
+\section{User Interaction Diagrams}
+\label{sec:fd}
+\begin{figure}[H]
+\centering
+\begin{minipage}{.4\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{user_event}
+  \caption{Use flow of a user signing up}
+\end{minipage}%
+\begin{minipage}{.7\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{calendar_user}
+  \caption{Use flow of a new user creating a calendar}
+\end{minipage}
+\end{figure}
+
 \end{document}
