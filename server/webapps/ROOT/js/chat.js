@@ -60,9 +60,9 @@ var DemoServerAdapter = (function() {
     bounceMessage.Message = messageText;
     bounceMessage.ClientGuid = clientGuid;
 
-    setTimeout(function() {
+    /*setTimeout(function() {
       _this.clientAdapter.triggerMessagesChanged(bounceMessage);
-    }, 300);
+    }, 300);*/
 
     // Create our own ChatMessage that the server is going to route
     var chatMessage = {
@@ -73,6 +73,7 @@ var DemoServerAdapter = (function() {
       payload: messageText
     };
     this.socket.send(JSON.stringify(chatMessage));
+    _this.clientAdapter.triggerMessagesChanged(bounceMessage);
   };
 
   DemoServerAdapter.prototype.sendTypingSignal = function(roomId, conversationId, userToId, done) {
@@ -172,11 +173,38 @@ var DemoAdapter = (function() {
         case 'text':
           _this.handleText(msg.sourceId, msg.payload);
           break;
+        case 'online/user':
+          // Ensure the message came from the server
+          if (msg.sourceId == -1) {
+            _this.handleUserStatusChange(msg.payload.userId, true);
+          }
+          break;
+        case 'offline/user':
+          // Ensure the message came from the server
+          if (msg.sourceId == -1) {
+            _this.handleUserStatusChange(msg.payload.userId, false);
+          }
+          break;
       }
       //toastr.info(e.data);
     };
 
     done();
+  };
+  
+  DemoAdapter.prototype.handleUserStatusChange = function(userId, isOnline) {
+    // Change the user from the server users list
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == userId) {
+        this.server.users[i].Status = isOnline; // Set the user to online
+        // Create notification message
+        var userListData = { RoomId: 1 };
+        userListData.UserList = this.server.users;
+        this.client.triggerUserListChanged(userListData);
+        break;
+      }
+    }
+    // We don't who this user is
   };
 
   DemoAdapter.prototype.handleText = function(fromId, text) {
@@ -195,7 +223,7 @@ var DemoAdapter = (function() {
       // configure user info
       var userInfo = new ChatUserInfo();
       userInfo.Id = user.uid;
-      //userInfo.RoomId = DEFAULT_ROOM_ID;
+      userInfo.RoomId = DEFAULT_ROOM_ID;
       userInfo.Name = user.firstName + " " + user.lastName;
       //userInfo.Email = user.email;
       userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
@@ -207,7 +235,7 @@ var DemoAdapter = (function() {
     var defaultRoom = new ChatRoomInfo();
     defaultRoom.Id = 1;
     defaultRoom.Name = "Default Room";
-    defaultRoom.UsersOnline = this.server.users.length;
+    //defaultRoom.UsersOnline = this.server.users.length;
 
     this.server.rooms = [defaultRoom];
     this.server.enterRoom(1);

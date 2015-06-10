@@ -35,8 +35,24 @@ public class DynamicUpdate {
     // Check if there any online users for the calendar
     Integer[] calendarIds = map.getUserIds(calendarId);
     if (calendarIds != null) {
-      ChatMessage cm = new ChatMessage(mType.getType(), Arrays.asList(calendarIds), -1, false, obj);
+      ChatMessage cm = new ChatMessage(mType.getType(),
+          Arrays.asList(calendarIds), -1, false, obj);
       ChatServer.routeChatMessage(cm);
+    }
+  }
+
+  /**
+   * Wraps around information that is send to the client so that GSON converts
+   * to proper JSON
+   * 
+   * @author nc1813
+   * 
+   */
+  private static class UserWrapper {
+    private int userId;
+
+    public UserWrapper(int userId) {
+      this.userId = userId;
     }
   }
 
@@ -51,7 +67,7 @@ public class DynamicUpdate {
    */
   public static void sendOnlineUser(Set<Integer> calendarIds, Integer userId) {
     for (Integer cid : calendarIds) {
-      sendObj(cid, MessageType.USER_ONLINE, "{\"userid\":" + userId + "}");
+      sendObj(cid, MessageType.USER_ONLINE, new UserWrapper(userId));
     }
   }
 
@@ -66,7 +82,7 @@ public class DynamicUpdate {
    */
   public static void sendOfflineUser(Set<Integer> calendarIds, Integer userId) {
     for (Integer cid : calendarIds) {
-      sendObj(cid, MessageType.USER_OFFLINE, "{\"userid\":" + userId + "}");
+      sendObj(cid, MessageType.USER_OFFLINE, new UserWrapper(userId));
     }
   }
 
