@@ -18,11 +18,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import resp.CalendarResponse;
-import resp.CalendarSubscriptionResponse;
 import resp.RosterResponse;
-import resp.SessionResponse;
 import resp.RosterResponse.RosterEntry;
+import resp.SessionResponse;
 import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
 import db.CalendarIdUserIdMap;
@@ -124,20 +122,19 @@ public class ChatServer {
       destinationIds.add(userId);
       ChatMessage rosterMessage = new ChatMessage("roster", destinationIds, -1,
           false, roster);
-      session.getBasicRemote().sendText(rosterMessage.toString());
+      routeChatMessage(rosterMessage);
 
       // Return any offline messages
       List<ChatMessage> cms = db.getMessages(userId);
       if (cms != null) {
         for (ChatMessage cm : cms) {
-          session.getBasicRemote().sendText(cm.toString());
+          routeChatMessage(cm);
         }
       }
 
-    } catch (IOException | SQLException e) {
+    } catch (SQLException e) {
       e.printStackTrace();
-      System.err
-          .println("Could not send user roster or offline messages at start.");
+      System.err.println("Failed to get offline message for user: " + userId);
     }
 
   }
@@ -208,12 +205,15 @@ public class ChatServer {
    *          database
    */
   public static void routeChatMessage(ChatMessage chatMessage) {
+    List<Integer> destinationIds = chatMessage.getDestinationIds();
     // Make sure we have destinations to route to
-    if (chatMessage.getDestinationIds() == null) {
+    if (destinationIds == null) {
       return;
     }
+    // Set it to null for gson not to serialize
+    chatMessage.setDestinationIds(null);
     // For every destination id
-    for (Integer destinationId : chatMessage.getDestinationIds()) {
+    for (Integer destinationId : destinationIds) {
       // Check if it was addressed at the server
       if (destinationId == -1) {
         // TODO: Handle server message if any
