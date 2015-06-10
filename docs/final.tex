@@ -8,6 +8,7 @@
 \usepackage{tikz}
 \usepackage{float}
 \usepackage{comment}
+\usepackage{pdfpages}
 
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 
@@ -38,7 +39,7 @@ who are able to create events.
 \item[Calendars] - these are entities that any user can create. User can 
 subscribe to other peoples calendars where they can then be promoted to editors 
 or admins. Depending on their role they will have different rights and available 
-actions is described \textbf{put-link-here}.
+actions.
 \item[Events] - events are entities that are created on the calendar and are 
 available to join to anyone who has subscribed. They contain the following 
 information: a title, a start date and time, an end end and time, a location, a 
@@ -46,7 +47,7 @@ max capacity (possibly unlimited) and a description.
 \end{description}
 
 \noindent We decided on creating this application due to a problem that one of 
-our team members spotted during volunteering for the collage. This problem was 
+our team members spotted during volunteering for the college. This problem was 
 with the process of organising events, which typically involves large quantities of 
 emails to send out the information and get responses back from interested 
 volunteers and either send out more email telling people that events are oversubscribed or 
@@ -262,8 +263,7 @@ user.
 Both the serialization/deserialization and basic authentication (is the session 
 ID valid and whose is it) are done though filters which all of the 
 request/response objects get run though.
-\\
-\\
+
 \subsubsection{User verification and session management}
 \noindent We have implemented a complete login and session management system. We 
 allow the users to create and account or login via calls to our API, on return 
@@ -287,8 +287,7 @@ code to the user's email after they register that they have to enter the first
 time they log in. As for this we had to add email support we also included a 
 password reset function which sends a temporary password that the user can log 
 on with.  
-\\
-\\
+
 \subsubsection{Interfacing with the database}
 \noindent We decided to create one class to wrap all of the database accesses, 
 which lead to the simplification of the servlet classes. It also allowed us to 
@@ -455,15 +454,32 @@ We also decided to implement a chat feature whereby subscribers to the admins an
 \\
 \noindent Some examples of typical user interaction can be found in \cref{sec:fd} (as in the milestone report).   
 
-\subsubsection{UI Design}
-TODO: Put a screen shot, discuss why the elements are where they are. Talk about 
-the flow of the creating events to changing / joining stuff. Mention
+\subsubsection{UI Design (See Figure. 2)}
 
-\subsubsection{Mobile Optimizations}
+\begin{figure}
+ \includegraphics[width=\textwidth]{labeled_app.pdf}
+ \caption{Desktop view}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=\textwidth]{mobileView.png}
+\caption{Mobile view}
+\end{figure}
+
+\begin{enumerate}
+ \item Welcome message to the user with an option to select the start date of your calendars. It uses your first name to create a warm and more welcoming atmosphere.
+ \item Left side bar contains list of calendars that the user has subscribed to. The user can toggle the display of individual calendars on and off. Private calendars do not show the join code to users to prevent abuse. It also contains the list of saved events, the user's profile information (with an option to update), and other meta data of the application. An accordion is used to reduce the amount of clutter with the information available there.
+ \item The main event view shows the title, start time, and all related information about an event. list of attendees to an event is only shown to admins by clicking on the counter badge. The user can also click the join button to attend an event. If the event has preprequisites (for eg. post graduate only events) the user has to check the box before being allowed to join. The event header's color is changed to green if the current user has joined the event.
+ \item All events on the calendar are listed by days and sorted by start time of invidual events. Today's date is colored in blue. We have decided to collapse the description of events as well as the time difference between events on the same day so that we get rid of redundant white spaces.
+ \item We offer a chat service in the app that allows attendees of an event to ask questions to admins of an event before they click join for clarification. We believe having this extra user-user interaction is necessary to increase efficiency of the app as an event management system.
+ \item Right side bar is reserved for creating events and joining calendars. It is moved off screen on mobile devices to give the user more screen space. On wide screen devices, it is shown together with left side bar so that users can conveniently create events without having to click extra buttons.
+\end{enumerate}
+
+\subsubsection{Mobile Optimizations (See Figure. 3)}
 As mobile traffic has been the main driving force of internet growth today, we wanted to create a great experience for our users on mobile devices. The bootstrap framework includes a responsive grid layout system that automatically adapts to different screen sizes, however it was not enough to fulfill the needs of our application. In our application, we have handcrafted a unique user interface based on iterative feedback from weekly meetings with actual users of our application and in order to bring the same optimized experience to mobile, we had to fine tune the media queries for phone, tablet, and desktop by ourselves.
 \\
 \\
-\noindent As seen from the screenshots in UI Design, the transition of our user interface across different form factors is seamless. The sliding in and sliding out animations of the application drawers were rendered completely in CSS to achieve the maximum possible performance on less powerful mobile devices. Days on the calendar that do not fit into the the current viewport size are also hidden by CSS styles rather than being removed from the DOM for the same performance reasons. To enable accurate detection of swipe gestures, we customized a subset of jQuery Mobile UI component and added custom event handlers to “swipeleft” and “swiperight”. Last but not least, the default navigation bar provided by Bootstrap has to be customized to remove any collapsable toggles on mobile screens so that it does not interfere with our custom UI.
+\noindent As seen from the screenshots in UI Design, the transition of our user interface across different form factors is seamless. The sliding in and sliding out animations of the application drawers were rendered completely in CSS to achieve the maximum possible performance on less powerful mobile devices. Days on the calendar that do not fit into the the current viewport size are also hidden by CSS styles rather than being removed from the DOM for the same performance reasons. To enable accurate detection of swipe gestures, we customized a subset of jQuery Mobile UI component and addemight have d custom event handlers to “swipeleft” and “swiperight”. Last but not least, the default navigation bar provided by Bootstrap has to be customized to remove any collapsable toggles on mobile screens so that it does not interfere with our custom UI.
 
 \section{Libraries}
 Libraries that are used in the front-end:
@@ -518,11 +534,11 @@ learned a lot about back end development, which was my primary focus, as I had
 never worked on the Internet application back end before and wanted to gain some 
 skills in that area. I am very satisfied with my cooperation with the rest of 
 the team, the atmosphere was friendly and due to daily meetings in the labs, we 
-managed to develop the project at fast pace. On the downside, I did not manage 
-to create a complete test suite for the implemented functionality, which should 
-be done before the release of our app. However, due to the dynamically-changing 
-requirements for our project (set by Outreach Office) the implementation had 
-been changing a lot in the process, which made writing test suite difficult. 
+managed to develop the project at fast pace. On the downside, having written a lot of 
+interaction tests at the start has resulted in overly specified test cases
+as during our later stages of refactoring, most test cases were broken even though
+the functionality of the app did not change. However, these test cases will be
+fixed before the actual release of our app.
  
  \subsection{Bradley's Conclusion}
  I think this project went fairly well, we managed to achieve most of the aims 
