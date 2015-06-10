@@ -188,7 +188,22 @@ The javascript code is organized into several layers that separate the concerns 
 It is important to note that this refresh to rendering cycle only happens when the page is loaded for the first time. Then only the rendering functions are used in correspondence with the dynamic update messages received from the back-end. This method significantly reduces the AJAX overhead of fetching the entire data again even if only one event is changed.
 
 \subsubsection{User Interactions}
-TODO: Mention the milestone interactions plus the user-user interaction. User-user is more crucial here.
+The basic idea is that there are two types of users (per calendar), the administrators and the ordinary users (subscribers). They will interact with the calendars in diﬀerent ways and have various typical uses. Note that any user can create a calendar or join other calendars so these roles are not absolute.
+\\
+\\
+\noindent
+A subscriber of a calendar is able to see calendar’s events in a clear manner and easily access the details of an event, like time, location, duration and short description, together with a feedback on the interest about the event (number of people already registered to the event). Users also need the ability to sign up for the event they wish to attend (depending on the event this may require some requirements being met). In addition, users can change between the calendars they are subscribed to and create a dynamically-customisable view including only the calendars that interest them at a particular time. The view enables the users to preview the information about events occurring in a certain time interval (for example, a week from a selected). Finally, all users of the application are be able to create calendars and gain administrator privilege on them.
+\\
+\\
+\noindent
+The administrations of a calendar have extra abilities in addition to those of a subscriber. They can create, modify details of and delete any event on their calendars along with the ability to see the number of people who have signed up and their identities. In addition, they can delete whole calendars and invite people to subscribe via an invite code which they can give out to anyone who may be interested.
+\\
+\\
+\noindent
+We also decided to implement a chat feature whereby subscribers to the admins and editors of calendars and admins/editors and chat among themselves. It is intended to be used to aid the event organisation process as well as to allow people to pose questions about the events to the organisers. This give our app some much needed user-user interaction to hopefully extend the time that users will spent interacting with the app and the other people who use it.
+\\
+\\
+\noindent Some examples of typical user interaction can be found in \cref{sec:fd} (as in the milestone report).   
 
 \subsubsection{UI Design}
 TODO: Put a screen shot, discuss why the elements are where they are. Talk about the flow of the creating events to changing / joining stuff. Mention
@@ -210,9 +225,34 @@ Libraries that are used in the back-end:
 \item[Google GSON] - The GSON library is used to serialize and deserialize Java objects into Json strings when they are sent to and recieved from the front-end. It is licensed under the Apache License 2.0. https://code.google.com/p/google-gson/
 \item[PostgreSQL JDBC Driver] - The Java back-end is linked to the group database using the driver. Licensed under BSD license. https://jdbc.postgresql.org/
 \end{description}
-     
-\newpage
-\newpage
-\section{To put somewhere later}
-Admins are able to change the calendar information, kick people from the calendar and create/delete/modify \textbf{events} whereas editors can only create/delete/modify events. Everyone who is subscribed to the calendar has the right to join any of the calendars events.
+
+\section{Conclusion}
+ \subsection{Piotr's Conclusion}
+ Overall I am very satisfied with the outcome of our work. We managed to design a practical application which has a high chance of being used on Imperial Campus. Close cooperation with Imperial Outreach Office allowed us to gather many important insights that we used to enhance usability and add more features to our app. When it comes to my experiences with working on the project, I learned a lot about backend development, which was my primary focus, as I had never worked on the Internet application back end before and wanted to gain some skills in that area. I am very satisfied with my cooperation with the rest of the team, the atmosphere was friendly and due to daily meetings in the labs, we managed to develop the project at fast pace. On the downside, I did not manage to create a complete test suite for the implemented functionality, which should be done before the release of our app. However, due to the dynamically-changing requirements for our project (set by Outreach Office) the implementation had been changing a lot in the process, which made writing test suite difficult. 
+ 
+\subsection{Bradley's Conclusion}
+I think this project went fairly well, we managed to achieve most of the aims that we set out to do. I managed to get a good understanding of the whole web application building process. Although most of my work was on the database set-up and interaction I feel that it has also given me a decent understanding of the client facing aspects as well. If we were to redo this project I would have allocated more time to fully design the different sections of the system and how the interact before starting the implementation. We had to rework our back end design a few times in the early stages so that it would be primed for extension for the features that were considering to add in the future. Hopefully we have managed to structure the system in such a way that it should be relatively painless to continue to develop this application and add new features when we need to.  
+
+\subsection{Nuri's Conclusion}
+As far as the group projects go, I think this was best in many ways. Firstly, we were building an actual product with potential customers. It did not feel like after we click the yellow hand-in button on cate that it will become history. This aspect not only motivated the team but also pushed it to design, develop and possibly deploy right code. Secondly, building a web app I think incorporated many different technologies and allowed for a good work divide within the group. Anything from the front-end javascript code to database queries, there was a challenge for us which we solved using our combined knowledge and often along way argued which solution is considered best practice. Finally, having a human centred design perspective as we regularly met with people from the Outreach Office, added an extra business side to the project. We tried to implement their needs, but sometimes even discarded them as we had to carefully judge what could be done within the time limit we got which is quite similar to a real world software development cycle. Overall, I think as a team, we went beyond the basic requirements of the coursework and built a viable web application recreates the event organization experience on campus.
+
+\appendix
+\label{appendix}
+
+\section{User Interaction Diagrams}
+\label{sec:fd}
+\begin{figure}[H]
+\centering
+\begin{minipage}{.4\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{user_event}
+  \caption{Use flow of a user signing up}
+\end{minipage}%
+\begin{minipage}{.7\textwidth}
+  \centering
+  \includegraphics[width=0.9\linewidth]{calendar_user}
+  \caption{Use flow of a new user creating a calendar}
+\end{minipage}
+\end{figure}
+
 \end{document}
