@@ -3,6 +3,8 @@ package chat;
 import java.util.Arrays;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
+
 import req.CalendarSubscriptionRequest;
 import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
@@ -51,7 +53,7 @@ public class DynamicUpdate {
    */
   public static void sendOnlineUser(Set<Integer> calendarIds, Integer userId) {
     for (Integer cid : calendarIds) {
-      sendObj(cid, MessageType.USER_ONLINE, "{\"userid\":" + userId + "}");
+      sendObj(cid, MessageType.USER_ONLINE, ImmutableMap.of("userId", userId));
     }
   }
 
@@ -66,7 +68,7 @@ public class DynamicUpdate {
    */
   public static void sendOfflineUser(Set<Integer> calendarIds, Integer userId) {
     for (Integer cid : calendarIds) {
-      sendObj(cid, MessageType.USER_OFFLINE, "{\"userid\":" + userId + "}");
+      sendObj(cid, MessageType.USER_OFFLINE, ImmutableMap.of("userId", userId));
     }
   }
 

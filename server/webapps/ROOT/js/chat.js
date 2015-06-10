@@ -172,11 +172,42 @@ var DemoAdapter = (function() {
         case 'text':
           _this.handleText(msg.sourceId, msg.payload);
           break;
+        case 'online/user':
+          _this.handleOnline(msg.payload.userId);
+          break;
+        case 'offline/user':
+          _this.handleOffline(msg.payload.userId);
+          break;
+        case 'update/event':
+          _this.handleUpdateEvent(msg.payload);
+          break;
       }
       //toastr.info(e.data);
     };
 
     done();
+  };
+
+  DemoAdapter.prototype.handleUpdateEvent = function(fromId, text) {
+    // TODO: implement this
+  };
+
+  DemoAdapter.prototype.handleOffline = function(userId) {
+    $.each(this.server.users, function(k, user) {
+      if (user.Id === userId) {
+        user.Status = 0;
+      }
+    });
+    this.server.enterRoom(1);
+  };
+
+  DemoAdapter.prototype.handleOnline = function(userId) {
+    $.each(this.server.users, function(k, user) {
+      if (user.Id === userId) {
+        user.Status = 1;
+      }
+    });
+    this.server.enterRoom(1);
   };
 
   DemoAdapter.prototype.handleText = function(fromId, text) {
@@ -202,6 +233,15 @@ var DemoAdapter = (function() {
       userInfo.Status = 1 /* Online */ ;
       return userInfo;
     });
+
+    var me = new ChatUserInfo();
+    me.Id = app.user.userId;
+    me.RoomId = DEFAULT_ROOM_ID;
+    me.Name = app.user.firstName + " " + app.user.lastName;
+    me.Email = app.user.email;
+    me.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
+    me.Status = 1 /* Online */ ;
+    this.server.users.push(me);
 
     // configuring rooms
     var defaultRoom = new ChatRoomInfo();
