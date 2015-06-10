@@ -197,7 +197,9 @@ function createEventView(event) {
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
         '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
-        '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}"></ul>'+
+        '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}">'+
+          '<li role="presentation" class="dropdown-header">List of Attendees</li>'+
+        '</ul>'+
       '</div>'+
     '</div>'+
     '<div class="title" onclick="editEvent(this)">{{title}}</div>'+
@@ -293,7 +295,7 @@ function createEventView(event) {
         $.ajax("/api/event/" + event.eventId, {
           method: "GET",
           success: function(data) {
-            attendeesList.empty();
+            attendeesList.children().remove(":not(.dropdown-header)");
             if (data.attendees.length > 0) {
               // add attendees
               $.each(data.attendees, function(k, attendee) {
@@ -306,12 +308,11 @@ function createEventView(event) {
                 }
                 elem.appendTo(attendeesList);
               });
-            } else {
-              $(tmpl).appendTo(attendeesList).find("a").text("No attendee");
             }
           },
           error: function(data) {
-            console.log("Not admin.");
+            attendeesList.children().remove(":not(.dropdown-header)");
+            $(tmpl).appendTo(attendeesList).find("a").text("- Private -");
           }
         });
       });
