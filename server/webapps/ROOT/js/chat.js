@@ -198,7 +198,7 @@ var DemoAdapter = (function() {
       userInfo.RoomId = DEFAULT_ROOM_ID;
       userInfo.Name = user.firstName + " " + user.lastName;
       //userInfo.Email = user.email;
-      userInfo.ProfilePictureUrl = "http://www.gravatar.com/avatar/574700aef74b21d386ba1250b77d20c6.jpg";
+      userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
       userInfo.Status = 1 /* Online */ ;
       return userInfo;
     });
