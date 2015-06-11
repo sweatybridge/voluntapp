@@ -49,22 +49,8 @@ $(function() {
       toastr.error("Failed to read event id. Please select the event again or refresh the app.");
       return;
     }
-    
-    // User confirmation
-    if(!confirm("Are you sure you want to delete "+formObj.title+"?")) {
-      return
-    }
 
-    // ajax delete
-    $.ajax(form.attr("action") +"/"+formObj.eventId, {
-      method: "DELETE",
-      success: function(data) {
-        toastr.success("Deleted event " + formObj["title"]);
-        refreshEvents();
-        resetEventForm();
-      },
-      error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
-    });
+    deleteEventById(formObj.eventId);
   });
 
   // Bind event creation form
@@ -200,7 +186,7 @@ function createEventView(event) {
       '<div class="dropdown pull-right">'+
         '<button class="btn btn-info more dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>'+
         '<ul class="dropdown-menu" role="menu">'+
-          '<li><a href="#">Delete Event</a></li>'+
+          '<li><a href="#" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
           '<li class="divider"></li>'+
           '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to Calendar</a></li>'+
           '<li><a href="#" onclick="saveEvent(this)">Add to Saved Events</a></li>'+
@@ -257,6 +243,7 @@ function createEventView(event) {
     if ($(elem).data("date") === start.toLocaleDateString()) {
       // append event div
       temp = temp
+        .replace('{{eventId}}', event.eventId)
         .replace('{{eventId}}', event.eventId)
         .replace('{{eventId}}', event.eventId)
         .replace('{{startTime}}', readableTime)
@@ -550,6 +537,26 @@ function removeAttendee(elem) {
     error: function(data) {
       toastr.error(data.responseJSON.message);
     }
+  });
+}
+
+function deleteEventById(eventId) {
+  var event = $.grep(app.events, function(e){return e.eventId === eventId;})[0];
+
+  // User confirmation
+  if(!confirm("Are you sure you want to delete "+event.title+"?")) {
+    return
+  }
+
+  // ajax delete
+  $.ajax("/api/event/"+event.eventId, {
+    method: "DELETE",
+    success: function(data) {
+      toastr.success("Deleted event " + event.title);
+      refreshEvents();
+      resetEventForm();
+    },
+    error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
   });
 }
 
