@@ -252,11 +252,23 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleUpdateEvent = function(event) {
-    // ignore message to self
-    if (app.user.userId === event.userId) {
-      return;
+    var active_calendars = getActiveCalendarIds();
+    if (active_calendars.indexOf(event.calendarId) === -1) {
+      // update notification badge
+      $("#d_user_calendars").children().each(function(k, elem) {
+        var view = $(elem);
+        var cid = view.data("calid");
+        if (cid === event.calendarId) {
+          var notification = view.find(".badge");
+          if (notification.hasClass("hidden")) {
+            notification.removeClass("hidden").text("1");
+          } else {
+            var count = parseInt(notification.text());
+            notification.text(count + 1);
+          }
+        }
+      });
     }
-    // TODO: need calendar id
   };
 
   DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {

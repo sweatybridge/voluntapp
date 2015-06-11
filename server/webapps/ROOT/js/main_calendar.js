@@ -154,6 +154,8 @@ function refreshCalendars() {
           // cal_div.find(".calendar-extras").toggle();
         }
         refreshEvents();
+        // TODO: wrap in async callback once we start retrieving calendars individually
+        cal_div.find(".badge").addClass("hidden");
       });
 
       // Check calendar rights
