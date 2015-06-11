@@ -909,8 +909,9 @@ public class DBInterface {
    */
   public boolean saveEvent(int userId, int eventId) throws SQLException {
     SavedEventResponse resp = new SavedEventResponse(userId, eventId);
-    int rows = insert(resp);
-    return rows == 1;
+    int rowsUpdate = update(resp);
+    int rowsInsert = insert(resp);
+    return (rowsUpdate == 1 ^ rowsInsert == 1); // ^ is XOR 
   }
   
   /**

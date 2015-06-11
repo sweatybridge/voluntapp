@@ -87,14 +87,18 @@ public class SavedEventResponse extends Response {
   }
 
   public String getSQLInsert() {
-    return String.format("INSERT INTO \"SAVED_EVENT\" (\"%s\", \"%s\") " +
-    		"VALUES (?, ?);", UID_COLUMN, EID_COLUMN);
+    return String.format(
+        "INSERT INTO \"SAVED_EVENT\" (\"%s\", \"%s\") SELECT ?, ? " +
+        "WHERE NOT EXISTS (SELECT 1 FROM \"SAVED_EVENT\" WHERE \"%s\"=? AND \"%s\"=?); ",
+        UID_COLUMN, EID_COLUMN, UID_COLUMN, EID_COLUMN);
   }
 
   
   public void formatSQLInsert(PreparedStatement prepared) throws SQLException {
     prepared.setInt(1, userId);
     prepared.setInt(2, eventId);
+    prepared.setInt(3, userId);
+    prepared.setInt(4, eventId);
   }
   
   public String getSQLDelete() {
@@ -110,5 +114,15 @@ public class SavedEventResponse extends Response {
   public static void main(String[] args) {
     SavedEventResponse event = new SavedEventResponse(183);
     System.out.println(event.getSQLInsert());
+  }
+  
+  public String getSQLUpdate() {
+    return String.format("UPDATE \"SAVED_EVENT\" SET \"%s\"=now() " +
+    		"WHERE \"%s\"=? AND \"%s\"=?;", TIMESTAMP_COLUMN, UID_COLUMN, EID_COLUMN);
+  }
+
+  public void formatSQLUpdate(PreparedStatement prepare) throws SQLException {
+    prepare.setInt(1, userId);
+    prepare.setInt(2, eventId);
   }
 }
