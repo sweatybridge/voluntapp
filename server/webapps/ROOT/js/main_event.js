@@ -202,7 +202,7 @@ function createEventView(event) {
         '<ul class="dropdown-menu" role="menu">'+
           '<li><a href="#">Delete Event</a></li>'+
           '<li class="divider"></li>'+
-          '<li><a href="#">Add to Calendar</a></li>'+
+          '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to Calendar</a></li>'+
           '<li><a href="#">Add to Saved Events</a></li>'+
         '</ul>'+
       '</div>'+
@@ -212,7 +212,6 @@ function createEventView(event) {
       '</div>'+
     '</div>'+
     '<div class="title" onclick="editEvent(this)">{{title}}</div>'+
-    // '<a class="badge" href="data:text/calendar;charset=utf8,{{ics}}"><span class="glyphicon glyphicon-calendar"></span></a>'+
     '<div class="event-extras">'+
       '<div class="desc" onclick="editEvent(this)">{{description}}</div>'+
       '<div class="requirements"></div>'+
@@ -252,8 +251,6 @@ function createEventView(event) {
   // TODO: Maybe remove trailing new lines from the description?
   // as in ["", "desc"] or ["desc", ""]
   description = description.join("\n");
-
-  var icsMSG = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Our Company//NONSGML v1.0//EN\nBEGIN:VEVENT\nUID:me@google.com\nDTSTAMP:20120315T170000Z\nATTENDEE;CN=My Self ;RSVP=TRUE:MAILTO:me@gmail.com\nORGANIZER;CN=Me:MAILTO:me@gmail.com\nDTSTART:20150611T140000Z\nDTEND:20150611T160000Z\nLOCATION:Huxley\nSUMMARY:Our Meeting Office\nEND:VEVENT\nEND:VCALENDAR";
   
   // Find the correct column to place it
   $("#t_calendar_body").children().each(function(k, elem) {
@@ -267,7 +264,7 @@ function createEventView(event) {
         .replace('{{title}}', event.title)
         .replace('{{description}}', description)
         .replace('{{location}}', event.location)
-        .replace('{{ics}}', escape(icsMSG));
+        .replace('{{ics}}', createICSFile(event));
       
       if (event.max == -1) {
         temp = temp.replace('{{remaining}}', "&infin;");
@@ -597,4 +594,38 @@ function removeSavedEvent(elem) {
       event.remove();
     }
   });
+}
+
+// creates a downloadable ics file
+function createICSFile (event) {
+  var start = jsonToICS(event.startDateTime);
+  var end = jsonToICS(event.endDateTime);
+  var tmpl = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Our Company//NONSGML v1.0//EN",
+    "BEGIN:VEVENT",
+      "UID:me@google.com",
+      "DTSTAMP:20120315T170000Z",
+      "ATTENDEE;CN=My Self ;RSVP=TRUE:MAILTO:me@gmail.com",
+      "ORGANIZER;CN=Me:MAILTO:me@gmail.com",
+      "DTSTART:"+start,
+      "DTEND:"+end,
+      "LOCATION:"+event.location,
+      "SUMMARY:"+event.title,
+      "DESCRIPTION:"+event.description,
+      "BEGIN:VALARM",
+        "TRIGGER:-PT30M",
+        "ACTION:DISPLAY",
+        "DESCRIPTION:Reminder",
+      "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ];
+  return escape(tmpl.join("\n"));
+}
+
+// convert json date string to iCalendar format
+function jsonToICS(date) {
+  return date.split("-").join("").split(":").join("");
 }
