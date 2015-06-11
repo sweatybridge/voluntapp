@@ -197,7 +197,15 @@ function createEventView(event) {
           '<li role="presentation" class="dropdown-header">List of Attendees</li>'+
         '</ul>'+
       '</div>'+
-      '<button class="btn btn-info more"><span class="caret"></span></button>'+
+      '<div class="dropdown pull-right">'+
+        '<button class="btn btn-info more dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>'+
+        '<ul class="dropdown-menu" role="menu">'+
+          '<li><a href="#">Delete Event</a></li>'+
+          '<li class="divider"></li>'+
+          '<li><a href="#">Add to Calendar</a></li>'+
+          '<li><a href="#">Add to Saved Events</a></li>'+
+        '</ul>'+
+      '</div>'+
       '<div class="time">'+
         '<dd>{{startTime}}</dd>'+
         '<dd>{{duration}}</dd>'+
@@ -347,6 +355,8 @@ function createEventView(event) {
         }
       }
       
+      // enable more actions button
+      view.find(".more").dropdown();
       
       // hide location if it is not set
       if (!event.location) {
