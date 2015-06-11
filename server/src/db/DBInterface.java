@@ -41,6 +41,7 @@ import utils.CalendarIdQuery;
 import utils.CalendarJoinCodeIdQuery;
 import utils.CalendarJoinEnabledQuery;
 import utils.EventEndTimeQuery;
+import utils.EventStatus;
 import utils.PasswordUtils;
 import chat.ChatMessage;
 import exception.CalendarNotFoundException;
@@ -315,12 +316,12 @@ public class DBInterface {
    * @return event ID
    * @throws SQLException
    */
-  public EventResponse putEvent(EventRequest ereq) throws SQLException {
+  public EventResponse putEvent(EventRequest ereq, EventStatus status) throws SQLException {
     // TODO: why convert max to string?
     EventResponse eresp = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
         ereq.getEndDateTime(), Integer.toString(ereq.getMax()), -1,
-        ereq.getCalendarId());
+        ereq.getCalendarId(), status);
     int id = insert(eresp, true, EventResponse.EID_COLUMN);
     eresp.setEventId(id);
     return eresp;
@@ -530,7 +531,7 @@ public class DBInterface {
     // TODO: why convert max to string?
     EventResponse er = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
-        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), eventId, -1);
+        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), eventId, -1, null);
     return updateRowCheckHelper(er);
   }
 
@@ -579,7 +580,7 @@ public class DBInterface {
    */
   public EventResponse deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
-    EventResponse er = new EventResponse(eventId, true);
+    EventResponse er = new EventResponse(eventId, EventStatus.DELETED);
     return updateRowCheckHelper(er);
   }
 

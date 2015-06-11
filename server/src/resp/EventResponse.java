@@ -12,6 +12,8 @@ import java.util.TimeZone;
 
 import org.postgresql.util.PGInterval;
 
+import utils.EventStatus;
+
 /**
  * A successful response to a event request.
  */
@@ -44,6 +46,7 @@ public class EventResponse extends Response {
   private int max = -2;
   private boolean hasJoined = false;
   private Set<UserResponse> volunteers;
+  private EventStatus status;
 
   /**
    * Other variables used by the database interface
@@ -53,7 +56,6 @@ public class EventResponse extends Response {
   private transient Date sqlDate;
   private transient Time sqlTime;
   private transient boolean found;
-  private transient boolean delete;
   private transient String startTime; // HH:mm
   private transient String startDate; // YYYY-MM-DD
 
@@ -79,7 +81,7 @@ public class EventResponse extends Response {
    */
   public EventResponse(String title, String description, String location,
       Calendar startDateTime, Calendar endDateTime, String max, int eventId,
-      int calendarId) {
+      int calendarId, EventStatus status) {
     this.title = title;
     this.description = description;
     this.location = location;
@@ -90,6 +92,7 @@ public class EventResponse extends Response {
     } else {
       this.max = Integer.parseInt(max);
     }
+    this.status = status;
 
     // Parse calendar to sql date time and pginterval for storage
     if (startDateTime != null) {
@@ -112,11 +115,11 @@ public class EventResponse extends Response {
    * Constructor for deleting event.
    * 
    * @param eventId
-   * @param delete
+   * @param status 
    */
-  public EventResponse(int eventId, boolean delete) {
+  public EventResponse(int eventId, EventStatus status) {
     this.eventId = eventId;
-    this.delete = delete;
+    this.status = status;
   }
 
   /**
@@ -169,8 +172,9 @@ public class EventResponse extends Response {
             .format("\"%s\"=?,", DURATION_COLUMN))
         + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String.format(
             "\"%s\"=?,", MAX_ATTEDEE_COLUMN))
-        + ((!delete || found++ == Integer.MIN_VALUE) ? "" : String.format(
-            "\"%s\"=false,", ACTIVE_COLUMN));
+        + ((status == null || found++ == Integer.MIN_VALUE) ? "" : String.format(
+            "\"%s\"='%s'::\"%s\",", ACTIVE_COLUMN, status.getName(),
+            EventStatus.STATUS_ENUM_NAME));
     return (found == 0) ? null : String.format(
         "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=?",
         formatString.substring(0, formatString.length() - 1));
@@ -205,9 +209,10 @@ public class EventResponse extends Response {
   public String getSQLInsert() {
     return String
         .format(
-            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, true, DEFAULT, DEFAULT) RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
+            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, DEFAULT, DEFAULT, DEFAULT, '%s'::\"%s\") RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
             (sqlTime == null) ? "DEFAULT" : "?",
-            (sqlDuration == null) ? "DEFAULT" : "?", calendarId);
+            (sqlDuration == null) ? "DEFAULT" : "?",
+            status.getName(), EventStatus.STATUS_ENUM_NAME, calendarId);
   }
 
   @Override
@@ -223,6 +228,7 @@ public class EventResponse extends Response {
     if (sqlDuration != null)
       prepared.setObject(i++, sqlDuration);
     prepared.setInt(i++, max);
+    System.out.println(prepared.toString());
   }
 
   @Override
