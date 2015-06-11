@@ -543,6 +543,14 @@ function saveEvent(elem) {
     method: "POST",
     url: "/api/save/event/" + eid,
     success: function() {
+      /* Traverse all child DOM elements and remove the one (if exists) that
+         has the same event ID as the ID of the event to be added. */
+      $(savedEvents).children().each(function() {
+        var curEid = $(this).attr("data-event-id");
+        if (curEid == eid) {
+          $(this).remove();
+        }
+      });
       var tmpl = 
           '<a href="#" class="list-group-item" data-event-id="{{eventId}}">'+
             '<span>{{title}}</span>'+
