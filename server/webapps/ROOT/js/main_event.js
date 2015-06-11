@@ -525,7 +525,8 @@ function removeAttendee(elem) {
     data: JSON.stringify({userId: user.data("userId")}),
     success: function(data) {
       user.remove();
-      updateAttendeeCount(event, -1);
+      //TODO: count will be updated upon receiving unjoin notification
+      //updateAttendeeCount(event, -1);
     },
     error: function(data) {
       toastr.error(data.responseJSON.message);

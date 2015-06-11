@@ -261,7 +261,7 @@ Responsive layout for large screens
 @media (min-width: 1370px) {
   /* switch to toggle right bar */
   .app {
-    right: 0px;
+    left: 0px;
   }
   .app.showleft {
     transform: translateX(0px);
@@ -271,7 +271,7 @@ Responsive layout for large screens
 @media (min-width: 1640px) {
   /* switch to toggle left bar */
   .app {
-    left: 0px;
+    right: 0px;
   }
   .app.showright {
     transform: translateX(0px);
