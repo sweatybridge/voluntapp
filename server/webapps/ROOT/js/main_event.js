@@ -513,6 +513,7 @@ function resetEventForm() {
   $("#event_form").trigger('reset');
   turnEventCreate();
   updateCountdown();
+  $("#event_create_errors").empty();
 }
 
 // increment or decrement attendee count by delta
