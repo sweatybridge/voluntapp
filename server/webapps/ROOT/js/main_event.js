@@ -189,7 +189,7 @@ function createEventView(event) {
   // expand description on hover
   // find the cell corresponding to start date
   var temp =
-  '<div class="event" ondblclick="saveEvent(this)">'+
+  '<div class="event">'+
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
         '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
@@ -203,7 +203,7 @@ function createEventView(event) {
           '<li><a href="#">Delete Event</a></li>'+
           '<li class="divider"></li>'+
           '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to Calendar</a></li>'+
-          '<li><a href="#">Add to Saved Events</a></li>'+
+          '<li><a href="#" onclick="saveEvent(this)">Add to Saved Events</a></li>'+
         '</ul>'+
       '</div>'+
       '<div class="time">'+
@@ -557,7 +557,7 @@ function saveEvent(elem) {
   var view = $(elem).closest(".event");
   var savedEvents = $("#collapseThree .list-group");
   var eid = view.data("eventId");
-  var title = $(elem).find(".title").html();
+  var title = view.find(".title").html();
   $.ajax({
     method: "POST",
     url: "/api/save/event/" + eid,
@@ -579,6 +579,7 @@ function saveEvent(elem) {
             .replace("{{title}}", title)
             .replace("{{eventId}}", eid);
       savedEvents.prepend(savedEvent);
+      toastr.success("Saved event "+title);
     }
   });
 }
