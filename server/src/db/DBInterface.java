@@ -907,11 +907,19 @@ public class DBInterface {
    * @return whether the event was successfully saved
    * @throws SQLException 
    */
-  public boolean saveEvent(int userId, int eventId) throws SQLException {
+  public boolean saveEvent(int userId, int eventId) 
+      throws SQLException, InconsistentDataException {
     SavedEventResponse resp = new SavedEventResponse(userId, eventId);
     int rowsUpdate = update(resp);
-    int rowsInsert = insert(resp);
-    return (rowsUpdate == 1 ^ rowsInsert == 1); // ^ is XOR 
+    if (rowsUpdate > 1) {
+      throw new InconsistentDataException("Error while saving the event, " +
+      		"more than once timestamp was updated.");
+    } else if (rowsUpdate == 1) {
+      // Event was already saved, the time stamp was successfully updated.
+      return true;
+    } else {
+      return insert(resp) == 1;
+    }   
   }
   
   /**

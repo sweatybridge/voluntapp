@@ -84,6 +84,9 @@ public class SavedEventServlet extends HttpServlet {
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Data base error occurred while saving the event."));
+    } catch (InconsistentDataException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "More than one row was updated."));
     }
   }
   
