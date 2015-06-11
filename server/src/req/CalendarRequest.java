@@ -10,6 +10,7 @@ import java.util.List;
 import resp.EventResponse;
 import resp.EventSubscriptionResponse;
 import resp.Response;
+import utils.EventStatus;
 
 /**
  * Deserialized JSON object of an API request to create a calendar.
@@ -127,7 +128,7 @@ public class CalendarRequest implements Request {
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS (?, ?) "
-                  + "AND \"%s\"=true AND "
+                  + "AND \"%s\"='%s'::\"%s\" AND "
                   + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
@@ -138,7 +139,8 @@ public class CalendarRequest implements Request {
               EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              EventResponse.ACTIVE_COLUMN);
+              EventResponse.ACTIVE_COLUMN,
+              EventStatus.ACTIVE.getName(), EventStatus.STATUS_ENUM_NAME);
     }
 
     @Override
@@ -148,6 +150,7 @@ public class CalendarRequest implements Request {
       prepare.setTimestamp(2, startDate);
       prepare.setTimestamp(3, endDate);
       prepare.setInt(4, calendarId);
+      System.out.println(prepare.toString());
     }
 
     @Override
