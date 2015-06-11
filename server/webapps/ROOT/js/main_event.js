@@ -335,12 +335,16 @@ function createEventView(event) {
           this.checked = true;
           this.disabled = true;
         });
-        // update header
       }
       
       // Hide if in the past or there are any places
       if (today >= end || event.max - event.currentCount == 0) {
         view.find(".badge").hide();
+        // turn header bar of unjoined events grey
+        if (!event.hasJoined) {
+          view.find(".header").removeClass("progress-bar-info").addClass("label-default");
+          view.find(".more").removeClass("btn-info");
+        }
       }
       
       

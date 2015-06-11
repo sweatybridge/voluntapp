@@ -112,6 +112,12 @@ Event view
   border-top-right-radius: 6px;
 }
 
+.event .label-default .more {
+  background-color: #777;
+  border-color: #999;
+  color: white;
+}
+
 .event .event-extras {
   padding-top: 0px;
   padding-bottom: 0px;
