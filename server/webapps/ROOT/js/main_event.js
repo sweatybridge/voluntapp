@@ -192,12 +192,12 @@ function createEventView(event) {
   '<div class="event" ondblclick="saveEvent(this)">'+
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
-        '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}} <span class="caret"></span></a>'+
+        '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
         '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}">'+
           '<li role="presentation" class="dropdown-header">List of Attendees</li>'+
         '</ul>'+
       '</div>'+
-      '<button class="btn btn-info more"><span class="glyphicon glyphicon-option-vertical"></span></button>'+
+      '<button class="btn btn-info more"><span class="caret"></span></button>'+
       '<div class="time">'+
         '<dd>{{startTime}}</dd>'+
         '<dd>{{duration}}</dd>'+

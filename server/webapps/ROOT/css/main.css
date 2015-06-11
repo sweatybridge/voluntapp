@@ -253,6 +253,11 @@ My calendar
   font-weight: 700;
   line-height: 1;
 }
+.notification {
+  position: absolute;
+  right: 0px;
+  z-index: 1;
+}
 
 /*
 Responsive layout for large screens

@@ -102,6 +102,7 @@ $(function() {
 function refreshCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
+        '<span class="badge progress-bar-warning notification hidden"></span>'+
         '<a href="#">{{name}}<span class="label label-primary join-code">{{joinCode}}</span></a>'+
       '</li>';
 /*
