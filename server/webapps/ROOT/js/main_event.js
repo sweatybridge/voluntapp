@@ -190,19 +190,21 @@ function createEventView(event) {
   // find the cell corresponding to start date
   var temp =
   '<div class="event" ondblclick="saveEvent(this)">'+
-    '<div class="time" onclick="editEvent(this)">'+
-      '<dd>{{startTime}}</dd>'+
-      '<dd>{{duration}}</dd>'+
-    '</div>'+
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
-        '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
+        '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}} <span class="caret"></span></a>'+
         '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}">'+
           '<li role="presentation" class="dropdown-header">List of Attendees</li>'+
         '</ul>'+
       '</div>'+
+      '<button class="btn btn-info more"><span class="glyphicon glyphicon-option-vertical"></span></button>'+
+      '<div class="time">'+
+        '<dd>{{startTime}}</dd>'+
+        '<dd>{{duration}}</dd>'+
+      '</div>'+
     '</div>'+
     '<div class="title" onclick="editEvent(this)">{{title}}</div>'+
+    // '<a class="badge" href="data:text/calendar;charset=utf8,{{ics}}"><span class="glyphicon glyphicon-calendar"></span></a>'+
     '<div class="event-extras">'+
       '<div class="desc" onclick="editEvent(this)">{{description}}</div>'+
       '<div class="requirements"></div>'+
@@ -242,6 +244,8 @@ function createEventView(event) {
   // TODO: Maybe remove trailing new lines from the description?
   // as in ["", "desc"] or ["desc", ""]
   description = description.join("\n");
+
+  var icsMSG = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Our Company//NONSGML v1.0//EN\nBEGIN:VEVENT\nUID:me@google.com\nDTSTAMP:20120315T170000Z\nATTENDEE;CN=My Self ;RSVP=TRUE:MAILTO:me@gmail.com\nORGANIZER;CN=Me:MAILTO:me@gmail.com\nDTSTART:20150611T140000Z\nDTEND:20150611T160000Z\nLOCATION:Huxley\nSUMMARY:Our Meeting Office\nEND:VEVENT\nEND:VCALENDAR";
   
   // Find the correct column to place it
   $("#t_calendar_body").children().each(function(k, elem) {
@@ -254,7 +258,8 @@ function createEventView(event) {
         .replace('{{duration}}', duration)
         .replace('{{title}}', event.title)
         .replace('{{description}}', description)
-        .replace('{{location}}', event.location);
+        .replace('{{location}}', event.location)
+        .replace('{{ics}}', escape(icsMSG));
       
       if (event.max == -1) {
         temp = temp.replace('{{remaining}}', "&infin;");
@@ -320,7 +325,9 @@ function createEventView(event) {
       // Append the view to the actual td
       $(elem).append(view);
       if (event.hasJoined) {
+        // turn header bar green
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
+        view.find(".more").removeClass("btn-info").addClass("btn-success");
         // update joined badge
         view.find(".badge").addClass("progress-bar-danger").text("Unjoin");
         // update requirements checkbox

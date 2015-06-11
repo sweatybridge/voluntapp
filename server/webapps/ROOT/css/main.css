@@ -75,6 +75,10 @@ Event view
   border-top-right-radius: 6px;
 }
 
+.event .header > * {
+  display: inline-block;
+}
+
 .event .join {
   padding-top: 0px;
   text-align: right;
@@ -89,6 +93,23 @@ Event view
 
 .scarlet {
   color:#FF2400;
+}
+
+.event .more {
+  float: right;
+  margin: -6px;
+  height: 45px;
+  width: 15px;
+  font-size: 8px;
+  padding: 0px;
+  margin-left: 10px;
+  border-right: 0px;
+  border-top: 0px;
+  border-bottom: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 6px;
 }
 
 .event .event-extras {
