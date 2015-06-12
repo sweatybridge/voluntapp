@@ -141,7 +141,8 @@ public class CalendarRequest implements Request {
               EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              (isAdmin) ? "" : "\"ACTIVE\"='active' AND ");
+              (isAdmin) ? "(\"ACTIVE\"='active' OR \"ACTIVE\"='pending') AND "
+                  : "\"ACTIVE\"='active' AND ");
     }
 
     @Override
