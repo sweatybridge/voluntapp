@@ -46,10 +46,14 @@ $(function() {
   
   $("#user_promotion_form").submit(function(e) {
     e.preventDefault();
-    var calid = $(this).parent().data("calid");
-    $(this).attr("action", "/api/subscription/calendar/"+calid);
-    var formObj = getFormObj($(this));
-    console.log(formObj);
+    var active_calendars = getActiveCalendarIds();
+    if (active_calendars.length !== 1) {
+      return;
+    }
+    var calid = active_calendars[0];
+    var form = $(this);
+    form.attr("action", "/api/subscription/calendar/"+calid);
+    var formObj = getFormObj(form);
     // Handle delete case
     if (formObj.role == "remove") {
       if (confirm("Are you sure you want to remove "+formObj.targetUserEmail+"?")) {
@@ -63,7 +67,11 @@ $(function() {
   
   $("#calendar_edit_form").submit(function(e) {
     e.preventDefault();
-    var calid = $(this).parent().data("calid");
+    var active_calendars = getActiveCalendarIds();
+    if (active_calendars.length !== 1) {
+      return;
+    }
+    var calid = active_calendars[0];
     $(this).attr("action", "/api/calendar/"+calid);
     submitAjaxForm($(this), function(data) { toastr.success("Updated calendar"); $("#b_cancel_calendar").click(); refreshCalendars(); }, $("#calendar_edit_errors"));
   });
