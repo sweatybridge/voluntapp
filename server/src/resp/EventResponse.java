@@ -56,6 +56,7 @@ public class EventResponse extends Response {
   private transient boolean delete;
   private transient String startTime; // HH:mm
   private transient String startDate; // YYYY-MM-DD
+  private transient boolean isAdmin = false;
 
   /**
    * Fields excluded from serialisation.
@@ -128,6 +129,10 @@ public class EventResponse extends Response {
     this.eventId = eventId;
   }
 
+  public void setAdmin() {
+    isAdmin = true;
+  }
+
   public int getCalendarId() {
     return calendarId;
   }
@@ -170,7 +175,7 @@ public class EventResponse extends Response {
         + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String.format(
             "\"%s\"=?,", MAX_ATTEDEE_COLUMN))
         + ((!delete || found++ == Integer.MIN_VALUE) ? "" : String.format(
-            "\"%s\"=false,", ACTIVE_COLUMN));
+            "\"%s\"='deleted',", ACTIVE_COLUMN));
     return (found == 0) ? null : String.format(
         "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=?",
         formatString.substring(0, formatString.length() - 1));
@@ -205,9 +210,10 @@ public class EventResponse extends Response {
   public String getSQLInsert() {
     return String
         .format(
-            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, true, DEFAULT, DEFAULT) RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
+            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, DEFAULT, DEFAULT, DEFAULT, %s) RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
             (sqlTime == null) ? "DEFAULT" : "?",
-            (sqlDuration == null) ? "DEFAULT" : "?", calendarId);
+            (sqlDuration == null) ? "DEFAULT" : "?", (isAdmin) ? "'active'"
+                : "DEFAULT", calendarId);
   }
 
   @Override
@@ -227,7 +233,8 @@ public class EventResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=?;", EID_COLUMN);
+    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=? %s;",
+        EID_COLUMN, (isAdmin) ? "" : "AND \"ACTIVE\"='active'");
   }
 
   @Override

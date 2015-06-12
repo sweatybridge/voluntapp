@@ -37,11 +37,13 @@ public class CalendarRequest implements Request {
   private transient int calendarId;
   private transient String inviteCode;
   private transient int userId;
+  private transient boolean isAdmin = false;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public CalendarRequest() {}
+  public CalendarRequest() {
+  }
 
   /**
    * Constructor called by calendar servlet to get user calendars.
@@ -101,7 +103,7 @@ public class CalendarRequest implements Request {
   public CalendarEventsQuery getCalendarEventsQuery() {
     return new CalendarEventsQuery();
   }
-  
+
   public void setCalendarId(int calendarId) {
     this.calendarId = calendarId;
   }
@@ -125,10 +127,10 @@ public class CalendarRequest implements Request {
           .format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
                   + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
-                  + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
+                  + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\" "
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS (?, ?) "
-                  + "AND \"%s\"='%s'::\"%s\" AND "
+                  + "AND %s "
                   + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
@@ -139,8 +141,7 @@ public class CalendarRequest implements Request {
               EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              EventResponse.ACTIVE_COLUMN,
-              EventStatus.ACTIVE.getName(), EventStatus.STATUS_ENUM_NAME);
+              (isAdmin) ? "" : "\"ACTIVE\"='active' AND ");
     }
 
     @Override
@@ -151,6 +152,10 @@ public class CalendarRequest implements Request {
       prepare.setTimestamp(3, endDate);
       prepare.setInt(4, calendarId);
       System.out.println(prepare.toString());
+    }
+
+    public void setAdmin() {
+      isAdmin = true;
     }
 
     @Override

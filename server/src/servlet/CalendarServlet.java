@@ -90,6 +90,7 @@ public class CalendarServlet extends HttpServlet {
       }
       request.setAttribute(Response.class.getSimpleName(), calendar);
     } catch (SQLException e) {
+      e.printStackTrace();
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error while retireving the calendar information from the "
               + "database."));
@@ -191,9 +192,10 @@ public class CalendarServlet extends HttpServlet {
 
     CalendarRequest calendarRequest = gson.fromJson(request.getReader(),
         CalendarRequest.class);
-    
-    /* Check if joining the calendar was re-enabled. If so, generate new join 
-     * code for the calendar. 
+
+    /*
+     * Check if joining the calendar was re-enabled. If so, generate new join
+     * code for the calendar.
      */
     int cid = Integer.parseInt(id);
     calendarRequest.setUserId(userId);
@@ -210,7 +212,7 @@ public class CalendarServlet extends HttpServlet {
         return;
       }
     }
-    
+
     // Check that the calendar can be updated by the user
     Response result;
     switch (db.authoriseUser(ServletUtils.getUserId(request), cid)) {
