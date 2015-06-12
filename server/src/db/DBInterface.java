@@ -143,7 +143,13 @@ public class DBInterface {
     }
 
     if (request.getStartDate() != null) {
-      CalendarEventsQuery query = request.getCalendarEventsQuery();
+      AuthLevel level = authoriseUser(
+          request.getUserId(), request.getCalendarId());
+      EventStatus status = EventStatus.PENDING;
+      if (level == AuthLevel.ADMIN) {
+        status = EventStatus.PENDING;
+      }
+      CalendarEventsQuery query = request.getCalendarEventsQuery(status);
       query(query);
       result.setEvents(query.getEvents());
     }
@@ -316,12 +322,12 @@ public class DBInterface {
    * @return event ID
    * @throws SQLException
    */
-  public EventResponse putEvent(EventRequest ereq, EventStatus status) throws SQLException {
+  public EventResponse putEvent(EventRequest ereq, EventStatus status, int userId) throws SQLException {
     // TODO: why convert max to string?
     EventResponse eresp = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
         ereq.getEndDateTime(), Integer.toString(ereq.getMax()), -1,
-        ereq.getCalendarId(), status);
+        ereq.getCalendarId(), status, userId);
     int id = insert(eresp, true, EventResponse.EID_COLUMN);
     eresp.setEventId(id);
     return eresp;
@@ -526,12 +532,12 @@ public class DBInterface {
    *           Thrown when the database is shown to be in a inconsistent state.
    *           This MUST be dealt with.
    */
-  public EventResponse updateEvent(int eventId, EventRequest ereq)
+  public EventResponse updateEvent(int eventId, EventRequest ereq, int userId)
       throws SQLException, EventNotFoundException, InconsistentDataException {
     // TODO: why convert max to string?
     EventResponse er = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
-        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), eventId, -1, null);
+        ereq.getEndDateTime(), Integer.toString(ereq.getMax()), eventId, -1, null, userId);
     return updateRowCheckHelper(er);
   }
 

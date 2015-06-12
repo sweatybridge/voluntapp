@@ -101,7 +101,7 @@ public class EventServlet extends HttpServlet {
         setUnauthorisedAccessErrorResponse(request);
         return;
       }
-      EventResponse resp = db.putEvent(eventReq, status);
+      EventResponse resp = db.putEvent(eventReq, status, userId);
       // Send dynamic update to the online subscribers
       resp.setCalendarId(eventReq.getCalendarId());
       DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
@@ -143,7 +143,7 @@ public class EventServlet extends HttpServlet {
       }
       /* Try to update the event. */
       try {
-        EventResponse resp = db.updateEvent(eventID, eventReq);
+        EventResponse resp = db.updateEvent(eventID, eventReq, userId);
         if (resp == null) {
           request
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(

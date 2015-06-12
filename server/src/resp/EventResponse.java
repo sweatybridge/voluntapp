@@ -30,6 +30,7 @@ public class EventResponse extends Response {
   public static String DURATION_COLUMN = "DURATION";
   public static String MAX_ATTEDEE_COLUMN = "MAX_ATTENDEES";
   public static String ACTIVE_COLUMN = "ACTIVE";
+  public static String CREATOR_COLUMN = "CREATOR";
 
   /**
    * Event details returned to the client. Always in UTC.
@@ -47,6 +48,7 @@ public class EventResponse extends Response {
   private boolean hasJoined = false;
   private Set<UserResponse> volunteers;
   private EventStatus status;
+  private int userId;
 
   /**
    * Other variables used by the database interface
@@ -81,12 +83,13 @@ public class EventResponse extends Response {
    */
   public EventResponse(String title, String description, String location,
       Calendar startDateTime, Calendar endDateTime, String max, int eventId,
-      int calendarId, EventStatus status) {
+      int calendarId, EventStatus status, int userId) {
     this.title = title;
     this.description = description;
     this.location = location;
     this.eventId = eventId;
     this.calendarId = calendarId;
+    this.userId = userId;
     if (max == null) {
       this.max = -2;
     } else {
@@ -209,10 +212,10 @@ public class EventResponse extends Response {
   public String getSQLInsert() {
     return String
         .format(
-            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, DEFAULT, DEFAULT, DEFAULT, '%s'::\"%s\") RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
+            "WITH x AS (INSERT INTO \"EVENT\" VALUES (DEFAULT, ?, ?, ?, ?, %s, %s, ?, DEFAULT, DEFAULT, DEFAULT, '%s'::\"%s\", %d) RETURNING \"EID\") INSERT INTO \"CALENDAR_EVENT\"  SELECT %d,\"EID\" FROM x;",
             (sqlTime == null) ? "DEFAULT" : "?",
             (sqlDuration == null) ? "DEFAULT" : "?",
-            status.getName(), EventStatus.STATUS_ENUM_NAME, calendarId);
+            status.getName(), EventStatus.STATUS_ENUM_NAME, userId, calendarId);
   }
 
   @Override
