@@ -2,6 +2,8 @@ package utils;
 
 import javax.servlet.http.HttpServletRequest;
 
+import db.DBInterface;
+
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SessionResponse;
@@ -27,5 +29,22 @@ public class ServletUtils {
       return -1;
     }
     return sessionResponse.getUserId();
+  }
+
+  /**
+   * Check if the user has the required (or higher) user rights.
+   * 
+   * @param calendarId
+   * @param userId
+   * @param requiredLevel
+   * @return
+   */
+  public static boolean checkAccessRights(int calendarId, int eventId, int userId,
+      AuthLevel requiredLevel, DBInterface db) {
+    if (calendarId == 0) {
+      calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
+    }
+    AuthLevel level = db.authoriseUser(userId, calendarId);
+    return level.ordinal() >= requiredLevel.ordinal();
   }
 }

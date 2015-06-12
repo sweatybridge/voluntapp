@@ -143,10 +143,8 @@ public class DBInterface {
     }
 
     if (request.getStartDate() != null) {
-      AuthLevel level = authoriseUser(
-          request.getUserId(), request.getCalendarId());
-      EventStatus status = EventStatus.PENDING;
-      if (level == AuthLevel.ADMIN) {
+      EventStatus status = EventStatus.ACTIVE;
+      if (result.getRole() == AuthLevel.ADMIN) {
         status = EventStatus.PENDING;
       }
       CalendarEventsQuery query = request.getCalendarEventsQuery(status);
@@ -543,9 +541,11 @@ public class DBInterface {
 
   /**
    * Updates calendar details given a calendarId and a request
+   * 
    * @param calendarId
    * @param creq
-   * @return null if request is null, CalendarResponse of the updated event otherwise
+   * @return null if request is null, CalendarResponse of the updated event
+   *         otherwise
    * @throws SQLException
    * @throws InconsistentDataException
    * @throws CalendarNotFoundException
@@ -891,7 +891,7 @@ public class DBInterface {
     query(mr);
     return mr.getMessages();
   }
-  
+
   /**
    * Given the ID of the user, returns the events that the user saved (together
    * with the appropriate timestamps).
@@ -905,30 +905,30 @@ public class DBInterface {
     query(query);
     return query;
   }
-  
+
   /**
    * Saves the event with specified ID for the given user.
    * 
    * @param userId
    * @param eventId
    * @return whether the event was successfully saved
-   * @throws SQLException 
+   * @throws SQLException
    */
-  public boolean saveEvent(int userId, int eventId) 
-      throws SQLException, InconsistentDataException {
+  public boolean saveEvent(int userId, int eventId) throws SQLException,
+      InconsistentDataException {
     SavedEventResponse resp = new SavedEventResponse(userId, eventId);
     int rowsUpdate = update(resp);
     if (rowsUpdate > 1) {
-      throw new InconsistentDataException("Error while saving the event, " +
-      		"more than once timestamp was updated.");
+      throw new InconsistentDataException("Error while saving the event, "
+          + "more than once timestamp was updated.");
     } else if (rowsUpdate == 1) {
       // Event was already saved, the time stamp was successfully updated.
       return true;
     } else {
       return insert(resp) == 1;
-    }   
+    }
   }
-  
+
   /**
    * Given the ID of the event, it removes the event from the list of saved
    * events of the specified user.
@@ -937,10 +937,11 @@ public class DBInterface {
    * @param eventId
    * @return whether the deletion was successful
    * @throws SQLException
-   * @throws InconsistentDataException - thrown when more than one row is deleted
+   * @throws InconsistentDataException
+   *           - thrown when more than one row is deleted
    */
-  public boolean deleteSavedEvent(int userId, int eventId) 
-      throws SQLException, InconsistentDataException {
+  public boolean deleteSavedEvent(int userId, int eventId) throws SQLException,
+      InconsistentDataException {
     SavedEventResponse resp = new SavedEventResponse(userId, eventId);
     int rows = delete(resp);
     if (rows > 1) {
@@ -948,6 +949,16 @@ public class DBInterface {
           "More than one event from the list of saved events was deleted.");
     }
     return rows == 1;
+  }
+
+  public boolean activateEvent(int eventId) throws SQLException,
+      InconsistentDataException {
+    EventResponse response = new EventResponse(eventId);
+    response.setActive();
+    if (update(response) != 1) {
+      throw new InconsistentDataException("Triggered in activateEvent");
+    }
+    return true;
   }
 
 }

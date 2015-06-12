@@ -37,11 +37,13 @@ public class CalendarRequest implements Request {
   private transient int calendarId;
   private transient String inviteCode;
   private transient int userId;
+  private transient boolean isAdmin = false;
 
   /**
    * No-arg constructor for compatibility with gson serialiser.
    */
-  public CalendarRequest() {}
+  public CalendarRequest() {
+  }
 
   /**
    * Constructor called by calendar servlet to get user calendars.
@@ -101,7 +103,7 @@ public class CalendarRequest implements Request {
   public CalendarEventsQuery getCalendarEventsQuery(EventStatus status) {
     return new CalendarEventsQuery(status);
   }
-  
+
   public void setCalendarId(int calendarId) {
     this.calendarId = calendarId;
   }
@@ -129,7 +131,7 @@ public class CalendarRequest implements Request {
       return String.format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
                   + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
-                  + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
+                  + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\" "
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS (?, ?) "
                   + "AND (\"%s\">'%s'::\"%s\" AND (\"%s\">='%s'::\"%s\" OR \"%s\"=?)) AND "
@@ -147,6 +149,7 @@ public class CalendarRequest implements Request {
               EventStatus.STATUS_ENUM_NAME, EventResponse.ACTIVE_COLUMN, 
               status.getName(), EventStatus.STATUS_ENUM_NAME,
               EventResponse.CREATOR_COLUMN);
+      //TODO : change so that it does not depend on oridinals of enum
     }
     
     /*
@@ -168,6 +171,10 @@ WHERE "EVENT"."EID"=z."EID";
       prepare.setTimestamp(3, endDate);
       prepare.setInt(4, userId);
       prepare.setInt(5, calendarId);
+    }
+
+    public void setAdmin() {
+      isAdmin = true;
     }
 
     @Override

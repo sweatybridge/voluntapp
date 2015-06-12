@@ -60,6 +60,7 @@ public class EventResponse extends Response {
   private transient boolean found;
   private transient String startTime; // HH:mm
   private transient String startDate; // YYYY-MM-DD
+  private transient boolean isAdmin = false;
 
   /**
    * Fields excluded from serialisation.
@@ -132,6 +133,10 @@ public class EventResponse extends Response {
    */
   public EventResponse(int eventId) {
     this.eventId = eventId;
+  }
+
+  public void setAdmin() {
+    isAdmin = true;
   }
 
   public int getCalendarId() {
@@ -236,7 +241,8 @@ public class EventResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=?;", EID_COLUMN);
+    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=? %s;",
+        EID_COLUMN, (isAdmin) ? "" : "AND \"ACTIVE\"='active'");
   }
 
   @Override
