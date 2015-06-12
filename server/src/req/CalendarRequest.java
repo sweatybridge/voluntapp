@@ -98,8 +98,8 @@ public class CalendarRequest implements Request {
     return startDate;
   }
 
-  public CalendarEventsQuery getCalendarEventsQuery() {
-    return new CalendarEventsQuery();
+  public CalendarEventsQuery getCalendarEventsQuery(EventStatus status) {
+    return new CalendarEventsQuery(status);
   }
   
   public void setCalendarId(int calendarId) {
@@ -109,6 +109,11 @@ public class CalendarRequest implements Request {
   public class CalendarEventsQuery extends Response {
     private ResultSet rs;
     private List<EventResponse> events = new ArrayList<EventResponse>();
+    private EventStatus status;
+    
+    public CalendarEventsQuery(EventStatus status) {
+      this.status = status;
+    }
 
     /*
      * WITH x AS (SELECT "EID", COUNT(*) FROM "EVENT_USER" GROUP BY "EID")
@@ -121,14 +126,13 @@ public class CalendarRequest implements Request {
      */
 
     public String getSQLQuery() {
-      return String
-          .format(
+      return String.format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
                   + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\""
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
                   + "OVERLAPS (?, ?) "
-                  + "AND \"%s\"='%s'::\"%s\" AND "
+                  + "AND (\"%s\">'%s'::\"%s\" AND (\"%s\">='%s'::\"%s\" OR \"%s\"=?)) AND "
                   + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
@@ -139,9 +143,22 @@ public class CalendarRequest implements Request {
               EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              EventResponse.ACTIVE_COLUMN,
-              EventStatus.ACTIVE.getName(), EventStatus.STATUS_ENUM_NAME);
+              EventResponse.ACTIVE_COLUMN, EventStatus.DELETED.getName(), 
+              EventStatus.STATUS_ENUM_NAME, EventResponse.ACTIVE_COLUMN, 
+              status.getName(), EventStatus.STATUS_ENUM_NAME,
+              EventResponse.CREATOR_COLUMN);
     }
+    
+    /*
+     * WITH y AS (WITH x AS (SELECT "CREATOR", "EID" FROM "CALENDAR" JOIN "CALENDAR_EVENT" ON "CALENDAR"."ID" = "CALENDAR_EVENT"."CID")
+SELECT x."CREATOR", "EVENT"."EID" FROM "EVENT" JOIN x ON "EVENT"."EID" = x."EID")
+
+UPDATE "EVENT" SET "CREATOR" = z."CREATOR"
+FROM y AS z
+WHERE "EVENT"."EID"=z."EID";
+     * (non-Javadoc)
+     * @see resp.Response#formatSQLQuery(java.sql.PreparedStatement)
+     */
 
     @Override
     public void formatSQLQuery(PreparedStatement prepare) throws SQLException {
@@ -149,8 +166,8 @@ public class CalendarRequest implements Request {
       prepare.setInt(1, userId);
       prepare.setTimestamp(2, startDate);
       prepare.setTimestamp(3, endDate);
-      prepare.setInt(4, calendarId);
-      System.out.println(prepare.toString());
+      prepare.setInt(4, userId);
+      prepare.setInt(5, calendarId);
     }
 
     @Override

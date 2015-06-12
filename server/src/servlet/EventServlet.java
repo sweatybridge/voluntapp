@@ -14,6 +14,7 @@ import resp.Response;
 import resp.SuccessResponse;
 import utils.AuthLevel;
 import utils.CalendarEventIdQuery;
+import utils.EventStatus;
 import utils.ServletUtils;
 
 import chat.DynamicUpdate;
@@ -86,16 +87,21 @@ public class EventServlet extends HttpServlet {
           "The supplied event data are invalid."));
       return;
     }
-    
-    /* Verify if the user is allowed to publish events in the specified 
-     * calendar. */
-    if (!checkAccessRights(eventReq.getCalendarId(), 0, userId, AuthLevel.EDITOR)) {
-      setUnauthorisedAccessErrorResponse(request);
-      return;
-    }
 
     try {
-      EventResponse resp = db.putEvent(eventReq);
+      AuthLevel level = db.authoriseUser(userId, eventReq.getCalendarId());
+      EventStatus status;
+      if (level == AuthLevel.ADMIN) {
+        status = EventStatus.ACTIVE;
+      } else if (level == AuthLevel.EDITOR) {
+        status = EventStatus.PENDING;
+      } else {
+        /* If user is neither ADMIN nor EDITOR, they cannot publish the events 
+         * in the calendar. */
+        setUnauthorisedAccessErrorResponse(request);
+        return;
+      }
+      EventResponse resp = db.putEvent(eventReq, status, userId);
       // Send dynamic update to the online subscribers
       resp.setCalendarId(eventReq.getCalendarId());
       DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
@@ -137,7 +143,7 @@ public class EventServlet extends HttpServlet {
       }
       /* Try to update the event. */
       try {
-        EventResponse resp = db.updateEvent(eventID, eventReq);
+        EventResponse resp = db.updateEvent(eventID, eventReq, userId);
         if (resp == null) {
           request
               .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
