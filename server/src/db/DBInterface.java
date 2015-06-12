@@ -953,4 +953,14 @@ public class DBInterface {
     return rows == 1;
   }
 
+  public boolean activateEvent(int eventId) throws SQLException,
+      InconsistentDataException {
+    EventResponse response = new EventResponse(eventId);
+    response.setActive();
+    if (update(response) != 1) {
+      throw new InconsistentDataException("Triggered in activateEvent");
+    }
+    return true;
+  }
+
 }

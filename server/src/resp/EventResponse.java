@@ -54,6 +54,7 @@ public class EventResponse extends Response {
   private transient Time sqlTime;
   private transient boolean found;
   private transient boolean delete;
+  private transient boolean activate = false;
   private transient String startTime; // HH:mm
   private transient String startDate; // YYYY-MM-DD
   private transient boolean isAdmin = false;
@@ -129,6 +130,10 @@ public class EventResponse extends Response {
     this.eventId = eventId;
   }
 
+  public void setActive() {
+    this.activate = true;
+  }
+
   public void setAdmin() {
     isAdmin = true;
   }
@@ -175,7 +180,9 @@ public class EventResponse extends Response {
         + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String.format(
             "\"%s\"=?,", MAX_ATTEDEE_COLUMN))
         + ((!delete || found++ == Integer.MIN_VALUE) ? "" : String.format(
-            "\"%s\"='deleted',", ACTIVE_COLUMN));
+            "\"%s\"='deleted',", ACTIVE_COLUMN))
+        + (((!activate || delete) || found++ == Integer.MIN_VALUE) ? ""
+            : String.format("\"%s\"='active',", ACTIVE_COLUMN));
     return (found == 0) ? null : String.format(
         "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=?",
         formatString.substring(0, formatString.length() - 1));
