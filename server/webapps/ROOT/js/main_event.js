@@ -156,11 +156,11 @@ function renderEvents() {
   });
   
   // Sort events because back-end doesn't
-  // TODO: check sorting
   app.events.sort(function(a,b) {
     // Something like
-    var aDate = new Date(a.startDate + ' ' + a.startTime);
-    var bDate = new Date(b.startDate + ' ' + b.startTime);
+    var aDate = new Date(a.startDateTime);
+    var bDate = new Date(b.startDateTime);
+    return aDate >= bDate;
   });
   // Rerender active calendars' events
   $.each(app.events, function(index, event) {
