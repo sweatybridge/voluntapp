@@ -108,7 +108,6 @@ public class CalendarServlet extends HttpServlet {
       throws IOException {
     CalendarRequest calendarRequest = initCalendarRequest(request);
     calendarRequest.setInviteCode(generator.getCode());
-    Integer userId = ServletUtils.getUserId(request);
 
     if (!calendarRequest.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -121,6 +120,7 @@ public class CalendarServlet extends HttpServlet {
       CalendarResponse resp = db.putCalendar(calendarRequest);
       request.setAttribute(Response.class.getSimpleName(), resp);
       /* Register calendar ID to user ID mapping. */
+      Integer userId = ServletUtils.getUserId(request);
       CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
       map.put(resp.getCalendarId(), userId);
     } catch (SQLException e) {
@@ -162,10 +162,16 @@ public class CalendarServlet extends HttpServlet {
     try {
       Integer calendarId = Integer.parseInt(id);
       CalendarResponse resp = db.deleteCalendar(calendarId);
-      // Remove fields that we do not need
+      
+      // Remove fields that we do not need for notification
       resp.setJoinEnabled(null);
       resp.setJoinCode(null);
       DynamicUpdate.sendCalendarDelete(calendarId, resp);
+      
+      /* Delete calendar ID to user ID mapping. */
+      CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+      map.remove(calendarId);
+      
       result = new SuccessResponse("Calendar was successfully deleted.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse(

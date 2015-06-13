@@ -239,7 +239,7 @@ var DemoAdapter = (function() {
     // Update calendar if it is already in the list
     for (var i = 0; i < app.calendars.length; i++) {
       if (app.calendars[i].calendarId == calendar.calendarId) {
-        app.calendars[i] = calendar; // We found it
+        app.calendars[i].name = calendar.name; // We found it
         renderCalendars();
         return;
       }
