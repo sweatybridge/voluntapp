@@ -2,6 +2,7 @@ package utils;
 
 public enum EventStatus {
   DELETED("deleted"),
+  DISAPPROVED("disapproved"), 
   PENDING("pending"),
   ACTIVE("active");
   

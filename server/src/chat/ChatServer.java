@@ -114,7 +114,7 @@ public class ChatServer {
         /* Record that a user is subscribed to given calendars. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         for (Integer calendarId : calendarIds) {
-          map.put(calendarId, userId);
+          map.put(calendarId, userId, db.authoriseUser(calendarId, userId));
         }
         DynamicUpdate.sendOnlineUser(calendarIds, userId);
       }

@@ -15,6 +15,7 @@ import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
+import utils.AuthLevel;
 import utils.ServletUtils;
 
 import chat.DynamicUpdate;
@@ -122,7 +123,7 @@ public class CalendarServlet extends HttpServlet {
       /* Register calendar ID to user ID mapping. */
       Integer userId = ServletUtils.getUserId(request);
       CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-      map.put(resp.getCalendarId(), userId);
+      map.put(resp.getCalendarId(), userId, AuthLevel.ADMIN);
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error while saving the calendar to the data base."));

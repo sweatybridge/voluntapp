@@ -138,16 +138,17 @@ public class DBInterface {
     query(result);
 
     // Role based authentication
-    if (result.getRole() == AuthLevel.NONE) {
+    AuthLevel role = result.getRole();
+    if (role == AuthLevel.NONE) {
       return CalendarResponse.NO_CALENDAR;
     }
 
     if (request.getStartDate() != null) {
-      EventStatus status = EventStatus.ACTIVE;
-      if (result.getRole() == AuthLevel.ADMIN) {
-        status = EventStatus.PENDING;
+      CalendarEventsQuery query = request.getCalendarEventsQuery();
+      if (role == AuthLevel.ADMIN || role == AuthLevel.EDITOR) {
+        // Allow the user to see pending and disapproved events.
+        query.setPriviledge();
       }
-      CalendarEventsQuery query = request.getCalendarEventsQuery(status);
       query(query);
       result.setEvents(query.getEvents());
     }

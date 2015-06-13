@@ -32,7 +32,8 @@ public class ServletUtils {
   }
 
   /**
-   * Check if the user has the required (or higher) user rights.
+   * Check if the user has the required (or higher) user rights in the given
+   * calendar.
    * 
    * @param calendarId
    * @param userId

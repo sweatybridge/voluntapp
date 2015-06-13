@@ -100,8 +100,8 @@ public class CalendarRequest implements Request {
     return startDate;
   }
 
-  public CalendarEventsQuery getCalendarEventsQuery(EventStatus status) {
-    return new CalendarEventsQuery(status);
+  public CalendarEventsQuery getCalendarEventsQuery() {
+    return new CalendarEventsQuery();
   }
 
   public void setCalendarId(int calendarId) {
@@ -111,12 +111,8 @@ public class CalendarRequest implements Request {
   public class CalendarEventsQuery extends Response {
     private ResultSet rs;
     private List<EventResponse> events = new ArrayList<EventResponse>();
-    private EventStatus status;
+    private boolean isPriviledged;
     
-    public CalendarEventsQuery(EventStatus status) {
-      this.status = status;
-    }
-
     /*
      * WITH x AS (SELECT "EID", COUNT(*) FROM "EVENT_USER" GROUP BY "EID")
      * SELECT "EVENT"."EID", "TITLE", "DESCRIPTION", "LOCATION", "DATE", "TIME",
@@ -128,13 +124,20 @@ public class CalendarRequest implements Request {
      */
 
     public String getSQLQuery() {
+      String visibleEvents = (isPriviledged) ? 
+          /* If user is privileged (admin/editor) allow him to see all
+           * non-deleted events. */
+          String.format("\"%s\"!='%s'::\"%s\"", EventResponse.ACTIVE_COLUMN, 
+              EventStatus.DELETED.getName(), EventStatus.STATUS_ENUM_NAME) :
+          /* If the user is a basic user, show him only the active events. */
+          String.format("\"%s\"='%s'::\"%s\"", EventResponse.ACTIVE_COLUMN, 
+              EventStatus.ACTIVE.getName(), EventStatus.STATUS_ENUM_NAME);
       return String.format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
                   + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\" "
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
-                  + "OVERLAPS (?, ?) "
-                  + "AND (\"%s\">'%s'::\"%s\" AND (\"%s\">='%s'::\"%s\" OR \"%s\"=?)) AND "
+                  + "OVERLAPS (?, ?) AND " + visibleEvents + "AND "
                   + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
@@ -144,12 +147,8 @@ public class CalendarRequest implements Request {
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,
-              EventResponse.ACTIVE_COLUMN, EventStatus.DELETED.getName(), 
-              EventStatus.STATUS_ENUM_NAME, EventResponse.ACTIVE_COLUMN, 
-              status.getName(), EventStatus.STATUS_ENUM_NAME,
-              EventResponse.CREATOR_COLUMN);
-      //TODO : change so that it does not depend on oridinals of enum
+              EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN
+              );
     }
     
     /*
@@ -171,10 +170,6 @@ WHERE "EVENT"."EID"=z."EID";
       prepare.setTimestamp(3, endDate);
       prepare.setInt(4, userId);
       prepare.setInt(5, calendarId);
-    }
-
-    public void setAdmin() {
-      isAdmin = true;
     }
 
     @Override
@@ -200,6 +195,10 @@ WHERE "EVENT"."EID"=z."EID";
 
     public List<EventResponse> getEvents() {
       return events;
+    }
+    
+    public void setPriviledge() {
+      isPriviledged = true;
     }
   }
 }

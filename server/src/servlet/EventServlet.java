@@ -92,22 +92,25 @@ public class EventServlet extends HttpServlet {
     }
 
     try {
-      AuthLevel level = db.authoriseUser(userId, eventReq.getCalendarId());
-      EventStatus status;
-      if (level == AuthLevel.ADMIN) {
-        status = EventStatus.ACTIVE;
-      } else if (level == AuthLevel.EDITOR) {
-        status = EventStatus.PENDING;
-      } else {
-        /* If user is neither ADMIN nor EDITOR, they cannot publish the events 
-         * in the calendar. */
-        setUnauthorisedAccessErrorResponse(request);
-        return;
+      /* If user is an ADMIN, set event status to ACTIVE, if user is an editor,
+       * set the event status to PENDING. */
+      EventStatus status = EventStatus.DELETED;
+      AuthLevel role = db.authoriseUser(userId, eventReq.getCalendarId());
+      switch(role) {
+        case ADMIN: status = EventStatus.ACTIVE;
+        case EDITOR: status = EventStatus.PENDING;
+        case BASIC:
+        case NONE:
+          setUnauthorisedAccessErrorResponse(request);
+          return;
       }
+      
       EventResponse resp = db.putEvent(eventReq, status, userId);
-      // Send dynamic update to the online subscribers
       resp.setCalendarId(eventReq.getCalendarId());
-      DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
+      /* If user is an admin, send and update to all users that are online,
+         otherwise send the update to editors and admins only. */
+      boolean all = (role == AuthLevel.ADMIN);
+      DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp, all);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
       e.printStackTrace();
@@ -142,11 +145,13 @@ public class EventServlet extends HttpServlet {
        * - is an editor.
        */
       int eventID = Integer.parseInt(eventId);
-      if (!ServletUtils.checkAccessRights(0, eventID, userId, AuthLevel.EDITOR,
-          db)) {
+      AuthLevel role = db.authoriseUser(userId, db.getCalendarId(
+          new CalendarEventIdQuery(eventID)));
+      if (role != AuthLevel.ADMIN && role != AuthLevel.EDITOR) {
         setUnauthorisedAccessErrorResponse(request);
         return;
       }
+      
       /* Try to update the event. */
       try {
         EventResponse resp = db.updateEvent(eventID, eventReq, userId);
@@ -157,13 +162,11 @@ public class EventServlet extends HttpServlet {
         } else {
           // Send dynamic update to the online subscribers
           resp.setCalendarId(eventReq.getCalendarId());
-          DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
+          // TODO: Use role to send the update only to editors and admins if the user is not an admin. 
+          DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp, true);
           request.setAttribute(Response.class.getSimpleName(),
               new SuccessResponse("Event data were updated successfully."));
         }
-      } catch (NumberFormatException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "One of the provided dates was incorrectly formatted."));
       } catch (SQLException e) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "Error while saving the event update to the database."));

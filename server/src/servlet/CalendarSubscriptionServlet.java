@@ -88,7 +88,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         CalendarResponse resp = db.putCalendarSubscription(userId, subReq.getJoinCode());
         /* Register calendar ID to user ID mapping. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-        map.put(resp.getCalendarId(), userId);
+        map.put(resp.getCalendarId(), userId, AuthLevel.BASIC);
         // Send dynamic update to the owner (creator)
         // Get the user from database
         UserResponse userResponse = db.getUser(new UserRequest(userId));

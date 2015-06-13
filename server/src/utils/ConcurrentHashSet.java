@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -7,7 +8,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ConcurrentHashSet<T> implements Iterable<T> {
+public class ConcurrentHashSet<T> implements Iterable<T>, Set<T> {
   
   private final Set<T> set;
   private final ReadWriteLock lock;
@@ -55,10 +56,11 @@ public class ConcurrentHashSet<T> implements Iterable<T> {
     writeLock.unlock();
   }
   
-  public void remove(Object o) {
+  public boolean remove(Object o) {
     writeLock.lock();
-    set.remove(o);
+    boolean result = set.remove(o);
     writeLock.unlock();
+    return result;
   }
   
   public Iterator<T> iterator() {
@@ -66,6 +68,52 @@ public class ConcurrentHashSet<T> implements Iterable<T> {
     Iterator<T> iter = set.iterator();
     readLock.unlock();
     return iter;
+  }
+
+  @Override
+  public int size() {
+    readLock.lock();
+    int size = set.size();
+    readLock.unlock();
+    return size;
+  }
+
+  @Override
+  public <T> T[] toArray(T[] a) {
+    // ???
+    return null;
+  }
+
+  @Override
+  public boolean containsAll(Collection<?> c) {
+    readLock.lock();
+    boolean result = set.containsAll(c);
+    readLock.unlock();
+    return result;
+  }
+
+  @Override
+  public boolean addAll(Collection<? extends T> c) {
+    writeLock.lock();
+    boolean result = set.addAll(c);
+    writeLock.unlock();
+    return result;
+  }
+
+  @Override
+  public boolean retainAll(Collection<?> c) {
+    writeLock.lock();
+    boolean result = set.retainAll(c);
+    writeLock.unlock();
+    return result;
+  }
+
+  @Override
+  public boolean removeAll(Collection<?> c) {
+    writeLock.lock();
+    boolean result = set.removeAll(c);
+    writeLock.unlock();
+    return result;
   }
   
 }
