@@ -99,7 +99,7 @@ $(function() {
     });
   });
 
-  // Render calendar from yesterday
+  // Render calendar from monday
   updateCalendarDates(getMonday());
   //app.current_start_date = getMonday();
 

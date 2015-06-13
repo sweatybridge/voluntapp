@@ -121,13 +121,12 @@ $(function() {
 // Update Events
 function refreshEvents() {
   // Retrieve and render calendar events
-  app.events = [];
+  app.events = app.events.filter(function(e) {
+    e.view.remove();
+    return false;
+  });
+  updateCalendarDates(app.current_start_date);
   var active_calendars = getActiveCalendarIds();
-  // Just re-render if there are no active calendars
-  if (active_calendars.length < 1) {
-    updateCalendarDates(app.current_start_date);
-    renderEvents();
-  }
   // Get event data for the active calendars then render
   $.each(active_calendars, function(index, cid) {
     getCalendarEventsByCid(cid);
@@ -144,7 +143,6 @@ function getCalendarEventsByCid(cid) {
         event.render();
         return event;
       }));
-      updateCalendarDates(app.current_start_date);
     },
     error: function(data) {
       toastr.error("Failed to get events for " + id);

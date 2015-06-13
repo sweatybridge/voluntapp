@@ -1,3 +1,8 @@
+/**
+* Event controller that provides one-way data binding between a event response
+* from server and event view on client. Contains public methods:
+* - update, render
+*/
 var Event = (function() {
   // class variables
   Event.template =
@@ -117,7 +122,7 @@ var Event = (function() {
       if (!this.model[key] || this.model[key] !== value) {
         // updates the underlying model and view
         this.model[key] = value;
-        var handler = this.modelChanged[key];
+        var handler = modelChangedHandler[key];
         // if handler is defined, calls apply to pass in event object as this
         if (handler) {
           handler.apply(this);
@@ -134,7 +139,7 @@ var Event = (function() {
   /**
   * Change the view to reflect new model
   */
-  Event.prototype.modelChanged = {
+  var modelChangedHandler = {
     title: function() {
       this.view.find(".title").text(this.model.title);
     },
@@ -185,7 +190,7 @@ var Event = (function() {
       }
     },
     max: function() {
-      this.modelChanged.currentCount.apply(this);
+      modelChangedHandler.currentCount.apply(this);
     },
     location: function() {
       // hide location if it is not set
