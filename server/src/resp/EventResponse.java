@@ -111,6 +111,11 @@ public class EventResponse extends Response {
               - startDateTime.get(Calendar.HOUR_OF_DAY),
           endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
           0);
+      
+      this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDateTime.getTime()).concat(
+          "Z");
+      this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(endDateTime.getTime()).concat(
+          "Z");
     }
 
   }

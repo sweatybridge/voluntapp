@@ -324,7 +324,6 @@ var DemoAdapter = (function() {
         app.events[i].description = event.description;
         app.events[i].location = event.location;
         app.events[i].max = event.max;
-        // TODO: Fix time updating, back-end is broken for now
         app.events[i].startDateTime = event.startDateTime;
         app.events[i].endDateTime = event.endDateTime;
         isNewEvent = false;
