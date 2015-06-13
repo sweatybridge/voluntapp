@@ -134,10 +134,11 @@ public class CalendarRequest implements Request {
               EventStatus.ACTIVE.getName(), EventStatus.STATUS_ENUM_NAME);
       return String.format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
-                  + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
+                  + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", "
+                  + "EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\" "
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
-                  + "OVERLAPS (?, ?) AND " + visibleEvents + "AND "
+                  + "OVERLAPS (?, ?) AND " + visibleEvents + " AND "
                   + "\"EVENT\".\"EID\" IN (SELECT \"EID\" FROM \"CALENDAR_EVENT\" WHERE \"CID\"=?);",
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.TITLE_COLUMN,
@@ -168,8 +169,8 @@ WHERE "EVENT"."EID"=z."EID";
       prepare.setInt(1, userId);
       prepare.setTimestamp(2, startDate);
       prepare.setTimestamp(3, endDate);
-      prepare.setInt(4, userId);
-      prepare.setInt(5, calendarId);
+      prepare.setInt(4, calendarId);
+      System.out.println(prepare.toString());
     }
 
     @Override
