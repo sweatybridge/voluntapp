@@ -39,7 +39,7 @@ var Event = (function() {
 
   function Event(model) {
     // save model as private field
-    this.model = {};
+    this.model = {eventId: model.eventId};
 
     // construct the view for rendering
     this.view = $(Event.template
@@ -92,6 +92,7 @@ var Event = (function() {
     
     // enable more actions button
     this.view.find(".more").dropdown();
+
     this.update(model);
   }
 
@@ -109,14 +110,8 @@ var Event = (function() {
   * Updates the underlying model, view, and remote partially.
   */
   Event.prototype.update = function(model) {
-    // check updating model has the same event id
-    var eid = model['eventId'];
-    if (this.model.eventId && this.model.eventId !== eid) {
-      return;
-    }
-
     // build partial update object
-    var partial = {'eventId': eid};
+    var partial = {'eventId': this.model.eventId};
     for (var key in model) {
       var value = model[key];
       if (!this.model[key] || this.model[key] !== value) {
@@ -214,7 +209,11 @@ var Event = (function() {
           elem.disabled = true;
         });
       } else {
-        // cannot join/unjoin past events, so no need to update header
+        // update header of present events
+        if (!this.isPast) {
+          this.view.find(".header").addClass("progress-bar-info").removeClass("progress-bar-success");
+          this.view.find(".more").addClass("btn-info").removeClass("btn-success");
+        }
         // update badge
         this.view.find(".join .badge").removeClass("progress-bar-danger").text("Join");
         // update requirements checkbox

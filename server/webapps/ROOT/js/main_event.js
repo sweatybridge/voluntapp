@@ -358,7 +358,8 @@ function createEventView(event) {
 function joinEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-  var event = $.grep(app.events, function(e){ return e.eventId == eid; })[0];
+  var controller = $.grep(app.events, function(e){ return e.model.eventId == eid; })[0];
+  var event = controller.model;
   
   // determine wether to join or unjoin
   if (event.hasJoined) {
@@ -366,22 +367,11 @@ function joinEvent(elem) {
     $.ajax("/api/subscription/event/" + eid, {
       method: "DELETE",
       success: function(data) {
-        event.hasJoined = false;
-        toastr.warning("Unjoined event " + event.title);
-        if (event.max > -1) {
-          // update remaining spots
-          event.currentCount -= 1;
-          view.find(".count").text(event.currentCount + "/" + event.max);
-        }
-        // update badge
-        $(elem).removeClass("progress-bar-danger").text("Join");
-        // update header
-        view.find(".header").removeClass("progress-bar-success").addClass("progress-bar-info");
-        // update requirements checkbox
-        view.find('.requirements input[type="checkbox"]').each(function(i) {
-          this.checked = false;
-          this.disabled = false;
+        controller.update({
+          currentCount: event.currentCount - 1,
+          hasJoined: false
         });
+        toastr.warning("Unjoined event " + event.title);
       },
       error: function(data) {
         toastr.error("Cannot join event: " + data.responseJSON.message);
@@ -415,20 +405,9 @@ function joinEvent(elem) {
       method: "POST",
       success: function(data) {
         toastr.success("Joined event " + event.title);
-        // use dictionary to prevent duplicates
-        event.hasJoined = true;
-        // update remaining spots
-        event.currentCount += 1;
-        if (event.max > -1) {
-          view.find(".count").text(event.currentCount + "/" + event.max);
-        }
-        // update badge
-        $(elem).addClass("progress-bar-danger").text("Unjoin");
-        // update header
-        view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
-        // update requirements checkbox
-        view.find('.requirements input[type="checkbox"]').each(function(i) {
-          this.disabled = true;
+        controller.update({
+          currentCount: event.currentCount + 1,
+          hasJoined: true
         });
       },
       error: function(data) {
