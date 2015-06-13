@@ -197,6 +197,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         try {
           db.deleteCalendarSubscription(targetUserId, calendarId);
+          /* Remove calendar ID to user ID mapping. */
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
           DynamicUpdate.sendCalendarUnjoin(calendarId, ImmutableMap.of("calendarId", calendarId, "user", targetUser));

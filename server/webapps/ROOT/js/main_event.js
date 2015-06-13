@@ -240,7 +240,7 @@ function createEventView(event) {
   
   // Find the correct column to place it
   $("#t_calendar_body").children().each(function(k, elem) {
-    if ($(elem).data("date") === start.toLocaleDateString()) {
+    if ($(elem).data("date") == start.toLocaleDateString()) {
       // append event div
       temp = temp
         .replace('{{eventId}}', event.eventId)
@@ -314,8 +314,7 @@ function createEventView(event) {
         });
       });
 
-      // Append the view to the actual td
-      $(elem).append(view);
+      // Check join conditions
       if (event.hasJoined) {
         // turn header bar green
         view.find(".header").removeClass("progress-bar-info").addClass("progress-bar-success");
@@ -346,6 +345,8 @@ function createEventView(event) {
       if (!event.location) {
         view.find(".location").hide();
       }
+      // Append the view to the actual td
+      $(elem).append(view);
     }
     // if event not in view, don't render
   });
@@ -511,13 +512,18 @@ function resetEventForm() {
 }
 
 // increment or decrement attendee count by delta
-function updateAttendeeCount(view, delta) {
-  var eid = view.data("eventId");
-  var event = $.grep(app.events, function(e){return e.eventId === eid})[0];
-  if (event) {
-    event.currentCount += delta;
-    view.find(".count").text(event.currentCount + "/" + event.max);
-  }
+function updateAttendeeCount(eventId, delta) {
+  // update count badge if event is rendered in calendar
+  $(".event").each(function(k, elem) {
+    var view = $(elem);
+    if (view.data("eventId") == eventId) {
+      var event = $.grep(app.events, function(e){return e.eventId == eventId})[0];
+      if (event) {
+        event.currentCount += delta;
+        view.find(".count").text(event.currentCount + "/" + event.max);
+      }
+    }
+  });
 }
 
 // Removes an attendee from an event (admin feature)

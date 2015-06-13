@@ -305,8 +305,21 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleUpdateEvent = function(event) {
+    // Update the actual event object in the state of the app
+    for (var i = 0; i < app.events.length; i++) {
+      if (app.events[i].eventId == event.eventId) {
+        // Update relevant fields
+        app.events[i].title = event.title;
+        app.events[i].description = event.description;
+        app.events[i].location = event.location;
+        app.events[i].max = event.max;
+        break;
+      }
+    }
+    
+    // Update notification badge if calendar is not in selected view
     var active_calendars = getActiveCalendarIds();
-    if (active_calendars.indexOf(event.calendarId) === -1) {
+    if (active_calendars.indexOf(event.calendarId) == -1) {
       // update notification badge
       $("#d_user_calendars").children().each(function(k, elem) {
         var view = $(elem);
@@ -321,6 +334,10 @@ var DemoAdapter = (function() {
           }
         }
       });
+    } else {
+      // This rerenders all visible events, we could find and rerender
+      // the event that changed, but is more challenging
+      renderEvents();
     }
   };
 
@@ -330,12 +347,7 @@ var DemoAdapter = (function() {
       return;
     }
     // update count badge if event is rendered in calendar
-    $(".event").each(function(k, elem) {
-      var event = $(elem);
-      if (event.data("eventId") == unjoin.eventId) {
-        updateAttendeeCount(event, -1);
-      }
-    });
+    updateAttendeeCount(unjoin.eventId, -1);
   };
 
   DemoAdapter.prototype.handleJoinEvent = function(join) {
@@ -344,12 +356,7 @@ var DemoAdapter = (function() {
       return;
     }
     // update count badge if event is rendered in calendar
-    $(".event").each(function(k, elem) {
-      var event = $(elem);
-      if (event.data("eventId") == join.eventId) {
-        updateAttendeeCount(event, 1);
-      }
-    });
+    updateAttendeeCount(join.eventId, 1);
   };
 
   DemoAdapter.prototype.handleOffline = function(userId) {
