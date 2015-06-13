@@ -97,8 +97,8 @@ public class EventServlet extends HttpServlet {
       EventStatus status = EventStatus.DELETED;
       AuthLevel role = db.authoriseUser(userId, eventReq.getCalendarId());
       switch(role) {
-        case ADMIN: status = EventStatus.ACTIVE;
-        case EDITOR: status = EventStatus.PENDING;
+        case ADMIN: status = EventStatus.ACTIVE; break;
+        case EDITOR: status = EventStatus.PENDING; break;
         case BASIC:
         case NONE:
           setUnauthorisedAccessErrorResponse(request);

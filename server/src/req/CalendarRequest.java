@@ -170,7 +170,6 @@ WHERE "EVENT"."EID"=z."EID";
       prepare.setTimestamp(2, startDate);
       prepare.setTimestamp(3, endDate);
       prepare.setInt(4, calendarId);
-      System.out.println(prepare.toString());
     }
 
     @Override

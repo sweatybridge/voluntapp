@@ -46,6 +46,7 @@ public class DynamicUpdate {
       for (Pair<Integer, AuthLevel> pair : calendarIds) {
         userIds.add(pair.getKey());
       }
+      //System.out.println("User ID to which object is sent: " + userIds.toString());
       ChatMessage cm = new ChatMessage(mType.getType(),
           userIds, -1, false, obj);
       ChatServer.routeChatMessage(cm);
@@ -96,6 +97,7 @@ public class DynamicUpdate {
   public static void sendEventUpdate(Integer calendarId, EventResponse event, 
       boolean all) {
     if (all) {
+      //System.out.println("Sending event to everyone.");
       sendObj(calendarId, MessageType.EVENT_UPDATE, event);
     } else {
       // Send the message to editors and admins only
