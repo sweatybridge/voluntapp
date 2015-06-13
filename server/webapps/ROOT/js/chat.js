@@ -230,11 +230,15 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
-    // ignore message to self
-    if (app.user.userId == calendar.userId) {
-      return;
+    // Update calendar if it is already in the list
+    for (var i = 0; i < app.calendars.length; i++) {
+      if (app.calendars[i].calendarId == calendar.calendarId) {
+        app.calendars[i] = calendar; // We found it
+        renderCalendars();
+      }
     }
-    // TODO: need calendar id
+    // We don't which calendar this is, ignore for now
+    // we might add it to the list
   };
 
   DemoAdapter.prototype.handleJoinCalendar = function(join) {

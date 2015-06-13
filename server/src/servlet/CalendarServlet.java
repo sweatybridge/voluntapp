@@ -229,6 +229,9 @@ public class CalendarServlet extends HttpServlet {
 
     try {
       CalendarResponse resp = db.updateCalendar(cid, calendarRequest);
+      // Remove fields that we don't want to expose
+      resp.setJoinEnabled(null);
+      resp.setJoinCode(null);
       DynamicUpdate.sendCalendarUpdate(cid, resp);
       result = new SuccessResponse("Calendar data was successfully updated.");
     } catch (NumberFormatException e) {
