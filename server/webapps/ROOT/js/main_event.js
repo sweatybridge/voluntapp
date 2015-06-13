@@ -547,7 +547,7 @@ function removeAttendee(elem) {
 }
 
 function deleteEventById(eventId) {
-  var event = $.grep(app.events, function(e){return e.eventId === eventId;})[0];
+  var event = $.grep(app.events, function(e){return e.eventId == eventId;})[0];
 
   // User confirmation
   if(!confirm("Are you sure you want to delete "+event.title+"?")) {

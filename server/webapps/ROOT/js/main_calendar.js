@@ -241,3 +241,28 @@ function getActiveCalendarIds() {
   });
   return active_calendars;
 }
+
+// Increases notification badge count for a given calendarId if not enabled
+// returns true if badge updated, false if the calendar is not enabled
+function notifyBadge(calendarId) {
+  // Update notification badge if calendar is not in selected view
+  var active_calendars = getActiveCalendarIds();
+  if (active_calendars.indexOf(calendarId) == -1) {
+    // update notification badge
+    $("#d_user_calendars").children().each(function(k, elem) {
+      var view = $(elem);
+      var cid = view.data("calid");
+      if (cid == calendarId) {
+        var notification = view.find(".badge");
+        if (notification.hasClass("hidden")) {
+          notification.removeClass("hidden").text("1");
+        } else {
+          var count = parseInt(notification.text());
+          notification.text(count + 1);
+        }
+      }
+    });
+    return true;
+  }
+  return false;
+}

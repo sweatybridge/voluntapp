@@ -297,14 +297,25 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
-    // ignore message to self
-    if (app.user.userId == event.userId) {
-      return;
+    // Update the actual event object in the state of the app
+    for (var i = 0; i < app.events.length; i++) {
+      if (app.events[i].eventId == event.eventId) {
+        app.events.splice(i, 1); // Remove event
+        break;
+      }
     }
-    // TODO: need calendar id
+    
+    // Try to update badge
+    if(!notifyBadge(event.calendarId)) {
+      // This rerenders all visible events, we could find and rerender
+      // the event that changed, but is more challenging since it might a
+      // new event as well
+      renderEvents();
+    }
   };
 
   DemoAdapter.prototype.handleUpdateEvent = function(event) {
+    var isNewEvent = true;
     // Update the actual event object in the state of the app
     for (var i = 0; i < app.events.length; i++) {
       if (app.events[i].eventId == event.eventId) {
@@ -313,30 +324,27 @@ var DemoAdapter = (function() {
         app.events[i].description = event.description;
         app.events[i].location = event.location;
         app.events[i].max = event.max;
+        // TODO: Fix time updating, back-end is broken for now
+        app.events[i].startDateTime = event.startDateTime;
+        app.events[i].endDateTime = event.endDateTime;
+        isNewEvent = false;
         break;
       }
     }
     
-    // Update notification badge if calendar is not in selected view
-    var active_calendars = getActiveCalendarIds();
-    if (active_calendars.indexOf(event.calendarId) == -1) {
-      // update notification badge
-      $("#d_user_calendars").children().each(function(k, elem) {
-        var view = $(elem);
-        var cid = view.data("calid");
-        if (cid === event.calendarId) {
-          var notification = view.find(".badge");
-          if (notification.hasClass("hidden")) {
-            notification.removeClass("hidden").text("1");
-          } else {
-            var count = parseInt(notification.text());
-            notification.text(count + 1);
-          }
-        }
-      });
-    } else {
+    // Check if this is a new event
+    if (isNewEvent) {
+      // Then lets add it to the app state
+      var newEvent = event;
+      newEvent.currentCount = event.max > -1 ? 0 : -1;
+      app.events.push(newEvent);
+    }
+    
+    // Try to update badge
+    if(!notifyBadge(event.calendarId)) {
       // This rerenders all visible events, we could find and rerender
-      // the event that changed, but is more challenging
+      // the event that changed, but is more challenging since it might a
+      // new event as well
       renderEvents();
     }
   };
