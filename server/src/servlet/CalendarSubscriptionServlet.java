@@ -92,7 +92,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         // Send dynamic update to the owner (creator)
         // Get the user from database
         UserResponse userResponse = db.getUser(new UserRequest(userId));
-        DynamicUpdate.sendCalendarJoin(resp.getUserId(), ImmutableMap.of("calendarId", resp.getCalendarId(), "user", userResponse));
+        DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of("calendarId", resp.getCalendarId(), "user", userResponse));
         request.setAttribute(Response.class.getSimpleName(), resp);
       } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse("Error while registering user's calendar "
@@ -199,6 +199,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           db.deleteCalendarSubscription(targetUserId, calendarId);
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
+          DynamicUpdate.sendCalendarUnjoin(calendarId, ImmutableMap.of("calendarId", calendarId, "user", targetUser));
           return new SuccessResponse("User unsubscribed.");
         } catch (CalendarSubscriptionNotFoundException e) {
           return new ErrorResponse("The requested update subscription does not exist.");

@@ -206,6 +206,9 @@ var DemoAdapter = (function() {
         case 'join/calendar':
           _this.handleJoinCalendar(msg.payload);
           break;
+        case 'unjoin/calendar':
+          _this.handleUnjoinCalendar(msg.payload);
+          break;
         case 'update/calendar':
           _this.handleUpdateCalendar(msg.payload);
           break;
@@ -263,6 +266,22 @@ var DemoAdapter = (function() {
     var calendar = $.grep(app.calendars, function(e){ return e.calendarId == join.calendarId; })[0];
     if (calendar.role === "admin" || calendar.role === "owner") {
       toastr.info(join.user.firstName + " has just joined " + calendar.name);
+    }
+  };
+  
+  DemoAdapter.prototype.handleUnjoinCalendar = function(join) {
+    // join object same as in joinCalendar, see above function
+    // ignore message to self
+    if (app.user.userId == join.user.userId) {
+      return;
+    }
+    // Check if the user already exists, probably should
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == join.user.userId) {
+        this.server.users.splice(i, 1);
+        this.server.enterRoom(1); // Refresh list
+        return;
+      }
     }
   };
 
