@@ -311,20 +311,16 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
-    // Update the actual event object in the state of the app
-    for (var i = 0; i < app.events.length; i++) {
-      if (app.events[i].eventId == event.eventId) {
-        app.events.splice(i, 1); // Remove event
-        break;
-      }
-    }
-    
     // Try to update badge
     if(!notifyBadge(event.calendarId)) {
-      // This rerenders all visible events, we could find and rerender
-      // the event that changed, but is more challenging since it might a
-      // new event as well
-      renderEvents();
+      // Update the actual event object in the state of the app
+      // TODO: update saved events if present
+      for (var i = 0; i < app.events.length; i++) {
+        if (app.events[i].model.eventId == event.eventId) {
+          app.events.splice(i, 1)[0].view.remove(); // Remove event
+          break;
+        }
+      }
     }
   };
 

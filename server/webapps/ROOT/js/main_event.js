@@ -32,7 +32,6 @@ $(function() {
       data: JSON.stringify(formObj),
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
-        // TODO: fix duplicate dynamic update from backend, rely on chat for now
         controller.update(formObj);
         resetEventForm();
       },
@@ -79,7 +78,10 @@ $(function() {
       method: form.attr("method"),
       success: function(data) {
         toastr.success("Created " + formObj["title"]);
-        refreshEvents();
+        // TODO: fix duplicate dynamic update from backend, rely on chat for now
+        // var event = new Event(data);
+        // app.events.push(event);
+        // event.render();
         resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
@@ -132,17 +134,12 @@ function refreshEvents() {
 	  method: 'GET',
       data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
       success: function(data) {
-        // Add the calendarId because back-end doesn't provide it
-        // $.each(data.events, function(index, event) {
-        //   event.calendarId = id;
-        // });
         app.events.push.apply(app.events, data.events.map(function(e) {
           var event = new Event(e);
           event.render();
           return event;
         }));
         updateCalendarDates(app.current_start_date);
-        //renderEvents();
       },
       error: function(data) {
         toastr.error("Failed to get events for " + id);
@@ -535,7 +532,8 @@ function removeAttendee(elem) {
 }
 
 function deleteEventById(eventId) {
-  var event = $.grep(app.events, function(e){return e.eventId == eventId;})[0];
+  var controller = getEventById(eventId);
+  var event = controller.model;
 
   // User confirmation
   if(!confirm("Are you sure you want to delete "+event.title+"?")) {
@@ -547,7 +545,9 @@ function deleteEventById(eventId) {
     method: "DELETE",
     success: function(data) {
       toastr.success("Deleted event " + event.title);
-      refreshEvents();
+      var index = app.events.indexOf(controller);
+      app.events.splice(index, 1);
+      controller.view.remove();
       resetEventForm();
     },
     error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
