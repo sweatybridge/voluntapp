@@ -250,16 +250,15 @@ var DemoAdapter = (function() {
     
     // Otherwise lets add him to the list
     // configure user info
-    /*var userInfo = new ChatUserInfo();
-    userInfo.Id = user.uid;
+    var userInfo = new ChatUserInfo();
+    userInfo.Id = join.user.userId;
     userInfo.RoomId = DEFAULT_ROOM_ID;
-    userInfo.Name = user.firstName + " " + user.lastName;
-    //userInfo.Email = user.email;
+    userInfo.Name = join.user.firstName + " " + join.user.lastName;
+    //userInfo.Email = join.user.email;
     userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
-    userInfo.Status = user.isOnline;
+    userInfo.Status = 1; // The user is online as he joined just now
     this.server.users.push(userInfo);
-    this.server.enterRoom(1); // Refresh list */
-    console.log("Gonna add user.");
+    this.server.enterRoom(1); // Refresh list
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
