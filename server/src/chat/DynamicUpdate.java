@@ -94,7 +94,7 @@ public class DynamicUpdate {
    *          Event object to be sent
    */
   public static void sendEventDelete(Integer calendarId, EventResponse event) {
-    sendObj(calendarId, MessageType.EVENT_DELETE, ImmutableMap.of("eventId", event.getEventId()));
+    sendObj(calendarId, MessageType.EVENT_DELETE, ImmutableMap.of("eventId", event.getEventId(), "calendarId", event.getCalendarId()));
   }
 
   /**

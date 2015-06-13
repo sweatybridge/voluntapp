@@ -160,8 +160,15 @@ var DemoAdapter = (function() {
     this.server = new DemoServerAdapter(this.client, this.socket);
 
     // Bind on open function
+    _socket = this.socket;
     this.socket.onopen = function() {
       console.log('Info: WebSocket connection opened.');
+      setInterval(function () {
+        var ping = { type: "ping",
+                     destinationIds: [-1],
+                     sourceId: app.user.userId } // No payload needed
+        _socket.send(JSON.stringify(ping));
+      }, 60000); // Ping every minute to keep connection alive
     };
 
     // Bind on close function
@@ -177,6 +184,13 @@ var DemoAdapter = (function() {
       var msg = JSON.parse(e.data);
       console.log(msg);
       switch (msg.type) {
+        case 'ping':
+          // Ping back
+          var pong = { type: "pong",
+                     destinationIds: [msg.sourceId],
+                     sourceId: app.user.userId } // No payload needed
+          _socket.send(JSON.stringify(pong));
+          break;
         case 'roster':
           _this.handleRoster(msg.payload.roster);
           break;
