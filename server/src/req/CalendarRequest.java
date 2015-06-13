@@ -134,7 +134,7 @@ public class CalendarRequest implements Request {
               EventStatus.ACTIVE.getName(), EventStatus.STATUS_ENUM_NAME);
       return String.format(
               "WITH x AS (SELECT \"%s\", COUNT(*) FROM \"EVENT_USER\" GROUP BY \"%s\")"
-                  + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", "
+                  + "SELECT  \"EVENT\".\"EID\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"count\", \"%s\", \"%s\","
                   + "EXISTS (SELECT \"%s\" FROM \"EVENT_USER\" WHERE \"%s\"=? AND \"%s\"=\"EVENT\".\"%s\")"
                   + "FROM x RIGHT OUTER JOIN \"EVENT\" ON x.\"%s\" = \"EVENT\".\"%s\" "
                   + "WHERE (\"DATE\" + \"TIME\", \"DATE\" + \"TIME\" + \"DURATION\") "
@@ -145,6 +145,7 @@ public class CalendarRequest implements Request {
               EventResponse.DESC_COLUMN, EventResponse.LOCATION_COLUMN,
               EventResponse.DATE_COLUMN, EventResponse.TIME_COLUMN,
               EventResponse.DURATION_COLUMN, EventResponse.MAX_ATTEDEE_COLUMN,
+              EventResponse.ACTIVE_COLUMN,
               EventSubscriptionResponse.EID_COLUMN,
               EventSubscriptionResponse.UID_COLUMN,
               EventSubscriptionResponse.EID_COLUMN, EventResponse.EID_COLUMN,

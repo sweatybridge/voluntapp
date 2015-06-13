@@ -17,4 +17,15 @@ public enum EventStatus {
   public String getName() {
     return name;
   }
+  
+  public static EventStatus translateToEnum(String name) {
+    switch(name) {
+      case "deleted": return DELETED;
+      case "disapproved": return DISAPPROVED;
+      case "pending": return PENDING;
+      case "active": return ACTIVE;
+    }
+    assert(false) : "Should not reach this place!";
+    return null;
+  }
 }
