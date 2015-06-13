@@ -241,7 +241,25 @@ var DemoAdapter = (function() {
     if (app.user.userId === join.user.userId) {
       return;
     }
+    // Check if the user already exists somehow
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == join.user.userId) {
+        return; // We found somebody
+      }
+    }
     
+    // Otherwise lets add him to the list
+    // configure user info
+    /*var userInfo = new ChatUserInfo();
+    userInfo.Id = user.uid;
+    userInfo.RoomId = DEFAULT_ROOM_ID;
+    userInfo.Name = user.firstName + " " + user.lastName;
+    //userInfo.Email = user.email;
+    userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
+    userInfo.Status = user.isOnline;
+    this.server.users.push(userInfo);
+    this.server.enterRoom(1); // Refresh list */
+    console.log("Gonna add user.");
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
@@ -303,7 +321,7 @@ var DemoAdapter = (function() {
   DemoAdapter.prototype.handleOffline = function(userId) {
     for (var i = 0; i < this.server.users.length; i++) {
       if (this.server.users[i].Id == userId) {
-        this.server.users[i] = 0;
+        this.server.users[i].Status = 0;
         break;
       }
     }
@@ -313,7 +331,7 @@ var DemoAdapter = (function() {
   DemoAdapter.prototype.handleOnline = function(userId) {
     for (var i = 0; i < this.server.users.length; i++) {
       if (this.server.users[i].Id == userId) {
-        this.server.users[i] = 1;
+        this.server.users[i].Status = 1;
         break;
       }
     }
