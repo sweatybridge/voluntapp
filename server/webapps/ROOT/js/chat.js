@@ -223,7 +223,7 @@ var DemoAdapter = (function() {
 
   DemoAdapter.prototype.handleDeleteCalendar = function(calendar) {
     // ignore message to self
-    if (app.user.userId === calendar.userId) {
+    if (app.user.userId == calendar.userId) {
       return;
     }
     // TODO: need calendar id
@@ -231,7 +231,7 @@ var DemoAdapter = (function() {
 
   DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
     // ignore message to self
-    if (app.user.userId === calendar.userId) {
+    if (app.user.userId == calendar.userId) {
       return;
     }
     // TODO: need calendar id
@@ -240,7 +240,7 @@ var DemoAdapter = (function() {
   DemoAdapter.prototype.handleJoinCalendar = function(join) {
     // join object: calendarId, user field. User expands to normal user object
     // ignore message to self
-    if (app.user.userId === join.user.userId) {
+    if (app.user.userId == join.user.userId) {
       return;
     }
     // Check if the user already exists somehow
@@ -287,7 +287,7 @@ var DemoAdapter = (function() {
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
     // ignore message to self
-    if (app.user.userId === event.userId) {
+    if (app.user.userId == event.userId) {
       return;
     }
     // TODO: need calendar id
@@ -315,13 +315,13 @@ var DemoAdapter = (function() {
 
   DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {
     // ignore message to self
-    if (app.user.userId === unjoin.userId) {
+    if (app.user.userId == unjoin.userId) {
       return;
     }
     // update count badge if event is rendered in calendar
     $(".event").each(function(k, elem) {
       var event = $(elem);
-      if (event.data("eventId") === unjoin.eventId) {
+      if (event.data("eventId") == unjoin.eventId) {
         updateAttendeeCount(event, -1);
       }
     });
@@ -329,13 +329,13 @@ var DemoAdapter = (function() {
 
   DemoAdapter.prototype.handleJoinEvent = function(join) {
     // ignore message to self
-    if (app.user.userId === join.userId) {
+    if (app.user.userId == join.userId) {
       return;
     }
     // update count badge if event is rendered in calendar
     $(".event").each(function(k, elem) {
       var event = $(elem);
-      if (event.data("eventId") === join.eventId) {
+      if (event.data("eventId") == join.eventId) {
         updateAttendeeCount(event, 1);
       }
     });

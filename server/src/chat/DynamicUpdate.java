@@ -135,6 +135,14 @@ public class DynamicUpdate {
     sendObj(calendarId, MessageType.CALENDAR_JOIN, immutableMap);
   }
   
+  /**
+   * Sends a unjoined update to the current subscribers.
+   * 
+   * @param calendarId
+   *          People online on this calendar will get notified
+   * @param resp
+   *          map object to be sent
+   */
   public static void sendCalendarUnjoin(Integer calendarId, ImmutableMap<String, Object> immutableMap) {
     sendObj(calendarId, MessageType.CALENDAR_UNJOIN, immutableMap);
   }

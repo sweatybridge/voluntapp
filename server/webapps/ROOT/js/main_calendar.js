@@ -9,7 +9,7 @@ $(function() {
   // Bind calendar joining form
   $("#calendar_follow_form").submit(function(e) {
     e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("You started following " + data.name); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_follow_errors"));
+    submitAjaxForm($(this), function(data) { toastr.success("You joined " + data.name); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_follow_errors"));
   });
   
   // Bind edit calendar buttons and forms
