@@ -150,6 +150,7 @@ function renderCalendars() {
   
   // We got calendars, clear division to repopulate
   myCalendar.empty();
+  app.events = [];
   // If there is any, create calendar elements
   $.each(app.calendars, function(index, calendar) {
     var code = calendar.joinEnabled ? calendar.joinCode : "private";
@@ -167,7 +168,18 @@ function renderCalendars() {
       if (calendar.role === "admin" || calendar.role === "owner") {
         // cal_div.find(".calendar-extras").toggle();
       }
-      refreshEvents();
+      if (cal_div.hasClass("active")) {
+        getCalendarEventsByCid(calendar.calendarId);
+      } else {
+        // remove events from view
+        app.events = app.events.filter(function(e) {
+          var isActive = (e.model.calendarId !== calendar.calendarId);
+          if (!isActive) {
+            e.view.remove();
+          }
+          return isActive;
+        });
+      }
       // TODO: wrap in async callback once we start retrieving calendars individually
       cal_div.find(".badge").addClass("hidden");
     });

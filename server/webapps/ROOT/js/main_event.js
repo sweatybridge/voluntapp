@@ -129,24 +129,27 @@ function refreshEvents() {
     renderEvents();
   }
   // Get event data for the active calendars then render
-  $.each(active_calendars, function(index, id) {
-    $.ajax("/api/calendar/"+id, {
-	  method: 'GET',
-      data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
-      success: function(data) {
-        app.events.push.apply(app.events, data.events.map(function(e) {
-          var event = new Event(e);
-          event.render();
-          return event;
-        }));
-        updateCalendarDates(app.current_start_date);
-      },
-      error: function(data) {
-        toastr.error("Failed to get events for " + id);
-      }
-    });
+  $.each(active_calendars, function(index, cid) {
+    getCalendarEventsByCid(cid);
   });
-  
+}
+
+function getCalendarEventsByCid(cid) {
+  $.ajax("/api/calendar/"+cid, {
+    method: 'GET',
+    data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
+    success: function(data) {
+      app.events.push.apply(app.events, data.events.map(function(e) {
+        var event = new Event(e);
+        event.render();
+        return event;
+      }));
+      updateCalendarDates(app.current_start_date);
+    },
+    error: function(data) {
+      toastr.error("Failed to get events for " + id);
+    }
+  });
 }
 
 // Render events
