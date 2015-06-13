@@ -22,6 +22,7 @@ $(function() {
       toastr.error("Failed to read event id. Please select the event again or refresh the app.");
       return;
     }
+    var controller = getEventById(formObj.eventId);
 
     // validate form
     formatEventForm(formObj);
@@ -31,7 +32,8 @@ $(function() {
       data: JSON.stringify(formObj),
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
-        refreshEvents();
+        // TODO: fix duplicate dynamic update from backend, rely on chat for now
+        controller.update(formObj);
         resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
@@ -64,14 +66,13 @@ $(function() {
     var form = $(this);
     var formObj = getFormObj(form);
     formatEventForm(formObj);
-    
 
     // Check for the description length
     if (formObj["description"].length > 255) {
       $("#event_create_errors").text("Description length is too long.");
       return;
     }
-    
+
     // Submit form
     $.ajax(form.attr("action"), {
       data: JSON.stringify(formObj),
@@ -358,7 +359,7 @@ function createEventView(event) {
 function joinEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-  var controller = $.grep(app.events, function(e){ return e.model.eventId == eid; })[0];
+  var controller = getEventById(eid);
   var event = controller.model;
   
   // determine wether to join or unjoin
@@ -422,7 +423,8 @@ function joinEvent(elem) {
 function editEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-  var event = $.grep(app.events, function(e){ return e.eventId === eid; })[0];
+  var controller = getEventById(eid);
+  var event = controller.model;
 
   // check if user's role is editor or above
   var cal = $.grep(app.calendars, function(e){ return e.calendarId === event.calendarId; })[0];
@@ -458,6 +460,11 @@ function updateEventForm(event) {
 
 // Adds extra fields into event form
 function formatEventForm(formObj) {
+  var start = new Date(formObj["startDate"]);
+  var end = new Date(formObj["endDate"]);
+  formObj["startDateTime"] = start.toJSON();
+  formObj["endDateTime"] = end.toJSON();
+
   var regex = new RegExp('/', "g");
   formObj["startTime"] = formObj["startDate"].split(" ")[1];
   formObj["startDate"] = formObj["startDate"].split(" ")[0].replace(regex, '-');
@@ -623,4 +630,8 @@ function createICSFile (event) {
 // convert json date string to iCalendar format
 function jsonToICS(date) {
   return date.split("-").join("").split(":").join("");
+}
+
+function getEventById(eid) {
+  return $.grep(app.events, function(e){ return e.model.eventId == eid; })[0];
 }

@@ -329,36 +329,18 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleUpdateEvent = function(event) {
-    var isNewEvent = true;
-    // Update the actual event object in the state of the app
-    for (var i = 0; i < app.events.length; i++) {
-      if (app.events[i].eventId == event.eventId) {
-        // Update relevant fields
-        app.events[i].title = event.title;
-        app.events[i].description = event.description;
-        app.events[i].location = event.location;
-        app.events[i].max = event.max;
-        app.events[i].startDateTime = event.startDateTime;
-        app.events[i].endDateTime = event.endDateTime;
-        isNewEvent = false;
-        break;
-      }
-    }
-    
-    // Check if this is a new event
-    if (isNewEvent) {
-      // Then lets add it to the app state
-      var newEvent = event;
-      newEvent.currentCount = event.max > -1 ? 0 : -1;
-      app.events.push(newEvent);
-    }
-    
     // Try to update badge
     if(!notifyBadge(event.calendarId)) {
-      // This rerenders all visible events, we could find and rerender
-      // the event that changed, but is more challenging since it might a
-      // new event as well
-      renderEvents();
+      var controller = getEventById(event.eventId);
+      if (controller) {
+        // server does not return the correct current count on notification
+        delete event.currentCount;
+        controller.update(event);
+      } else {
+        controller = new Event(event);
+        app.events.push(controller);
+        controller.render();
+      }
     }
   };
 

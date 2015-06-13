@@ -3,7 +3,11 @@ function getFormObj(form) {
     var formObj = {};
     var inputs = form.serializeArray();
     $.each(inputs, function (i, input) {
-        formObj[input.name] = input.value;
+        if (input.name === "max" || input.name === "calendarId" || input.name === "eventId") {
+          formObj[input.name] = parseInt(input.value);
+        } else {
+          formObj[input.name] = input.value;
+        }
     });
     return formObj;
 }
