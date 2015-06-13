@@ -3,12 +3,12 @@ package chat;
 import java.util.Arrays;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
-
-import req.CalendarSubscriptionRequest;
 import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
+
+import com.google.common.collect.ImmutableMap;
+
 import db.CalendarIdUserIdMap;
 
 /**
@@ -131,15 +131,14 @@ public class DynamicUpdate {
    * @param resp
    *          CalendarSubscriptionResponse to be sent
    */
-  public static void sendCalendarJoin(Integer ownerId,
-      CalendarSubscriptionRequest req) {
+  public static void sendCalendarJoin(Integer ownerId, ImmutableMap<String, Object> immutableMap) {
     // NOTE: that if the owner is not online, the chat server will discard this
     // message for us as store offline is set to false, if you want it to be
     // stored change false parameter to true and the owner will receive the
     // update message on log on.
     Integer[] destinationIds = new Integer[] { ownerId };
     ChatMessage cm = new ChatMessage(MessageType.CALENDAR_JOIN.getType(),
-        Arrays.asList(destinationIds), -1, false, req);
+        Arrays.asList(destinationIds), -1, false, immutableMap);
     ChatServer.routeChatMessage(cm);
   }
 

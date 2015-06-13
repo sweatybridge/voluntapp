@@ -236,11 +236,12 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleJoinCalendar = function(join) {
+    // join object: calendarId, user field. User expands to normal user object
     // ignore message to self
-    if (app.user.userId === join.userId) {
+    if (app.user.userId === join.user.userId) {
       return;
     }
-    // TODO: need calendar id
+    
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
@@ -300,20 +301,22 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleOffline = function(userId) {
-    $.each(this.server.users, function(k, user) {
-      if (user.Id === userId) {
-        user.Status = 0;
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == userId) {
+        this.server.users[i] = 0;
+        break;
       }
-    });
+    }
     this.server.enterRoom(1);
   };
 
   DemoAdapter.prototype.handleOnline = function(userId) {
-    $.each(this.server.users, function(k, user) {
-      if (user.Id === userId) {
-        user.Status = 1;
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == userId) {
+        this.server.users[i] = 1;
+        break;
       }
-    });
+    }
     this.server.enterRoom(1);
   };
 

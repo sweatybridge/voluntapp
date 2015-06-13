@@ -108,6 +108,13 @@ $(function() {
 
 // Update calendars
 function refreshCalendars() {
+  $.get("/api/subscription/calendar", function(data) {
+    app.calendars = data.calendars;
+    renderCalendars();
+  });
+}
+
+function renderCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
         '<span class="badge progress-bar-warning notification hidden"></span>'+
@@ -129,65 +136,62 @@ function refreshCalendars() {
   </div> \
 </div>';
 */
-  $.get("/api/subscription/calendar", function(data) {
-    app.calendars = data.calendars;
-    var myCalendar = $("#d_user_calendars");
-    // Clean current visible data
-    myCalendar.html("It seems like you haven't joined to or created any calendars...");
-    $("#select_calendar").empty();
-    
-    // Check if there is any calendars returned
-    if (data.calendars.length < 1) {
-      $('#nav_create_tabs a:last').tab('show');
-      return;
-    }
-    
-    // We got calendars, clear division to repopulate
-    myCalendar.empty();
-    // If there is any, create calendar elements
-    $.each(data.calendars, function(index, calendar) {
-      var code = calendar.joinEnabled ? calendar.joinCode : "private";
-      var cal_div = $(cal_html
-          .replace("{{id}}", calendar.calendarId)
-          .replace("{{name}}", calendar.name)
-          .replace("{{joinCode}}", code))
-          .appendTo(myCalendar);
-      if (calendar.role === "admin" || calendar.role === "owner") {
-        // cal_div.find(".calendar-unsub").toggle();
-      }      
 
-      cal_div.click(function() {
-        cal_div.toggleClass("active").children().blur();
-        if (calendar.role === "admin" || calendar.role === "owner") {
-          // cal_div.find(".calendar-extras").toggle();
-        }
-        refreshEvents();
-        // TODO: wrap in async callback once we start retrieving calendars individually
-        cal_div.find(".badge").addClass("hidden");
-      });
+  var myCalendar = $("#d_user_calendars");
+  // Clean current visible data
+  myCalendar.html("It seems like you haven't joined to or created any calendars...");
+  $("#select_calendar").empty();
+  
+  // Check if there is any calendars returned
+  if (app.calendars.length < 1) {
+    $('#nav_create_tabs a:last').tab('show');
+    return;
+  }
+  
+  // We got calendars, clear division to repopulate
+  myCalendar.empty();
+  // If there is any, create calendar elements
+  $.each(app.calendars, function(index, calendar) {
+    var code = calendar.joinEnabled ? calendar.joinCode : "private";
+    var cal_div = $(cal_html
+        .replace("{{id}}", calendar.calendarId)
+        .replace("{{name}}", calendar.name)
+        .replace("{{joinCode}}", code))
+        .appendTo(myCalendar);
+    if (calendar.role === "admin" || calendar.role === "owner") {
+      // cal_div.find(".calendar-unsub").toggle();
+    }      
 
-      // Check calendar rights
+    cal_div.click(function() {
+      cal_div.toggleClass("active").children().blur();
       if (calendar.role === "admin" || calendar.role === "owner") {
-        // Update event calendar selection box
-        $('#select_calendar')
-         .append($("<option></option>")
-         .attr("value",calendar.calendarId)
-         .text(calendar.name));
-        /*
-        cal_div.find("button").click(function() {
-          var calid = $(this).parent().parent().data("calid");
-          $("#d_edit_calendar input[name='name']").val(calendar.name);
-          $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
-          $("#d_user_calendars").toggle();
-          $("#d_edit_calendar").data("calid", calid).toggle();
-        });
-        */
+        // cal_div.find(".calendar-extras").toggle();
       }
+      refreshEvents();
+      // TODO: wrap in async callback once we start retrieving calendars individually
+      cal_div.find(".badge").addClass("hidden");
     });
-    // Refresh events for the calendars
-    $("#d_user_calendars").children().first().click();
-    
+
+    // Check calendar rights
+    if (calendar.role === "admin" || calendar.role === "owner") {
+      // Update event calendar selection box
+      $('#select_calendar')
+       .append($("<option></option>")
+       .attr("value",calendar.calendarId)
+       .text(calendar.name));
+      /*
+      cal_div.find("button").click(function() {
+        var calid = $(this).parent().parent().data("calid");
+        $("#d_edit_calendar input[name='name']").val(calendar.name);
+        $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
+        $("#d_user_calendars").toggle();
+        $("#d_edit_calendar").data("calid", calid).toggle();
+      });
+      */
+    }
   });
+  // Refresh events for the calendars
+  $("#d_user_calendars").children().first().click();
 }
 
 // Update data-date field of calendar view from startDate
