@@ -178,8 +178,8 @@ function createEventView(event) {
   '<div class="event">'+
     '<div class="header progress-bar-info">'+
       '<div class="dropdown">'+
-        '<a class="label label-warning dropdown-toggle count" id="dropdownMenu{{eventId}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
-        '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu{{eventId}}">'+
+        '<a class="label label-warning dropdown-toggle count" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{remaining}}</a>'+
+        '<ul class="dropdown-menu" role="menu">'+
           '<li role="presentation" class="dropdown-header">List of Attendees</li>'+
         '</ul>'+
       '</div>'+
@@ -243,8 +243,6 @@ function createEventView(event) {
     if ($(elem).data("date") === start.toLocaleDateString()) {
       // append event div
       temp = temp
-        .replace('{{eventId}}', event.eventId)
-        .replace('{{eventId}}', event.eventId)
         .replace('{{eventId}}', event.eventId)
         .replace('{{startTime}}', readableTime)
         .replace('{{duration}}', duration)
