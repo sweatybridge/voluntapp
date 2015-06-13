@@ -215,7 +215,6 @@ var DemoAdapter = (function() {
       }
       //toastr.info(e.data);
     };
-
     done();
   };
 
@@ -259,6 +258,12 @@ var DemoAdapter = (function() {
     userInfo.Status = 1; // The user is online as he joined just now
     this.server.users.push(userInfo);
     this.server.enterRoom(1); // Refresh list
+    
+    // Notify if admin or owner
+    var calendar = $.grep(app.calendars, function(e){ return e.calendarId == join.calendarId; })[0];
+    if (calendar.role === "admin" || calendar.role === "owner") {
+      toastr.info(join.user.firstName + " has just joined " + calendar.name);
+    }
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
