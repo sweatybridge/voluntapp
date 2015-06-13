@@ -186,10 +186,10 @@ function createEventView(event) {
       '<div class="dropdown pull-right">'+
         '<button class="btn btn-info more dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>'+
         '<ul class="dropdown-menu" role="menu">'+
-          '<li><a href="#" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
+          '<li class="bg-info"><a href="data:text/calendar;charset=utf8,{{ics}}">Get iCal Event</a></li>'+
+          '<li class="bg-warning"><a href="#" onclick="saveEvent(this)">Save Event</a></li>'+
           '<li class="divider"></li>'+
-          '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to Calendar</a></li>'+
-          '<li><a href="#" onclick="saveEvent(this)">Add to Saved Events</a></li>'+
+          '<li class="bg-danger"><a href="#" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
         '</ul>'+
       '</div>'+
       '<div class="time">'+
