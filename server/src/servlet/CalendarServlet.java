@@ -21,6 +21,7 @@ import chat.DynamicUpdate;
 
 import com.google.gson.Gson;
 
+import db.CalendarIdUserIdMap;
 import db.CodeGenerator;
 import db.DBInterface;
 import exception.CalendarNotFoundException;
@@ -107,6 +108,7 @@ public class CalendarServlet extends HttpServlet {
       throws IOException {
     CalendarRequest calendarRequest = initCalendarRequest(request);
     calendarRequest.setInviteCode(generator.getCode());
+    Integer userId = ServletUtils.getUserId(request);
 
     if (!calendarRequest.isValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
@@ -116,8 +118,11 @@ public class CalendarServlet extends HttpServlet {
 
     // Put calendar into the database and record the response.
     try {
-      request.setAttribute(Response.class.getSimpleName(),
-          db.putCalendar(calendarRequest));
+      CalendarResponse resp = db.putCalendar(calendarRequest);
+      request.setAttribute(Response.class.getSimpleName(), resp);
+      /* Register calendar ID to user ID mapping. */
+      CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+      map.put(resp.getCalendarId(), userId);
     } catch (SQLException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Error while saving the calendar to the data base."));
@@ -157,6 +162,9 @@ public class CalendarServlet extends HttpServlet {
     try {
       Integer calendarId = Integer.parseInt(id);
       CalendarResponse resp = db.deleteCalendar(calendarId);
+      // Remove fields that we do not need
+      resp.setJoinEnabled(null);
+      resp.setJoinCode(null);
       DynamicUpdate.sendCalendarDelete(calendarId, resp);
       result = new SuccessResponse("Calendar was successfully deleted.");
     } catch (NumberFormatException e) {

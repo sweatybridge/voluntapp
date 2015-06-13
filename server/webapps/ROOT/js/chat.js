@@ -222,11 +222,17 @@ var DemoAdapter = (function() {
   };
 
   DemoAdapter.prototype.handleDeleteCalendar = function(calendar) {
-    // ignore message to self
-    if (app.user.userId == calendar.userId) {
-      return;
+    // Update calendar if it is already in the list
+    for (var i = 0; i < app.calendars.length; i++) {
+      if (app.calendars[i].calendarId == calendar.calendarId) {
+        app.calendars.splice(i, 1); // Remove from list
+        renderCalendars(); // Rerender calendars
+        return;
+      }
     }
-    // TODO: need calendar id
+    // The events of the calendar disappear but they are still avaliable
+    // inside app.events, we might call refreshCalendars() to flush the
+    // state of the calendar.
   };
 
   DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
@@ -235,6 +241,7 @@ var DemoAdapter = (function() {
       if (app.calendars[i].calendarId == calendar.calendarId) {
         app.calendars[i] = calendar; // We found it
         renderCalendars();
+        return;
       }
     }
     // We don't which calendar this is, ignore for now
