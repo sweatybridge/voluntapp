@@ -160,8 +160,15 @@ var DemoAdapter = (function() {
     this.server = new DemoServerAdapter(this.client, this.socket);
 
     // Bind on open function
+    _socket = this.socket;
     this.socket.onopen = function() {
       console.log('Info: WebSocket connection opened.');
+      setInterval(function () {
+        var ping = { type: "ping",
+                     destinationIds: [-1],
+                     sourceId: app.user.userId } // No payload needed
+        _socket.send(JSON.stringify(ping));
+      }, 60000); // Ping every minute to keep connection alive
     };
 
     // Bind on close function
@@ -177,6 +184,13 @@ var DemoAdapter = (function() {
       var msg = JSON.parse(e.data);
       console.log(msg);
       switch (msg.type) {
+        case 'ping':
+          // Ping back
+          var pong = { type: "pong",
+                     destinationIds: [msg.sourceId],
+                     sourceId: app.user.userId } // No payload needed
+          _socket.send(JSON.stringify(pong));
+          break;
         case 'roster':
           _this.handleRoster(msg.payload.roster);
           break;
@@ -206,6 +220,9 @@ var DemoAdapter = (function() {
         case 'join/calendar':
           _this.handleJoinCalendar(msg.payload);
           break;
+        case 'unjoin/calendar':
+          _this.handleUnjoinCalendar(msg.payload);
+          break;
         case 'update/calendar':
           _this.handleUpdateCalendar(msg.payload);
           break;
@@ -215,105 +232,171 @@ var DemoAdapter = (function() {
       }
       //toastr.info(e.data);
     };
-
     done();
   };
 
   DemoAdapter.prototype.handleDeleteCalendar = function(calendar) {
-    // ignore message to self
-    if (app.user.userId === calendar.userId) {
-      return;
+    // Update calendar if it is already in the list
+    for (var i = 0; i < app.calendars.length; i++) {
+      if (app.calendars[i].calendarId == calendar.calendarId) {
+        app.calendars.splice(i, 1); // Remove from list
+        renderCalendars(); // Rerender calendars
+        return;
+      }
     }
-    // TODO: need calendar id
+    // The events of the calendar disappear but they are still avaliable
+    // inside app.events, we might call refreshCalendars() to flush the
+    // state of the calendar.
   };
 
   DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
-    // ignore message to self
-    if (app.user.userId === calendar.userId) {
-      return;
+    // Update calendar if it is already in the list
+    for (var i = 0; i < app.calendars.length; i++) {
+      if (app.calendars[i].calendarId == calendar.calendarId) {
+        app.calendars[i].name = calendar.name; // We found it
+        renderCalendars();
+        return;
+      }
     }
-    // TODO: need calendar id
+    // We don't which calendar this is, ignore for now
+    // we might add it to the list
   };
 
   DemoAdapter.prototype.handleJoinCalendar = function(join) {
+    // join object: calendarId, user field. User expands to normal user object
     // ignore message to self
-    if (app.user.userId === join.userId) {
+    if (app.user.userId == join.user.userId) {
       return;
     }
-    // TODO: need calendar id
+    // Check if the user already exists somehow
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == join.user.userId) {
+        return; // We found somebody
+      }
+    }
+    
+    // Otherwise lets add him to the list
+    // configure user info
+    var userInfo = new ChatUserInfo();
+    userInfo.Id = join.user.userId;
+    userInfo.RoomId = DEFAULT_ROOM_ID;
+    userInfo.Name = join.user.firstName + " " + join.user.lastName;
+    //userInfo.Email = join.user.email;
+    userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
+    userInfo.Status = 1; // The user is online as he joined just now
+    this.server.users.push(userInfo);
+    this.server.enterRoom(1); // Refresh list
+    
+    // Notify if admin or owner
+    var calendar = $.grep(app.calendars, function(e){ return e.calendarId == join.calendarId; })[0];
+    if (calendar.role === "admin" || calendar.role === "owner") {
+      toastr.info(join.user.firstName + " has just joined " + calendar.name);
+    }
+  };
+  
+  DemoAdapter.prototype.handleUnjoinCalendar = function(join) {
+    // join object same as in joinCalendar, see above function
+    // ignore message to self
+    if (app.user.userId == join.user.userId) {
+      return;
+    }
+    // Check if the user already exists, probably should
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == join.user.userId) {
+        this.server.users.splice(i, 1);
+        this.server.enterRoom(1); // Refresh list
+        return;
+      }
+    }
   };
 
   DemoAdapter.prototype.handleDeleteEvent = function(event) {
-    // ignore message to self
-    if (app.user.userId === event.userId) {
-      return;
+    // Update the actual event object in the state of the app
+    for (var i = 0; i < app.events.length; i++) {
+      if (app.events[i].eventId == event.eventId) {
+        app.events.splice(i, 1); // Remove event
+        break;
+      }
     }
-    // TODO: need calendar id
+    
+    // Try to update badge
+    if(!notifyBadge(event.calendarId)) {
+      // This rerenders all visible events, we could find and rerender
+      // the event that changed, but is more challenging since it might a
+      // new event as well
+      renderEvents();
+    }
   };
 
   DemoAdapter.prototype.handleUpdateEvent = function(event) {
-    var active_calendars = getActiveCalendarIds();
-    if (active_calendars.indexOf(event.calendarId) === -1) {
-      // update notification badge
-      $("#d_user_calendars").children().each(function(k, elem) {
-        var view = $(elem);
-        var cid = view.data("calid");
-        if (cid === event.calendarId) {
-          var notification = view.find(".badge");
-          if (notification.hasClass("hidden")) {
-            notification.removeClass("hidden").text("1");
-          } else {
-            var count = parseInt(notification.text());
-            notification.text(count + 1);
-          }
-        }
-      });
+    var isNewEvent = true;
+    // Update the actual event object in the state of the app
+    for (var i = 0; i < app.events.length; i++) {
+      if (app.events[i].eventId == event.eventId) {
+        // Update relevant fields
+        app.events[i].title = event.title;
+        app.events[i].description = event.description;
+        app.events[i].location = event.location;
+        app.events[i].max = event.max;
+        app.events[i].startDateTime = event.startDateTime;
+        app.events[i].endDateTime = event.endDateTime;
+        isNewEvent = false;
+        break;
+      }
+    }
+    
+    // Check if this is a new event
+    if (isNewEvent) {
+      // Then lets add it to the app state
+      var newEvent = event;
+      newEvent.currentCount = event.max > -1 ? 0 : -1;
+      app.events.push(newEvent);
+    }
+    
+    // Try to update badge
+    if(!notifyBadge(event.calendarId)) {
+      // This rerenders all visible events, we could find and rerender
+      // the event that changed, but is more challenging since it might a
+      // new event as well
+      renderEvents();
     }
   };
 
   DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {
     // ignore message to self
-    if (app.user.userId === unjoin.userId) {
+    if (app.user.userId == unjoin.userId) {
       return;
     }
     // update count badge if event is rendered in calendar
-    $(".event").each(function(k, elem) {
-      var event = $(elem);
-      if (event.data("eventId") === unjoin.eventId) {
-        updateAttendeeCount(event, -1);
-      }
-    });
+    updateAttendeeCount(unjoin.eventId, -1);
   };
 
   DemoAdapter.prototype.handleJoinEvent = function(join) {
     // ignore message to self
-    if (app.user.userId === join.userId) {
+    if (app.user.userId == join.userId) {
       return;
     }
     // update count badge if event is rendered in calendar
-    $(".event").each(function(k, elem) {
-      var event = $(elem);
-      if (event.data("eventId") === join.eventId) {
-        updateAttendeeCount(event, 1);
-      }
-    });
+    updateAttendeeCount(join.eventId, 1);
   };
 
   DemoAdapter.prototype.handleOffline = function(userId) {
-    $.each(this.server.users, function(k, user) {
-      if (user.Id === userId) {
-        user.Status = 0;
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == userId) {
+        this.server.users[i].Status = 0;
+        break;
       }
-    });
+    }
     this.server.enterRoom(1);
   };
 
   DemoAdapter.prototype.handleOnline = function(userId) {
-    $.each(this.server.users, function(k, user) {
-      if (user.Id === userId) {
-        user.Status = 1;
+    for (var i = 0; i < this.server.users.length; i++) {
+      if (this.server.users[i].Id == userId) {
+        this.server.users[i].Status = 1;
+        break;
       }
-    });
+    }
     this.server.enterRoom(1);
   };
 

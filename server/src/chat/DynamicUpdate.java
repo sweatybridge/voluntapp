@@ -3,12 +3,12 @@ package chat;
 import java.util.Arrays;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
-
-import req.CalendarSubscriptionRequest;
 import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
+
+import com.google.common.collect.ImmutableMap;
+
 import db.CalendarIdUserIdMap;
 
 /**
@@ -94,7 +94,7 @@ public class DynamicUpdate {
    *          Event object to be sent
    */
   public static void sendEventDelete(Integer calendarId, EventResponse event) {
-    sendObj(calendarId, MessageType.EVENT_DELETE, event);
+    sendObj(calendarId, MessageType.EVENT_DELETE, ImmutableMap.of("eventId", event.getEventId(), "calendarId", event.getCalendarId()));
   }
 
   /**
@@ -124,23 +124,27 @@ public class DynamicUpdate {
   }
 
   /**
-   * Sends a joined update to the owner.
+   * Sends a joined update to the current subscribers.
    * 
-   * @param ownerId
-   *          DestinationId of the owner
+   * @param calendarId
+   *          People online on this calendar will get notified
    * @param resp
-   *          CalendarSubscriptionResponse to be sent
+   *          map object to be sent
    */
-  public static void sendCalendarJoin(Integer ownerId,
-      CalendarSubscriptionRequest req) {
-    // NOTE: that if the owner is not online, the chat server will discard this
-    // message for us as store offline is set to false, if you want it to be
-    // stored change false parameter to true and the owner will receive the
-    // update message on log on.
-    Integer[] destinationIds = new Integer[] { ownerId };
-    ChatMessage cm = new ChatMessage(MessageType.CALENDAR_JOIN.getType(),
-        Arrays.asList(destinationIds), -1, false, req);
-    ChatServer.routeChatMessage(cm);
+  public static void sendCalendarJoin(Integer calendarId, ImmutableMap<String, Object> immutableMap) {
+    sendObj(calendarId, MessageType.CALENDAR_JOIN, immutableMap);
+  }
+  
+  /**
+   * Sends a unjoined update to the current subscribers.
+   * 
+   * @param calendarId
+   *          People online on this calendar will get notified
+   * @param resp
+   *          map object to be sent
+   */
+  public static void sendCalendarUnjoin(Integer calendarId, ImmutableMap<String, Object> immutableMap) {
+    sendObj(calendarId, MessageType.CALENDAR_UNJOIN, immutableMap);
   }
 
   /**

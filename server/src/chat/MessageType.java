@@ -17,6 +17,7 @@ public enum MessageType {
   EVENT_UNJOIN("unjoin/event"),
 
   CALENDAR_JOIN("join/calendar"),
+  CALENDAR_UNJOIN("unjoin/calendar"),
   CALENDAR_UPDATE("update/calendar"),
   CALENDAR_DELETE("delete/calendar");
 

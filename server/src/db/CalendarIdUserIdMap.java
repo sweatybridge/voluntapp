@@ -62,6 +62,17 @@ public class CalendarIdUserIdMap {
   }
 
   /**
+   * Removes an entire calendar to user mapping given calendarId, useful when
+   * the calendar is deleted
+   * 
+   * @param calendarId
+   *          CalendarId to be removed from mapping
+   */
+  public void remove(Integer calendarId) {
+    map.remove(calendarId);
+  }
+
+  /**
    * Given the calendar ID and the user ID, remove the mapping from the map.
    * 
    * @param calendarId

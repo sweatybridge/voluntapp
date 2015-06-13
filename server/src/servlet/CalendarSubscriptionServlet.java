@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import req.CalendarSubscriptionRequest;
+import req.UserRequest;
 import resp.CalendarResponse;
-import resp.CalendarSubscriptionResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
@@ -20,6 +20,7 @@ import utils.CalendarJoinCodeIdQuery;
 import utils.ServletUtils;
 import chat.DynamicUpdate;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -89,10 +90,11 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         map.put(resp.getCalendarId(), userId);
         // Send dynamic update to the owner (creator)
-        subReq.setUserId(userId);
-        DynamicUpdate.sendCalendarJoin(resp.getUserId(), subReq);
+        // Get the user from database
+        UserResponse userResponse = db.getUser(new UserRequest(userId));
+        DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of("calendarId", resp.getCalendarId(), "user", userResponse));
         request.setAttribute(Response.class.getSimpleName(), resp);
-      } catch (SQLException e) {
+      } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse("Error while registering user's calendar "
             + "subscription."));
       }
@@ -195,8 +197,10 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         try {
           db.deleteCalendarSubscription(targetUserId, calendarId);
+          /* Remove calendar ID to user ID mapping. */
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
+          DynamicUpdate.sendCalendarUnjoin(calendarId, ImmutableMap.of("calendarId", calendarId, "user", targetUser));
           return new SuccessResponse("User unsubscribed.");
         } catch (CalendarSubscriptionNotFoundException e) {
           return new ErrorResponse("The requested update subscription does not exist.");

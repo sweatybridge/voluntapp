@@ -111,6 +111,11 @@ public class EventResponse extends Response {
               - startDateTime.get(Calendar.HOUR_OF_DAY),
           endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
           0);
+      
+      this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDateTime.getTime()).concat(
+          "Z");
+      this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(endDateTime.getTime()).concat(
+          "Z");
     }
 
   }
@@ -154,12 +159,12 @@ public class EventResponse extends Response {
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
 
     // Fill in composite fields
-    java.util.Date start = new java.util.Date(sqlDate.getTime()
+    java.util.Date startDate = new java.util.Date(sqlDate.getTime()
         + sqlTime.getTime());
-    this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(start).concat(
+    this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate).concat(
         "Z");
-    sqlDuration.add(start);
-    this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(start).concat(
+    sqlDuration.add(startDate);
+    this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate).concat(
         "Z");
   }
 

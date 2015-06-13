@@ -3,6 +3,7 @@ package chat;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -215,9 +216,12 @@ public class ChatServer {
     chatMessage.setDestinationIds(null);
     // For every destination id
     for (Integer destinationId : destinationIds) {
-      // Check if it was addressed at the server
-      if (destinationId == -1) {
-        // TODO: Handle server message if any
+      // Check if it was addressed at the server, we currently handle only pings
+      if (destinationId == -1 && chatMessage.getType().equals("ping") && chatMessage.getSourceId() != -1) {
+        // Ping back
+        Integer[] destIds = new Integer[] { chatMessage.getSourceId() };
+        ChatMessage pong = new ChatMessage("pong", Arrays.asList(destIds) , -1, false, null);
+        routeChatMessage(pong);
         continue;
       }
 
