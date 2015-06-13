@@ -132,12 +132,16 @@ function refreshEvents() {
       data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
       success: function(data) {
         // Add the calendarId because back-end doesn't provide it
-        $.each(data.events, function(index, event) {
-          event.calendarId = id;
-        });
-        app.events.push.apply(app.events, data.events);
+        // $.each(data.events, function(index, event) {
+        //   event.calendarId = id;
+        // });
+        app.events.push.apply(app.events, data.events.map(function(e) {
+          var event = new Event(e);
+          event.render();
+          return event;
+        }));
         updateCalendarDates(app.current_start_date);
-        renderEvents();
+        //renderEvents();
       },
       error: function(data) {
         toastr.error("Failed to get events for " + id);
