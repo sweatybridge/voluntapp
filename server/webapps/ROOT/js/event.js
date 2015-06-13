@@ -1,6 +1,6 @@
 /**
-* Event controller that provides one-way data binding between a event response
-* from server and event view on client. Contains public methods:
+* Event controller that provides one-way data binding between an event response
+* from server and an event view on client. Contains public methods:
 * - update, render
 */
 var Event = (function() {
@@ -102,12 +102,29 @@ var Event = (function() {
   }
 
   Event.prototype.render = function() {
-    // finds the day on calendar (if visible) and append view
+    // finds the day on calendar (if visible) and insert view sorted by start time
     var start = new Date(this.model.startDateTime);
+    var title = this.model.title;
     if (!$.contains(document, this.view)) {
-      $("#t_calendar_body").children(":visible").filter(function(k, elem) {
+      var day = $("#t_calendar_body").children(":visible").filter(function(k, elem) {
         return $(elem).data("date") === start.toLocaleDateString();
-      }).append(this.view);
+      });
+      var inserted = false;
+      var _view = this.view;
+      day.children().each(function(k, elem) {
+        var current = new Date(start);
+        var time = $(elem).find(".time").children().first().text().split(":");
+        current.setHours(time[0]);
+        current.setMinutes(time[1]);
+        if (start < current) {
+          $(elem).before(_view);
+          inserted = true;
+          return false;
+        }
+      });
+      if (!inserted) {
+        day.append(this.view);
+      }
     }
   };
 
