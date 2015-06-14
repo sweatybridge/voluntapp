@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,10 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import req.RegisterRequest;
 import req.UserRequest;
+import resp.CalendarResponse;
 import resp.ErrorResponse;
 import resp.Response;
 import resp.SuccessResponse;
 import resp.UserResponse;
+import utils.AuthLevel;
 import utils.EmailUtils;
 import utils.PasswordUtils;
 import utils.ServletUtils;
@@ -81,7 +84,25 @@ public class UserServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response) {
     // get current user id from auth token
-    Response resp = new ErrorResponse("Method not supported.");
+    int uid = ServletUtils.getUserId(request);
+    Response resp;
+    try {
+      List<CalendarResponse> calendars = db.getUsersCalendars(uid).getCalendars();
+      for (CalendarResponse calendarResponse : calendars) {
+        AuthLevel level = db.authoriseUser(uid,
+            calendarResponse.getCalendarId());
+        if (level == AuthLevel.ADMIN) {
+          request.setAttribute(Response.class.getSimpleName(),
+              new ErrorResponse("User still admin of some calendars."));
+          return;
+        }
+      }
+      db.deleteUser(uid);
+      resp = new SuccessResponse("Your account has been deleted");
+    } catch (SQLException | InconsistentDataException e) {
+      resp = new ErrorResponse("Error while deleting user account.");
+      e.printStackTrace();
+    }
     request.setAttribute(Response.class.getSimpleName(), resp);
   }
 

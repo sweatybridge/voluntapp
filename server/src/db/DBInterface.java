@@ -99,8 +99,9 @@ public class DBInterface {
 
   /**
    * Fetches the user response based on given email.
+   * 
    * @param email
-   *  Users email
+   *          Users email
    * @return
    * @throws SQLException
    * @throws UserNotFoundException
@@ -968,6 +969,15 @@ public class DBInterface {
       throw new InconsistentDataException("Triggered in activateEvent");
     }
     return true;
+  }
+
+  public void deleteUser(int userId) throws SQLException,
+      InconsistentDataException {
+    UserResponse ur = new UserResponse(userId);
+    if (delete(ur) != 1) {
+      throw new InconsistentDataException(
+          "Deleteing a user removed more than 1 row!");
+    }
   }
 
 }

@@ -186,6 +186,9 @@ public class CalendarResponse extends Response {
     joinCode = rs.getString(JOIN_CODE_COLUMN);
     active = rs.getBoolean(ACTIVE_COLUMN);
     role = rs.getString(ROLE_COLUMN);
+    if (role.equals("owner")) {
+      role = "admin";
+    }
   }
 
   public void setCalendarID(int id) {
