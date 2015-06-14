@@ -231,10 +231,7 @@ var Event = (function() {
         // update joined badge
         this.view.find(".join .badge").addClass("progress-bar-danger").text("Unjoin");
         // update requirements checkbox
-        this.view.find('.requirements input[type="checkbox"]').each(function(k, elem) {
-          elem.checked = true;
-          elem.disabled = true;
-        });
+        this.view.find('.requirements input[type="checkbox"]').prop("checked", true).prop("disabled", true);
       } else {
         // update header of present events
         if (!this.isPast) {
@@ -244,10 +241,7 @@ var Event = (function() {
         // update badge
         this.view.find(".join .badge").removeClass("progress-bar-danger").text("Join");
         // update requirements checkbox
-        this.view.find('.requirements input[type="checkbox"]').each(function(k, elem) {
-          elem.checked = false;
-          elem.disabled = false;
-        });
+        this.view.find('.requirements input[type="checkbox"]').prop("checked", false);
       }
     },
     startDateTime: function() {
@@ -287,16 +281,20 @@ var Event = (function() {
       this.isPast = (today > end);
 
       if (this.isPast) {
-        this.view.find(".header").removeClass("progress-bar-info").addClass("label-default");
-        this.view.find(".more").removeClass("btn-info");
+        if (!this.model.hasJoined) {
+          this.view.find(".header").removeClass("progress-bar-info").addClass("label-default");
+          this.view.find(".more").removeClass("btn-info");
+        }
         this.view.find(".join .badge").addClass("hidden");
+        this.view.find('.requirements input[type="checkbox"]').prop("disabled", true);
       } else {
         if (!this.model.hasJoined) {
           this.view.find(".header").addClass("progress-bar-info").removeClass("label-default");
           this.view.find(".more").addClass("btn-info");
+          this.view.find('.requirements input[type="checkbox"]').prop("disabled", false);
         }
         if (!this.isFull) {
-          this.view.find(".join .badge").show();
+          this.view.find(".join .badge").removeClass("hidden");
         }
       }
     }
