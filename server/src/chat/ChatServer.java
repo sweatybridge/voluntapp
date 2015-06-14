@@ -52,6 +52,7 @@ public class ChatServer {
    * The session is stored in the connections map afterwards.
    * 
    * @param session
+   *          Session that represents the opened connection
    */
   @OnOpen
   public void onOpen(Session session) {
@@ -189,6 +190,7 @@ public class ChatServer {
    * @param t
    *          Error that has occurred of which the stack trace is printed.
    * @throws Throwable
+   *           Ignored by the current implementation
    */
   @OnError
   public void onError(Throwable t) throws Throwable {
@@ -198,13 +200,14 @@ public class ChatServer {
 
   /**
    * Forwards the chatMessage to the destinationIds. Can store messages in the
-   * database if the user is offline
+   * database if the user is offline. When routing the destinationIds are NOT
+   * sent.
    * 
    * @param chatMessage
    *          The ChatMessage that will be relayed.
    * @param storeOffline
    *          If true, then if the destination is offline, will store it in the
-   *          database
+   *          database.
    */
   public static void routeChatMessage(ChatMessage chatMessage) {
     List<Integer> destinationIds = chatMessage.getDestinationIds();
@@ -217,10 +220,12 @@ public class ChatServer {
     // For every destination id
     for (Integer destinationId : destinationIds) {
       // Check if it was addressed at the server, we currently handle only pings
-      if (destinationId == -1 && chatMessage.getType().equals("ping") && chatMessage.getSourceId() != -1) {
+      if (destinationId == -1 && chatMessage.getType().equals("ping")
+          && chatMessage.getSourceId() != -1) {
         // Ping back
         Integer[] destIds = new Integer[] { chatMessage.getSourceId() };
-        ChatMessage pong = new ChatMessage("pong", Arrays.asList(destIds) , -1, false, null);
+        ChatMessage pong = new ChatMessage("pong", Arrays.asList(destIds), -1,
+            false, null);
         routeChatMessage(pong);
         continue;
       }

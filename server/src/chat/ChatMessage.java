@@ -5,13 +5,16 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
+/**
+ * Represents a message format that is sent through the chat server. Contains
+ * the type, destination, source and payload.
+ * 
+ * @author nc1813
+ * 
+ */
 public class ChatMessage {
   private static final Gson gson = new Gson();
-  /**
-   * update/event    -
-   * update/calendar -
-   * delete/event    - 
-   */
+
   private String type;
   private List<Integer> destinationIds;
   private Integer sourceId;
@@ -19,11 +22,27 @@ public class ChatMessage {
   private boolean storeOffline;
   private Object payload;
 
-  // Empty constructor
+  /**
+   * Empty constructor, doesn't initialise any fields, used by GSON.
+   */
   public ChatMessage() {
 
   }
 
+  /**
+   * Initialising constructor for given parameters.
+   * 
+   * @param type
+   *          The type of the message that is being sent
+   * @param destinationIds
+   *          List of the destinationIds of users this message is addressed at
+   * @param sourceId
+   *          By whom the message was created
+   * @param storeOffline
+   *          Option telling whether the message should be stored offline or not
+   * @param payload
+   *          Actual data that is being sent of type Object
+   */
   public ChatMessage(String type, List<Integer> destinationIds,
       Integer sourceId, boolean storeOffline, Object payload) {
     this.type = type;
@@ -33,7 +52,23 @@ public class ChatMessage {
     this.setStoreOffline(storeOffline);
     this.payload = payload;
   }
-  
+
+  /**
+   * Initialising constructor for given parameters.
+   * 
+   * @param type
+   *          The type of the message that is being sent
+   * @param destinationIds
+   *          List of the destinationIds of users this message is addressed at
+   * @param sourceId
+   *          By whom the message was created
+   * @param date
+   *          Date of the chat message created
+   * @param storeOffline
+   *          Option telling whether the message should be stored offline or not
+   * @param payload
+   *          Actual data that is being sent of type Object
+   */
   public ChatMessage(String type, List<Integer> destinationIds,
       Integer sourceId, Date date, boolean storeOffline, Object payload) {
     this(type, destinationIds, sourceId, storeOffline, payload);
@@ -46,8 +81,8 @@ public class ChatMessage {
    * @param json
    *          JSON string that represents a ChatMessage
    * @param setToNow
-   *          Sets ChatMessage date stamp to now
-   * @return Intance of ChatMessage represented by json provided
+   *          Sets ChatMessage date stamp to now if true
+   * @return Instance of ChatMessage represented by json provided
    */
   public static ChatMessage fromJson(String json, boolean setToNow) {
     ChatMessage cMessage = gson.fromJson(json, ChatMessage.class);
@@ -89,7 +124,7 @@ public class ChatMessage {
   public void setDate(Date date) {
     this.date = date;
   }
-  
+
   public boolean isStoreOffline() {
     return storeOffline;
   }

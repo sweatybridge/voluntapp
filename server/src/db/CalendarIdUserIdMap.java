@@ -2,7 +2,6 @@ package db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -10,15 +9,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import exception.InconsistentDataException;
-
 import resp.CalendarResponse;
 import resp.CalendarSubscriptionResponse;
-
 import utils.AuthLevel;
-import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
 import utils.Pair;
+import exception.InconsistentDataException;
 
 public class CalendarIdUserIdMap {
 
@@ -33,8 +29,7 @@ public class CalendarIdUserIdMap {
   private ConcurrentMap<Integer, ConcurrentMap<Integer, AuthLevel>> map;
 
   private CalendarIdUserIdMap() {
-    map = new ConcurrentHashMap<Integer, 
-        ConcurrentMap<Integer, AuthLevel>>();
+    map = new ConcurrentHashMap<Integer, ConcurrentMap<Integer, AuthLevel>>();
   }
 
   public static synchronized CalendarIdUserIdMap getInstance() {
@@ -64,8 +59,9 @@ public class CalendarIdUserIdMap {
       Set<Entry<Integer, AuthLevel>> set = calendarMap.entrySet();
       List<Pair<Integer, AuthLevel>> result = new ArrayList<>();
       for (Entry<Integer, AuthLevel> entry : set) {
-        result.add(new Pair<Integer, AuthLevel>(entry.getKey(), entry.getValue())); 
-      }  
+        result.add(new Pair<Integer, AuthLevel>(entry.getKey(), entry
+            .getValue()));
+      }
       return result;
     }
     return null;

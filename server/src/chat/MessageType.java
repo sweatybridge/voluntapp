@@ -1,7 +1,7 @@
 package chat;
 
 /**
- * Enumerates ChatMessage types for DynamicUpdate sent to the subscribers
+ * Enumerates ChatMessage types for DynamicUpdate sent to the subscribers.
  * 
  * @author nc1813
  * @author pc3813
