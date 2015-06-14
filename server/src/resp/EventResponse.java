@@ -43,8 +43,8 @@ public class EventResponse extends Response {
   private String duration; // HH:mm
   private String startDateTime;
   private String endDateTime;
-  private int currentCount = 0;
-  private int max = -2;
+  private Integer currentCount;
+  private Integer max;
   private Boolean hasJoined;
   private Set<UserResponse> volunteers;
   private EventStatus status;
@@ -91,8 +91,9 @@ public class EventResponse extends Response {
     this.eventId = eventId;
     this.calendarId = calendarId;
     this.userId = userId;
-    this.max = (max == null) ? -2 : max;
+    this.max = max;
     this.status = status;
+    this.currentCount = 0;
 
     // Parse calendar to sql date time and pginterval for storage
     if (startDateTime != null) {
@@ -180,7 +181,7 @@ public class EventResponse extends Response {
             .format("\"%s\"=?,", TIME_COLUMN))
         + ((sqlDuration == null || found++ == Integer.MIN_VALUE) ? "" : String
             .format("\"%s\"=?,", DURATION_COLUMN))
-        + ((max == -2 || found++ == Integer.MIN_VALUE) ? "" : String.format(
+        + ((max == null || found++ == Integer.MIN_VALUE) ? "" : String.format(
             "\"%s\"=?,", MAX_ATTEDEE_COLUMN))
         + ((status == null || found++ == Integer.MIN_VALUE) ? "" : String.format(
             "\"%s\"='%s'::\"%s\",", ACTIVE_COLUMN, status.getName(),
@@ -205,7 +206,7 @@ public class EventResponse extends Response {
       prepared.setTime(i++, sqlTime);
     if (sqlDuration != null)
       prepared.setObject(i++, sqlDuration);
-    if (max != -2)
+    if (max != null)
       prepared.setInt(i++, max);
     prepared.setInt(i++, eventId);
   }
@@ -312,6 +313,8 @@ public class EventResponse extends Response {
   public void setCurrentCount(String currentCount) {
     if (currentCount != null) {
       this.currentCount = Integer.parseInt(currentCount);
+    } else {
+      this.currentCount = 0;
     }
   }
 
