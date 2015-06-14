@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- * Interface to hold enforce the method required by the {@link db.DBInterface
- * DBInterdave} for performing a delete operation.
+ * Interface to hold the methods required by the {@link db.DBInterface
+ * DBInterface} for performing a delete operation.
  * 
  * @author bs2113
  * 
