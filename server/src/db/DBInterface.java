@@ -540,12 +540,12 @@ public class DBInterface {
    *           Thrown when the database is shown to be in a inconsistent state.
    *           This MUST be dealt with.
    */
-  public EventResponse updateEvent(int eventId, EventRequest ereq, int userId)
+  public EventResponse updateEvent(int eventId, int userId, EventRequest ereq)
       throws SQLException, EventNotFoundException, InconsistentDataException {
     EventResponse er = new EventResponse(ereq.getTitle(),
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
         ereq.getEndDateTime(), ereq.getMax(), eventId, ereq.getCalendarId(),
-        null, userId);
+        ereq.getStatus(), userId);
     return updateRowCheckHelper(er);
   }
 
