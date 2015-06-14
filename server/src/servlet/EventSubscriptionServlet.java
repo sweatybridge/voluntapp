@@ -26,6 +26,14 @@ import db.DBInterface;
 import exception.InconsistentDataException;
 import exception.InvalidActionException;
 
+/**
+ * End point for handling event subscription actions. Handle all user event
+ * joining actions. Implements standard 4 methods for fetching, creating,
+ * updating and deleting event subscriptions.
+ * 
+ * @author nc1813
+ * 
+ */
 public class EventSubscriptionServlet extends HttpServlet {
 
   private final Gson gson;
@@ -106,14 +114,13 @@ public class EventSubscriptionServlet extends HttpServlet {
     try {
       subResp = db.putEventSubscription(eventId, userId);
       // Send dynamic update to the online subscribers
-      DynamicUpdate.sendEventJoin(calendarId, new EventSubscriptionRequest(userId, eventId));
+      DynamicUpdate.sendEventJoin(calendarId, new EventSubscriptionRequest(
+          userId, eventId));
     } catch (SQLException e) {
-      subResp = new ErrorResponse(
-          "Error while registering event subscription.");
+      subResp = new ErrorResponse("Error while registering event subscription.");
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     } catch (InvalidActionException e) {
-      subResp = new ErrorResponse(
-          "Tried to join a full event.");
+      subResp = new ErrorResponse("Tried to join a full event.");
       response.setStatus(HttpURLConnection.HTTP_BAD_REQUEST);
     }
     request.setAttribute(Response.class.getSimpleName(), subResp);
@@ -188,7 +195,8 @@ public class EventSubscriptionServlet extends HttpServlet {
       if (db.deleteEventSubscription(eventId, userToDelete)) {
         resp = new SuccessResponse("Unsubscribed from event");
         // Send dynamic update to the online subscribers
-        DynamicUpdate.sendEventUnJoin(calendarId, new EventSubscriptionRequest(userToDelete, eventId));
+        DynamicUpdate.sendEventUnJoin(calendarId, new EventSubscriptionRequest(
+            userToDelete, eventId));
       } else {
         resp = new ErrorResponse("Unsubscribing failed, you are not subscribed");
       }

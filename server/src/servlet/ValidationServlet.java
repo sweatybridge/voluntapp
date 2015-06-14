@@ -23,6 +23,13 @@ import exception.InconsistentDataException;
 import exception.PasswordHashFailureException;
 import exception.UserNotFoundException;
 
+/**
+ * End point to handle email validation requests. It is used to validate
+ * accounts created.
+ * 
+ * @author nc1813
+ * 
+ */
 public class ValidationServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;

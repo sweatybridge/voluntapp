@@ -26,7 +26,12 @@ import exception.PasswordHashFailureException;
 import exception.UserNotFoundException;
 
 /**
- * Provide login and logout service.
+ * Provides login and logout service by managing sessions. Each session is
+ * identified by a sessionId stored in the database. Only implements POST,
+ * DELETE methods for starting and stopping sessions respectively.
+ * 
+ * @author nc1813
+ * 
  */
 @WebServlet
 public class SessionServlet extends HttpServlet {
@@ -116,14 +121,6 @@ public class SessionServlet extends HttpServlet {
       request.setAttribute(Response.class.getSimpleName(),
           new ErrorResponse(e.getMessage()));
     }
-  }
-
-  /**
-   * TODO: Refreshes the current session token.
-   */
-  @Override
-  public void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
   }
 
   /**

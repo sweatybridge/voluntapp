@@ -30,7 +30,10 @@ import exception.PasswordHashFailureException;
 import exception.UserNotFoundException;
 
 /**
- * Handles API requests to user resources.
+ * Handles API requests to user resources. Implements all 4 methods for
+ * fetching, creating, updating and deleting users.
+ * 
+ * @author nc1813
  */
 @WebServlet
 public class UserServlet extends HttpServlet {

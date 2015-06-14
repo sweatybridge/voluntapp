@@ -15,7 +15,11 @@ import db.DBInterface;
 import exception.SessionNotFoundException;
 
 /**
- * Provide authentication to main.html and redirect to login when required.
+ * Provides authentication to main.html and redirect to login when required.
+ * Acts as an entry point to the web application. Only implements GET.
+ * 
+ * @author nc1813
+ * 
  */
 @WebServlet
 public class DefaultServlet extends HttpServlet {

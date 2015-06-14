@@ -31,6 +31,14 @@ import exception.CalendarSubscriptionNotFoundException;
 import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
+/**
+ * End point that handles calendar subscription interactions for users.
+ * Implements GET, POST, PUT, DELETE for fetching, creating, updating and
+ * deleting subscriptions respectively.
+ * 
+ * @author nc1813
+ * 
+ */
 @WebServlet
 public class CalendarSubscriptionServlet extends HttpServlet {
 
@@ -51,7 +59,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) {
     int userId = ServletUtils.getUserId(request);
-    
+
     Response subResp;
     try {
       subResp = db.getUsersCalendars(userId);
@@ -72,38 +80,40 @@ public class CalendarSubscriptionServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     int userId = ServletUtils.getUserId(request);
-    
+
     CalendarSubscriptionRequest subReq = gson.fromJson(request.getReader(),
         CalendarSubscriptionRequest.class);
-    
+
     if (subReq == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "No request body was specified."));
       return;
     }
-    
+
     // Check if they can join the calendar
     if (canJoin(userId, subReq.getJoinCode())) {
       try {
-        CalendarResponse resp = db.putCalendarSubscription(userId, subReq.getJoinCode());
+        CalendarResponse resp = db.putCalendarSubscription(userId,
+            subReq.getJoinCode());
         /* Register calendar ID to user ID mapping. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         map.put(resp.getCalendarId(), userId, AuthLevel.BASIC);
         // Send dynamic update to the owner (creator)
         // Get the user from database
         UserResponse userResponse = db.getUser(new UserRequest(userId));
-        DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of("calendarId", resp.getCalendarId(), "user", userResponse));
+        DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of(
+            "calendarId", resp.getCalendarId(), "user", userResponse));
         request.setAttribute(Response.class.getSimpleName(), resp);
       } catch (SQLException | UserNotFoundException | InconsistentDataException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse("Error while registering user's calendar "
-            + "subscription."));
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Error while registering user's calendar " + "subscription."));
       }
     } else {
-      request.setAttribute(Response.class.getSimpleName(), 
-          new ErrorResponse("Cannot join the specified calendar."));
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Cannot join the specified calendar."));
     }
   }
-  
+
   private boolean canJoin(int userId, String joinCode) {
     if (joinCode == null) {
       return false;
@@ -112,12 +122,12 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     try {
       return db.isCalendarJoinable(cid);
     } catch (SQLException e) {
-      System.err.println("Database error while checking if the calendar " +
-      		"can be joined.");
+      System.err.println("Database error while checking if the calendar "
+          + "can be joined.");
     }
     return false;
   }
-  
+
   /**
    * Given a calendar id in the form /api/subscription/calendar/[id], if the
    * current user has admin rights updates the given targetUserEmail (in the
@@ -140,8 +150,9 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     Response resp = updateDeleteSubscription(request, 0);
     request.setAttribute(Response.class.getSimpleName(), resp);
   }
-  
-  private Response updateDeleteSubscription(HttpServletRequest request, int action) {
+
+  private Response updateDeleteSubscription(HttpServletRequest request,
+      int action) {
     // Get and check the calendar id from the url
     if (request.getPathInfo() == null
         || request.getPathInfo().substring(1).length() < 1) {
@@ -153,7 +164,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     assert (calendarId >= 0);
     int currentUserId = ServletUtils.getUserId(request);
     AuthLevel currentLevel = db.authoriseUser(currentUserId, calendarId);
-    
+
     // Get the payload data, we are looking for userId (targetUserId) and role
     CalendarSubscriptionRequest req;
     try {
@@ -163,7 +174,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       e.printStackTrace();
       return new ErrorResponse("Invalid delete calendar subscription payload.");
     }
-    
+
     assert (req != null);
     // Get the target user id from email
     UserResponse targetUser;
@@ -171,7 +182,8 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       targetUser = db.getUser(req.getTargetUserEmail());
     } catch (SQLException e1) {
       e1.printStackTrace();
-      return new ErrorResponse("Internal database error at getting target user id (SQLException).");
+      return new ErrorResponse(
+          "Internal database error at getting target user id (SQLException).");
     } catch (UserNotFoundException e1) {
       return new ErrorResponse("Target user is not recognized.");
     } catch (InconsistentDataException e1) {
@@ -180,7 +192,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
     assert (targetUser != null);
     int targetUserId = targetUser.getUserId();
     assert (targetUserId >= 0);
-    
+
     // DELETE USER
     if (action == 0) {
       // We got all the data we need, try to unsubscribe user
@@ -188,11 +200,14 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       // Remember that admin cannot unsubscribe from their own calendars
       // to ensure that there is at least 1 admin
       if (currentUserId == targetUserId && currentLevel == AuthLevel.ADMIN) {
-          return new ErrorResponse("Admins cannot unsubscribe from their calendars for security reasons, ask a fellow admin to remove you.");
-      } else if (currentUserId != targetUserId && currentLevel != AuthLevel.ADMIN) {
-        return new ErrorResponse("Insufficient rights to delete user subscription.");
+        return new ErrorResponse(
+            "Admins cannot unsubscribe from their calendars for security reasons, ask a fellow admin to remove you.");
+      } else if (currentUserId != targetUserId
+          && currentLevel != AuthLevel.ADMIN) {
+        return new ErrorResponse(
+            "Insufficient rights to delete user subscription.");
       }
-      
+
       // Everything seems to be fine, perform unsubscribe
       try {
         try {
@@ -200,16 +215,20 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           /* Remove calendar ID to user ID mapping. */
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
-          DynamicUpdate.sendCalendarUnjoin(calendarId, ImmutableMap.of("calendarId", calendarId, "user", targetUser));
+          DynamicUpdate.sendCalendarUnjoin(calendarId,
+              ImmutableMap.of("calendarId", calendarId, "user", targetUser));
           return new SuccessResponse("User unsubscribed.");
         } catch (CalendarSubscriptionNotFoundException e) {
-          return new ErrorResponse("The requested update subscription does not exist.");
+          return new ErrorResponse(
+              "The requested update subscription does not exist.");
         }
       } catch (SQLException e) {
         e.printStackTrace();
-        return new ErrorResponse("Internal database error at deleting calendar subscription (SQLException).");
+        return new ErrorResponse(
+            "Internal database error at deleting calendar subscription (SQLException).");
       } catch (InconsistentDataException e) {
-        return new ErrorResponse("Deleting calendar subscription affected more than 1 row.");
+        return new ErrorResponse(
+            "Deleting calendar subscription affected more than 1 row.");
       }
     } else if (action == 1) { // UPDATE SUBSCRIPTION
       // Make sure the user is admin of the calendar specified
@@ -218,24 +237,28 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       }
       // We know the user is admin, make sure the requested user is not itself
       if (currentUserId == targetUserId) {
-        return new ErrorResponse("Cannot demote yourself, ask another admin to modify your role.");
+        return new ErrorResponse(
+            "Cannot demote yourself, ask another admin to modify your role.");
       }
-      
+
       // Looks like a valid request so far, update the database
       try {
         AuthLevel enumRole = AuthLevel.getAuth(req.getRole());
         db.updateUserRole(targetUserId, calendarId, enumRole);
         return new SuccessResponse("Updated user role.");
       } catch (CalendarSubscriptionNotFoundException e) {
-        return new ErrorResponse("The requested update subscription does not exist.");
+        return new ErrorResponse(
+            "The requested update subscription does not exist.");
       } catch (InconsistentDataException e) {
         return new ErrorResponse("The update request affected more than 1 row.");
       } catch (SQLException e) {
         e.printStackTrace();
-        return new ErrorResponse("Internal database error at role update (SQLException).");
+        return new ErrorResponse(
+            "Internal database error at role update (SQLException).");
       }
     } // End of else if (action == 1)
-    
-    return new ErrorResponse("Unknown error in calendar subscription update or delete.");
+
+    return new ErrorResponse(
+        "Unknown error in calendar subscription update or delete.");
   }
 }

@@ -26,6 +26,14 @@ import exception.EventNotFoundException;
 import exception.InconsistentDataException;
 import exception.UserNotFoundException;
 
+/**
+ * End point for event related actions. Implements standard 4 methods for
+ * fetching, creating, updating and deleting events. Checks user rights before
+ * performing previliged actions.
+ * 
+ * @author nc1813
+ * 
+ */
 public class EventServlet extends HttpServlet {
 
   private final Gson gson;
@@ -92,23 +100,31 @@ public class EventServlet extends HttpServlet {
     }
 
     try {
-      /* If user is an ADMIN, set event status to ACTIVE, if user is an editor,
-       * set the event status to PENDING. */
+      /*
+       * If user is an ADMIN, set event status to ACTIVE, if user is an editor,
+       * set the event status to PENDING.
+       */
       EventStatus status = EventStatus.DELETED;
       AuthLevel role = db.authoriseUser(userId, eventReq.getCalendarId());
-      switch(role) {
-        case ADMIN: status = EventStatus.ACTIVE; break;
-        case EDITOR: status = EventStatus.PENDING; break;
-        case BASIC:
-        case NONE:
-          setUnauthorisedAccessErrorResponse(request);
-          return;
+      switch (role) {
+      case ADMIN:
+        status = EventStatus.ACTIVE;
+        break;
+      case EDITOR:
+        status = EventStatus.PENDING;
+        break;
+      case BASIC:
+      case NONE:
+        setUnauthorisedAccessErrorResponse(request);
+        return;
       }
-      
+
       EventResponse resp = db.putEvent(eventReq, status, userId);
       resp.setCalendarId(eventReq.getCalendarId());
-      /* If user is an admin, send and update to all users that are online,
-         otherwise send the update to editors and admins only. */
+      /*
+       * If user is an admin, send and update to all users that are online,
+       * otherwise send the update to editors and admins only.
+       */
       boolean all = (role == AuthLevel.ADMIN);
       DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp, all);
       request.setAttribute(Response.class.getSimpleName(), resp);
@@ -128,7 +144,7 @@ public class EventServlet extends HttpServlet {
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     int userId = ServletUtils.getUserId(request);
-    
+
     // parse event id
     String eid = request.getPathInfo().substring(1);
     if (eid == null) {
@@ -149,8 +165,8 @@ public class EventServlet extends HttpServlet {
     eventReq.setEventId(eventId);
 
     /*
-     * Verify if the user is allowed to edit events in the specified calendar
-     * - is an editor.
+     * Verify if the user is allowed to edit events in the specified calendar -
+     * is an editor.
      */
     int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
     if (!ServletUtils.checkAccessRights(calendarId, eventId, userId,
@@ -164,9 +180,8 @@ public class EventServlet extends HttpServlet {
     try {
       EventResponse resp = db.updateEvent(eventId, eventReq, userId);
       if (resp == null) {
-        request
-            .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-                "Update of the event data was not successful."));
+        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+            "Update of the event data was not successful."));
       } else {
         // Send dynamic update to the online subscribers
         DynamicUpdate.sendEventUpdate(calendarId, resp, true);

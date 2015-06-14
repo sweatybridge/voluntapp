@@ -28,6 +28,14 @@ import db.DBInterface;
 import exception.CalendarNotFoundException;
 import exception.InconsistentDataException;
 
+/**
+ * End point to provide calendar related interactions between database such as
+ * creating, deleting calendars. Implements GET, POST, PUT, DELETE methods for
+ * fetching, creating, updating and deleting calendars respectively.
+ * 
+ * @author nc1813
+ * 
+ */
 @WebServlet
 public class CalendarServlet extends HttpServlet {
 
@@ -60,8 +68,6 @@ public class CalendarServlet extends HttpServlet {
    * 
    * @throws IOException
    * 
-   *           TODO: Add verification if a user is allowed to retrieve
-   *           information about a specific calendar
    */
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -100,7 +106,8 @@ public class CalendarServlet extends HttpServlet {
   }
 
   /**
-   * Post method adds a new calendar to the database.
+   * Post method adds a new calendar to the database. The name and joinEnabled
+   * must be provided in as payload.
    * 
    * @throws IOException
    */
@@ -131,8 +138,10 @@ public class CalendarServlet extends HttpServlet {
   }
 
   /**
-   * Given the calendar ID, remove the corresponding calendar form the database
-   * (set the active field to false).
+   * Given the calendar ID, remove the corresponding calendar form the database.
+   * The calendar is expected in the url path as in /calendar/[id] and NOT in
+   * the payload. The calendar is only removed if the user who made request has
+   * enough rights.
    */
   @Override
   protected void doDelete(HttpServletRequest request,
@@ -163,16 +172,16 @@ public class CalendarServlet extends HttpServlet {
     try {
       Integer calendarId = Integer.parseInt(id);
       CalendarResponse resp = db.deleteCalendar(calendarId);
-      
+
       // Remove fields that we do not need for notification
       resp.setJoinEnabled(null);
       resp.setJoinCode(null);
       DynamicUpdate.sendCalendarDelete(calendarId, resp);
-      
+
       /* Delete calendar ID to user ID mapping. */
       CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
       map.remove(calendarId);
-      
+
       result = new SuccessResponse("Calendar was successfully deleted.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse(
