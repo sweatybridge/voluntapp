@@ -132,9 +132,6 @@ $(function() {
     }
     startTime();
   })();
-
-  // TODO: handle device orientation change
-  //$(window).resize(rebuildCalendar);
 }); // End of document ready
 
 // Update user profile information on view

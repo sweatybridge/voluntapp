@@ -116,7 +116,8 @@ $(function() {
   });
 
   // Render calendar from monday
-  updateCalendarDates(getMonday());
+  app.current_start_date = getMonday();
+  updateCalendarDates();
 }); // End of document ready
 
 // Update calendars
@@ -205,14 +206,14 @@ function renderCalendars() {
 }
 
 // Update data-date field of calendar view from startDate
-function updateCalendarDates(startDate) {
-  var today = new Date();
-  app.current_start_date = new Date(startDate);
-  $("#pickStartDate").datetimepicker({value: app.current_start_date});
+function updateCalendarDates() {
+  var startDate = new Date(app.current_start_date);
+  $("#pickStartDate").datetimepicker({value: startDate});
 
   $("#prev_day").next().text(formatDate(startDate));
   var allDays = $("#t_calendar_body").children();
 
+  var today = new Date();
   allDays.each(function(k, elem) {
     var current = new Date(startDate);
     current.setDate(current.getDate() + k);

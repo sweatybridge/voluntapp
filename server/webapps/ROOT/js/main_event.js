@@ -140,14 +140,19 @@ $(function() {
 
 // Update Events
 function refreshEvents() {
-  // Retrieve and render calendar events
-  app.events = app.events.filter(function(e) {
-    e.view.remove();
-    return false;
+  // reset events in current view
+  $("#t_calendar_body").children().empty();
+  updateCalendarDates();
+
+  // render prefetched events
+  $.each(app.events, function(k, controller) {
+    if (new Date(controller.model.startDateTime) > app.current_start_date) {
+      controller.render();
+    }
   });
-  updateCalendarDates(app.current_start_date);
-  var active_calendars = getActiveCalendarIds();
+
   // Get event data for the active calendars then render
+  var active_calendars = getActiveCalendarIds();
   $.each(active_calendars, function(index, cid) {
     getCalendarEventsByCid(cid);
   });
@@ -159,11 +164,16 @@ function getCalendarEventsByCid(cid) {
     method: 'GET',
     data: {startDate: app.current_start_date.toJSON().split('T')[0] + " 00:00:00"},
     success: function(data) {
-      app.events.push.apply(app.events, data.events.map(function(e) {
-        var event = new Event(e);
-        event.render();
-        return event;
-      }));
+      $.each(data.events, function(k, event) {
+        var controller = getEventControllerById(event.eventId);
+        if (controller) {
+          controller.update(event);
+        } else {
+          controller = new Event(event);
+          controller.render();
+          app.events.push(controller);
+        }
+      })
     },
     error: function(data) {
       toastr.error("Failed to get events for " + id);
