@@ -81,7 +81,16 @@ public class UserServlet extends HttpServlet {
   @Override
   public void doDelete(HttpServletRequest request, HttpServletResponse response) {
     // get current user id from auth token
-    Response resp = new ErrorResponse("Method not supported.");
+    int uid = ServletUtils.getUserId(request);
+    Response resp;
+    try {
+      db.deleteUser(uid);
+      resp = new SuccessResponse("Your account has been deleted");
+    } catch (SQLException | InconsistentDataException e) {
+      resp = new ErrorResponse(
+          "Something went wrong while deleteing your account");
+      e.printStackTrace();
+    }
     request.setAttribute(Response.class.getSimpleName(), resp);
   }
 

@@ -73,6 +73,10 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     this.validationCode = validationCode;
   }
 
+  public UserResponse(int userId) {
+    this.userId = userId;
+  }
+
   private void setUserResponse() throws SQLException {
     this.email = rs.getString(EMAIL_COLUMN);
     this.hashedPassword = rs.getString(PASSWORD_COLUMN);
@@ -195,6 +199,17 @@ public class UserResponse extends Response implements SQLQuery, SQLUpdate,
     if (rs.next() == true) {
       throw new InconsistentDataException("The database is dead!");
     }
+  }
+
+  @Override
+  public String getSQLDelete() {
+    return String.format("DELETE FROM \"USER\" WHERE \"%s\"=?;", ID_COLUMN);
+  }
+
+  @Override
+  public void formatSQLDelete(PreparedStatement prepared) throws SQLException {
+    int i = 1;
+    prepared.setInt(i++, userId);
   }
 
   public void setValidationCode(String validationCode) {
