@@ -297,6 +297,33 @@ var Event = (function() {
           this.view.find(".join .badge").removeClass("hidden");
         }
       }
+    },
+    status: function() {
+      var status = this.model.status;
+      if (status === 'PENDING') {
+        //alert(Object.keys(this));
+        this.view.find(".header").removeClass("progress-bar-info").addClass("pending");
+        this.view.find(".more").removeClass("btn-info").addClass("btn-pending");
+        this.view.find(".join .badge").addClass("hidden");
+        var calendar = getCalendarById(this.model.calendarId);
+        if (calendar.role === 'admin') {
+          this.view.append(
+          '<div class="join">'+
+            '<a class="badge" onclick="approveEvent(this)">Approve</a>'+
+          '</div>');
+          this.view.append(
+          '<div class="join">'+
+            '<a class="badge" onclick="approveEvent(this)">Disapprove</a>'+
+          '</div>'); 
+        }    
+      }
+      if (status === 'ACTIVE') {
+        // TODO: change this so that it takes into account the possibility that the event might be past????
+        // enable joining
+        this.view.find(".header").addClass("progress-bar-info").removeClass("pending");
+        this.view.find(".more").addClass("btn-info").removeClass("btn-pending");
+        this.view.find(".join .badge").removeClass("hidden");
+      }
     }
   };
 

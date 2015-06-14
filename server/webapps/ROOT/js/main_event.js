@@ -449,3 +449,21 @@ function jsonToICS(date) {
 function getEventControllerById(eid) {
   return $.grep(app.events, function(e){ return e.model.eventId === eid; })[0];
 }
+
+function approveEvent(elem) {
+  var view = $(elem).closest(".event");
+  var eid = view.data("eventId");
+  var title = view.find(".title").html();
+  var controller = getEventControllerById(eid);
+  $.ajax({
+    method: "PUT",
+    url: "api/event/" + eid,
+    data: JSON.stringify({status: 'ACTIVE'}),
+    success: function() {
+      toastr.success('Approved the event ' + title + '.');
+      controller.update({
+        status: "ACTIVE"
+      });
+    }
+  });
+}
