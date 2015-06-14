@@ -294,9 +294,9 @@ var NotificationAdapter = (function() {
     this.server.users.push(userInfo);
     this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID); // Refresh list
     
-    // Notify if admin or owner
+    // Notify if admin
     var calendar = getCalendarById(join.calendarId);
-    if (calendar.role === "admin" || calendar.role === "owner") {
+    if (calendar.role === "admin") {
       toastr.info(join.user.firstName + " has just joined " + calendar.name);
     }
   };

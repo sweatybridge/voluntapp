@@ -157,13 +157,13 @@ function renderCalendars() {
         .replace("{{name}}", calendar.name)
         .replace("{{joinCode}}", code))
         .appendTo(myCalendar);
-    if (calendar.role === "admin" || calendar.role === "owner") {
+    if (calendar.role === "admin") {
       // cal_div.find(".calendar-unsub").toggle();
     }      
 
     cal_div.click(function() {
       cal_div.toggleClass("active").children().blur();
-      if (calendar.role === "admin" || calendar.role === "owner") {
+      if (calendar.role === "admin") {
         // cal_div.find(".calendar-extras").toggle();
       }
       if (cal_div.hasClass("active")) {
@@ -183,7 +183,7 @@ function renderCalendars() {
     });
 
     // Check calendar rights
-    if (calendar.role === "editor" || calendar.role === "admin" || calendar.role === "owner") {
+    if (calendar.role === "editor" || calendar.role === "admin") {
       // Update event calendar selection box
       $('#select_calendar')
        .append($("<option></option>")

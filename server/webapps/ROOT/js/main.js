@@ -89,7 +89,7 @@ $(function() {
   // Bind the account deletion button
   $("#b_delete_account").click(function() {
     for(var i = 0; app.calendars.length; i++) {
-      if (app.calendars[i].role == "admin" || app.calendars[i].role == "owner") {
+      if (app.calendars[i].role == "admin") {
         alert("You are still an admin of " + app.calendars[i].name + ".\nPlease ask a fellow admin to demote you first, or delete the calendar.");
         return;
       }
