@@ -467,3 +467,21 @@ function approveEvent(elem) {
     }
   });
 }
+
+function disapproveEvent(elem) {
+  var view = $(elem).closest(".event");
+  var eid = view.data("eventId");
+  var title = view.find(".title").html();
+  var controller = getEventControllerById(eid);
+  $.ajax({
+    method: "PUT",
+    url: "api/event/" + eid,
+    data: JSON.stringify({status: 'DISAPPROVED'}),
+    success: function() {
+      toastr.warning('Disapproved the event ' + title + '.');
+      controller.update({
+        status: "DISAPPROVED"
+      });
+    }
+  });
+}

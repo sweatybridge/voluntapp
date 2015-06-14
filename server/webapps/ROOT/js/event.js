@@ -300,29 +300,43 @@ var Event = (function() {
     },
     status: function() {
       var status = this.model.status;
+      var calendar = getCalendarById(this.model.calendarId);
       if (status === 'PENDING') {
-        //alert(Object.keys(this));
+        // TODO: for past events, the menu is grey.
         this.view.find(".header").removeClass("progress-bar-info").addClass("pending");
         this.view.find(".more").removeClass("btn-info").addClass("btn-pending");
         this.view.find(".join .badge").addClass("hidden");
-        var calendar = getCalendarById(this.model.calendarId);
         if (calendar.role === 'admin') {
           this.view.append(
-          '<div class="join">'+
+          '<div class="join" id="approve">'+
             '<a class="badge" onclick="approveEvent(this)">Approve</a>'+
           '</div>');
           this.view.append(
-          '<div class="join">'+
-            '<a class="badge" onclick="approveEvent(this)">Disapprove</a>'+
+          '<div class="join" id="disapprove">'+
+            '<a class="badge" onclick="disapproveEvent(this)">Disapprove</a>'+
           '</div>'); 
         }    
       }
+      if (status === 'DISAPPROVED') {
+        this.view.find(".header").addClass("progress-bar-danger").removeClass("pending");
+        this.view.find(".more").addClass("btn-danger").removeClass("btn-pending");
+        
+        $('#disapprove').addClass("hidden");
+        if (calendar.role !== 'admin') {
+          $('#approve').addClass("hidden");
+        }
+      }
       if (status === 'ACTIVE') {
         // TODO: change this so that it takes into account the possibility that the event might be past????
-        // enable joining
-        this.view.find(".header").addClass("progress-bar-info").removeClass("pending");
-        this.view.find(".more").addClass("btn-info").removeClass("btn-pending");
-        this.view.find(".join .badge").removeClass("hidden");
+        this.view.find(".header").removeClass("pending").removeClass("progress-bar-danger");
+        this.view.find(".more").removeClass("btn-pending").removeClass("btn-danger");
+        if (!this.isPast) {
+          this.view.find(".header").addClass("progress-bar-info");
+          this.view.find(".more").addClass("btn-info");
+          this.view.find(".join .badge").removeClass("hidden");
+        }
+        $('#approve').remove();
+        $('#disapprove').remove();
       }
     }
   };
