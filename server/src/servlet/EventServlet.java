@@ -149,7 +149,7 @@ public class EventServlet extends HttpServlet {
     String eid = request.getPathInfo().substring(1);
     if (eid == null) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "Request must follow REST convention."));
+          "The ID of the event to be deleted was not specified."));
       return;
     }
     int eventId = Integer.parseInt(eid);
@@ -164,27 +164,45 @@ public class EventServlet extends HttpServlet {
     }
     eventReq.setEventId(eventId);
 
-    /*
-     * Verify if the user is allowed to edit events in the specified calendar -
-     * is an editor.
-     */
     int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
-    if (!ServletUtils.checkAccessRights(calendarId, eventId, userId,
-        AuthLevel.EDITOR, db)) {
+    AuthLevel role = db.authoriseUser(userId, calendarId);
+    EventStatus status = eventReq.getStatus();
+    
+    /* Prevent users from deleting events by doing updates. */
+    if (status == EventStatus.DELETED) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Request not RESTful enough, use DELETE method to delete events."));
+      return;
+    }
+    
+    /* Only editors and admins can update the events. */
+    if ((role != AuthLevel.EDITOR && role != AuthLevel.ADMIN) || 
+        /* Only admins are allowed to activate or disapprove events. */
+        ((status == EventStatus.ACTIVE || status == EventStatus.DISAPPROVED) 
+            && role != AuthLevel.ADMIN)) {
       setUnauthorisedAccessErrorResponse(request);
       return;
+    }
+    
+    /* Editor's update sets the status of the event to pending. */
+    if (role == AuthLevel.EDITOR /* && event is inactive */) {
+      status = EventStatus.PENDING;
     }
     eventReq.setCalendarId(calendarId);
 
     /* Try to update the event. */
     try {
-      EventResponse resp = db.updateEvent(eventId, eventReq, userId);
+      EventResponse resp = db.updateEvent(eventId, userId, eventReq);
       if (resp == null) {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "Update of the event data was not successful."));
       } else {
-        // Send dynamic update to the online subscribers
-        DynamicUpdate.sendEventUpdate(calendarId, resp, true);
+        /* If the user is an admin and they activated the event, update 
+         * everyone on the calendar. Otherwise, update only editors and
+         * admins. */
+        boolean updateEveryone = (role == AuthLevel.ADMIN && 
+            eventReq.getStatus() == EventStatus.ACTIVE);
+        DynamicUpdate.sendEventUpdate(calendarId, resp, updateEveryone);
         request.setAttribute(Response.class.getSimpleName(),
             new SuccessResponse("Event data were updated successfully."));
       }
