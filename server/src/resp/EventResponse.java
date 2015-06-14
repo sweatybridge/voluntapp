@@ -153,6 +153,7 @@ public class EventResponse extends Response {
     this.sqlDate = (Date) rs.getObject(DATE_COLUMN);
     this.sqlDuration = (PGInterval) rs.getObject(DURATION_COLUMN);
     this.max = rs.getInt(MAX_ATTEDEE_COLUMN);
+    this.status = EventStatus.translateToEnum(rs.getString(ACTIVE_COLUMN));
 
     // Fill in composite fields
     java.util.Date startDate = new java.util.Date(sqlDate.getTime()

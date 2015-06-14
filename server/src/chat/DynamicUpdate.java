@@ -1,11 +1,15 @@
 package chat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
+import utils.AuthLevel;
+import utils.Pair;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -35,10 +39,16 @@ public class DynamicUpdate {
   private static void sendObj(Integer calendarId, MessageType mType, Object obj) {
     CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
     // Check if there any online users for the calendar
-    Integer[] calendarIds = map.getUserIds(calendarId);
+    List<Pair<Integer, AuthLevel>> calendarIds = map.getUsers(calendarId);
     if (calendarIds != null) {
+      // Get a list of user IDs
+      List<Integer> userIds = new ArrayList<Integer>();
+      for (Pair<Integer, AuthLevel> pair : calendarIds) {
+        userIds.add(pair.getKey());
+      }
+      //System.out.println("User ID to which object is sent: " + userIds.toString());
       ChatMessage cm = new ChatMessage(mType.getType(),
-          Arrays.asList(calendarIds), -1, false, obj);
+          userIds, -1, false, obj);
       ChatServer.routeChatMessage(cm);
     }
   }
@@ -80,9 +90,34 @@ public class DynamicUpdate {
    *          CalendarId of which the ONLINE subscribers will be notified
    * @param event
    *          Event object to be sent
+   * @param all
+   *          If set, the message is sent to all subscribers, otherwise
+   *          only to editors and admins.
    */
-  public static void sendEventUpdate(Integer calendarId, EventResponse event) {
-    sendObj(calendarId, MessageType.EVENT_UPDATE, event);
+  public static void sendEventUpdate(Integer calendarId, EventResponse event, 
+      boolean all) {
+    if (all) {
+      //System.out.println("Sending event to everyone.");
+      sendObj(calendarId, MessageType.EVENT_UPDATE, event);
+    } else {
+      // Send the message to editors and admins only
+      CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+      // Check if there any online users for the calendar
+      List<Pair<Integer, AuthLevel>> calendarIds = map.getUsers(calendarId);
+      if (calendarIds != null) {
+        // Get a list of IDs of admins and editors
+        List<Integer> userIds = new ArrayList<Integer>();
+        for (Pair<Integer, AuthLevel> pair : calendarIds) {
+          if (pair.getValue() == AuthLevel.ADMIN || pair.getValue() == AuthLevel.EDITOR) {
+            userIds.add(pair.getKey());
+          }
+        }
+        ChatMessage cm = new ChatMessage(MessageType.EVENT_UPDATE.getType(),
+            userIds, -1, false, event);
+        ChatServer.routeChatMessage(cm);
+      }
+      /* Update only calendar editors and admins. */
+    }
   }
 
   /**

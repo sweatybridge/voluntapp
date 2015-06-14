@@ -92,22 +92,25 @@ public class EventServlet extends HttpServlet {
     }
 
     try {
-      AuthLevel level = db.authoriseUser(userId, eventReq.getCalendarId());
-      EventStatus status;
-      if (level == AuthLevel.ADMIN) {
-        status = EventStatus.ACTIVE;
-      } else if (level == AuthLevel.EDITOR) {
-        status = EventStatus.PENDING;
-      } else {
-        /* If user is neither ADMIN nor EDITOR, they cannot publish the events 
-         * in the calendar. */
-        setUnauthorisedAccessErrorResponse(request);
-        return;
+      /* If user is an ADMIN, set event status to ACTIVE, if user is an editor,
+       * set the event status to PENDING. */
+      EventStatus status = EventStatus.DELETED;
+      AuthLevel role = db.authoriseUser(userId, eventReq.getCalendarId());
+      switch(role) {
+        case ADMIN: status = EventStatus.ACTIVE; break;
+        case EDITOR: status = EventStatus.PENDING; break;
+        case BASIC:
+        case NONE:
+          setUnauthorisedAccessErrorResponse(request);
+          return;
       }
+      
       EventResponse resp = db.putEvent(eventReq, status, userId);
-      // Send dynamic update to the online subscribers
       resp.setCalendarId(eventReq.getCalendarId());
-      DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
+      /* If user is an admin, send and update to all users that are online,
+         otherwise send the update to editors and admins only. */
+      boolean all = (role == AuthLevel.ADMIN);
+      DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp, all);
       request.setAttribute(Response.class.getSimpleName(), resp);
     } catch (SQLException e) {
       e.printStackTrace();
@@ -166,7 +169,7 @@ public class EventServlet extends HttpServlet {
                 "Update of the event data was not successful."));
       } else {
         // Send dynamic update to the online subscribers
-        DynamicUpdate.sendEventUpdate(calendarId, resp);
+        DynamicUpdate.sendEventUpdate(calendarId, resp, true);
         request.setAttribute(Response.class.getSimpleName(),
             new SuccessResponse("Event data were updated successfully."));
       }

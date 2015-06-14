@@ -182,7 +182,7 @@ function renderCalendars() {
     });
 
     // Check calendar rights
-    if (calendar.role === "admin" || calendar.role === "owner") {
+    if (calendar.role === "editor" || calendar.role === "admin" || calendar.role === "owner") {
       // Update event calendar selection box
       $('#select_calendar')
        .append($("<option></option>")

@@ -7,6 +7,8 @@ import java.util.TimeZone;
 
 import org.apache.commons.validator.routines.CalendarValidator;
 
+import utils.EventStatus;
+
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -31,6 +33,7 @@ public class EventRequest implements Request {
   private String endDate;
   private String timezone;
   private Integer max;
+  private EventStatus status; // Field used to perform updates of event state.
 
   /**
    * Fields excluded from deserialisation.
@@ -168,5 +171,13 @@ public class EventRequest implements Request {
 
   public void setCalendarId(int calendarId) {
     this.calendarId = calendarId;
+  }
+  
+  public void setEventStatus(EventStatus status) {
+    this.status = status;
+  }
+  
+  public EventStatus getStatus() {
+    return status;
   }
 }

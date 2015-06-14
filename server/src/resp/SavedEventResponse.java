@@ -47,14 +47,14 @@ public class SavedEventResponse extends Response {
   @Override
   public String getSQLQuery() {
     return String.format(
-        "SELECT \"EVENT\".\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\" " +
+        "SELECT \"EVENT\".\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\" " +
         "FROM \"EVENT\" JOIN \"SAVED_EVENT\" ON  " +
         "\"EVENT\".\"EID\" = \"SAVED_EVENT\".\"EID\" WHERE \"%s\"=?;",
         EventResponse.EID_COLUMN, EventResponse.TITLE_COLUMN, 
         EventResponse.DESC_COLUMN, EventResponse.LOCATION_COLUMN, 
         EventResponse.DATE_COLUMN, EventResponse.TIME_COLUMN, 
         EventResponse.DURATION_COLUMN, EventResponse.MAX_ATTEDEE_COLUMN, 
-        TIMESTAMP_COLUMN, UID_COLUMN);
+        TIMESTAMP_COLUMN, EventResponse.ACTIVE_COLUMN, UID_COLUMN);
   }
   
   @Override

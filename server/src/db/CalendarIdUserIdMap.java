@@ -1,8 +1,11 @@
 package db;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -12,8 +15,10 @@ import exception.InconsistentDataException;
 import resp.CalendarResponse;
 import resp.CalendarSubscriptionResponse;
 
+import utils.AuthLevel;
 import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
+import utils.Pair;
 
 public class CalendarIdUserIdMap {
 
@@ -25,10 +30,11 @@ public class CalendarIdUserIdMap {
    * Map from calendar IDs to list (set) of user IDs subscribed to the certain
    * calendar.
    */
-  private ConcurrentMap<Integer, ConcurrentHashSet<Integer>> map;
+  private ConcurrentMap<Integer, ConcurrentMap<Integer, AuthLevel>> map;
 
   private CalendarIdUserIdMap() {
-    map = new ConcurrentHashMap<Integer, ConcurrentHashSet<Integer>>();
+    map = new ConcurrentHashMap<Integer, 
+        ConcurrentMap<Integer, AuthLevel>>();
   }
 
   public static synchronized CalendarIdUserIdMap getInstance() {
@@ -38,11 +44,11 @@ public class CalendarIdUserIdMap {
     return instance;
   }
 
-  public void put(Integer calendarId, Integer userId) {
+  public void put(Integer calendarId, Integer userId, AuthLevel role) {
     if (!map.containsKey(calendarId)) {
-      map.put(calendarId, new ConcurrentHashSet<Integer>());
+      map.put(calendarId, new ConcurrentHashMap<Integer, AuthLevel>());
     }
-    map.get(calendarId).add(userId);
+    map.get(calendarId).put(userId, role);
   }
 
   /**
@@ -52,11 +58,15 @@ public class CalendarIdUserIdMap {
    *          ID of the queried calendar
    * @return the array of user IDs (users subscribed to a given calendar)
    */
-  public Integer[] getUserIds(Integer calendarId) {
-    ConcurrentHashSet<Integer> set = map.get(calendarId);
-    if (set != null) {
-      Object[] userIds = set.toArray();
-      return (Arrays.copyOf(userIds, userIds.length, Integer[].class));
+  public List<Pair<Integer, AuthLevel>> getUsers(Integer calendarId) {
+    ConcurrentMap<Integer, AuthLevel> calendarMap = map.get(calendarId);
+    if (calendarMap != null) {
+      Set<Entry<Integer, AuthLevel>> set = calendarMap.entrySet();
+      List<Pair<Integer, AuthLevel>> result = new ArrayList<>();
+      for (Entry<Integer, AuthLevel> entry : set) {
+        result.add(new Pair<Integer, AuthLevel>(entry.getKey(), entry.getValue())); 
+      }  
+      return result;
     }
     return null;
   }
@@ -79,12 +89,12 @@ public class CalendarIdUserIdMap {
    * @param userId
    */
   public void remove(Integer calendarId, Integer userId) {
-    ConcurrentHashSet<Integer> set = map.get(calendarId);
-    if (set != null) {
-      set.remove(userId);
+    ConcurrentMap<Integer, AuthLevel> calendarMap = map.get(calendarId);
+    if (calendarMap != null) {
+      calendarMap.remove(userId);
       // Remove the mapping for calendar ID if no online user is subscribed to
       // that calendar.
-      if (set.isEmpty()) {
+      if (calendarMap.isEmpty()) {
         map.remove(calendarId);
       }
     }
@@ -105,14 +115,14 @@ public class CalendarIdUserIdMap {
       for (CalendarResponse calendar : resp.getCalendars()) {
         int calendarId = calendar.getCalendarId();
         calendarIds.add(calendarId);
-        ConcurrentHashSet<Integer> set = map.get(calendarId);
-        if (set != null) {
-          set.remove(userId);
+        ConcurrentMap<Integer, AuthLevel> calendarMap = map.get(calendarId);
+        if (calendarMap != null) {
+          calendarMap.remove(userId);
           /*
            * Remove the mapping for calendar ID if no online user is subscribed
            * to that calendar.
            */
-          if (set.isEmpty()) {
+          if (calendarMap.isEmpty()) {
             map.remove(calendarId);
           }
         }
