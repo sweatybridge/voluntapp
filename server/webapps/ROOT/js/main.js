@@ -85,6 +85,23 @@ $(function() {
     }
     submitAjaxForm(form, function(data) { toastr.success(data.message); $("#b_cancel_profile").click(); refreshUser(); }, $("#profile_errors"));
   });
+  
+  // Bind the account deletion button
+  $("#b_delete_account").click(function() {
+    for(var i = 0; app.calendars.length; i++) {
+      if (app.calendars[i].role == "admin" || app.calendars[i].role == "owner") {
+        alert("You are still an admin of " + app.calendars[i].name + ".\nPlease ask a fellow admin to demote you first, or delete the calendar.");
+        return;
+      }
+    }
+    if(confirm("Are you sure you want to delete your account?")) {
+      $.ajax("/api/user", {
+        method: "DELETE",
+        success: function(data) { window.location.reload(); },
+        error: function(data) { alert(data.responseJSON.message); }
+      });
+    }
+  });
 
   // Bind previous and next day button
   $("#prev_day").click(function() {
