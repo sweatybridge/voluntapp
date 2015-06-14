@@ -232,16 +232,19 @@ public class ChatServer {
 
       // Get their list of active sessions
       ConcurrentHashSet<Session> sessions = connections.get(destinationId);
-      if ((sessions == null || sessions.isEmpty())
-          && chatMessage.isStoreOffline()) {
-        // Store message offline
-        try {
-          db.insertMessage(chatMessage, destinationId);
-        } catch (SQLException e) {
-          System.err.println("Unable to store offline message to "
-              + destinationId);
-          e.printStackTrace();
+      if (sessions == null || sessions.isEmpty()) {
+        // The user if offline check if we need to store offline
+        if (chatMessage.isStoreOffline()) {
+          // Store message offline
+          try {
+            db.insertMessage(chatMessage, destinationId);
+          } catch (SQLException e) {
+            System.err.println("Unable to store offline message to "
+                + destinationId);
+            e.printStackTrace();
+          }
         }
+        // We're done for this destination
         continue;
       }
 

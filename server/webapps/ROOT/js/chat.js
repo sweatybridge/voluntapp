@@ -89,8 +89,7 @@ var NotificationServerAdapter = (function() {
       type: "typing",
       destinationIds: [userToId],
       sourceId: app.user.userId,
-      storeOffline: false,
-      payload: {}
+      storeOffline: false
     };
     this.socket.send(JSON.stringify(chatMessage));
   };
