@@ -43,7 +43,7 @@ public class EventResponse extends Response {
   private String duration; // HH:mm
   private String startDateTime;
   private String endDateTime;
-  private int currentCount = -1;
+  private int currentCount = 0;
   private int max = -2;
   private Boolean hasJoined;
   private Set<UserResponse> volunteers;
@@ -311,8 +311,6 @@ public class EventResponse extends Response {
   public void setCurrentCount(String currentCount) {
     if (currentCount != null) {
       this.currentCount = Integer.parseInt(currentCount);
-    } else {
-      this.currentCount = 0;
     }
   }
 
