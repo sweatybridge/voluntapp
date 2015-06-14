@@ -26,13 +26,35 @@ $(function() {
 
     // validate form
     formatEventForm(formObj);
+
+    // build partial update
+    var partial = {};
+    for (var key in controller.model) {
+      var value = formObj[key];
+      if (value && controller.model[key] !== value) {
+        partial[key] = value;
+      }
+    }
+    // if either start or end time changed, both needs to be updated for duration calculation
+    if (partial["startDateTime"] || partial["endDateTime"]) {
+      delete partial["startDateTime"];
+      delete partial["endDateTime"];
+      partial["startDate"] = formObj["startDate"];
+      partial["startTime"] = formObj["startTime"];
+      partial["endDate"] = formObj["endDate"];
+      partial["endTime"] = formObj["endTime"];
+      partial["timezone"] = formObj["timezone"];
+    }
+    console.log(partial);
+    console.log(formObj);
+
     // ajax put
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
       method: "PUT",
-      data: JSON.stringify(formObj),
+      data: JSON.stringify(partial),
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
-        controller.update(formObj);
+        controller.update(partial);
         resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
@@ -258,8 +280,8 @@ function updateEventForm(event) {
 function formatEventForm(formObj) {
   var start = new Date(formObj["startDate"]);
   var end = new Date(formObj["endDate"]);
-  formObj["startDateTime"] = start.toJSON();
-  formObj["endDateTime"] = end.toJSON();
+  formObj["startDateTime"] = start.toJSON().replace(".000", "");
+  formObj["endDateTime"] = end.toJSON().replace(".000", "");
 
   var regex = new RegExp('/', "g");
   formObj["startTime"] = formObj["startDate"].split(" ")[1];

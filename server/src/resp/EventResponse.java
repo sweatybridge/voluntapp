@@ -83,7 +83,7 @@ public class EventResponse extends Response {
    *          The ID of the user requests
    */
   public EventResponse(String title, String description, String location,
-      Calendar startDateTime, Calendar endDateTime, String max, int eventId,
+      Calendar startDateTime, Calendar endDateTime, Integer max, int eventId,
       int calendarId, EventStatus status, int userId) {
     this.title = title;
     this.description = description;
@@ -91,11 +91,7 @@ public class EventResponse extends Response {
     this.eventId = eventId;
     this.calendarId = calendarId;
     this.userId = userId;
-    if (max == null) {
-      this.max = -2;
-    } else {
-      this.max = Integer.parseInt(max);
-    }
+    this.max = (max == null) ? -2 : max;
     this.status = status;
 
     // Parse calendar to sql date time and pginterval for storage

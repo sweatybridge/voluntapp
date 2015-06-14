@@ -125,59 +125,64 @@ public class EventServlet extends HttpServlet {
   public void doPut(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     int userId = ServletUtils.getUserId(request);
+    
+    // parse event id
+    String eid = request.getPathInfo().substring(1);
+    if (eid == null) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Request must follow REST convention."));
+      return;
+    }
+    int eventId = Integer.parseInt(eid);
 
+    // parse partial updates
     EventRequest eventReq = gson.fromJson(request.getReader(),
         EventRequest.class);
-
-    if (eventReq == null || !eventReq.isValid()) {
+    if (eventReq == null || !eventReq.isPartiallyValid()) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "The updated event data are invalid."));
       return;
     }
-    String eventId = eventReq.getEventId();
+    eventReq.setEventId(eventId);
 
-    if (eventId != null) {
-      /*
-       * Verify if the user is allowed to edit events in the specified calendar
-       * - is an editor.
-       */
-      int eventID = Integer.parseInt(eventId);
-      if (!ServletUtils.checkAccessRights(0, eventID, userId, AuthLevel.EDITOR,
-          db)) {
-        setUnauthorisedAccessErrorResponse(request);
-        return;
+    /*
+     * Verify if the user is allowed to edit events in the specified calendar
+     * - is an editor.
+     */
+    int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
+    if (!ServletUtils.checkAccessRights(calendarId, eventId, userId,
+        AuthLevel.EDITOR, db)) {
+      setUnauthorisedAccessErrorResponse(request);
+      return;
+    }
+    eventReq.setCalendarId(calendarId);
+
+    /* Try to update the event. */
+    try {
+      EventResponse resp = db.updateEvent(eventId, eventReq, userId);
+      if (resp == null) {
+        request
+            .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+                "Update of the event data was not successful."));
+      } else {
+        // Send dynamic update to the online subscribers
+        DynamicUpdate.sendEventUpdate(calendarId, resp);
+        request.setAttribute(Response.class.getSimpleName(),
+            new SuccessResponse("Event data were updated successfully."));
       }
-      /* Try to update the event. */
-      try {
-        EventResponse resp = db.updateEvent(eventID, eventReq, userId);
-        if (resp == null) {
-          request
-              .setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-                  "Update of the event data was not successful."));
-        } else {
-          // Send dynamic update to the online subscribers
-          resp.setCalendarId(eventReq.getCalendarId());
-          DynamicUpdate.sendEventUpdate(eventReq.getCalendarId(), resp);
-          request.setAttribute(Response.class.getSimpleName(),
-              new SuccessResponse("Event data were updated successfully."));
-        }
-      } catch (NumberFormatException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "One of the provided dates was incorrectly formatted."));
-      } catch (SQLException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Error while saving the event update to the database."));
-      } catch (EventNotFoundException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "No event with specified event ID exists in the database."));
-      } catch (InconsistentDataException e) {
-        request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-            "Update left the database in an inconsistent state, "
-                + "more than one row was updated."));
-      }
-    } else {
+    } catch (NumberFormatException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
-          "No event ID was specified."));
+          "One of the provided dates was incorrectly formatted."));
+    } catch (SQLException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Error while saving the event update to the database."));
+    } catch (EventNotFoundException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "No event with specified event ID exists in the database."));
+    } catch (InconsistentDataException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Update left the database in an inconsistent state, "
+              + "more than one row was updated."));
     }
   }
 

@@ -139,8 +139,6 @@ var Event = (function() {
   * Updates the underlying model, view, and remote partially.
   */
   Event.prototype.update = function(model) {
-    // TODO: build partial update object
-    var partial = {'eventId': this.model.eventId};
     for (var key in model) {
       var value = model[key];
       if (!this.model[key] || this.model[key] !== value) {
@@ -153,7 +151,6 @@ var Event = (function() {
         } else {
           // console.log(key);
         }
-        partial[key] = value;
       }
     }
   };

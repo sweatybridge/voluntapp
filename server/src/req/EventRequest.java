@@ -17,10 +17,11 @@ public class EventRequest implements Request {
   private static final String DATE_TIME_PATTERN = "yyyy-MM-ddHH:mm";
 
   /**
-   * Event details sent by the client.
+   * Event details sent by the client. No primitive types so that gson will
+   * deserialise partial updates to null.
    */
-  private String eventId;
-  private int calendarId;
+  private Integer eventId;
+  private Integer calendarId;
   private String title;
   private String description;
   private String location;
@@ -29,7 +30,7 @@ public class EventRequest implements Request {
   private String endTime;
   private String endDate;
   private String timezone;
-  private int max;
+  private Integer max;
 
   /**
    * Fields excluded from deserialisation.
@@ -90,6 +91,18 @@ public class EventRequest implements Request {
         && isEndDateTimeValid();
   }
 
+  public boolean isPartiallyValid() {
+    return eventId == null
+        && calendarId == null
+        && (title == null || !title.isEmpty())
+        && (max == null || max >= -1)
+        && (description == null || !description.isEmpty())
+        && (location == null || !location.isEmpty())
+        && ((timezone == null && startDate == null && startTime == null
+            && endDate == null && endTime == null) || isTimezoneValid()
+            && isStartDateTimeValid() && isEndDateTimeValid());
+  }
+
   private boolean isTimezoneValid() {
     clientTimezone = TimeZone.getTimeZone(timezone);
     return clientTimezone != null;
@@ -133,7 +146,7 @@ public class EventRequest implements Request {
     return clientTimezone;
   }
 
-  public int getMax() {
+  public Integer getMax() {
     return max;
   }
 
@@ -149,7 +162,11 @@ public class EventRequest implements Request {
     return endDateTime;
   }
 
-  public String getEventId() {
-    return eventId;
+  public void setEventId(int eventId) {
+    this.eventId = eventId;
+  }
+
+  public void setCalendarId(int calendarId) {
+    this.calendarId = calendarId;
   }
 }

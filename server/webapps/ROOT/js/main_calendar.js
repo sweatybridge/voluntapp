@@ -167,6 +167,8 @@ function renderCalendars() {
       }
       if (cal_div.hasClass("active")) {
         getCalendarEventsByCid(calendar.calendarId);
+        // TODO: wrap in async callback once calendar is mvc
+        cal_div.find(".badge").addClass("hidden");
       } else {
         // remove events from view
         app.events = app.events.filter(function(e) {
@@ -177,8 +179,6 @@ function renderCalendars() {
           return isActive;
         });
       }
-      // TODO: wrap in async callback once we start retrieving calendars individually
-      cal_div.find(".badge").addClass("hidden");
     });
 
     // Check calendar rights
