@@ -114,7 +114,7 @@ var Event = (function() {
     var start = new Date(this.model.startDateTime);
     if (!$.contains(document, this.view.get(0))) {
       // find the day on calendar to insert
-      var day = $("#t_calendar_body").children(":visible").filter(function(k, elem) {
+      var day = $("#t_calendar_body").children().filter(function(k, elem) {
         return $(elem).data("date") === start.toLocaleDateString();
       });
 

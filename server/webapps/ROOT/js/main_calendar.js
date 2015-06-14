@@ -211,15 +211,19 @@ function updateCalendarDates(startDate) {
   $("#pickStartDate").datetimepicker({value: app.current_start_date});
 
   $("#prev_day").next().text(formatDate(startDate));
+  var allDays = $("#t_calendar_body").children();
 
-  $("#t_calendar_body").children(":visible").each(function(k, elem) {
+  allDays.each(function(k, elem) {
+    var current = new Date(startDate);
+    current.setDate(current.getDate() + k);
+
     // update data fields
-    var date = startDate.toLocaleDateString();
+    var date = current.toLocaleDateString();
     $(elem).data("date", date);
 
     // update heading text
     var heading = $("#t_calendar_heading td:nth-child("+(k+1)+")");
-    heading.text(getWeekDay(startDate) + " - " + formatDate(startDate));
+    heading.text(getWeekDay(current) + " - " + formatDate(current));
     heading.removeClass("bg-primary").removeClass("th_weekend").removeClass("th_weekday");
 
     // highlight heading background
@@ -228,18 +232,15 @@ function updateCalendarDates(startDate) {
     }
 
     // update heading class
-    var day = startDate.getDay();
+    var day = current.getDay();
     if (day === 0 || day === 6) {
       heading.addClass("th_weekend");
     } else {
       heading.addClass("th_weekday");
     }
-
-    // increment date
-    startDate.setDate(startDate.getDate() + 1);
   });
 
-  startDate.setDate(startDate.getDate() - 1);
+  startDate.setDate(startDate.getDate() + allDays.filter(":visible").length);
   $("#next_day").prev().text(formatDate(startDate));
 }
 
