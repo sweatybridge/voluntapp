@@ -97,6 +97,15 @@ public class DBInterface {
     return rs;
   }
 
+  /**
+   * Fetches the user response based on given email.
+   * @param email
+   *  Users email
+   * @return
+   * @throws SQLException
+   * @throws UserNotFoundException
+   * @throws InconsistentDataException
+   */
   public UserResponse getUser(String email) throws SQLException,
       UserNotFoundException, InconsistentDataException {
     return getUser(new UserRequest(email, null));
@@ -320,11 +329,12 @@ public class DBInterface {
    * @return event ID
    * @throws SQLException
    */
-  public EventResponse putEvent(EventRequest ereq, EventStatus status, int userId) throws SQLException {
-    EventResponse eresp =
-        new EventResponse(ereq.getTitle(), ereq.getDescription(),
-            ereq.getLocation(), ereq.getStartDateTime(), ereq.getEndDateTime(),
-            ereq.getMax(), -1, ereq.getCalendarId(), status, userId);
+  public EventResponse putEvent(EventRequest ereq, EventStatus status,
+      int userId) throws SQLException {
+    EventResponse eresp = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
+        ereq.getEndDateTime(), ereq.getMax(), -1, ereq.getCalendarId(), status,
+        userId);
     int id = insert(eresp, true, EventResponse.EID_COLUMN);
     eresp.setEventId(id);
     return eresp;
@@ -531,10 +541,10 @@ public class DBInterface {
    */
   public EventResponse updateEvent(int eventId, EventRequest ereq, int userId)
       throws SQLException, EventNotFoundException, InconsistentDataException {
-    EventResponse er =
-        new EventResponse(ereq.getTitle(), ereq.getDescription(),
-            ereq.getLocation(), ereq.getStartDateTime(), ereq.getEndDateTime(),
-            ereq.getMax(), eventId, ereq.getCalendarId(), null, userId);
+    EventResponse er = new EventResponse(ereq.getTitle(),
+        ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
+        ereq.getEndDateTime(), ereq.getMax(), eventId, ereq.getCalendarId(),
+        null, userId);
     return updateRowCheckHelper(er);
   }
 
@@ -953,7 +963,7 @@ public class DBInterface {
   public boolean activateEvent(int eventId) throws SQLException,
       InconsistentDataException {
     EventResponse response = new EventResponse(eventId);
-    //response.setActive();
+    // response.setActive();
     if (update(response) != 1) {
       throw new InconsistentDataException("Triggered in activateEvent");
     }
