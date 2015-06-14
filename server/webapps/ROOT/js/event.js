@@ -6,7 +6,7 @@
 var Event = (function() {
   // class variables
   Event.template =
-      '<div class="event">'+
+      '<div data-event-id="{{eventId}}" class="event">'+
         '<div class="header progress-bar-info">'+
           '<div class="dropdown">'+
             '<a class="label label-warning dropdown-toggle count" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>'+
@@ -49,11 +49,12 @@ var Event = (function() {
 
     // construct the view for rendering
     this.view = $(Event.template
-      .replace('{{eventId}}', model.eventId)
-      .replace('{{ics}}', createICSFile(model)));
+        .replace('{{eventId}}', model.eventId)
+        .replace('{{eventId}}', model.eventId)
+        .replace('{{ics}}', createICSFile(model)));
 
     // stop propagating event to elements below this view
-    this.view.data("eventId", model.eventId).click(function(e) {
+    this.view.click(function(e) {
       e.stopPropagation();
     });
 
@@ -111,11 +112,13 @@ var Event = (function() {
   Event.prototype.render = function() {
     // finds the day on calendar (if visible) and insert view sorted by start time
     var start = new Date(this.model.startDateTime);
-    var title = this.model.title;
-    if (!$.contains(document, this.view)) {
+    if (!$.contains(document, this.view.get(0))) {
+      // find the day on calendar to insert
       var day = $("#t_calendar_body").children(":visible").filter(function(k, elem) {
         return $(elem).data("date") === start.toLocaleDateString();
       });
+
+      // insert view sorted by start time
       var inserted = false;
       var _view = this.view;
       day.children().each(function(k, elem) {
@@ -136,7 +139,7 @@ var Event = (function() {
   };
 
   /**
-  * Updates the underlying model, view, and remote partially.
+  * Updates the underlying model and view partially.
   */
   Event.prototype.update = function(model) {
     for (var key in model) {
@@ -248,17 +251,32 @@ var Event = (function() {
       }
     },
     startDateTime: function() {
+      // update start time
       var start = new Date(this.model.startDateTime);
       var readableTime = start.toLocaleTimeString().substring(0, 5);
       this.view.find(".time :nth-child(1)").text(readableTime);
-      // TODO: handle date change
+
+      // check if view is already rendered
+      if ($.contains(document, this.view.get(0))) {
+        // change date if necessary
+        if (start.toLocaleDateString() !== this.view.parent().data("date")) {
+          this.view.remove();
+          this.render();
+        }
+        // update duration in case endDateTime did not change
+        var end = new Date(this.model.endDateTime);
+        if (end > start) {
+          // update duration (will update twice if both start and end date are shifted forward)
+          modelChangedHandler.endDateTime.apply(this);
+        }
+      }
     },
     endDateTime: function() {
-      // Extract event data
+      // update duration
       var start = new Date(this.model.startDateTime);
       var end = new Date(this.model.endDateTime);
       var today = new Date();
-      
+
       var timeDiff = Math.abs(end - start); // in milliseconds
       var diffMinutes = Math.ceil(timeDiff / (1000 * 60));
       var hours = Math.floor(diffMinutes/60);

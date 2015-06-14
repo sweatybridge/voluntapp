@@ -45,8 +45,6 @@ $(function() {
       partial["endTime"] = formObj["endTime"];
       partial["timezone"] = formObj["timezone"];
     }
-    console.log(partial);
-    console.log(formObj);
 
     // ajax put
     $.ajax(form.attr("action") +"/"+formObj.eventId, {
@@ -54,7 +52,7 @@ $(function() {
       data: JSON.stringify(partial),
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
-        controller.update(partial);
+        controller.update(formObj);
         resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }

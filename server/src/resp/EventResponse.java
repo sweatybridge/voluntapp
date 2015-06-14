@@ -45,7 +45,7 @@ public class EventResponse extends Response {
   private String endDateTime;
   private int currentCount = -1;
   private int max = -2;
-  private boolean hasJoined = false;
+  private Boolean hasJoined;
   private Set<UserResponse> volunteers;
   private EventStatus status;
   private int userId;
