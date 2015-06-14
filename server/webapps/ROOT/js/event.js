@@ -57,6 +57,12 @@ var Event = (function() {
       e.stopPropagation();
     });
 
+    // disable admin menu
+    var calendar = getCalendarById(model.calendarId);
+    if (calendar.role !== "admin" && calendar.role !== "owner") {
+      $(".admin-menu").hide();
+    }
+
     // show list of volunteers if admin clicks on label
     this.view.find(".count").dropdown().click(function() {
       var attendeesList = $(this).next();
@@ -133,7 +139,7 @@ var Event = (function() {
   * Updates the underlying model, view, and remote partially.
   */
   Event.prototype.update = function(model) {
-    // build partial update object
+    // TODO: build partial update object
     var partial = {'eventId': this.model.eventId};
     for (var key in model) {
       var value = model[key];

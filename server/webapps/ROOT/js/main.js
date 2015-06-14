@@ -34,22 +34,22 @@ $(function() {
   // Bind sidebar collapse
   $("#b_hide_left").click(function() {
     $(this).parent().hasClass("active") ? hideLeftBar() : showLeftBar();
-    //rebuildCalendar();
   });
   
   // Bind right side bar
   $("#b_hide_right").click(function() {
     $(this).parent().hasClass("active") ? hideRightBar() : showRightBar();
-    //rebuildCalendar();
   });
 
   // mobile actions
   $(window).on("swipeleft", function(e) {
-    $(".app").hasClass("showleft") ? $(".app").removeClass("showleft") : $(".app").addClass("showright");
+    var app = $(".app");
+    app.hasClass("showleft") ? app.removeClass("showleft") : app.addClass("showright");
   });
 
   $(window).on("swiperight", function(e) {
-    $(".app").hasClass("showright") ? $(".app").removeClass("showright") : $(".app").addClass("showleft");
+    var app = $(".app");
+    app.hasClass("showright") ? app.removeClass("showright") : app.addClass("showleft");
   });
 
   // Bind logout button
@@ -150,6 +150,7 @@ function refreshUser() {
       // Chat initialize
       Modernizr.load({
         test: Modernizr.websockets,
+        // TODO: load web socket polyfill if not supported
         // nope: 'geo-polyfill.js',
         complete: function() {
           // initialise first for easier debugging
@@ -158,11 +159,11 @@ function refreshUser() {
             // your user information
             userId: app.user.userId,
             // id of the room. The friends list is based on the room Id
-            roomId: 1,
+            roomId: NotificationServerAdapter.DEFAULT_ROOM_ID,
             // text displayed when the other user is typing
             typingText: ' is typing...',
             // text displayed when there's no other users in the room
-            //emptyRoomText: "There's no one around here. You can still open a session in another browser and chat with yourself :)",
+            // emptyRoomText: "There's no one around here. You can still open a session in another browser and chat with yourself :)",
             // path to chatjs files
             chatJsContentPath: '/',
             // the adapter you are using
@@ -197,47 +198,4 @@ function showLeftBar() {
   $(".app").addClass("showleft");
   // $("#d_left_sidebar").addClass("active");
   $("#b_hide_left").parent().addClass("active");
-}
-
-// Rebuild calendar layout for mobile responsiveness
-function rebuildCalendar() {
-  // get available space
-  var width = (window.innerWidth > 0) ? window.innerWidth : screen.width;
-  if (width < 768) {
-    // single column fluid layout
-    if ($("#t_calendar_body").children().length !== 1) {
-      // clear calendar heading and body
-      $("#t_calendar_heading").empty().append("<th/>");
-      $("#t_calendar_body").empty().append("<td/>");
-      app.current_start_date = new Date();
-      refreshEvents();
-    }
-  } else {
-    var left = $("#b_hide_left").parent().hasClass("active") ? $("#d_left_sidebar").outerWidth() : 0;
-    var right = $("#b_hide_right").parent().hasClass("active") ? $("#d_right_sidebar").outerWidth() : 0;
-    width = width - left - right;
-    var days = width / 160 >> 0;
-    var current_days = $("#t_calendar_body").children().length;
-
-    if (days !== current_days) {
-      var dayOfWeek = app.current_start_date.getDay();
-
-      // clear calendar heading and body
-      $("#t_calendar_heading").empty();
-      $("#t_calendar_body").empty();
-
-      $(".container").animate({
-        "left": left,
-        duration: 0.2
-      }).css("width", width - 30);
-
-      for (var i = 0; i < days; i++) {
-        $("#t_calendar_heading").append("<th/>");
-        $("#t_calendar_body").append("<td/>");
-      }
-
-      // update navigation button
-      refreshEvents();
-    }
-  }
 }

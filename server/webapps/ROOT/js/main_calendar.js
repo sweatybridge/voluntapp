@@ -2,20 +2,27 @@
 $(function() {
   // Bind calendar creation form
   $("#calendar_create_form").submit(function(e) {
-    e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success(data.name + " created!"); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_create_errors"));
+    e.preventDefault();
+    submitAjaxForm($(this), function(data) {
+      toastr.success(data.name + " created!");
+      $('#nav_create_tabs a:first').tab('show');
+      refreshCalendars();
+    }, $("#calendar_create_errors"));
   });
-  
+
   // Bind calendar joining form
   $("#calendar_follow_form").submit(function(e) {
-    e.preventDefault()
-    submitAjaxForm($(this), function(data) { toastr.success("You joined " + data.name); $('#nav_create_tabs a:first').tab('show'); refreshCalendars(); }, $("#calendar_follow_errors"));
+    e.preventDefault();
+    submitAjaxForm($(this), function(data) {
+      toastr.success("You joined " + data.name);
+      $('#nav_create_tabs a:first').tab('show');
+      refreshCalendars();
+    }, $("#calendar_follow_errors"));
   });
   
   // Bind edit calendar buttons and forms
   $("#b_cancel_calendar").click(function() {
     $("#d_edit_calendar").hide();
-    //$("#d_user_calendars").toggle();
   });
   $("#b_edit_calendar").click(function(e) {
     if (!$(this).closest(".panel-heading").hasClass("collapsed")) {
@@ -23,7 +30,8 @@ $(function() {
     }
     $("#d_edit_calendar").toggle();
   });
-  
+
+  // Bind delete calendar button
   $("#b_delete_calendar").click(function() {
     $("#d_user_calendars").children(".active").each(function(k, elem) {
       var calid = $(elem).data("calid");
@@ -43,7 +51,8 @@ $(function() {
       }
     });
   });
-  
+
+  // Bind user promotion form
   $("#user_promotion_form").submit(function(e) {
     e.preventDefault();
     var active_calendars = getActiveCalendarIds();
@@ -62,7 +71,10 @@ $(function() {
         return; // Cancel
       }
     }
-    submitAjaxForm($(this), function(data) { toastr.success("Updated user"); $("#b_cancel_calendar").click(); }, $("#user_promotion_errors"));
+    submitAjaxForm($(this), function(data) {
+      toastr.success("Updated user");
+      $("#b_cancel_calendar").click();
+    }, $("#user_promotion_errors"));
   });
   
   $("#calendar_edit_form").submit(function(e) {
@@ -73,7 +85,11 @@ $(function() {
     }
     var calid = active_calendars[0];
     $(this).attr("action", "/api/calendar/"+calid);
-    submitAjaxForm($(this), function(data) { toastr.success("Updated calendar"); $("#b_cancel_calendar").click(); refreshCalendars(); }, $("#calendar_edit_errors"));
+    submitAjaxForm($(this), function(data) {
+      toastr.success("Updated calendar");
+      $("#b_cancel_calendar").click();
+      refreshCalendars();
+    }, $("#calendar_edit_errors"));
   });
 
   $("#b_unsub_calendar").click(function() {

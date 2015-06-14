@@ -67,7 +67,7 @@ function yesterday() {
 
 // Validation of update form
 function validateUpdate(form) {
-  var form = form[0];
+  form = form[0];
   var pass_val = form["password"].value;
   
   // Check password length
