@@ -27,7 +27,7 @@ $(function() {
   $("#b_delete_calendar").click(function() {
     $("#d_user_calendars").children(".active").each(function(k, elem) {
       var calid = $(elem).data("calid");
-      var name = $.grep(app.calendars, function(e){ return e.calendarId == calid; })[0].name;
+      var name = getCalendarById(calid).name;
       if(confirm("Are you sure you want to delete "+name+"?")) {
         $.ajax("/api/calendar/"+calid, {
           method: "DELETE",
@@ -81,7 +81,7 @@ $(function() {
     $("#d_user_calendars").children(".active").each(function(k, elem) {
       var cal_div = $(elem);
       var cid = cal_div.data("calid");
-      var calendar = $.grep(app.calendars, function(c) {return c.calendarId === cid;})[0];
+      var calendar = getCalendarById(cid);
       if (calendar.role === "basic" || calendar.role === "editor") {
         $.ajax("/api/subscription/calendar/" + cid, {
           data: JSON.stringify({targetUserEmail : app.user.email}),
@@ -101,9 +101,6 @@ $(function() {
 
   // Render calendar from monday
   updateCalendarDates(getMonday());
-  //app.current_start_date = getMonday();
-
-  //rebuildCalendar();
 }); // End of document ready
 
 // Update calendars
@@ -120,22 +117,6 @@ function renderCalendars() {
         '<span class="badge progress-bar-warning notification hidden"></span>'+
         '<a href="#">{{name}}<span class="label label-primary join-code">{{joinCode}}</span></a>'+
       '</li>';
-/*
-'<div data-calid="{{id}}" class="calendar"> \
-  <div class="checkbox"> \
-    <span class="subcheck"> \
-      <input type="checkbox"> {{name}}   \
-    </label> \
-    </span> \
-    <a href="#" class="calendar-unsub"><span class="remove-sub glyphicon glyphicon-minus scarlet"></span></a> \
-  </div> \
-  <div class="calendar-extras" style="display: none;"> \
-    <p>Join code: <strong>{{joinCode}}</strong></p> \
-    <p>Join enabled: <strong>{{joinEnabled}}</strong></p> \
-    <button type="button" class="btn btn-info">Edit</button> \
-  </div> \
-</div>';
-*/
 
   var myCalendar = $("#d_user_calendars");
   // Clean current visible data
@@ -202,8 +183,9 @@ function renderCalendars() {
       */
     }
   });
-  // Refresh events for the calendars
-  $("#d_user_calendars").children().first().click();
+
+  // TODO: Refresh events for the calendars from cookie
+  myCalendar.children().first().click();
 }
 
 // Update data-date field of calendar view from startDate
@@ -277,4 +259,9 @@ function notifyBadge(calendarId) {
     return true;
   }
   return false;
+}
+
+// returns a fetched calendar by its id
+function getCalendarById(cid) {
+  return $.grep(app.calendars, function(e){ return e.calendarId === cid; })[0];
 }

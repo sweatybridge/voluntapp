@@ -153,7 +153,7 @@ function refreshUser() {
         // nope: 'geo-polyfill.js',
         complete: function() {
           // initialise first for easier debugging
-          app.adapter = new DemoAdapter();
+          app.adapter = new NotificationAdapter();
           $.chat({
             // your user information
             userId: app.user.userId,

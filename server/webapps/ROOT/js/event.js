@@ -17,9 +17,10 @@ var Event = (function() {
           '<div class="dropdown pull-right">'+
             '<button class="btn dropdown-toggle more btn-info" data-toggle="dropdown" aria-expanded="false"><span class="caret"></span></button>'+
             '<ul class="dropdown-menu" role="menu">'+
-              '<li><a href="#" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
-              '<li class="divider"></li>'+
-              '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to Calendar</a></li>'+
+              '<li><a href="#" class="admin-menu" onclick="editEvent(this)">Edit Event</a></li>'+
+              '<li><a href="#" class="admin-menu" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
+              '<li class="divider admin-menu"></li>'+
+              '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to iCalendar</a></li>'+
               '<li><a href="#" onclick="saveEvent(this)">Add to Saved Events</a></li>'+
             '</ul>'+
           '</div>'+
@@ -113,7 +114,7 @@ var Event = (function() {
       var _view = this.view;
       day.children().each(function(k, elem) {
         var current = new Date(start);
-        var time = $(elem).find(".time").children().first().text().split(":");
+        var time = $(elem).find(".time :nth-child(1)").text().split(":");
         current.setHours(time[0]);
         current.setMinutes(time[1]);
         if (start < current) {
@@ -149,8 +150,6 @@ var Event = (function() {
         partial[key] = value;
       }
     }
-
-    // TODO: send changes to remote
   };
 
   /**
@@ -248,7 +247,8 @@ var Event = (function() {
     startDateTime: function() {
       var start = new Date(this.model.startDateTime);
       var readableTime = start.toLocaleTimeString().substring(0, 5);
-      this.view.find(".time").children().first().text(readableTime);
+      this.view.find(".time :nth-child(1)").text(readableTime);
+      // TODO: handle date change
     },
     endDateTime: function() {
       // Extract event data
@@ -262,7 +262,7 @@ var Event = (function() {
       var minutes = diffMinutes % 60;
       var duration = ((hours > 0) ? (hours + "h") : "") + ((minutes > 0) ? (minutes + "m") : "");
 
-      this.view.find(".time").children().last().text(duration);
+      this.view.find(".time :nth-child(2)").text(duration);
       this.isPast = (today > end);
 
       if (this.isPast) {

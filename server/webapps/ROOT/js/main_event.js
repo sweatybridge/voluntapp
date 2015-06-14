@@ -22,7 +22,7 @@ $(function() {
       toastr.error("Failed to read event id. Please select the event again or refresh the app.");
       return;
     }
-    var controller = getEventById(formObj.eventId);
+    var controller = getEventControllerById(formObj.eventId);
 
     // validate form
     formatEventForm(formObj);
@@ -133,6 +133,7 @@ function refreshEvents() {
   });
 }
 
+// make an API call to retrieve the events of a calendar by calendarId
 function getCalendarEventsByCid(cid) {
   $.ajax("/api/calendar/"+cid, {
     method: 'GET',
@@ -154,7 +155,7 @@ function getCalendarEventsByCid(cid) {
 function joinEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-  var controller = getEventById(eid);
+  var controller = getEventControllerById(eid);
   var event = controller.model;
   
   // determine wether to join or unjoin
@@ -218,11 +219,11 @@ function joinEvent(elem) {
 function editEvent(elem) {
   var view = $(elem).closest(".event");
   var eid = view.data("eventId");
-  var controller = getEventById(eid);
+  var controller = getEventControllerById(eid);
   var event = controller.model;
 
   // check if user's role is editor or above
-  var cal = $.grep(app.calendars, function(e){ return e.calendarId === event.calendarId; })[0];
+  var cal = getCalendarById(event.calendarId);
   if (cal.role === "basic") {
     return;
   }
@@ -294,21 +295,6 @@ function resetEventForm() {
   $("#event_create_errors").empty();
 }
 
-// increment or decrement attendee count by delta
-function updateAttendeeCount(eventId, delta) {
-  // update count badge if event is rendered in calendar
-  $(".event").each(function(k, elem) {
-    var view = $(elem);
-    if (view.data("eventId") == eventId) {
-      var event = $.grep(app.events, function(e){return e.eventId == eventId})[0];
-      if (event) {
-        event.currentCount += delta;
-        view.find(".count").text(event.currentCount + "/" + event.max);
-      }
-    }
-  });
-}
-
 // Removes an attendee from an event (admin feature)
 function removeAttendee(elem) {
   var user = $(elem).closest("li");
@@ -330,7 +316,7 @@ function removeAttendee(elem) {
 }
 
 function deleteEventById(eventId) {
-  var controller = getEventById(eventId);
+  var controller = getEventControllerById(eventId);
   var event = controller.model;
 
   // User confirmation
@@ -430,6 +416,6 @@ function jsonToICS(date) {
   return date.split("-").join("").split(":").join("");
 }
 
-function getEventById(eid) {
-  return $.grep(app.events, function(e){ return e.model.eventId == eid; })[0];
+function getEventControllerById(eid) {
+  return $.grep(app.events, function(e){ return e.model.eventId === eid; })[0];
 }

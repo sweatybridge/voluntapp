@@ -1,53 +1,59 @@
-var DemoClientAdapter = (function() {
-  function DemoClientAdapter() {
+/**
+ * Notification client used for chat and real time updates. Requires web sockets.
+ */
+var NotificationClientAdapter = (function() {
+  function NotificationClientAdapter() {
     this.messagesChangedHandlers = [];
     this.typingSignalReceivedHandlers = [];
     this.userListChangedHandlers = [];
   }
   // adds a handler to the messagesChanged event
-  DemoClientAdapter.prototype.onMessagesChanged = function(handler) {
+  NotificationClientAdapter.prototype.onMessagesChanged = function(handler) {
     this.messagesChangedHandlers.push(handler);
   };
 
   // adds a handler to the typingSignalReceived event
-  DemoClientAdapter.prototype.onTypingSignalReceived = function(handler) {
+  NotificationClientAdapter.prototype.onTypingSignalReceived = function(handler) {
     this.typingSignalReceivedHandlers.push(handler);
   };
 
   // adds a handler to the userListChanged event
-  DemoClientAdapter.prototype.onUserListChanged = function(handler) {
+  NotificationClientAdapter.prototype.onUserListChanged = function(handler) {
     this.userListChangedHandlers.push(handler);
   };
 
-  DemoClientAdapter.prototype.triggerMessagesChanged = function(message) {
+  NotificationClientAdapter.prototype.triggerMessagesChanged = function(message) {
     for (var i = 0; i < this.messagesChangedHandlers.length; i++)
       this.messagesChangedHandlers[i](message);
   };
 
-  DemoClientAdapter.prototype.triggerTypingSignalReceived = function(typingSignal) {
+  NotificationClientAdapter.prototype.triggerTypingSignalReceived = function(typingSignal) {
     for (var i = 0; i < this.typingSignalReceivedHandlers.length; i++)
       this.typingSignalReceivedHandlers[i](typingSignal);
   };
 
-  DemoClientAdapter.prototype.triggerUserListChanged = function(userListChangedInfo) {
+  NotificationClientAdapter.prototype.triggerUserListChanged = function(userListChangedInfo) {
     for (var i = 0; i < this.userListChangedHandlers.length; i++)
       this.userListChangedHandlers[i](userListChangedInfo);
   };
-  return DemoClientAdapter;
+  return NotificationClientAdapter;
 })();
 
-var DemoServerAdapter = (function() {
-  this.DEFAULT_ROOM_ID = 1;
+var NotificationServerAdapter = (function() {
+  // class variables
+  NotificationServerAdapter.DEFAULT_ROOM_ID = 1;
+  NotificationServerAdapter.DEFAULT_CONVERSATION_ID = 1;
 
-  function DemoServerAdapter(clientAdapter, socket) {
+  function NotificationServerAdapter(clientAdapter, socket) {
     this.clientAdapter = clientAdapter;
     this.socket = socket;
-    this.users = new Array();
-    this.rooms = new Array();
+    this.users = [];
+    this.rooms = [];
   }
-  DemoServerAdapter.prototype.sendMessage = function(roomId, conversationId, otherUserId, messageText, clientGuid, done) {
+
+  NotificationServerAdapter.prototype.sendMessage = function(roomId, conversationId, otherUserId, messageText, clientGuid, done) {
     var _this = this;
-    //console.log("DemoServerAdapter: sendMessage");
+    //console.log("NotificationServerAdapter: sendMessage");
 
     // we have to send the current message to the current user first
     // in chatjs, when you send a message to someone, the same message bounces back to the user
@@ -76,8 +82,8 @@ var DemoServerAdapter = (function() {
     _this.clientAdapter.triggerMessagesChanged(bounceMessage);
   };
 
-  DemoServerAdapter.prototype.sendTypingSignal = function(roomId, conversationId, userToId, done) {
-    //console.log("DemoServerAdapter: sendTypingSignal");
+  NotificationServerAdapter.prototype.sendTypingSignal = function(roomId, conversationId, userToId, done) {
+    //console.log("NotificationServerAdapter: sendTypingSignal");
     // Create our own ChatMessage that the server is going to route
     var chatMessage = {
       type: "typing",
@@ -89,14 +95,14 @@ var DemoServerAdapter = (function() {
     this.socket.send(JSON.stringify(chatMessage));
   };
 
-  DemoServerAdapter.prototype.getMessageHistory = function(roomId, conversationId, otherUserId, done) {
-    //console.log("DemoServerAdapter: getMessageHistory");
+  NotificationServerAdapter.prototype.getMessageHistory = function(roomId, conversationId, otherUserId, done) {
+    //console.log("NotificationServerAdapter: getMessageHistory");
     // We don't support message history yet
     done([]);
   };
 
-  DemoServerAdapter.prototype.getUserInfo = function(userId, done) {
-    //console.log("DemoServerAdapter: getUserInfo");
+  NotificationServerAdapter.prototype.getUserInfo = function(userId, done) {
+    //console.log("NotificationServerAdapter: getUserInfo");
     var user = null;
     for (var i = 0; i < this.users.length; i++) {
       if (this.users[i].Id == userId) {
@@ -109,39 +115,39 @@ var DemoServerAdapter = (function() {
     done(user);
   };
 
-  DemoServerAdapter.prototype.getUserList = function(roomId, conversationId, done) {
-    //console.log("DemoServerAdapter: getUserList");
-    if (roomId == DEFAULT_ROOM_ID) {
+  NotificationServerAdapter.prototype.getUserList = function(roomId, conversationId, done) {
+    //console.log("NotificationServerAdapter: getUserList");
+    if (roomId == NotificationServerAdapter.DEFAULT_ROOM_ID) {
       done(this.users);
       return;
     }
     throw "The given room or conversation is not supported by the demo adapter";
   };
 
-  DemoServerAdapter.prototype.enterRoom = function(roomId, done) {
-    //console.log("DemoServerAdapter: enterRoom");
+  NotificationServerAdapter.prototype.enterRoom = function(roomId, done) {
+    //console.log("NotificationServerAdapter: enterRoom");
 
-    if (roomId != DEFAULT_ROOM_ID)
+    if (roomId != NotificationServerAdapter.DEFAULT_ROOM_ID)
       throw "Only the default room is supported in the demo adapter";
 
     var userListChangedInfo = new ChatUserListChangedInfo();
-    userListChangedInfo.RoomId = DEFAULT_ROOM_ID;
+    userListChangedInfo.RoomId = NotificationServerAdapter.DEFAULT_ROOM_ID;
     userListChangedInfo.UserList = this.users;
 
     this.clientAdapter.triggerUserListChanged(userListChangedInfo);
   };
 
-  DemoServerAdapter.prototype.leaveRoom = function(roomId, done) {
-    console.log("DemoServerAdapter: leaveRoom");
+  NotificationServerAdapter.prototype.leaveRoom = function(roomId, done) {
+    console.log("NotificationServerAdapter: leaveRoom");
   };
 
-  return DemoServerAdapter;
+  return NotificationServerAdapter;
 })();
 
-var DemoAdapter = (function() {
-  function DemoAdapter() {}
+var NotificationAdapter = (function() {
+  function NotificationAdapter() {}
   // called when the adapter is initialized
-  DemoAdapter.prototype.init = function(done) {
+  NotificationAdapter.prototype.init = function(done) {
     var _this = this;
     // get authorization token
     var cookie = getCookie("token");
@@ -156,8 +162,8 @@ var DemoAdapter = (function() {
     this.socket = new WebSocket(host);
 
     // build client and server adapters
-    this.client = new DemoClientAdapter();
-    this.server = new DemoServerAdapter(this.client, this.socket);
+    this.client = new NotificationClientAdapter();
+    this.server = new NotificationServerAdapter(this.client, this.socket);
 
     // Bind on open function
     _socket = this.socket;
@@ -166,7 +172,7 @@ var DemoAdapter = (function() {
       setInterval(function () {
         var ping = { type: "ping",
                      destinationIds: [-1],
-                     sourceId: app.user.userId } // No payload needed
+                     sourceId: app.user.userId }; // No payload needed
         _socket.send(JSON.stringify(ping));
       }, 60000); // Ping every minute to keep connection alive
     };
@@ -188,7 +194,7 @@ var DemoAdapter = (function() {
           // Ping back
           var pong = { type: "pong",
                      destinationIds: [msg.sourceId],
-                     sourceId: app.user.userId } // No payload needed
+                     sourceId: app.user.userId }; // No payload needed
           _socket.send(JSON.stringify(pong));
           break;
         case 'roster':
@@ -199,6 +205,7 @@ var DemoAdapter = (function() {
           break;
         case 'typing':
           _this.handleTyping(msg.sourceId);
+          break;
         case 'online/user':
           _this.handleOnline(msg.payload.userId);
           break;
@@ -235,7 +242,7 @@ var DemoAdapter = (function() {
     done();
   };
 
-  DemoAdapter.prototype.handleDeleteCalendar = function(calendar) {
+  NotificationAdapter.prototype.handleDeleteCalendar = function(calendar) {
     // Update calendar if it is already in the list
     for (var i = 0; i < app.calendars.length; i++) {
       if (app.calendars[i].calendarId == calendar.calendarId) {
@@ -249,7 +256,7 @@ var DemoAdapter = (function() {
     // state of the calendar.
   };
 
-  DemoAdapter.prototype.handleUpdateCalendar = function(calendar) {
+  NotificationAdapter.prototype.handleUpdateCalendar = function(calendar) {
     // Update calendar if it is already in the list
     for (var i = 0; i < app.calendars.length; i++) {
       if (app.calendars[i].calendarId == calendar.calendarId) {
@@ -262,7 +269,7 @@ var DemoAdapter = (function() {
     // we might add it to the list
   };
 
-  DemoAdapter.prototype.handleJoinCalendar = function(join) {
+  NotificationAdapter.prototype.handleJoinCalendar = function(join) {
     // join object: calendarId, user field. User expands to normal user object
     // ignore message to self
     if (app.user.userId == join.user.userId) {
@@ -279,22 +286,22 @@ var DemoAdapter = (function() {
     // configure user info
     var userInfo = new ChatUserInfo();
     userInfo.Id = join.user.userId;
-    userInfo.RoomId = DEFAULT_ROOM_ID;
+    userInfo.RoomId = NotificationServerAdapter.DEFAULT_ROOM_ID;
     userInfo.Name = join.user.firstName + " " + join.user.lastName;
     //userInfo.Email = join.user.email;
     userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
     userInfo.Status = 1; // The user is online as he joined just now
     this.server.users.push(userInfo);
-    this.server.enterRoom(1); // Refresh list
+    this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID); // Refresh list
     
     // Notify if admin or owner
-    var calendar = $.grep(app.calendars, function(e){ return e.calendarId == join.calendarId; })[0];
+    var calendar = getCalendarById(join.calendarId);
     if (calendar.role === "admin" || calendar.role === "owner") {
       toastr.info(join.user.firstName + " has just joined " + calendar.name);
     }
   };
   
-  DemoAdapter.prototype.handleUnjoinCalendar = function(join) {
+  NotificationAdapter.prototype.handleUnjoinCalendar = function(join) {
     // join object same as in joinCalendar, see above function
     // ignore message to self
     if (app.user.userId == join.user.userId) {
@@ -304,13 +311,13 @@ var DemoAdapter = (function() {
     for (var i = 0; i < this.server.users.length; i++) {
       if (this.server.users[i].Id == join.user.userId) {
         this.server.users.splice(i, 1);
-        this.server.enterRoom(1); // Refresh list
+        this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID); // Refresh list
         return;
       }
     }
   };
 
-  DemoAdapter.prototype.handleDeleteEvent = function(event) {
+  NotificationAdapter.prototype.handleDeleteEvent = function(event) {
     // Try to update badge
     if(!notifyBadge(event.calendarId)) {
       // Update the actual event object in the state of the app
@@ -324,10 +331,10 @@ var DemoAdapter = (function() {
     }
   };
 
-  DemoAdapter.prototype.handleUpdateEvent = function(event) {
+  NotificationAdapter.prototype.handleUpdateEvent = function(event) {
     // Try to update badge
     if(!notifyBadge(event.calendarId)) {
-      var controller = getEventById(event.eventId);
+      var controller = getEventControllerById(event.eventId);
       if (controller) {
         // server does not return the correct current count on notification
         delete event.currentCount;
@@ -340,56 +347,62 @@ var DemoAdapter = (function() {
     }
   };
 
-  DemoAdapter.prototype.handleUnjoinEvent = function(unjoin) {
+  NotificationAdapter.prototype.handleUnjoinEvent = function(unjoin) {
     // ignore message to self
     if (app.user.userId == unjoin.userId) {
       return;
     }
     // update count badge if event is rendered in calendar
-    updateAttendeeCount(unjoin.eventId, -1);
+    var controller = getEventControllerById(join.eventId);
+    controller.update({
+      currentCount: controller.model.currentCount - 1
+    });
   };
 
-  DemoAdapter.prototype.handleJoinEvent = function(join) {
+  NotificationAdapter.prototype.handleJoinEvent = function(join) {
     // ignore message to self
     if (app.user.userId == join.userId) {
       return;
     }
     // update count badge if event is rendered in calendar
-    updateAttendeeCount(join.eventId, 1);
+    var controller = getEventControllerById(join.eventId);
+    controller.update({
+      currentCount: controller.model.currentCount + 1
+    });
   };
 
-  DemoAdapter.prototype.handleOffline = function(userId) {
+  NotificationAdapter.prototype.handleOffline = function(userId) {
     for (var i = 0; i < this.server.users.length; i++) {
       if (this.server.users[i].Id == userId) {
         this.server.users[i].Status = 0;
         break;
       }
     }
-    this.server.enterRoom(1);
+    this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID);
   };
 
-  DemoAdapter.prototype.handleOnline = function(userId) {
+  NotificationAdapter.prototype.handleOnline = function(userId) {
     for (var i = 0; i < this.server.users.length; i++) {
       if (this.server.users[i].Id == userId) {
         this.server.users[i].Status = 1;
         break;
       }
     }
-    this.server.enterRoom(1);
+    this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID);
   };
 
-  DemoAdapter.prototype.handleText = function(fromId, text) {
+  NotificationAdapter.prototype.handleText = function(fromId, text) {
     var bounceMessage = new ChatMessageInfo();
     bounceMessage.UserFromId = fromId; // It will from our user
     bounceMessage.UserToId = app.user.userId;
-    bounceMessage.RoomId = 1;
-    bounceMessage.ConversationId = 1;
+    bounceMessage.RoomId = NotificationServerAdapter.DEFAULT_ROOM_ID;
+    bounceMessage.ConversationId = NotificationServerAdapter.DEFAULT_CONVERSATION_ID;
     bounceMessage.Message = text;
     bounceMessage.ClientGuid = null;
     this.client.triggerMessagesChanged(bounceMessage);
   };
   
-  DemoAdapter.prototype.handleTyping = function(fromId) {
+  NotificationAdapter.prototype.handleTyping = function(fromId) {
     // Create the typing signal object, it is used in trigger function
     var typingSignal = { UserToId: app.user.userId };
     // Look for the user who sent this
@@ -405,12 +418,12 @@ var DemoAdapter = (function() {
     // Otherwise we don't know who this is
   };
 
-  DemoAdapter.prototype.handleRoster = function(roster) {
+  NotificationAdapter.prototype.handleRoster = function(roster) {
     this.server.users = roster.map(function(user) {
       // configure user info
       var userInfo = new ChatUserInfo();
       userInfo.Id = user.uid;
-      userInfo.RoomId = DEFAULT_ROOM_ID;
+      userInfo.RoomId = NotificationServerAdapter.DEFAULT_ROOM_ID;
       userInfo.Name = user.firstName + " " + user.lastName;
       //userInfo.Email = user.email;
       userInfo.ProfilePictureUrl = "img/user_chat_icon.png";
@@ -420,7 +433,7 @@ var DemoAdapter = (function() {
 
     var me = new ChatUserInfo();
     me.Id = app.user.userId;
-    me.RoomId = DEFAULT_ROOM_ID;
+    me.RoomId = NotificationServerAdapter.DEFAULT_ROOM_ID;
     me.Name = app.user.firstName + " " + app.user.lastName;
     me.Email = app.user.email;
     me.ProfilePictureUrl = "img/user_chat_icon.png";
@@ -429,13 +442,13 @@ var DemoAdapter = (function() {
 
     // configuring rooms
     var defaultRoom = new ChatRoomInfo();
-    defaultRoom.Id = 1;
+    defaultRoom.Id = NotificationServerAdapter.DEFAULT_ROOM_ID;
     defaultRoom.Name = "Default Room";
     //defaultRoom.UsersOnline = this.server.users.length;
 
     this.server.rooms = [defaultRoom];
-    this.server.enterRoom(1);
+    this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID);
   };
 
-  return DemoAdapter;
+  return NotificationAdapter;
 })();
