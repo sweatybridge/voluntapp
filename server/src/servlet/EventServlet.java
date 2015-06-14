@@ -203,8 +203,7 @@ public class EventServlet extends HttpServlet {
         boolean updateEveryone = (role == AuthLevel.ADMIN && 
             eventReq.getStatus() == EventStatus.ACTIVE);
         DynamicUpdate.sendEventUpdate(calendarId, resp, updateEveryone);
-        request.setAttribute(Response.class.getSimpleName(),
-            new SuccessResponse("Event data were updated successfully."));
+        request.setAttribute(Response.class.getSimpleName(), resp);
       }
     } catch (NumberFormatException e) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
