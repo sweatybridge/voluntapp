@@ -1,8 +1,6 @@
 package req;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.validator.routines.CalendarValidator;
@@ -16,8 +14,8 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class EventRequest implements Request {
 
-  private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-  private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC");
+  public static final String UTC_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+  public static final TimeZone UTC_TIMEZONE = TimeZone.getTimeZone("UTC");
 
   /**
    * Event details sent by the client. No primitive types so that gson will
@@ -28,11 +26,6 @@ public class EventRequest implements Request {
   private String title;
   private String description;
   private String location;
-  private String startTime; // HH:mm
-  private String startDate; // yyyy-MM-dd
-  private String endTime;
-  private String endDate;
-  private String timezone;
   private Integer max;
   private EventStatus status; // Field used to perform updates of event state.
   private String startDateTime;
@@ -57,11 +50,6 @@ public class EventRequest implements Request {
     this.title = title;
     this.description = description;
     this.location = location;
-    this.startTime = startTime;
-    this.startDate = startDate;
-    this.endTime = endTime;
-    this.endDate = endDate;
-    this.timezone = timezone;
     this.max = max;
     this.calendarId = calendarId;
   }
@@ -78,16 +66,6 @@ public class EventRequest implements Request {
     this.clientTimezone = clientTimezone;
     this.max = max;
     this.calendarId = calendarId;
-
-    if (startDateTime != null) {
-      Date start = startDateTime.getTime();
-      SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-      df.setTimeZone(clientTimezone);
-      this.startDate = df.format(start);
-      SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
-      tf.setTimeZone(clientTimezone);
-      this.startTime = tf.format(start);
-    }
   }
 
   @Override
@@ -97,53 +75,20 @@ public class EventRequest implements Request {
   }
 
   public boolean isDateTimeValid() {
-    calStartDateTime = CalendarValidator.getInstance().validate(startDateTime, DATE_TIME_PATTERN, DEFAULT_TIMEZONE);
-    calEndDateTime = CalendarValidator.getInstance().validate(endDateTime, DATE_TIME_PATTERN, DEFAULT_TIMEZONE);
+    calStartDateTime =
+        CalendarValidator.getInstance().validate(startDateTime, UTC_PATTERN,
+            UTC_TIMEZONE);
+    calEndDateTime =
+        CalendarValidator.getInstance().validate(endDateTime, UTC_PATTERN,
+            UTC_TIMEZONE);
     return calStartDateTime != null && calEndDateTime != null;
   }
 
-  public static void main(String[] args) {
-    Calendar cal =
-        CalendarValidator.getInstance().validate("2015-06-16T13:00:00Z",
-            "yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC"));
-    System.out.println(cal.getTime());
-  }
-
   public boolean isPartiallyValid() {
-    return eventId == null
-        && calendarId == null
-        && (title == null || !title.isEmpty())
-        && (max == null || max >= -1)
+    return eventId == null && calendarId == null
+        && (title == null || !title.isEmpty()) && (max == null || max >= -1)
         && (description == null || !description.isEmpty())
-        && (location == null || !location.isEmpty())
-        && isDateTimeValid();
-  }
-
-  private boolean isTimezoneValid() {
-    clientTimezone = TimeZone.getTimeZone(timezone);
-    return clientTimezone != null;
-  }
-
-  private boolean isStartDateTimeValid() {
-    if (startDate == null || startDate.isEmpty() || startTime == null
-        || startTime.isEmpty()) {
-      return false;
-    }
-    calStartDateTime =
-        CalendarValidator.getInstance().validate(startDate + startTime,
-            DATE_TIME_PATTERN, clientTimezone);
-    return calStartDateTime != null;
-  }
-
-  private boolean isEndDateTimeValid() {
-    if (endDate == null || endDate.isEmpty() || endTime == null
-        || endTime.isEmpty()) {
-      return true;
-    }
-    calEndDateTime =
-        CalendarValidator.getInstance().validate(endDate + endTime,
-            DATE_TIME_PATTERN, clientTimezone);
-    return calEndDateTime != null && calEndDateTime.after(calStartDateTime);
+        && (location == null || !location.isEmpty()) && isDateTimeValid();
   }
 
   public int getCalendarId() {
@@ -185,11 +130,11 @@ public class EventRequest implements Request {
   public void setCalendarId(int calendarId) {
     this.calendarId = calendarId;
   }
-  
+
   public void setEventStatus(EventStatus status) {
     this.status = status;
   }
-  
+
   public EventStatus getStatus() {
     return status;
   }

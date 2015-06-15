@@ -37,13 +37,8 @@ $(function() {
     }
     // if either start or end time changed, both needs to be updated for duration calculation
     if (partial["startDateTime"] || partial["endDateTime"]) {
-      delete partial["startDateTime"];
-      delete partial["endDateTime"];
-      partial["startDate"] = formObj["startDate"];
-      partial["startTime"] = formObj["startTime"];
-      partial["endDate"] = formObj["endDate"];
-      partial["endTime"] = formObj["endTime"];
-      partial["timezone"] = formObj["timezone"];
+      partial["startDateTime"] = formObj["startDateTime"];
+      partial["endDateTime"] = formObj["endDateTime"];
     }
 
     // ajax put
@@ -52,7 +47,7 @@ $(function() {
       data: JSON.stringify(partial),
       success: function(data) {
         toastr.success("Saved chanages to " + formObj["title"]);
-        controller.update(formObj);
+        controller.update(partial);
         resetEventForm();
       },
       error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
@@ -85,8 +80,6 @@ $(function() {
     var form = $(this);
     var formObj = getFormObj(form);
     formatEventForm(formObj);
-    // delete formObj["startDateTime"];
-    // delete formObj["endDateTime"];
 
     // Check for the description length
     if (formObj["description"].length > 255) {
@@ -294,12 +287,6 @@ function formatEventForm(formObj) {
   end = new Date(end.getTime() + end.getTimezoneOffset()*60*1000)
   formObj["startDateTime"] = start.toJSON().replace(".000", "");
   formObj["endDateTime"] = end.toJSON().replace(".000", "");
-
-  formObj["startTime"] = formObj["startDate"].split(" ")[1];
-  formObj["startDate"] = formObj["startDate"].split(" ")[0];
-  formObj["endTime"] = formObj["endDate"].split(" ")[1];
-  formObj["endDate"] = formObj["endDate"].split(" ")[0];
-  formObj["timezone"] = jstz.determine().name();
 }
 
 // Shows event create button and hide the rest

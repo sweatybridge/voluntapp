@@ -12,14 +12,14 @@ import java.util.TimeZone;
 
 import org.postgresql.util.PGInterval;
 
+import req.EventRequest;
+
 import utils.EventStatus;
 
 /**
  * A successful response to a event request.
  */
 public class EventResponse extends Response {
-
-  private static final String UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
   public static String EID_COLUMN = "EID";
   public static String TITLE_COLUMN = "TITLE";
@@ -109,13 +109,11 @@ public class EventResponse extends Response {
           endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
           0);
       
-      SimpleDateFormat sdf = new SimpleDateFormat(UTC_FORMAT);
-      sdf.setTimeZone(startDateTime.getTimeZone());
+      SimpleDateFormat sdf = new SimpleDateFormat(EventRequest.UTC_PATTERN);
+      sdf.setTimeZone(EventRequest.UTC_TIMEZONE);
       this.startDateTime = sdf.format(startDateTime.getTime());
-      sdf.setTimeZone(endDateTime.getTimeZone());
       this.endDateTime = sdf.format(endDateTime.getTime());
     }
-
   }
 
   /**
@@ -158,11 +156,13 @@ public class EventResponse extends Response {
     this.status = EventStatus.translateToEnum(rs.getString(ACTIVE_COLUMN));
 
     // Fill in composite fields
-    java.util.Date startDate = new java.util.Date(sqlDate.getTime()
-        + sqlTime.getTime());
-    this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate);
+    SimpleDateFormat sdf = new SimpleDateFormat(EventRequest.UTC_PATTERN);
+    // sdf.setTimeZone(EventRequest.UTC_TIMEZONE);
+    java.util.Date startDate =
+        new java.util.Date(sqlDate.getTime() + sqlTime.getTime());
+    this.startDateTime = sdf.format(startDate);
     sqlDuration.add(startDate);
-    this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate);
+    this.endDateTime = sdf.format(startDate);
   }
 
   @Override
