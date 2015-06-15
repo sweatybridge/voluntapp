@@ -38,14 +38,10 @@ var Event = (function() {
           '<span class="glyphicon glyphicon-map-marker"></span>'+
           '<span></span>'+
         '</div>'+
-        '<div class="join" id="join">'+
-          '<a class="badge" onclick="joinEvent(this)">Join</a>'+
-        '</div>'+
-        '<div class="join" id="approve">'+
-          '<a class="badge" onclick="approveEvent(this)">Approve</a>'+
-        '</div>' +  
-        '<div class="join" id="disapprove">'+
-          '<a class="badge" onclick="disapproveEvent(this)">Disapprove</a>'+
+        '<div class="join">'+
+          '<a class="badge" id="join" onclick="joinEvent(this)">Join</a>'+
+          '<a class="badge btn-success" id="approve" onclick="approveEvent(this)"> ✔ </a>'+
+          '<a class="badge btn-danger" id="disapprove" onclick="disapproveEvent(this)"> ✘ </a>'+
         '</div>'+
       '</div>';
 
@@ -215,9 +211,9 @@ var Event = (function() {
 
       // show / hide join button
       if (this.isPast || (this.isFull && !this.model.hasJoined)) {
-        this.view.find(".join .badge").addClass("hidden");
+        this.view.find("#join").addClass("hidden");
       } else {
-        this.view.find(".join .badge").removeClass("hidden");
+        this.view.find("#join").removeClass("hidden");
       }
     },
     max: function() {
@@ -238,7 +234,7 @@ var Event = (function() {
         this.view.find(".header").removeClass("progress-bar-info label-default").addClass("progress-bar-success");
         this.view.find(".more").removeClass("btn-info").addClass("btn-success");
         // update joined badge
-        this.view.find("#join").removeClass("hidden").find(".badge").addClass("progress-bar-danger").text("Unjoin");
+        this.view.find("#join").removeClass("hidden").addClass("progress-bar-danger").text("Unjoin");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", true).prop("disabled", true);
       } else {
@@ -248,7 +244,7 @@ var Event = (function() {
           this.view.find(".more").addClass("btn-info").removeClass("btn-success");
         }
         // update badge
-        this.view.find("#join .badge").removeClass("progress-bar-danger").text("Join");
+        this.view.find("#join").removeClass("progress-bar-danger").text("Join");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", false);
       }
@@ -303,7 +299,7 @@ var Event = (function() {
           this.view.find('.requirements input[type="checkbox"]').prop("disabled", false);
         }
         if (!this.isFull) {
-          this.view.find(".join .badge").removeClass("hidden");
+          this.view.find("#join").removeClass("hidden");
         }
       }
     },
@@ -348,9 +344,11 @@ var Event = (function() {
         this.view.find(".more").removeClass("btn-pending").removeClass("btn-danger");
         this.view.find('#approve').addClass("hidden");
         this.view.find('#disapprove').addClass("hidden");
+        this.view.find('#join').removeClass("hidden");
 
         // call hasJoined handler to update header and join button style
         modelChangedHandler['hasJoined'].apply(this);
+        modelChangedHandler['endDateTime'].apply(this);
       }
     }
   };
