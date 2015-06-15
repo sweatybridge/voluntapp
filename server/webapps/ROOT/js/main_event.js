@@ -286,12 +286,10 @@ function updateEventForm(event) {
 
 // Adds extra fields into event form
 function formatEventForm(formObj) {
-  var start = new Date(formObj["startDate"]); // INVALID DATE RETURNS NULL
-  var end = new Date(formObj["endDate"]);
-  if (start && end) {
-    formObj["startDateTime"] = start.toJSON().replace(".000", "");
-    formObj["endDateTime"] = end.toJSON().replace(".000", "");
-  }
+  var start = new Date(formObj["startDate"].replace(" ", "T"));
+  var end = new Date(formObj["endDate"].replace(" ", "T"));
+  formObj["startDateTime"] = start.toJSON().replace(".000", "");
+  formObj["endDateTime"] = end.toJSON().replace(".000", "");
 
   formObj["startTime"] = formObj["startDate"].split(" ")[1];
   formObj["startDate"] = formObj["startDate"].split(" ")[0];
