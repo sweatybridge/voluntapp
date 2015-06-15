@@ -60,7 +60,7 @@ public class EventResponse extends Response {
   private transient boolean found;
   private transient String startTime; // HH:mm
   private transient String startDate; // YYYY-MM-DD
-  private transient boolean isAdmin = false;
+  private transient boolean isPrivileged = false;
 
   /**
    * Fields excluded from serialisation.
@@ -136,8 +136,8 @@ public class EventResponse extends Response {
     this.eventId = eventId;
   }
 
-  public void setAdmin() {
-    isAdmin = true;
+  public void setPriviledge() {
+    isPrivileged = true;
   }
 
   public int getCalendarId() {
@@ -243,8 +243,9 @@ public class EventResponse extends Response {
 
   @Override
   public String getSQLQuery() {
-    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=? %s;",
-        EID_COLUMN, (isAdmin) ? "" : "AND \"ACTIVE\"='active'");
+    return String.format("SELECT * FROM \"EVENT\" WHERE \"%s\"=? AND \"%s\"!='%s' %s;",
+        EID_COLUMN, ACTIVE_COLUMN, EventStatus.DELETED.getName(), 
+        (isPrivileged) ? "" : "AND \"ACTIVE\"='active'");
   }
 
   @Override
@@ -257,8 +258,9 @@ public class EventResponse extends Response {
     this.rs = result;
     try {
       found = rs.next();
-      if (found)
+      if (found) {
         setEventResponse();
+      }
     } catch (SQLException e) {
       System.err.println("Error getting the result");
       return;
@@ -327,5 +329,9 @@ public class EventResponse extends Response {
 
   public void setCalendarId(int calendarId) {
     this.calendarId = calendarId;
+  }
+  
+  public EventStatus getStatus() {
+    return status;
   }
 }
