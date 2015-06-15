@@ -19,7 +19,7 @@ import utils.EventStatus;
  */
 public class EventResponse extends Response {
 
-  private static final String UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+  private static final String UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
   public static String EID_COLUMN = "EID";
   public static String TITLE_COLUMN = "TITLE";
@@ -109,10 +109,11 @@ public class EventResponse extends Response {
           endDateTime.get(Calendar.MINUTE) - startDateTime.get(Calendar.MINUTE),
           0);
       
-      this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDateTime.getTime()).concat(
-          "Z");
-      this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(endDateTime.getTime()).concat(
-          "Z");
+      SimpleDateFormat sdf = new SimpleDateFormat(UTC_FORMAT);
+      sdf.setTimeZone(startDateTime.getTimeZone());
+      this.startDateTime = sdf.format(startDateTime.getTime());
+      sdf.setTimeZone(endDateTime.getTimeZone());
+      this.endDateTime = sdf.format(endDateTime.getTime());
     }
 
   }
@@ -159,11 +160,9 @@ public class EventResponse extends Response {
     // Fill in composite fields
     java.util.Date startDate = new java.util.Date(sqlDate.getTime()
         + sqlTime.getTime());
-    this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate).concat(
-        "Z");
+    this.startDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate);
     sqlDuration.add(startDate);
-    this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate).concat(
-        "Z");
+    this.endDateTime = new SimpleDateFormat(UTC_FORMAT).format(startDate);
   }
 
   @Override

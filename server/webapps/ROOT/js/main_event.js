@@ -85,6 +85,8 @@ $(function() {
     var form = $(this);
     var formObj = getFormObj(form);
     formatEventForm(formObj);
+    // delete formObj["startDateTime"];
+    // delete formObj["endDateTime"];
 
     // Check for the description length
     if (formObj["description"].length > 255) {
@@ -287,7 +289,9 @@ function updateEventForm(event) {
 // Adds extra fields into event form
 function formatEventForm(formObj) {
   var start = new Date(formObj["startDate"].replace(" ", "T"));
+  start = new Date(start.getTime() + start.getTimezoneOffset()*60*1000)
   var end = new Date(formObj["endDate"].replace(" ", "T"));
+  end = new Date(end.getTime() + end.getTimezoneOffset()*60*1000)
   formObj["startDateTime"] = start.toJSON().replace(".000", "");
   formObj["endDateTime"] = end.toJSON().replace(".000", "");
 

@@ -16,7 +16,8 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class EventRequest implements Request {
 
-  private static final String DATE_TIME_PATTERN = "yyyy-MM-ddHH:mm";
+  private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+  private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC");
 
   /**
    * Event details sent by the client. No primitive types so that gson will
@@ -34,12 +35,14 @@ public class EventRequest implements Request {
   private String timezone;
   private Integer max;
   private EventStatus status; // Field used to perform updates of event state.
+  private String startDateTime;
+  private String endDateTime;
 
   /**
    * Fields excluded from deserialisation.
    */
-  private transient Calendar startDateTime;
-  private transient Calendar endDateTime;
+  private transient Calendar calStartDateTime;
+  private transient Calendar calEndDateTime;
   private transient TimeZone clientTimezone;
 
   /**
@@ -70,8 +73,8 @@ public class EventRequest implements Request {
     this.title = title;
     this.description = description;
     this.location = location;
-    this.startDateTime = startDateTime;
-    this.endDateTime = endDateTime;
+    this.calStartDateTime = startDateTime;
+    this.calEndDateTime = endDateTime;
     this.clientTimezone = clientTimezone;
     this.max = max;
     this.calendarId = calendarId;
@@ -90,8 +93,20 @@ public class EventRequest implements Request {
   @Override
   public boolean isValid() {
     return (title != null && !title.isEmpty()) && (max >= -1)
-        && (calendarId > 0) && isTimezoneValid() && isStartDateTimeValid()
-        && isEndDateTimeValid();
+        && (calendarId > 0) && isDateTimeValid();
+  }
+
+  public boolean isDateTimeValid() {
+    calStartDateTime = CalendarValidator.getInstance().validate(startDateTime, DATE_TIME_PATTERN, DEFAULT_TIMEZONE);
+    calEndDateTime = CalendarValidator.getInstance().validate(endDateTime, DATE_TIME_PATTERN, DEFAULT_TIMEZONE);
+    return calStartDateTime != null && calEndDateTime != null;
+  }
+
+  public static void main(String[] args) {
+    Calendar cal =
+        CalendarValidator.getInstance().validate("2015-06-16T13:00:00Z",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC"));
+    System.out.println(cal.getTime());
   }
 
   public boolean isPartiallyValid() {
@@ -101,9 +116,7 @@ public class EventRequest implements Request {
         && (max == null || max >= -1)
         && (description == null || !description.isEmpty())
         && (location == null || !location.isEmpty())
-        && ((timezone == null && startDate == null && startTime == null
-            && endDate == null && endTime == null) || isTimezoneValid()
-            && isStartDateTimeValid() && isEndDateTimeValid());
+        && isDateTimeValid();
   }
 
   private boolean isTimezoneValid() {
@@ -116,10 +129,10 @@ public class EventRequest implements Request {
         || startTime.isEmpty()) {
       return false;
     }
-    startDateTime =
+    calStartDateTime =
         CalendarValidator.getInstance().validate(startDate + startTime,
             DATE_TIME_PATTERN, clientTimezone);
-    return startDateTime != null;
+    return calStartDateTime != null;
   }
 
   private boolean isEndDateTimeValid() {
@@ -127,10 +140,10 @@ public class EventRequest implements Request {
         || endTime.isEmpty()) {
       return true;
     }
-    endDateTime =
+    calEndDateTime =
         CalendarValidator.getInstance().validate(endDate + endTime,
             DATE_TIME_PATTERN, clientTimezone);
-    return endDateTime != null && endDateTime.after(startDateTime);
+    return calEndDateTime != null && calEndDateTime.after(calStartDateTime);
   }
 
   public int getCalendarId() {
@@ -142,7 +155,7 @@ public class EventRequest implements Request {
   }
 
   public Calendar getStartDateTime() {
-    return startDateTime;
+    return calStartDateTime;
   }
 
   public TimeZone getClientTimezone() {
@@ -162,7 +175,7 @@ public class EventRequest implements Request {
   }
 
   public Calendar getEndDateTime() {
-    return endDateTime;
+    return calEndDateTime;
   }
 
   public void setEventId(int eventId) {
