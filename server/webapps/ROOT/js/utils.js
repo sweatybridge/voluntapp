@@ -4,7 +4,9 @@ function getFormObj(form) {
     var inputs = form.serializeArray();
     $.each(inputs, function (i, input) {
         if (input.name === "max" || input.name === "calendarId" || input.name === "eventId") {
-          formObj[input.name] = parseInt(input.value);
+          if (input.value) {
+            formObj[input.name] = parseInt(input.value);
+          }
         } else {
           formObj[input.name] = input.value;
         }

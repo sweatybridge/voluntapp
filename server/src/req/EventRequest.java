@@ -85,10 +85,13 @@ public class EventRequest implements Request {
   }
 
   public boolean isPartiallyValid() {
-    return eventId == null && calendarId == null
-        && (title == null || !title.isEmpty()) && (max == null || max >= -1)
+    return eventId == null
+        && calendarId == null
+        && (title == null || !title.isEmpty())
+        && (max == null || max >= -1)
         && (description == null || !description.isEmpty())
-        && (location == null || !location.isEmpty()) && isDateTimeValid();
+        && (location == null || !location.isEmpty())
+        && ((startDateTime == null && endDateTime == null) || isDateTimeValid());
   }
 
   public int getCalendarId() {
