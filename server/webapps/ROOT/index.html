@@ -13,22 +13,35 @@
   </head>
 
   <body>
-    <form class="form-centre" role="form" id="login_form" action="/api/session" method="post" autocomplete="on">
-      <h2 class="form-heading">Please login</h2>
-      <div class="form-group">
-        <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
-        <input type="password" name="password" class="form-control" placeholder="Password" required>
-        <input type="hidden" name="validationCode" class="form-control" placeholder="Verification Code">
+    <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <img src="img/voluntapp_colour.png" class="img-responsive centre" style="width: 30%;" alt="Volutapp Logo">
+        <div class="centre">
+          <h1>Voluntapp</h1>
+          <p class="lead">The easy way to manage events.</p>
+        </div>
       </div>
-      <input class="btn btn-primary" type="submit" value="Login">
-      <p class="form-error" id="login_errors"></p>
-    </form>
-    <div class="centre">
-      <p><a id="forgot_password" href="#"  data-toggle="modal" data-target="#passwordModal">Forgot your password?</a></p>
-      <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
-        Register now
-      </button>
+      <div class="col-md-6">
+        <form class="form-centre" role="form" id="login_form" action="/api/session" method="post" autocomplete="on">
+          <h2 class="form-heading">Please login</h2>
+          <div class="form-group">
+            <input type="email" name="email" class="form-control" placeholder="Email" autofocus required>
+            <input type="password" name="password" class="form-control" placeholder="Password" required>
+            <input type="hidden" name="validationCode" class="form-control" placeholder="Verification Code">
+          </div>
+          <input class="btn btn-primary" type="submit" value="Login">
+          <p class="form-error" id="login_errors"></p>
+        </form>
+        <div class="centre">
+          <p><a id="forgot_password" href="#"  data-toggle="modal" data-target="#passwordModal">Forgot your password?</a></p>
+          <button type="button" class="btn btn-default" data-toggle="modal" data-target="#registerModal">
+            Register now
+          </button>
+        </div>
+      </div>
     </div>
+    </div> <!-- End of container -->
     
     <!-- Modal -->
     <div class="modal fade" id="registerModal">
