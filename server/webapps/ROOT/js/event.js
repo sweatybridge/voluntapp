@@ -335,17 +335,13 @@ var Event = (function() {
         }
       }
       if (status === 'ACTIVE') {
-        // TODO: change this so that it takes into account the possibility that the event might be past????
         this.view.find(".header").removeClass("pending").removeClass("progress-bar-danger");
         this.view.find(".more").removeClass("btn-pending").removeClass("btn-danger");
-        if (!this.isPast) {
-          this.view.find(".header").addClass("progress-bar-info");
-          this.view.find(".more").addClass("btn-info");
-          this.view.find("#join").removeClass("hidden").find("a").html("Join");
-          //this.view.find(".join .badge").removeClass("hidden");
-        }
         this.view.find('#approve').addClass("hidden");
         this.view.find('#disapprove').addClass("hidden");
+
+        // call hasJoined handler to update header and join button style
+        modelChangedHandler['hasJoined'].apply(this);
       }
     }
   };
