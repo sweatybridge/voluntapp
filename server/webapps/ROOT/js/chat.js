@@ -352,7 +352,7 @@ var NotificationAdapter = (function() {
       return;
     }
     // update count badge if event is rendered in calendar
-    var controller = getEventControllerById(join.eventId);
+    var controller = getEventControllerById(unjoin.eventId);
     controller.update({
       currentCount: controller.model.currentCount - 1
     });
