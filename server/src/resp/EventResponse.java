@@ -238,7 +238,6 @@ public class EventResponse extends Response {
     if (sqlDuration != null)
       prepared.setObject(i++, sqlDuration);
     prepared.setInt(i++, max);
-    System.out.println(prepared.toString());
   }
 
   @Override

@@ -339,6 +339,7 @@ var Event = (function() {
         this.view.find(".more").removeClass("btn-pending").removeClass("btn-danger");
         this.view.find('#approve').addClass("hidden");
         this.view.find('#disapprove').addClass("hidden");
+        this.view.find('#join').removeClass("hidden");
 
         // call hasJoined handler to update header and join button style
         modelChangedHandler['hasJoined'].apply(this);
