@@ -260,7 +260,6 @@ public class EventResponse extends Response {
       found = rs.next();
       if (found) {
         setEventResponse();
-        status = EventStatus.translateToEnum(rs.getString(ACTIVE_COLUMN));
       }
     } catch (SQLException e) {
       System.err.println("Error getting the result");
