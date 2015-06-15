@@ -58,12 +58,6 @@ var Event = (function() {
       e.stopPropagation();
     });
 
-    // disable admin menu
-    var calendar = getCalendarById(model.calendarId);
-    if (calendar.role !== "admin" && calendar.role !== "owner") {
-      $(".admin-menu").hide();
-    }
-
     // show list of volunteers if admin clicks on label
     this.view.find(".count").dropdown().click(function() {
       var attendeesList = $(this).next();
@@ -111,9 +105,9 @@ var Event = (function() {
 
   Event.prototype.render = function() {
     // finds the day on calendar (if visible) and insert view sorted by start time
-    var start = new Date(this.model.startDateTime);
     if (!$.contains(document, this.view.get(0))) {
       // find the day on calendar to insert
+      var start = new Date(this.model.startDateTime);
       var day = $("#t_calendar_body").children().filter(function(k, elem) {
         return $(elem).data("date") === start.toLocaleDateString();
       });
@@ -135,6 +129,14 @@ var Event = (function() {
       if (!inserted) {
         day.append(this.view);
       }
+    }
+
+    // disable admin menu
+    var calendar = getCalendarById(this.model.calendarId);
+    if (calendar.role === "admin") {
+      $(".admin-menu").removeClass("hidden");
+    } else {
+      $(".admin-menu").addClass("hidden");
     }
   };
 
