@@ -262,6 +262,16 @@ My calendar
   z-index: 1;
 }
 
+.pending {
+  background-color: #993399;
+}
+
+.btn-pending {
+  color: #fff;
+  background-color: #993399;
+  border-color: #7A297A;
+}
+
 /*
 Responsive layout for large screens
 */

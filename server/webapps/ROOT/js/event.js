@@ -38,8 +38,14 @@ var Event = (function() {
           '<span class="glyphicon glyphicon-map-marker"></span>'+
           '<span></span>'+
         '</div>'+
-        '<div class="join">'+
+        '<div class="join" id="join">'+
           '<a class="badge" onclick="joinEvent(this)">Join</a>'+
+        '</div>'+
+        '<div class="join" id="approve">'+
+          '<a class="badge" onclick="approveEvent(this)">Approve</a>'+
+        '</div>' +  
+        '<div class="join" id="disapprove">'+
+          '<a class="badge" onclick="disapproveEvent(this)">Disapprove</a>'+
         '</div>'+
       '</div>';
 
@@ -299,6 +305,47 @@ var Event = (function() {
         if (!this.isFull) {
           this.view.find(".join .badge").removeClass("hidden");
         }
+      }
+    },
+    status: function() {
+      var status = this.model.status;
+      var calendar = getCalendarById(this.model.calendarId);
+      if (status === 'PENDING') {
+        /* ISSUES: what to do with past pending events?????
+                   after deleting one event, we have to refresh before being able to delete another*/
+        this.view.find(".header").removeClass("progress-bar-info").addClass("pending");
+        this.view.find(".more").removeClass("btn-info").addClass("btn-pending");
+        this.view.find("#join").addClass("hidden"); 
+        if (calendar.role === 'admin') {
+          this.view.find("#approve").removeClass("hidden").find("a").html("Approve");
+          this.view.find("#disapprove").removeClass("hidden").find("a").html("Disapprove");
+        } else {
+          this.view.find("#approve").addClass("hidden");
+          this.view.find("#disapprove").addClass("hidden");
+        }
+      }
+      if (status === 'DISAPPROVED') {
+        this.view.find(".header").addClass("progress-bar-danger").removeClass("pending");
+        this.view.find(".more").addClass("btn-danger").removeClass("btn-pending");
+        
+        this.view.find("#join").addClass("hidden");
+        this.view.find("#disapprove").addClass("hidden");
+        if (calendar.role !== 'admin') {
+          this.view.find('#approve').addClass("hidden");
+        }
+      }
+      if (status === 'ACTIVE') {
+        // TODO: change this so that it takes into account the possibility that the event might be past????
+        this.view.find(".header").removeClass("pending").removeClass("progress-bar-danger");
+        this.view.find(".more").removeClass("btn-pending").removeClass("btn-danger");
+        if (!this.isPast) {
+          this.view.find(".header").addClass("progress-bar-info");
+          this.view.find(".more").addClass("btn-info");
+          this.view.find("#join").removeClass("hidden").find("a").html("Join");
+          //this.view.find(".join .badge").removeClass("hidden");
+        }
+        this.view.find('#approve').addClass("hidden");
+        this.view.find('#disapprove').addClass("hidden");
       }
     }
   };
