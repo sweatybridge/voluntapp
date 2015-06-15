@@ -208,10 +208,10 @@ var Event = (function() {
       }
 
       // show / hide join button
-      if (!this.isFull && !this.isPast) {
-        this.view.find(".join .badge").removeClass("hidden");
-      } else {
+      if (this.isPast || (this.isFull && !this.model.hasJoined)) {
         this.view.find(".join .badge").addClass("hidden");
+      } else {
+        this.view.find(".join .badge").removeClass("hidden");
       }
     },
     max: function() {
@@ -232,7 +232,7 @@ var Event = (function() {
         this.view.find(".header").removeClass("progress-bar-info label-default").addClass("progress-bar-success");
         this.view.find(".more").removeClass("btn-info").addClass("btn-success");
         // update joined badge
-        this.view.find(".join .badge").addClass("progress-bar-danger").text("Unjoin");
+        this.view.find(".join .badge").removeClass("hidden").addClass("progress-bar-danger").text("Unjoin");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", true).prop("disabled", true);
       } else {
