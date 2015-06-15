@@ -28,7 +28,12 @@ function submitAjaxForm(form, successCallback, errorDiv) {
 function getCookie(name) {
   var value = "; " + document.cookie;
   var parts = value.split("; " + name + "=");
-  if (parts.length == 2) return parts.pop().split(";").shift();
+  if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
+// Uses cookie to persist app state (active calendars, etc)
+function setCookie(name, value) {
+  document.cookie = name + "=" + value;
 }
 
 // Returns the clients timezone offset

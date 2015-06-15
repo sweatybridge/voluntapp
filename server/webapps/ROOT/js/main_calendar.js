@@ -180,6 +180,8 @@ function renderCalendars() {
           return isActive;
         });
       }
+      // update cookie
+      setCookie("active_calendars", getActiveCalendarIds());
     });
 
     // Check calendar rights
@@ -201,8 +203,18 @@ function renderCalendars() {
     }
   });
 
-  // TODO: Refresh events for the calendars from cookie
-  myCalendar.children().first().click();
+  // Refresh events for the calendars from cookie
+  var active_calendars = getCookie("active_calendars");
+  if (active_calendars) {
+    myCalendar.children().each(function(k, elem) {
+      var cal = $(elem);
+      if (active_calendars.indexOf(cal.data("calid")) !== -1) {
+        cal.click();
+      }
+    });
+  } else {
+    myCalendar.children().first().click();
+  }
 }
 
 // Update data-date field of calendar view from startDate
