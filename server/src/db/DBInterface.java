@@ -979,5 +979,16 @@ public class DBInterface {
           "Deleteing a user removed more than 1 row!");
     }
   }
+  
+  public EventResponse getEvent(int eventId, AuthLevel level) throws SQLException {
+    EventResponse query = new EventResponse(eventId);
+    /* Allow editors and admins to retrieve the data about pending and 
+     * disapproved events. */
+    if (level == AuthLevel.ADMIN || level == AuthLevel.EDITOR) {
+      query.setPriviledge();
+    }
+    query(query);
+    return query;
+  }
 
 }

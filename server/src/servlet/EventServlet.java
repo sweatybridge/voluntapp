@@ -185,8 +185,19 @@ public class EventServlet extends HttpServlet {
     }
     
     /* Editor's update sets the status of the event to pending. */
-    if (role == AuthLevel.EDITOR /* && event is inactive */) {
+    EventStatus eventStatus = null;
+    try {
+      eventStatus = db.getEvent(eventId, role).getStatus();
+    } catch (SQLException e) {
+      request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
+          "Database error occurred while processing the request."));
+      return;
+    }
+    
+    /* If the event is active, don't reset its status to pending. */
+    if (role == AuthLevel.EDITOR  && eventStatus != EventStatus.ACTIVE) {
       status = EventStatus.PENDING;
+      eventReq.setEventStatus(status);
     }
     eventReq.setCalendarId(calendarId);
 
