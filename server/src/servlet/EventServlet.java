@@ -187,6 +187,7 @@ public class EventServlet extends HttpServlet {
     /* Editor's update sets the status of the event to pending. */
     if (role == AuthLevel.EDITOR /* && event is inactive */) {
       status = EventStatus.PENDING;
+      eventReq.setEventStatus(status);
     }
     eventReq.setCalendarId(calendarId);
 

@@ -238,7 +238,7 @@ var Event = (function() {
         this.view.find(".header").removeClass("progress-bar-info label-default").addClass("progress-bar-success");
         this.view.find(".more").removeClass("btn-info").addClass("btn-success");
         // update joined badge
-        this.view.find(".join .badge").removeClass("hidden").addClass("progress-bar-danger").text("Unjoin");
+        this.view.find("#join").removeClass("hidden").find(".badge").addClass("progress-bar-danger").text("Unjoin");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", true).prop("disabled", true);
       } else {
@@ -248,7 +248,7 @@ var Event = (function() {
           this.view.find(".more").addClass("btn-info").removeClass("btn-success");
         }
         // update badge
-        this.view.find(".join .badge").removeClass("progress-bar-danger").text("Join");
+        this.view.find("#join .badge").removeClass("progress-bar-danger").text("Join");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", false);
       }
@@ -313,13 +313,22 @@ var Event = (function() {
       if (status === 'PENDING') {
         /* ISSUES: what to do with past pending events?????
                    after deleting one event, we have to refresh before being able to delete another*/
-        this.view.find(".header").removeClass("progress-bar-info").addClass("pending");
-        this.view.find(".more").removeClass("btn-info").addClass("btn-pending");
+        this.view.find(".header").removeClass("progress-bar-info").removeClass("progress-bar-danger");
+        this.view.find(".more").removeClass("btn-info").removeClass("btn-danger");
         this.view.find("#join").addClass("hidden"); 
-        if (calendar.role === 'admin') {
-          this.view.find("#approve").removeClass("hidden").find("a").html("Approve");
-          this.view.find("#disapprove").removeClass("hidden").find("a").html("Disapprove");
+        
+        if (this.isPast) {
+          modelChangedHandler['endDateTime'].apply(this);
         } else {
+          this.view.find(".header").addClass("pending");
+          this.view.find(".more").addClass("btn-pending");
+          if (calendar.role === 'admin') {
+            this.view.find("#approve").removeClass("hidden");
+            this.view.find("#disapprove").removeClass("hidden");
+          } 
+        }
+
+        if (this.isPast || calendar.role !== 'admin') {
           this.view.find("#approve").addClass("hidden");
           this.view.find("#disapprove").addClass("hidden");
         }
