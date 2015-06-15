@@ -358,9 +358,9 @@ function deleteEventById(eventId) {
     method: "DELETE",
     success: function(data) {
       toastr.success("Deleted event " + event.title);
-      var index = app.events.indexOf(controller);
-      app.events.splice(index, 1);
-      controller.view.remove();
+      // var index = app.events.indexOf(controller);
+      // app.events.splice(index, 1);
+      // controller.view.remove();
       resetEventForm();
     },
     error: function(data) { $("#event_create_errors").text(data.responseJSON.message); }
