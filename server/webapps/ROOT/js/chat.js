@@ -12,6 +12,10 @@ var NotificationClientAdapter = (function() {
     this.messagesChangedHandlers.push(handler);
   };
 
+  NotificationClientAdapter.prototype.unBindMessagesChanged = function(handler) {
+    var i = this.messagesChangedHandlers.indexOf(handler);
+    this.messagesChangedHandlers.splice(i, 1);
+  };
   // adds a handler to the typingSignalReceived event
   NotificationClientAdapter.prototype.onTypingSignalReceived = function(handler) {
     this.typingSignalReceivedHandlers.push(handler);
