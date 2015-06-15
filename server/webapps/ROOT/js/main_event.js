@@ -379,7 +379,7 @@ function saveEvent(elem) {
       });
       var tmpl = 
           '<a href="#" class="list-group-item" data-event-id="{{eventId}}">'+
-            '<span>{{title}}</span>'+
+            '<span id="title">{{title}}</span>'+
             '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick=event.stopPropagation();removeSavedEvent(this)></span>'+
           '</a>';
       var savedEvent = tmpl
@@ -394,12 +394,14 @@ function saveEvent(elem) {
 // Removes an event from list of saved event templates
 function removeSavedEvent(elem) {
   var event = $(elem).closest("a");
+  var title = event.find("#title").html();
   address = "api/save/event/";
   $.ajax({
     method: "DELETE",
     url: address.concat(event.data("eventId")),
     success: function(data) {
       event.remove();
+      toastr.warning('Removed the saved event ' + title + '.');
     }
   });
 }
@@ -456,6 +458,9 @@ function approveEvent(elem) {
       controller.update({
         status: "ACTIVE"
       });
+    },
+    error: function(data) {
+      toastr.error(data.responseJSON.message);
     }
   });
 }
@@ -474,6 +479,9 @@ function disapproveEvent(elem) {
       controller.update({
         status: "DISAPPROVED"
       });
+    },
+    error: function(data) {
+      toastr.error(data.responseJSON.message);
     }
   });
 }
