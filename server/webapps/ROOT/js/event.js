@@ -84,7 +84,7 @@ var Event = (function() {
                   .replace("{{firstName}}", attendee.firstName));
               // disable removing admin himself from event (use unjoin instead)
               if (attendee.userId === app.user.userId) {
-                elem.find(".btn-remove").hide();
+                elem.find(".btn-remove").addClass("hidden");
               }
               elem.appendTo(attendeesList);
             });
@@ -208,9 +208,9 @@ var Event = (function() {
 
       // show / hide join button
       if (!this.isFull && !this.isPast) {
-        this.view.find(".join .badge").show();
+        this.view.find(".join .badge").removeClass("hidden");
       } else {
-        this.view.find(".join .badge").hide();
+        this.view.find(".join .badge").addClass("hidden");
       }
     },
     max: function() {
@@ -219,9 +219,9 @@ var Event = (function() {
     location: function() {
       // hide location if it is not set
       if (this.model.location) {
-        this.view.find(".location").show().children().last().text(" " + this.model.location);
+        this.view.find(".location :nth-child(2)").removeClass("hidden").text(" " + this.model.location);
       } else {
-        this.view.find(".location").hide();
+        this.view.find(".location").addClass("hidden");
       }
     },
     hasJoined: function() {

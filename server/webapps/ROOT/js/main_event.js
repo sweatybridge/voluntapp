@@ -301,14 +301,14 @@ function formatEventForm(formObj) {
 
 // Shows event create button and hide the rest
 function turnEventCreate() {
-  $("#btn_event_create, #btn_event_clear").show();
-  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").hide();
+  $("#btn_event_create, #btn_event_clear").removeClass("hidden");
+  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").addClass("hidden");
 }
 
 // Shows event editing buttons and hides the create
 function turnEventEdit() {
-  $("#btn_event_create, #btn_event_clear").hide();
-  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").show();
+  $("#btn_event_create, #btn_event_clear").addClass("hidden");
+  $("#btn_event_save, #btn_event_delete, #btn_event_cancel").removeClass("hidden");
 }
 
 // Updates description left characters
