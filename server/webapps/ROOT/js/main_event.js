@@ -287,6 +287,8 @@ function formatEventForm(formObj) {
   end = new Date(end.getTime() + end.getTimezoneOffset()*60*1000)
   formObj["startDateTime"] = start.toJSON().replace(".000", "");
   formObj["endDateTime"] = end.toJSON().replace(".000", "");
+  delete formObj["startDate"];
+  delete formObj["endDate"];
 }
 
 // Shows event create button and hide the rest
