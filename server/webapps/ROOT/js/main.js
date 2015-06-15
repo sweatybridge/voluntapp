@@ -43,17 +43,52 @@ $(function() {
 
   // mobile actions
   $(window).on("swipeleft", function(e) {
-    var app = $(".app");
-    app.hasClass("showleft") ? app.removeClass("showleft") : app.addClass("showright");
+    var chat = $(e.target).closest(".chat-window")[0];
+    console.log(chat)
+    if (chat) {
+      var chats = $(".chat-window");
+      var width = 235;
+      // check if there's space on the left
+      var position = parseInt(chats.first().css("right").slice(0, -2));
+      if (position + width*2 < $(window).width()) {
+        // move all chats left by 1 box
+        $.each(chats, function(k, chat) {
+          var pos = parseInt($(chat).css("right").slice(0, -2));
+          $(chat).css({
+            right: pos + width + "px"
+          })
+        });
+      }
+    } else {
+      var app = $(".app");
+      app.hasClass("showleft") ? app.removeClass("showleft") : app.addClass("showright");
+    }
   });
 
   $(window).on("swiperight", function(e) {
-    var app = $(".app");
-    app.hasClass("showright") ? app.removeClass("showright") : app.addClass("showleft");
+    var chat = $(e.target).closest(".chat-window")[0];
+    if (chat) {
+      var chats = $(".chat-window");
+      var width = 235;
+      // check if there's space on the right
+      var position = parseInt(chats.last().css("right").slice(0, -2));
+      if (position > 10) {
+        // move all chats right by 1 box
+        $.each(chats, function(k, chat) {
+          var pos = $(chat).css("right").slice(0, -2);
+          $(chat).css({
+            right: pos - width + "px"
+          })
+        });
+      }
+    } else {
+      var app = $(".app");
+      app.hasClass("showright") ? app.removeClass("showright") : app.addClass("showleft");
+    }
   });
 
   // Bind logout button
-  $("#b_logout").click(function() {
+  $("#b_logout, #b_logout_mobile").click(function() {
     $.ajax("/api/session", {
       method: "DELETE",
       success: function(data) { window.location.reload(); },

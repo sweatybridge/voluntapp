@@ -316,3 +316,23 @@ Responsive layout for large screens
     transform: translateX(0px);
   }
 }
+
+/*
+Right bar tab no collapse
+*/
+@media (min-width: 0px) {
+  .nav-tabs.nav-justified>li>a {
+    margin-bottom: 0;
+  }
+  .nav-tabs.nav-justified>li>a {
+    border-bottom: 1px solid #ddd;
+    border-radius: 4px 4px 0 0;
+  }
+  .nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:focus, .nav-tabs.nav-justified>.active>a:hover {
+    border-bottom-color: #fff;
+  }
+  .nav-tabs.nav-justified>li {
+    display: table-cell;
+    width: 1%;
+  }
+}
