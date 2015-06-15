@@ -132,11 +132,12 @@ var Event = (function() {
     }
 
     // disable admin menu
+    var menu = this.view.find(".admin-menu");
     var calendar = getCalendarById(this.model.calendarId);
     if (calendar.role === "admin") {
-      $(".admin-menu").removeClass("hidden");
+      menu.removeClass("hidden");
     } else {
-      $(".admin-menu").addClass("hidden");
+      menu.addClass("hidden");
     }
   };
 

@@ -293,5 +293,5 @@ function notifyBadge(calendarId) {
 
 // returns a fetched calendar by its id
 function getCalendarById(cid) {
-  return $.grep(app.calendars, function(e){ return e.calendarId === cid; })[0];
+  return $.grep(app.calendars, function(c){ return c.calendarId === cid; })[0];
 }
