@@ -39,6 +39,8 @@ public class DynamicUpdate {
     CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
     // Check if there any online users for the calendar
     List<Pair<Integer, AuthLevel>> calendarIds = map.getUsers(calendarId);
+    //System.out.println("CalendarId: " + calendarId + ", " + mType.toString());
+    //System.out.println(calendarIds);
     if (calendarIds != null) {
       // Get a list of user IDs
       List<Integer> userIds = new ArrayList<Integer>();
