@@ -55,6 +55,8 @@
   position: fixed;
   width: 230px;
   z-index: 10000;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 .chat-window.expansible {
   border-width: 1px;
@@ -64,11 +66,13 @@
   color: rgb(176, 176, 176);
 }
 .chat-window-title {
-  background: none repeat scroll 0 0 #EEEEEE;
-  color: #7E7E7E;
+  background: none repeat scroll 0 0 #333;
+  color: #fff;
   cursor: pointer;
   overflow: hidden;
   padding: 6px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 .chat-window-title .text {
   margin-top: 1px;
@@ -226,7 +230,12 @@ textarea.chat-window-text-box {
 }
 .chat-message .chat-text-wrapper {
   line-height: 1.2em;
-  margin-left: 30px;
+  margin-left: 40px;
+  font-size: 1.1em;
+  background-color: #eee;
+  border-radius: 5px;
+  padding: 8px;
+  
 }
 .chat-message p {
   margin: 0;
