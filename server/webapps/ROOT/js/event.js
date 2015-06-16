@@ -105,6 +105,11 @@ var Event = (function() {
     // enable more actions button
     this.view.find(".more").dropdown();
 
+    // close dropdown when menu item is clicked
+    this.view.find(".dropdown-menu").click(function() {
+      $(this).closest(".dropdown").removeClass("open");
+    })
+
     this.update(model);
   }
 
