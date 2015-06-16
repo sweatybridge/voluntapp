@@ -186,7 +186,7 @@ public class EventResponse extends Response {
             "\"%s\"='%s'::\"%s\",", ACTIVE_COLUMN, status.getName(),
             EventStatus.STATUS_ENUM_NAME));
     return (found == 0) ? null : String.format(
-        "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=?",
+        "UPDATE public.\"EVENT\" SET %s WHERE \"EID\"=? RETURNING *;",
         formatString.substring(0, formatString.length() - 1));
   }
 
