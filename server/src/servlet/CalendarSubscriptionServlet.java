@@ -100,9 +100,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         map.put(resp.getCalendarId(), userId, AuthLevel.BASIC);
         // Send the users updated roster
-        // The false indicates the internal mapping should not be modified
-        // Only modified when user comes online for the first time
-        ChatServer.sendRoster(userId, false);
+        ChatServer.sendRoster(userId);
         // Get the user from database
         UserResponse userResponse = db.getUser(new UserRequest(userId));
         DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of(
@@ -220,9 +218,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
           // Send the users updated roster
-          // The false indicates the internal mapping should not be modified
-          // Only modified when user comes online for the first time
-          ChatServer.sendRoster(targetUserId, false);
+          ChatServer.sendRoster(targetUserId);
           // Notify people that this person unjoined the calendar
           DynamicUpdate.sendCalendarUnjoin(calendarId,
               ImmutableMap.of("calendarId", calendarId, "user", targetUser));
