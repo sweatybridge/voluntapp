@@ -48,6 +48,7 @@ Event view
 .event .title {
   font-size: 17px;
   font-weight: 700;
+  overflow: hidden;
 }
 
 .event .location {
@@ -227,6 +228,10 @@ Navbar
   float: right;
   margin-right: -16px;
   border-style: none;
+}
+
+#d_user_profile {
+  overflow: hidden;
 }
 
 /*
