@@ -281,9 +281,9 @@ function updateEventForm(event) {
 
 // Adds extra fields into event form
 function formatEventForm(formObj) {
-  var start = new Date(formObj["startDate"].replace(" ", "T"));
+  var start = new Date(formObj["startDate"].replace(" ", "T").concat("Z"));
   start = new Date(start.getTime() + start.getTimezoneOffset()*60*1000)
-  var end = new Date(formObj["endDate"].replace(" ", "T"));
+  var end = new Date(formObj["endDate"].replace(" ", "T").concat("Z"));
   end = new Date(end.getTime() + end.getTimezoneOffset()*60*1000)
   formObj["startDateTime"] = start.toJSON().replace(".000", "");
   formObj["endDateTime"] = end.toJSON().replace(".000", "");
