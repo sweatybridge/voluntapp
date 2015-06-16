@@ -220,6 +220,6 @@ public class CalendarResponse extends Response {
   }
   
   public void setRole(AuthLevel role) {
-    this.role = role.toString();
+    this.role = role.toString().toLowerCase();
   }
 }
