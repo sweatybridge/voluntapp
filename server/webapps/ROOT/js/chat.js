@@ -1,3 +1,39 @@
+// Given a message board displays a message as if it came from the user
+function displayMessage(_this, message) {
+  var msg = { UserFromId: _this.options.userId,  Message: message };
+    _this.addMessage(msg);
+}
+
+// Given the message board, dumps the commands available to the user
+function showHelpMessage(_this) {
+  displayMessage(_this, "Avaliable commands are:");
+  $.each(app.commands, function (i, command) {
+    displayMessage(_this, command.command + " - " + command.helpMessage);
+  });
+}
+
+// Handles message board functions
+function handleMessage(_this) {
+  // _this is the message itself
+  var text = _this.$textBox.val();
+  // Check if it is a command
+  if (text.charAt(0) == '/') {
+    // We got a command, find which one it is
+    var found = $.grep(app.commands, function(c) { return c.command == text; });
+    if (found.length == 1) {
+      found[0].action(_this); // execute command;
+    } else {
+      // Show invalid command message
+      displayMessage(_this, "Invalid command, type /help");
+    }
+  } else {
+    // Not a command just send the message
+    _this.sendMessage(text);
+  }
+  // Clear the textbox
+  _this.$textBox.val("").trigger("autosize.resize");
+}
+
 /**
  * Notification client used for chat and real time updates. Requires web sockets.
  */

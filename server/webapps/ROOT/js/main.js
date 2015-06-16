@@ -1,5 +1,13 @@
 var app = {joined:{}};
 
+// _this refers to the messageboard that contains the text box etc.
+app.commands = [
+  { command: "/help", action: showHelpMessage, helpMessage: "displays this help message" },
+  { command: "/clear", action: function(_this) { _this.$messagesWrapper.empty(); }, helpMessage: "clears the message box" },
+  { command: "/next", action: function(_this) { $("#next_day").click(); }, helpMessage: "show next week" },
+  { command: "/prev", action: function(_this) { $("#prev_day").click(); }, helpMessage: "show previous week" }
+  ];
+
 // DOCUMENT READY
 $(function() {
   // Sets up request headers for all subsequent ajax calls

@@ -524,8 +524,7 @@ var MessageBoard = function() {
         if (e.which == 13) {
           e.preventDefault();
           if (_this.$textBox.val()) {
-            _this.sendMessage(_this.$textBox.val());
-            _this.$textBox.val("").trigger("autosize.resize")
+            handleMessage(_this);
           }
         }
       })
