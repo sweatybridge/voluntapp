@@ -216,7 +216,7 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           db.deleteCalendarSubscription(targetUserId, calendarId);
           // Notify people that this person unjoined the calendar
           DynamicUpdate.sendCalendarUnjoin(calendarId,
-              ImmutableMap.of("calendarId", calendarId, "user", targetUser));
+              ImmutableMap.of("calendarId", calendarId, "user", new UserResponse(targetUserId)));
           // Send the updated roster first
           ChatServer.sendRoster(targetUserId);
           /* Remove calendar ID to user ID mapping. */
