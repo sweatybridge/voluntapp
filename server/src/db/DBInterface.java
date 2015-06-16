@@ -1,5 +1,6 @@
 package db;
 
+import java.awt.Event;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -547,20 +548,22 @@ public class DBInterface {
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
         ereq.getEndDateTime(), ereq.getMax(), eventId, ereq.getCalendarId(),
         ereq.getStatus(), userId);
-    java.lang.reflect.Method getMethod, formatMethod;
     try {
-      getMethod = er.getClass().getMethod("getSQLUpdate");
-      formatMethod = er.getClass().getMethod("formatSQLUpdate",
-          PreparedStatement.class);
-    } catch (NoSuchMethodException e) {
-      e.printStackTrace();
-      return null;
-    } catch (SecurityException e) {
+      updateEvenHelper(er);
+    } catch (NoSuchMethodException | SecurityException e) {
       e.printStackTrace();
       return null;
     }
-    query(er, getMethod, formatMethod);
     return er;
+  }
+
+  private void updateEvenHelper(EventResponse er) throws NoSuchMethodException,
+      SecurityException, SQLException {
+    java.lang.reflect.Method getMethod, formatMethod;
+    getMethod = er.getClass().getMethod("getSQLUpdate");
+    formatMethod = er.getClass().getMethod("formatSQLUpdate",
+        PreparedStatement.class);
+    query(er, getMethod, formatMethod);
   }
 
   /**
@@ -611,35 +614,13 @@ public class DBInterface {
   public EventResponse deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
     EventResponse er = new EventResponse(eventId, EventStatus.DELETED);
-    return updateRowCheckHelper(er);
-  }
-
-  /**
-   * Helper to perform the update for a response /w a row check This should only
-   * be used when you only expect ONE row to be changed by the query.
-   * 
-   * @param r
-   *          Response representing the query to be run.
-   * @return Response corresponding to the given update
-   * @throws EventNotFoundException
-   *           See delete or update event.
-   * @throws InconsistentDataException
-   *           See delete or update event.
-   * @throws SQLException
-   *           See delete or update event.
-   */
-  private EventResponse updateRowCheckHelper(EventResponse r)
-      throws EventNotFoundException, InconsistentDataException, SQLException {
-    int rows = update(r);
-    if (rows == 1) {
-      return r;
+    try {
+      updateEvenHelper(er);
+    } catch (NoSuchMethodException | SecurityException e) {
+      e.printStackTrace();
+      return null;
     }
-    if (rows == 0) {
-      throw new EventNotFoundException(
-          "The event could not be altered, as it doesn't exist");
-    }
-    throw new InconsistentDataException(
-        "Altering event info modified more than 1 row!");
+    return er;
   }
 
   /**
