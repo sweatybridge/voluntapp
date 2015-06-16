@@ -78,20 +78,26 @@ function yesterday() {
 
 // Validation of update form
 function validateUpdate(form) {
+  console.log(form)
   form = form[0];
+
   var pass_val = form["password"].value;
-  
-  // Check password length
-  if (pass_val.length < 6) {
-    $("#profile_errors").text("New password must be at least 6 characters long");
-    return true;
-  }
-  
-  // Check confirmation
   var conf_pass_val = form["confPassword"].value;
-  if (pass_val !== conf_pass_val) {
-    $("#profile_errors").text("Password must match");
-    return true;
+  if (!pass_val || !conf_pass_val) {
+    form["password"].value = form["currentPassword"].value;
+    form["confPassword"].value = form["currentPassword"].value;
+  } else {
+    // Check password length
+    if (pass_val.length < 6) {
+      $("#profile_errors").text("New password must be at least 6 characters long");
+      return true;
+    }
+    
+    // Check confirmation
+    if (pass_val !== conf_pass_val) {
+      $("#profile_errors").text("Password must match");
+      return true;
+    }
   }
 
   // Check name only contains alphabet
