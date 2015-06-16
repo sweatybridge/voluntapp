@@ -214,14 +214,15 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         try {
           db.deleteCalendarSubscription(targetUserId, calendarId);
+          // Notify people that this person unjoined the calendar
+          DynamicUpdate.sendCalendarUnjoin(calendarId,
+              ImmutableMap.of("calendarId", calendarId, "user", targetUser));
+          // Send the updated roster first
+          ChatServer.sendRoster(targetUserId);
           /* Remove calendar ID to user ID mapping. */
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
           // Send the users updated roster
-          ChatServer.sendRoster(targetUserId);
-          // Notify people that this person unjoined the calendar
-          DynamicUpdate.sendCalendarUnjoin(calendarId,
-              ImmutableMap.of("calendarId", calendarId, "user", targetUser));
           return new SuccessResponse("User unsubscribed.");
         } catch (CalendarSubscriptionNotFoundException e) {
           return new ErrorResponse(
