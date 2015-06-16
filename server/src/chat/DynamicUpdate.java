@@ -1,14 +1,12 @@
 package chat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import req.EventSubscriptionRequest;
 import resp.CalendarResponse;
 import resp.EventResponse;
-import resp.RosterResponse;
 import utils.AuthLevel;
 import utils.Pair;
 
