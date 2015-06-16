@@ -1,6 +1,7 @@
 package chat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -140,16 +141,25 @@ public class DynamicUpdate {
   }
 
   /**
-   * Sends a "update/calendar" to subscribers to the calendar
+   * Sends a "update/calendar" to subscribers to the calendar or a single user
    * 
-   * @param calendarId
-   *          CalendarId of which the ONLINE subscribers will be notified
+   * @param targetId
+   *          targetId to send, calendarId or userId
    * @param calendar
    *          CalendarResponse to be sent
+   * @param justUser
+   *          Specifies if the target is a user or not
    */
-  public static void sendCalendarUpdate(Integer calendarId,
-      CalendarResponse calendar) {
-    sendObj(calendarId, MessageType.CALENDAR_UPDATE, calendar);
+  public static void sendCalendarUpdate(Integer targetId,
+      CalendarResponse calendar, boolean justUser) {
+    if (justUser) {
+      ChatMessage update = new ChatMessage(
+          MessageType.CALENDAR_UPDATE.getType(), Arrays.asList(targetId), -1,
+          false, calendar);
+      ChatServer.routeChatMessage(update);
+      return;
+    }
+    sendObj(targetId, MessageType.CALENDAR_UPDATE, calendar);
   }
 
   /**

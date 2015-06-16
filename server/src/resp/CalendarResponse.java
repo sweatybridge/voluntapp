@@ -31,7 +31,7 @@ public class CalendarResponse extends Response {
   private String name;
   private Boolean joinEnabled;
   private String joinCode;
-  private String role = "none";
+  private String role;
   private List<EventResponse> events;
   /**
    * Fields excluded from deserialisation.
@@ -217,5 +217,9 @@ public class CalendarResponse extends Response {
 
   public void setJoinEnabled(Boolean joinEnabled) {
     this.joinEnabled = joinEnabled;
+  }
+  
+  public void setRole(AuthLevel role) {
+    this.role = role.toString();
   }
 }

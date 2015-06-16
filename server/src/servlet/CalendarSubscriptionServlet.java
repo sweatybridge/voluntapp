@@ -250,6 +250,9 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         AuthLevel enumRole = AuthLevel.getAuth(req.getRole());
         db.updateUserRole(targetUserId, calendarId, enumRole);
+        CalendarResponse resp = new CalendarResponse(calendarId);
+        resp.setRole(enumRole);
+        DynamicUpdate.sendCalendarUpdate(targetUserId, resp, true);
         return new SuccessResponse("Updated user role.");
       } catch (CalendarSubscriptionNotFoundException e) {
         return new ErrorResponse(
