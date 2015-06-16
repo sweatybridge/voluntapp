@@ -304,6 +304,13 @@ Responsive layout for large screens
   }
 }
 
+@media (max-width: 1369px) {
+  .nav>li>a:hover {
+    text-decoration: none;
+    background-color: #fff;
+  }
+}
+
 @media (min-width: 1370px) {
   /* switch to toggle right bar */
   .app {
@@ -347,5 +354,11 @@ Right bar tab no collapse
 @media (min-width: 768px) {
   #b_logout_mobile {
     display: none;
+  }
+}
+
+@media (min-width: 1600px) {
+  .hidden-xl {
+    display: none!important;
   }
 }

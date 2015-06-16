@@ -20,7 +20,7 @@ var Event = (function() {
               '<li><a href="#" class="admin-menu" onclick="editEvent(this)">Edit Event</a></li>'+
               '<li><a href="#" class="admin-menu" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
               '<li class="divider admin-menu"></li>'+
-              '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to iCalendar</a></li>'+
+              '<li><a href="data:text/calendar;charset=utf8,{{ics}}" download="ical.ics">Add to iCalendar</a></li>'+
               '<li><a href="#" onclick="saveEvent(this)">Add to Saved Events</a></li>'+
             '</ul>'+
           '</div>'+
