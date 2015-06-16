@@ -22,7 +22,7 @@ $(function() {
   
   // Bind edit calendar buttons and forms
   $("#b_cancel_calendar").click(function() {
-    $("#d_edit_calendar").addClass("hidden");
+    $("#d_edit_calendar").toggle();
   });
   $("#b_edit_calendar").click(function(e) {
     if (!$(this).closest(".panel-heading").hasClass("collapsed")) {

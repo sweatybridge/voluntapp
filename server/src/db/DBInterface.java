@@ -1,5 +1,6 @@
 package db;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -546,7 +547,20 @@ public class DBInterface {
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
         ereq.getEndDateTime(), ereq.getMax(), eventId, ereq.getCalendarId(),
         ereq.getStatus(), userId);
-    return updateRowCheckHelper(er);
+    java.lang.reflect.Method getMethod, formatMethod;
+    try {
+      getMethod = er.getClass().getMethod("getSQLUpdate");
+      formatMethod = er.getClass().getMethod("formatSQLUpdate",
+          PreparedStatement.class);
+    } catch (NoSuchMethodException e) {
+      e.printStackTrace();
+      return null;
+    } catch (SecurityException e) {
+      e.printStackTrace();
+      return null;
+    }
+    query(er, getMethod, formatMethod);
+    return er;
   }
 
   /**
@@ -743,19 +757,34 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private boolean query(SQLQuery query, String override) throws SQLException {
+  private boolean query(SQLQuery query, java.lang.reflect.Method get,
+      java.lang.reflect.Method format) throws SQLException {
     Connection conn = source.getConnection();
     ResultSet result = null;
     try {
       String q;
-      if (override == null) {
+      if (get == null) {
         q = query.getSQLQuery();
       } else {
-        q = override;
+        try {
+          q = (String) get.invoke(query);
+        } catch (IllegalAccessException | IllegalArgumentException
+            | InvocationTargetException e) {
+          e.printStackTrace();
+          return false;
+        }
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      if (override == null) {
+      if (format == null) {
         query.formatSQLQuery(stmt);
+      } else {
+        try {
+          format.invoke(query, stmt);
+        } catch (IllegalAccessException | IllegalArgumentException
+            | InvocationTargetException e) {
+          e.printStackTrace();
+          return false;
+        }
       }
       result = stmt.executeQuery();
       query.setResult(result);
@@ -766,7 +795,7 @@ public class DBInterface {
   }
 
   private boolean query(SQLQuery query) throws SQLException {
-    return query(query, null);
+    return query(query, null, null);
   }
 
   /**
@@ -979,11 +1008,14 @@ public class DBInterface {
           "Deleteing a user removed more than 1 row!");
     }
   }
-  
-  public EventResponse getEvent(int eventId, AuthLevel level) throws SQLException {
+
+  public EventResponse getEvent(int eventId, AuthLevel level)
+      throws SQLException {
     EventResponse query = new EventResponse(eventId);
-    /* Allow editors and admins to retrieve the data about pending and 
-     * disapproved events. */
+    /*
+     * Allow editors and admins to retrieve the data about pending and
+     * disapproved events.
+     */
     if (level == AuthLevel.ADMIN || level == AuthLevel.EDITOR) {
       query.setPriviledge();
     }
