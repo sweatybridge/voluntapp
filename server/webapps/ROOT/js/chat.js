@@ -413,26 +413,20 @@ var NotificationAdapter = (function() {
   };
 
   NotificationAdapter.prototype.handleUnjoinEvent = function(unjoin) {
-    // ignore message to self
-    if (app.user.userId == unjoin.userId) {
-      return;
-    }
     // update count badge if event is rendered in calendar
     var controller = getEventControllerById(unjoin.eventId);
     controller.update({
-      currentCount: controller.model.currentCount - 1
+      currentCount: controller.model.currentCount - 1,
+      hasJoined: app.user.userId === unjoin.userId ? false : controller.model.hasJoined
     });
   };
 
   NotificationAdapter.prototype.handleJoinEvent = function(join) {
-    // ignore message to self
-    if (app.user.userId == join.userId) {
-      return;
-    }
     // update count badge if event is rendered in calendar
     var controller = getEventControllerById(join.eventId);
     controller.update({
-      currentCount: controller.model.currentCount + 1
+      currentCount: controller.model.currentCount + 1,
+      hasJoined: app.user.userId === join.userId ? true : controller.model.hasJoined
     });
   };
 
