@@ -62,7 +62,11 @@ function getMonday() {
   d = new Date();
   var day = d.getDay(),
       diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
-  return new Date(d.setDate(diff));
+  d.setDate(diff);
+  d.setHours(0);
+  d.setMinutes(0);
+  d.setSeconds(0);
+  return d;
 }
 
 // Get yesterday as date object

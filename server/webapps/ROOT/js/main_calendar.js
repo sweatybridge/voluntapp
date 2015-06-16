@@ -232,9 +232,17 @@ function updateCalendarDates() {
   var allDays = $("#t_calendar_body").children();
 
   var today = new Date();
+  var current = new Date(startDate);
   allDays.each(function(k, elem) {
-    var current = new Date(startDate);
-    current.setDate(current.getDate() + k);
+    // check if hide weekend
+    var day = current.getDay();
+    if (app.hide_weekend) {
+      if (day === 0) {
+        current.setDate(current.getDate() + 1);
+      } else if (day === 6) {
+        current.setDate(current.getDate() + 2);
+      }
+    }
 
     // update data fields
     var date = current.toLocaleDateString();
@@ -243,23 +251,18 @@ function updateCalendarDates() {
     // update heading text
     var heading = $("#t_calendar_heading td:nth-child("+(k+1)+")");
     heading.text(getWeekDay(current) + " - " + formatDate(current));
-    heading.removeClass("bg-primary").removeClass("th_weekend").removeClass("th_weekday");
 
     // highlight heading background
     if (date === today.toLocaleDateString()) {
       heading.addClass("bg-primary");
+    } else {
+      heading.removeClass("bg-primary");
     }
 
-    // update heading class
-    var day = current.getDay();
-    if (day === 0 || day === 6) {
-      heading.addClass("th_weekend");
-    } else {
-      heading.addClass("th_weekday");
-    }
+    current.setDate(current.getDate() + 1);
   });
 
-  startDate.setDate(startDate.getDate() + allDays.filter(":visible").length);
+  startDate.setDate(startDate.getDate() + allDays.filter(":visible").length - 1);
   $("#next_day").prev().text(formatDate(startDate));
 }
 

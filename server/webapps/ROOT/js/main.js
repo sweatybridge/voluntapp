@@ -24,11 +24,9 @@ $(function() {
   
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
-    // TODO: check if this train reck is the only way to do this
-    var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
-    var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
     $(this).parent().toggleClass("active");
-    $(selector).toggle();
+    app.hide_weekend = !$(this).parent().hasClass("active");
+    refreshEvents();
   });
 
   // Bind sidebar collapse
