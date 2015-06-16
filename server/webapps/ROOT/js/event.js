@@ -66,8 +66,8 @@ var Event = (function() {
       var tmpl =
         '<li data-user-id="{{userId}}" role="presentation">'+
           '<a role="menuitem" tabindex="-1" href="#">'+
-            '<span>{{firstName}}</span>'+
             '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick="removeAttendee(this)"></span>'+
+            '<span>{{firstName}}</span>'+
           '</a>'+
         '</li>';
       // By the time we get here it is considered open
@@ -88,7 +88,10 @@ var Event = (function() {
               if (attendee.userId === app.user.userId) {
                 elem.find(".btn-remove").addClass("hidden");
               }
-              elem.appendTo(attendeesList);
+              elem.click(function() {
+                $(".user-list-item[data-val-id="+attendee.userId+"]").click();
+              });
+              attendeesList.append(elem);
             });
           }
         },
