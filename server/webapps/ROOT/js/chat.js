@@ -325,6 +325,8 @@ var NotificationAdapter = (function() {
         }
         if (calendar.role) {
           app.calendars[i].role = calendar.role;
+          refreshCalendars();
+          return;
         }
         renderCalendars();
         return;

@@ -182,6 +182,9 @@ function joinEvent(elem) {
   var eid = view.data("eventId");
   var controller = getEventControllerById(eid);
   var event = controller.model;
+
+  // disable join to prevent spamming
+  view.find("#join").prop("disabled", true);
   
   // determine wether to join or unjoin
   if (event.hasJoined) {
@@ -196,7 +199,7 @@ function joinEvent(elem) {
         toastr.warning("Unjoined event " + event.title);
       },
       error: function(data) {
-        toastr.error("Cannot join event: " + data.responseJSON.message);
+        toastr.error("Cannot unjoin event: " + data.responseJSON.message);
         refreshEvents();
       }
     });
@@ -233,7 +236,7 @@ function joinEvent(elem) {
         // });
       },
       error: function(data) {
-        toastr.error("Cannot unjoin event: " + data.responseJSON.message);
+        toastr.error("Cannot join event: " + data.responseJSON.message);
         refreshEvents();
       }
     });
