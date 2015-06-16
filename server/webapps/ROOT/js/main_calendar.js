@@ -116,7 +116,7 @@ $(function() {
   });
 
   // Render calendar from monday
-  app.current_start_date = getMonday();
+  app.current_start_date = ($(window).width() < 768) ? getYesterday() : getMonday();
   updateCalendarDates();
 }); // End of document ready
 

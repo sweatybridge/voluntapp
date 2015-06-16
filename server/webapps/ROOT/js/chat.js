@@ -320,7 +320,12 @@ var NotificationAdapter = (function() {
     // Update calendar if it is already in the list
     for (var i = 0; i < app.calendars.length; i++) {
       if (app.calendars[i].calendarId == calendar.calendarId) {
-        app.calendars[i].name = calendar.name; // We found it
+        if (calendar.name) {
+          app.calendars[i].name = calendar.name; // We found it
+        }
+        if (calendar.role) {
+          app.calendars[i].role = calendar.role;
+        }
         renderCalendars();
         return;
       }

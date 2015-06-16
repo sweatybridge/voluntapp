@@ -70,9 +70,12 @@ function getMonday() {
 }
 
 // Get yesterday as date object
-function yesterday() {
+function getYesterday() {
   var today = new Date();
   today.setDate(today.getDate() - 1);
+  today.setHours(0);
+  today.setMinutes(0);
+  today.setSeconds(0);
   return today;
 }
 
