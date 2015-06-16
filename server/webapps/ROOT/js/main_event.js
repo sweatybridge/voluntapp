@@ -189,10 +189,10 @@ function joinEvent(elem) {
     $.ajax("/api/subscription/event/" + eid, {
       method: "DELETE",
       success: function(data) {
-        controller.update({
-          currentCount: event.currentCount - 1,
-          hasJoined: false
-        });
+        // controller.update({
+        //   currentCount: event.currentCount - 1,
+        //   hasJoined: false
+        // });
         toastr.warning("Unjoined event " + event.title);
       },
       error: function(data) {
@@ -227,10 +227,10 @@ function joinEvent(elem) {
       method: "POST",
       success: function(data) {
         toastr.success("Joined event " + event.title);
-        controller.update({
-          currentCount: event.currentCount + 1,
-          hasJoined: true
-        });
+        // controller.update({
+        //   currentCount: event.currentCount + 1,
+        //   hasJoined: true
+        // });
       },
       error: function(data) {
         toastr.error("Cannot unjoin event: " + data.responseJSON.message);
