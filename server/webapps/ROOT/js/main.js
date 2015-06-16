@@ -58,7 +58,13 @@ $(function() {
       }
     } else {
       var app = $(".app");
-      app.hasClass("showleft") ? app.removeClass("showleft") : app.addClass("showright");
+      if (app.hasClass("showleft")) {
+        app.removeClass("showleft");
+        $("#b_hide_left").parent().removeClass("active");
+      } else {
+        app.addClass("showright");
+        $("#b_hide_right").parent().addClass("active");
+      }
     }
   });
 
@@ -80,7 +86,13 @@ $(function() {
       }
     } else {
       var app = $(".app");
-      app.hasClass("showright") ? app.removeClass("showright") : app.addClass("showleft");
+      if (app.hasClass("showright")) {
+        app.removeClass("showright");
+        $("#b_hide_right").parent().removeClass("active");
+      } else {
+        app.addClass("showleft");
+        $("#b_hide_left").parent().addClass("active");
+      }
     }
   });
 

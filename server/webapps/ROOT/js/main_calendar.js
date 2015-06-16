@@ -154,6 +154,8 @@ function renderCalendars() {
   // We got calendars, clear division to repopulate
   myCalendar.empty();
   app.events = [];
+  $("#t_calendar_body").children().empty();
+
   // If there is any, create calendar elements
   $.each(app.calendars, function(index, calendar) {
     var code = calendar.joinEnabled ? calendar.joinCode : "private";
@@ -197,15 +199,6 @@ function renderCalendars() {
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
        .text(calendar.name));
-      /*
-      cal_div.find("button").click(function() {
-        var calid = $(this).parent().parent().data("calid");
-        $("#d_edit_calendar input[name='name']").val(calendar.name);
-        $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
-        $("#d_user_calendars").toggle();
-        $("#d_edit_calendar").data("calid", calid).toggle();
-      });
-      */
     }
   });
 
@@ -228,11 +221,10 @@ function updateCalendarDates() {
   var startDate = new Date(app.current_start_date);
   $("#pickStartDate").datetimepicker({value: startDate});
 
-  $("#prev_day").next().text(formatDate(startDate));
   var allDays = $("#t_calendar_body").children();
-
   var today = new Date();
   var current = new Date(startDate);
+  var last = allDays.filter(":visible").length - 1;
   allDays.each(function(k, elem) {
     // check if hide weekend
     var day = current.getDay();
@@ -242,6 +234,11 @@ function updateCalendarDates() {
       } else if (day === 6) {
         current.setDate(current.getDate() + 2);
       }
+    }
+
+    // update first day
+    if (k === 0) {
+      $("#prev_day").next().text(formatDate(current));
     }
 
     // update data fields
@@ -259,11 +256,13 @@ function updateCalendarDates() {
       heading.removeClass("bg-primary");
     }
 
+    // update last day
+    if (k === last) {
+      $("#next_day").prev().text(formatDate(current));
+    }
+
     current.setDate(current.getDate() + 1);
   });
-
-  startDate.setDate(startDate.getDate() + allDays.filter(":visible").length - 1);
-  $("#next_day").prev().text(formatDate(startDate));
 }
 
 // Get active_calendar ids
