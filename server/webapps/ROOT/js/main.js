@@ -105,7 +105,7 @@ $(function() {
   });
 
   // Bind logout button
-  $("#b_logout, #b_logout_mobile").click(function() {
+  $("#b_logout").click(function() {
     $.ajax("/api/session", {
       method: "DELETE",
       success: function(data) { window.location.reload(); },
