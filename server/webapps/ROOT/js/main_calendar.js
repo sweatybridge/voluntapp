@@ -144,17 +144,19 @@ function renderCalendars() {
   // Clean current visible data
   myCalendar.html("It seems like you haven't joined to or created any calendars...");
   $("#select_calendar").empty();
-  
+
+  // We got calendars, clear division to repopulate
+  app.events = [];
+  $("#t_calendar_body").children().empty();
+
   // Check if there is any calendars returned
   if (app.calendars.length < 1) {
     $('#nav_create_tabs a:last').tab('show');
+    setCookie("active_calendars", []);
     return;
   }
-  
-  // We got calendars, clear division to repopulate
+
   myCalendar.empty();
-  app.events = [];
-  $("#t_calendar_body").children().empty();
 
   // If there is any, create calendar elements
   $.each(app.calendars, function(index, calendar) {

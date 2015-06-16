@@ -337,9 +337,9 @@ var NotificationAdapter = (function() {
   NotificationAdapter.prototype.handleJoinCalendar = function(join) {
     // join object: calendarId, user field. User expands to normal user object
     // ignore message to self
-    if (app.user.userId == join.user.userId) {
-      return;
-    }
+    // if (app.user.userId == join.user.userId) {
+    //   return;
+    // }
     // Check if the user already exists somehow
     for (var i = 0; i < this.server.users.length; i++) {
       if (this.server.users[i].Id == join.user.userId) {
@@ -366,15 +366,16 @@ var NotificationAdapter = (function() {
     }
   };
   
-  NotificationAdapter.prototype.handleUnjoinCalendar = function(join) {
-    // join object same as in joinCalendar, see above function
+  NotificationAdapter.prototype.handleUnjoinCalendar = function(unjoin) {
+    // unjoin object same as in joinCalendar, see above function
     // ignore message to self
-    if (app.user.userId == join.user.userId) {
+    if (app.user.userId === unjoin.user.userId) {
+      refreshCalendars();
       return;
     }
     // Check if the user already exists, probably should
     for (var i = 0; i < this.server.users.length; i++) {
-      if (this.server.users[i].Id == join.user.userId) {
+      if (this.server.users[i].Id == unjoin.user.userId) {
         this.server.users.splice(i, 1);
         this.server.enterRoom(NotificationServerAdapter.DEFAULT_ROOM_ID); // Refresh list
         return;
