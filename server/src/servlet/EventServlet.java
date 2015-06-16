@@ -167,23 +167,23 @@ public class EventServlet extends HttpServlet {
     int calendarId = db.getCalendarId(new CalendarEventIdQuery(eventId));
     AuthLevel role = db.authoriseUser(userId, calendarId);
     EventStatus status = eventReq.getStatus();
-    
+
     /* Prevent users from deleting events by doing updates. */
     if (status == EventStatus.DELETED) {
       request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
           "Request not RESTful enough, use DELETE method to delete events."));
       return;
     }
-    
+
     /* Only editors and admins can update the events. */
-    if ((role != AuthLevel.EDITOR && role != AuthLevel.ADMIN) || 
+    if ((role != AuthLevel.EDITOR && role != AuthLevel.ADMIN)
+        ||
         /* Only admins are allowed to activate or disapprove events. */
-        ((status == EventStatus.ACTIVE || status == EventStatus.DISAPPROVED) 
-            && role != AuthLevel.ADMIN)) {
+        ((status == EventStatus.ACTIVE || status == EventStatus.DISAPPROVED) && role != AuthLevel.ADMIN)) {
       setUnauthorisedAccessErrorResponse(request);
       return;
     }
-    
+
     /* Editor's update sets the status of the event to pending. */
     EventStatus eventStatus = null;
     try {
@@ -193,9 +193,9 @@ public class EventServlet extends HttpServlet {
           "Database error occurred while processing the request."));
       return;
     }
-    
+
     /* If the event is active, don't reset its status to pending. */
-    if (role == AuthLevel.EDITOR  && eventStatus != EventStatus.ACTIVE) {
+    if (role == AuthLevel.EDITOR && eventStatus != EventStatus.ACTIVE) {
       status = EventStatus.PENDING;
       eventReq.setEventStatus(status);
     }
@@ -208,11 +208,11 @@ public class EventServlet extends HttpServlet {
         request.setAttribute(Response.class.getSimpleName(), new ErrorResponse(
             "Update of the event data was not successful."));
       } else {
-        /* If the user is an admin and they activated the event, update 
-         * everyone on the calendar. Otherwise, update only editors and
-         * admins. */
-        boolean updateEveryone = (role == AuthLevel.ADMIN && 
-            eventReq.getStatus() == EventStatus.ACTIVE);
+        /*
+         * If the event is active then update everyone on the calendar.
+         * Otherwise, update only editors and admins.
+         */
+        boolean updateEveryone = (resp.getStatus() == EventStatus.ACTIVE);
         DynamicUpdate.sendEventUpdate(calendarId, resp, updateEveryone);
         request.setAttribute(Response.class.getSimpleName(), resp);
       }

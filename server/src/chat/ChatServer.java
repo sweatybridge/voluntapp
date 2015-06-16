@@ -2,7 +2,6 @@ package chat;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -104,28 +103,8 @@ public class ChatServer {
     }
 
     try {
-      RosterResponse roster = db.getRoster(userId);
-      // Signal that the user came online if we have to
-      if (userCameOnline) {
-        Set<Integer> calendarIds = new HashSet<Integer>();
-        for (RosterEntry entry : roster.getRosterEntries()) {
-          calendarIds.addAll(entry.getcids());
-          entry.setIsOnline(connections.get(entry.getuid()) != null);
-        }
-        /* Record that a user is subscribed to given calendars. */
-        CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
-        for (Integer calendarId : calendarIds) {
-          map.put(calendarId, userId, db.authoriseUser(userId, calendarId));
-        }
-        DynamicUpdate.sendOnlineUser(calendarIds, userId);
-      }
-
-      // Send the actual user roster
-      List<Integer> destinationIds = new ArrayList<Integer>(2);
-      destinationIds.add(userId);
-      ChatMessage rosterMessage = new ChatMessage("roster", destinationIds, -1,
-          false, roster);
-      routeChatMessage(rosterMessage);
+      // Send the user roster
+      sendRoster(userId, userCameOnline);
 
       // Return any offline messages
       List<ChatMessage> cms = db.getMessages(userId);
@@ -196,6 +175,45 @@ public class ChatServer {
   public void onError(Throwable t) throws Throwable {
     System.err.println("ChatServer Error: " + t.toString());
     t.printStackTrace();
+  }
+
+  /**
+   * Sends the user its roster, if the userCameOnline then the session mapping
+   * is updated as well, otherwise just the roster is sent.
+   * 
+   * @param userId
+   *          The user to whom the roster should be sent
+   * @param userCameOnline
+   *          Indicates whether the user just came online
+   * @throws SQLException
+   *           Thrown when database fails to retrieve roster
+   */
+  public static void sendRoster(Integer userId, boolean userCameOnline)
+      throws SQLException {
+    // Get the actual user roster
+    RosterResponse roster = db.getRoster(userId);
+    
+    // Extract calendarIds updating online status of people
+    Set<Integer> calendarIds = new HashSet<Integer>();
+    for (RosterEntry entry : roster.getRosterEntries()) {
+      calendarIds.addAll(entry.getcids());
+      entry.setIsOnline(connections.get(entry.getuid()) != null);
+    }
+    
+    // Signal that the user came online if we have to
+    if (userCameOnline) {
+      /* Record that a user is subscribed to given calendars. */
+      CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+      for (Integer calendarId : calendarIds) {
+        map.put(calendarId, userId, db.authoriseUser(userId, calendarId));
+      }
+      DynamicUpdate.sendOnlineUser(calendarIds, userId);
+    }
+
+    // Send the actual user roster
+    ChatMessage rosterMessage = new ChatMessage("roster",
+        Arrays.asList(userId), -1, false, roster);
+    routeChatMessage(rosterMessage);
   }
 
   /**

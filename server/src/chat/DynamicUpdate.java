@@ -39,17 +39,18 @@ public class DynamicUpdate {
     CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
     // Check if there any online users for the calendar
     List<Pair<Integer, AuthLevel>> calendarIds = map.getUsers(calendarId);
-    //System.out.println("CalendarId: " + calendarId + ", " + mType.toString());
-    //System.out.println(calendarIds);
+    // System.out.println("CalendarId: " + calendarId + ", " +
+    // mType.toString());
+    // System.out.println(calendarIds);
     if (calendarIds != null) {
       // Get a list of user IDs
       List<Integer> userIds = new ArrayList<Integer>();
       for (Pair<Integer, AuthLevel> pair : calendarIds) {
         userIds.add(pair.getKey());
       }
-      //System.out.println("User ID to which object is sent: " + userIds.toString());
-      ChatMessage cm = new ChatMessage(mType.getType(),
-          userIds, -1, false, obj);
+      // System.out.println("User ID to which object is sent: " +
+      // userIds.toString());
+      ChatMessage cm = new ChatMessage(mType.getType(), userIds, -1, false, obj);
       ChatServer.routeChatMessage(cm);
     }
   }
@@ -92,13 +93,13 @@ public class DynamicUpdate {
    * @param event
    *          Event object to be sent
    * @param all
-   *          If set, the message is sent to all subscribers, otherwise
-   *          only to editors and admins.
+   *          If set, the message is sent to all subscribers, otherwise only to
+   *          editors and admins.
    */
-  public static void sendEventUpdate(Integer calendarId, EventResponse event, 
+  public static void sendEventUpdate(Integer calendarId, EventResponse event,
       boolean all) {
     if (all) {
-      //System.out.println("Sending event to everyone.");
+      // System.out.println("Sending event to everyone.");
       sendObj(calendarId, MessageType.EVENT_UPDATE, event);
     } else {
       // Send the message to editors and admins only
@@ -109,7 +110,8 @@ public class DynamicUpdate {
         // Get a list of IDs of admins and editors
         List<Integer> userIds = new ArrayList<Integer>();
         for (Pair<Integer, AuthLevel> pair : calendarIds) {
-          if (pair.getValue() == AuthLevel.ADMIN || pair.getValue() == AuthLevel.EDITOR) {
+          if (pair.getValue() == AuthLevel.ADMIN
+              || pair.getValue() == AuthLevel.EDITOR) {
             userIds.add(pair.getKey());
           }
         }
@@ -130,7 +132,11 @@ public class DynamicUpdate {
    *          Event object to be sent
    */
   public static void sendEventDelete(Integer calendarId, EventResponse event) {
-    sendObj(calendarId, MessageType.EVENT_DELETE, ImmutableMap.of("eventId", event.getEventId(), "calendarId", event.getCalendarId()));
+    sendObj(
+        calendarId,
+        MessageType.EVENT_DELETE,
+        ImmutableMap.of("eventId", event.getEventId(), "calendarId",
+            event.getCalendarId()));
   }
 
   /**
@@ -167,10 +173,11 @@ public class DynamicUpdate {
    * @param resp
    *          map object to be sent
    */
-  public static void sendCalendarJoin(Integer calendarId, ImmutableMap<String, Object> immutableMap) {
+  public static void sendCalendarJoin(Integer calendarId,
+      ImmutableMap<String, Object> immutableMap) {
     sendObj(calendarId, MessageType.CALENDAR_JOIN, immutableMap);
   }
-  
+
   /**
    * Sends a unjoined update to the current subscribers.
    * 
@@ -179,7 +186,8 @@ public class DynamicUpdate {
    * @param resp
    *          map object to be sent
    */
-  public static void sendCalendarUnjoin(Integer calendarId, ImmutableMap<String, Object> immutableMap) {
+  public static void sendCalendarUnjoin(Integer calendarId,
+      ImmutableMap<String, Object> immutableMap) {
     sendObj(calendarId, MessageType.CALENDAR_UNJOIN, immutableMap);
   }
 

@@ -18,6 +18,7 @@ import resp.UserResponse;
 import utils.AuthLevel;
 import utils.CalendarJoinCodeIdQuery;
 import utils.ServletUtils;
+import chat.ChatServer;
 import chat.DynamicUpdate;
 
 import com.google.common.collect.ImmutableMap;
@@ -98,7 +99,10 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         /* Register calendar ID to user ID mapping. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         map.put(resp.getCalendarId(), userId, AuthLevel.BASIC);
-        // Send dynamic update to the owner (creator)
+        // Send the users updated roster
+        // The false indicates the internal mapping should not be modified
+        // Only modified when user comes online for the first time
+        ChatServer.sendRoster(userId, false);
         // Get the user from database
         UserResponse userResponse = db.getUser(new UserRequest(userId));
         DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of(
@@ -215,6 +219,11 @@ public class CalendarSubscriptionServlet extends HttpServlet {
           /* Remove calendar ID to user ID mapping. */
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
+          // Send the users updated roster
+          // The false indicates the internal mapping should not be modified
+          // Only modified when user comes online for the first time
+          ChatServer.sendRoster(targetUserId, false);
+          // Notify people that this person unjoined the calendar
           DynamicUpdate.sendCalendarUnjoin(calendarId,
               ImmutableMap.of("calendarId", calendarId, "user", targetUser));
           return new SuccessResponse("User unsubscribed.");
