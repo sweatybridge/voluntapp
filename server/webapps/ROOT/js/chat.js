@@ -15,6 +15,14 @@ var NotificationClientAdapter = (function() {
   NotificationClientAdapter.prototype.unBindMessagesChanged = function(handler) {
     var i = this.messagesChangedHandlers.indexOf(handler);
     this.messagesChangedHandlers.splice(i, 1);
+    // snap friends list back in view
+    var chat = $(".chat-window").first();
+    var position = parseInt(chat.css("right").slice(0, -2));
+    if (position < 0) {
+      chat.css({
+        right: "10px"
+      })
+    }
   };
   // adds a handler to the typingSignalReceived event
   NotificationClientAdapter.prototype.onTypingSignalReceived = function(handler) {

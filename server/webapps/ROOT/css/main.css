@@ -351,6 +351,9 @@ Right bar tab no collapse
   }
 }
 
+#b_logout_mobile {
+  font-size: 15px;
+}
 @media (min-width: 768px) {
   #b_logout_mobile {
     display: none;
