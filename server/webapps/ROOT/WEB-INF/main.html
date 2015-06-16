@@ -73,9 +73,12 @@
                   <ul id="d_user_calendars" class="nav nav-pills nav-stacked"></ul>
                 </div>
                 <div id="d_edit_calendar" class="panel-body" style="display: none;">
+                  <p>Select the calendars you wish the unsubscribe from above. Remember that you cannot unsubscribe if you are the calendar's admin.</p>
                   <button id="b_unsub_calendar" type="button" class="btn btn-primary">Unsubscribe</button>
+                  <hr>
                   <p>Deleting a calendar will delete all corresponding events as well. Click CANCEL to close this window.</p>
                   <button id="b_delete_calendar" type="button" class="btn btn-danger">Delete selected calendars</button>
+                  <hr>
                   <form role="form" id="user_promotion_form" action="/api/subscription/calendar" method="put" autocomplete="off">
                     <p>Enter the user email that you want the perform the action. Remember that the user must be part of this calendar by joining.</p>
                     <div class="form-group"><input type="email" class="form-control" name="targetUserEmail" placeholder="User email" required>
@@ -88,6 +91,7 @@
                     <input class="btn btn-primary" type="submit" value="Update User">
                     <p class="form-error" id="user_promotion_errors"></p>
                   </form>
+                  <hr>
                   <form role="form" id="calendar_edit_form" action="/api/calendar" method="put" autocomplete="off">
                     <p>You can change the name of the calendar, as well as enable or disable joining. The join code of a calendar is unique and cannot be changed.</p>
                     <div class="form-group"><input type="text" name="name" class="form-control" placeholder="Name" required></div>
@@ -116,13 +120,13 @@
                     <button id="b_update_profile" type="button" class="btn btn-info">Update</button>
                   </div>
                   <form class="form-centre" style="display: none;" role="form" id="profile_form" action="/api/user" method="put" autocomplete="on">
-                    <p>You have to change your password even if you want to only update your email or name as an extra security measure.</p>
-                    <div class="form-group"><input type="email" name="email" data-bind="email" class="form-control" placeholder="Email" autofocus required></div>
+                    <p>You have to enter your current password if you want to update your name as an extra security measure.</p>
+                    <div class="form-group"><input type="email" name="email" data-bind="email" class="form-control" placeholder="Email" disabled required></div>
                     <div class="form-group"><input type="text" name="firstName" data-bind="firstName" class="form-control" placeholder="First name" required></div>
                     <div class="form-group"><input type="text" name="lastName" data-bind="lastName" class="form-control" placeholder="Last name (optional)"></div>
                     <div class="form-group"><input type="password" name="currentPassword" class="form-control" placeholder="Current password" required></div>
-                    <div class="form-group"><input type="password" name="password" class="form-control" placeholder="New password" required></div>
-                    <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm new password" required></div>
+                    <div class="form-group"><input type="password" name="password" class="form-control" placeholder="New password"></div>
+                    <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm new password"></div>
                     <div class="form-group">
                       <input class="btn btn-primary" type="submit" value="Update">
                       <input id="b_cancel_profile" type="button" class="btn btn-danger" value="Cancel">

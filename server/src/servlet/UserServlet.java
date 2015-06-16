@@ -131,7 +131,7 @@ public class UserServlet extends HttpServlet {
     // We should have returned an error response if null
     assert (rr != null);
     // Make sure it is a valid request
-    if (!rr.isValid()) {
+    if (!rr.isPartiallyValid()) {
       resp = new ErrorResponse("Provided data is invalid.");
       request.setAttribute(Response.class.getSimpleName(), resp);
       return;

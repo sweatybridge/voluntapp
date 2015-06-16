@@ -43,6 +43,14 @@ public class RegisterRequest implements Request {
             .isAlpha(lastName));
   }
 
+  public boolean isPartiallyValid() {
+    return (email == null || EmailValidator.getInstance().isValid(email))
+        && (password != null && password.length() >= 6)
+        && (firstName != null && StringUtils.isAlpha(firstName))
+        && (lastName == null || lastName.isEmpty() || StringUtils
+            .isAlpha(lastName));
+  }
+
   public String getEmail() {
     return email;
   }
