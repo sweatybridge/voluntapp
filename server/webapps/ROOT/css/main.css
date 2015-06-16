@@ -240,12 +240,22 @@ My calendar
   color: #337ab7;
   font-weight: 700;
 }
+.calendar-badges {
+  position: absolute;
+  right: 5px
+}
+.calendar-badges :nth-child(2) {
+  border-bottom-right-radius: 0px;
+  border-top-right-radius: 0px;
+}
+.calendar-badges :nth-child(1) {
+  border-bottom-left-radius: 0px;
+  border-top-left-radius: 0px;
+}
 .join-code {
   float: right;
   font-size: 96%;
   font-weight: 400;
-  margin-right: -5px;
-  margin-left: 10px;
 }
 #pickStartDate {
   border: 0px;

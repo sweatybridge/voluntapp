@@ -132,10 +132,11 @@ function renderCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
         '<span class="badge progress-bar-warning notification hidden"></span>'+
-        '<a href="#">'+
-          '<span>{{name}}</span>'+
-          '<span class="label label-warning join-code">{{role}}</span>'+
-          '<span class="label label-primary join-code">{{joinCode}}</span>'+
+        '<a href="#">{{name}}'+
+          '<span class="calendar-badges">'+
+            '<span class="label label-warning join-code">{{role}}</span>'+
+            '<span class="label label-primary join-code">{{joinCode}}</span>'+
+          '</span>'+
         '</a>'+
       '</li>';
 
