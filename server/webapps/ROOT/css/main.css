@@ -241,11 +241,11 @@ My calendar
   font-weight: 700;
 }
 .join-code {
-  position: absolute;
-  right: 10px;
+  float: right;
   font-size: 96%;
   font-weight: 400;
-  /*background-color: #999;*/
+  margin-right: -5px;
+  margin-left: 10px;
 }
 #pickStartDate {
   border: 0px;
@@ -334,5 +334,11 @@ Right bar tab no collapse
   .nav-tabs.nav-justified>li {
     display: table-cell;
     width: 1%;
+  }
+}
+
+@media (min-width: 768px) {
+  #b_logout_mobile {
+    display: none;
   }
 }

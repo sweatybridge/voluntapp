@@ -132,7 +132,11 @@ function renderCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
         '<span class="badge progress-bar-warning notification hidden"></span>'+
-        '<a href="#">{{name}}<span class="label label-primary join-code">{{joinCode}}</span></a>'+
+        '<a href="#">'+
+          '<span>{{name}}</span>'+
+          '<span class="label label-warning join-code">{{role}}</span>'+
+          '<span class="label label-primary join-code">{{joinCode}}</span>'+
+        '</a>'+
       '</li>';
 
   var myCalendar = $("#d_user_calendars");
@@ -155,6 +159,7 @@ function renderCalendars() {
     var cal_div = $(cal_html
         .replace("{{id}}", calendar.calendarId)
         .replace("{{name}}", calendar.name)
+        .replace("{{role}}", calendar.role.charAt(0).toUpperCase())
         .replace("{{joinCode}}", code))
         .appendTo(myCalendar);
     if (calendar.role === "admin") {

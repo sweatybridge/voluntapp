@@ -44,7 +44,6 @@ $(function() {
   // mobile actions
   $(window).on("swipeleft", function(e) {
     var chat = $(e.target).closest(".chat-window")[0];
-    console.log(chat)
     if (chat) {
       var chats = $(".chat-window");
       var width = 235;
@@ -52,7 +51,7 @@ $(function() {
       var position = parseInt(chats.first().css("right").slice(0, -2));
       if (position + width*2 < $(window).width()) {
         // move all chats left by 1 box
-        $.each(chats, function(k, chat) {
+        chats.each(function(k, chat) {
           var pos = parseInt($(chat).css("right").slice(0, -2));
           $(chat).css({
             right: pos + width + "px"
@@ -74,7 +73,7 @@ $(function() {
       var position = parseInt(chats.last().css("right").slice(0, -2));
       if (position > 10) {
         // move all chats right by 1 box
-        $.each(chats, function(k, chat) {
+        chats.each(function(k, chat) {
           var pos = $(chat).css("right").slice(0, -2);
           $(chat).css({
             right: pos - width + "px"
