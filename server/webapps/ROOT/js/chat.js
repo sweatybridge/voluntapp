@@ -1,3 +1,16 @@
+// Document ready
+$(function() {
+  // Bind the chat commands
+  // _this refers to the messageboard that contains the text box etc.
+  app.commands = [
+    { command: "/help", action: showHelpMessage, helpMessage: "displays this help message" },
+    { command: "/clear", action: function(_this) { _this.$messagesWrapper.empty(); }, helpMessage: "clears the message box" },
+    { command: "/weekend", action: function(_this) { $("#b_hide_weekend").click(); }, helpMessage: "toggle weekend" },
+    { command: "/next", action: function(_this) { $("#next_day").click(); }, helpMessage: "show next week" },
+    { command: "/prev", action: function(_this) { $("#prev_day").click(); }, helpMessage: "show previous week" }
+    ];
+}); // End of document ready
+
 // Given a message board displays a message as if it came from the user
 function displayMessage(_this, message) {
   var msg = { UserFromId: _this.options.userId,  Message: message };
