@@ -13,7 +13,7 @@ import org.postgresql.ds.PGConnectionPoolDataSource;
 
 import servlet.CalendarServlet;
 import servlet.CalendarSubscriptionServlet;
-import servlet.DefaultServlet;
+import servlet.StaticFileServlet;
 import servlet.EventServlet;
 import servlet.EventSubscriptionServlet;
 import servlet.SavedEventServlet;
@@ -64,7 +64,7 @@ public class Application implements ServletContextListener {
             "/api/*");
 
     // Instantiate servlets and add mappings
-    context.addServlet(DefaultServlet.class.getName(), new DefaultServlet(db))
+    context.addServlet(StaticFileServlet.class.getName(), new StaticFileServlet(db))
         .addMapping("");
     context.addServlet(UserServlet.class.getName(), new UserServlet(gson, db))
         .addMapping("/api/user");
