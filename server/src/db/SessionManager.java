@@ -23,7 +23,9 @@ import exception.SessionNotFoundException;
  * 
  */
 public class SessionManager {
-
+  
+  private static int SESSION_ID_LENGTH = 26;
+  
   private SessionIdGenerater sessionGenerater;
   private DBInterface db;
 
@@ -46,7 +48,11 @@ public class SessionManager {
     private SecureRandom random = new SecureRandom();
 
     public String genSessionId() {
-      return new BigInteger(130, random).toString(32);
+      String result = new BigInteger(130, random).toString(32);
+      while (result.length() < SESSION_ID_LENGTH) {
+        result = '0' + result;
+      }
+      return result;
     }
   }
 
