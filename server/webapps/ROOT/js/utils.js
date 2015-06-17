@@ -51,6 +51,14 @@ function formatDate(date) {
   return str.substring(str.indexOf(' ') + 1, str.lastIndexOf(' '));
 }
 
+// Get 2 digit number back if 1 digit
+function padDigit(num) {
+  if (num < 10) {
+    return '0'+num;
+  }
+  return num;
+}
+
 // Format day of week, TODO: put this into date prototype
 function getWeekDay(date) {
   var str = date.toDateString();

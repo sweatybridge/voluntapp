@@ -2,11 +2,20 @@
 $(function() {
   // Bind datetime picker
   // http://xdsoft.net/jqplugins/datetimepicker/
-  $(".datetimepicker").each(function(k, elem) {
-    $(elem).datetimepicker({
-      format: "Y-m-d H:i"
-    });
+  $("#event_form input[name='startDate']").datetimepicker({
+    format: "Y-m-d H:i",
+    onChangeDateTime: function(dp,$input){
+      var time = padDigit(dp.getHours()) + ':' + padDigit(dp.getMinutes());
+      $("#event_form input[name='endDate']").prop("disabled", false).datetimepicker({
+        format: "Y-m-d H:i",
+        startDate: dp,
+        minDate: dp,
+        minTime: time, formatTime: "H:i"
+      });
+    }
   });
+  
+  
   
   // Bind the pick start date input
   $("#pickStartDate").datetimepicker({

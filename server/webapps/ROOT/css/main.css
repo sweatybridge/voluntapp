@@ -23,6 +23,14 @@ body {
   font-family: "Benton Sans","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
 }
 
+.form-control[readonly] {
+  background-color: #fff;
+}
+
+.form-control[disabled] {
+  background-color: #eee;
+}
+
 /*
 Calendar view
 */
