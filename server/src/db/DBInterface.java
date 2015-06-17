@@ -755,6 +755,9 @@ public class DBInterface {
           return false;
         }
       }
+      if (q == null) {
+        return true;
+      }
       PreparedStatement stmt = conn.prepareStatement(q);
       if (format == null) {
         query.formatSQLQuery(stmt);
