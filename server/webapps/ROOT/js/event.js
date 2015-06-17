@@ -62,7 +62,7 @@ var Event = (function() {
 
     // show list of volunteers if admin clicks on label
     this.view.find(".count").dropdown().click(function() {
-      var attendeesList = $(this).next();
+      var attendeesList = $(this).siblings(".dropdown-menu");
       var tmpl =
         '<li data-user-id="{{userId}}" role="presentation">'+
           '<a role="menuitem" tabindex="-1" href="#">'+
