@@ -6,7 +6,7 @@ $(function() {
     format: "Y-m-d H:i",
     onChangeDateTime: function(dp,$input){
       var time = padDigit(dp.getHours()) + ':' + padDigit(dp.getMinutes());
-      $("#event_form input[name='endDate']").prop("disabled", false).datetimepicker({
+      $("#event_form input[name='endDate']").val($input.val()).datetimepicker({
         format: "Y-m-d H:i",
         startDate: dp,
         minDate: dp,

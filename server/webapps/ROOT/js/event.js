@@ -40,7 +40,7 @@ var Event = (function() {
         '</div>'+
         '<div class="join">'+
           '<button class="btn badge btn-primary" id="join" onclick="joinEvent(this)">Join</button>'+
-          '<button class="btn badge btn-success" id="approve" onclick="approveEvent(this)"> ✔ </button>'+
+          '<button class="btn badge btn-success" id="approve" onclick="approveEvent(this)" style="margin-right: 5px;"> ✔ </button>'+
           '<button class="btn badge btn-danger" id="disapprove" onclick="disapproveEvent(this)"> ✘ </button>'+
         '</div>'+
       '</div>';

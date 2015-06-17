@@ -81,7 +81,7 @@ public class EventRequest implements Request {
     calEndDateTime =
         CalendarValidator.getInstance().validate(endDateTime, UTC_PATTERN,
             UTC_TIMEZONE);
-    return calStartDateTime != null && calEndDateTime != null && calStartDateTime.compareTo(calEndDateTime) < 0;
+    return calStartDateTime != null && calEndDateTime != null && calStartDateTime.compareTo(calEndDateTime) <= 0;
   }
 
   public boolean isPartiallyValid() {
