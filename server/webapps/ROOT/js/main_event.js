@@ -399,7 +399,12 @@ function saveEvent(elem) {
       var savedEvent = tmpl
             .replace("{{title}}", title)
             .replace("{{eventId}}", eid);
-      savedEvents.prepend(savedEvent);
+      $(savedEvent).click(function() {
+        // update event creation form
+        var event = $.extend({}, getEventControllerById(eid).model);
+        event.calendarId = -1;
+        updateEventForm(event);
+      }).prependTo(savedEvents);
       toastr.success("Saved event "+title);
     }
   });
