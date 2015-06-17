@@ -24,11 +24,9 @@ $(function() {
   
   // Bind weekend collapse
   $("#b_hide_weekend").click(function(){
-    // TODO: check if this train reck is the only way to do this
-    var sat_index = $('#t_calendar_heading th:contains("Sat")').index()+1;
-    var selector = "#t_calendar th:nth-of-type("+sat_index+"), #t_calendar td:nth-of-type("+sat_index+"), #t_calendar th:nth-of-type("+(sat_index+1)+"), #t_calendar td:nth-of-type("+(sat_index+1)+")";
     $(this).parent().toggleClass("active");
-    $(selector).toggle();
+    app.hide_weekend = !$(this).parent().hasClass("active");
+    refreshEvents();
   });
 
   // Bind sidebar collapse
@@ -44,7 +42,6 @@ $(function() {
   // mobile actions
   $(window).on("swipeleft", function(e) {
     var chat = $(e.target).closest(".chat-window")[0];
-    console.log(chat)
     if (chat) {
       var chats = $(".chat-window");
       var width = 235;
@@ -52,7 +49,7 @@ $(function() {
       var position = parseInt(chats.first().css("right").slice(0, -2));
       if (position + width*2 < $(window).width()) {
         // move all chats left by 1 box
-        $.each(chats, function(k, chat) {
+        chats.each(function(k, chat) {
           var pos = parseInt($(chat).css("right").slice(0, -2));
           $(chat).css({
             right: pos + width + "px"
@@ -61,7 +58,13 @@ $(function() {
       }
     } else {
       var app = $(".app");
-      app.hasClass("showleft") ? app.removeClass("showleft") : app.addClass("showright");
+      if (app.hasClass("showleft")) {
+        app.removeClass("showleft");
+        $("#b_hide_left").parent().removeClass("active");
+      } else {
+        app.addClass("showright");
+        $("#b_hide_right").parent().addClass("active");
+      }
     }
   });
 
@@ -74,7 +77,7 @@ $(function() {
       var position = parseInt(chats.last().css("right").slice(0, -2));
       if (position > 10) {
         // move all chats right by 1 box
-        $.each(chats, function(k, chat) {
+        chats.each(function(k, chat) {
           var pos = $(chat).css("right").slice(0, -2);
           $(chat).css({
             right: pos - width + "px"
@@ -83,12 +86,18 @@ $(function() {
       }
     } else {
       var app = $(".app");
-      app.hasClass("showright") ? app.removeClass("showright") : app.addClass("showleft");
+      if (app.hasClass("showright")) {
+        app.removeClass("showright");
+        $("#b_hide_right").parent().removeClass("active");
+      } else {
+        app.addClass("showleft");
+        $("#b_hide_left").parent().addClass("active");
+      }
     }
   });
 
   // Bind logout button
-  $("#b_logout, #b_logout_mobile").click(function() {
+  $("#b_logout").click(function() {
     $.ajax("/api/session", {
       method: "DELETE",
       success: function(data) { window.location.reload(); },
@@ -118,6 +127,7 @@ $(function() {
     if (validateUpdate(form)) {
       return;
     }
+
     submitAjaxForm(form, function(data) { toastr.success(data.message); $("#b_cancel_profile").click(); refreshUser(); }, $("#profile_errors"));
   });
   

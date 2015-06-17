@@ -18,6 +18,7 @@ import resp.UserResponse;
 import utils.AuthLevel;
 import utils.CalendarJoinCodeIdQuery;
 import utils.ServletUtils;
+import chat.ChatServer;
 import chat.DynamicUpdate;
 
 import com.google.common.collect.ImmutableMap;
@@ -98,7 +99,8 @@ public class CalendarSubscriptionServlet extends HttpServlet {
         /* Register calendar ID to user ID mapping. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
         map.put(resp.getCalendarId(), userId, AuthLevel.BASIC);
-        // Send dynamic update to the owner (creator)
+        // Send the users updated roster
+        ChatServer.sendRoster(userId);
         // Get the user from database
         UserResponse userResponse = db.getUser(new UserRequest(userId));
         DynamicUpdate.sendCalendarJoin(resp.getCalendarId(), ImmutableMap.of(
@@ -212,11 +214,15 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         try {
           db.deleteCalendarSubscription(targetUserId, calendarId);
+          // Notify people that this person unjoined the calendar
+          DynamicUpdate.sendCalendarUnjoin(calendarId,
+              ImmutableMap.of("calendarId", calendarId, "user", new UserResponse(targetUserId)));
+          // Send the updated roster first
+          ChatServer.sendRoster(targetUserId);
           /* Remove calendar ID to user ID mapping. */
           CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
           map.remove(calendarId, targetUserId);
-          DynamicUpdate.sendCalendarUnjoin(calendarId,
-              ImmutableMap.of("calendarId", calendarId, "user", targetUser));
+          // Send the users updated roster
           return new SuccessResponse("User unsubscribed.");
         } catch (CalendarSubscriptionNotFoundException e) {
           return new ErrorResponse(
@@ -245,6 +251,9 @@ public class CalendarSubscriptionServlet extends HttpServlet {
       try {
         AuthLevel enumRole = AuthLevel.getAuth(req.getRole());
         db.updateUserRole(targetUserId, calendarId, enumRole);
+        CalendarResponse resp = new CalendarResponse(calendarId);
+        resp.setRole(enumRole);
+        DynamicUpdate.sendCalendarUpdate(targetUserId, resp, true);
         return new SuccessResponse("Updated user role.");
       } catch (CalendarSubscriptionNotFoundException e) {
         return new ErrorResponse(

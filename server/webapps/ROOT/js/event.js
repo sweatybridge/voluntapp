@@ -20,7 +20,7 @@ var Event = (function() {
               '<li><a href="#" class="admin-menu" onclick="editEvent(this)">Edit Event</a></li>'+
               '<li><a href="#" class="admin-menu" onclick="deleteEventById({{eventId}})">Delete Event</a></li>'+
               '<li class="divider admin-menu"></li>'+
-              '<li><a href="data:text/calendar;charset=utf8,{{ics}}">Add to iCalendar</a></li>'+
+              '<li><a href="data:text/calendar;charset=utf8,{{ics}}" download="ical.ics">Add to iCalendar</a></li>'+
               '<li><a href="#" onclick="saveEvent(this)">Add to Saved Events</a></li>'+
             '</ul>'+
           '</div>'+
@@ -39,9 +39,9 @@ var Event = (function() {
           '<span></span>'+
         '</div>'+
         '<div class="join">'+
-          '<a class="badge" id="join" onclick="joinEvent(this)">Join</a>'+
-          '<a class="badge btn-success" id="approve" onclick="approveEvent(this)"> ✔ </a>'+
-          '<a class="badge btn-danger" id="disapprove" onclick="disapproveEvent(this)"> ✘ </a>'+
+          '<button class="btn badge btn-primary" id="join" onclick="joinEvent(this)">Join</button>'+
+          '<button class="btn badge btn-success" id="approve" onclick="approveEvent(this)"> ✔ </button>'+
+          '<button class="btn badge btn-danger" id="disapprove" onclick="disapproveEvent(this)"> ✘ </button>'+
         '</div>'+
       '</div>';
 
@@ -66,8 +66,8 @@ var Event = (function() {
       var tmpl =
         '<li data-user-id="{{userId}}" role="presentation">'+
           '<a role="menuitem" tabindex="-1" href="#">'+
-            '<span>{{firstName}}</span>'+
             '<span class="glyphicon glyphicon-minus-sign pull-right btn-remove" onclick="removeAttendee(this)"></span>'+
+            '<span>{{firstName}}</span>'+
           '</a>'+
         '</li>';
       // By the time we get here it is considered open
@@ -88,7 +88,10 @@ var Event = (function() {
               if (attendee.userId === app.user.userId) {
                 elem.find(".btn-remove").addClass("hidden");
               }
-              elem.appendTo(attendeesList);
+              elem.click(function() {
+                $(".user-list-item[data-val-id="+attendee.userId+"]").click();
+              });
+              attendeesList.append(elem);
             });
           }
         },
@@ -101,6 +104,11 @@ var Event = (function() {
     
     // enable more actions button
     this.view.find(".more").dropdown();
+
+    // close dropdown when menu item is clicked
+    this.view.find(".dropdown-menu").click(function() {
+      $(this).closest(".dropdown").removeClass("open");
+    })
 
     this.update(model);
   }
@@ -228,13 +236,14 @@ var Event = (function() {
       }
     },
     hasJoined: function() {
+      this.view.find("#join").prop("disabled", false);
       // turn header bar of unjoined events grey
       if (this.model.hasJoined) {
         // turn header bar green
         this.view.find(".header").removeClass("progress-bar-info label-default").addClass("progress-bar-success");
         this.view.find(".more").removeClass("btn-info").addClass("btn-success");
         // update joined badge
-        this.view.find("#join").removeClass("hidden").addClass("progress-bar-danger").text("Unjoin");
+        this.view.find("#join").removeClass("hidden btn-primary").addClass("btn-danger").text("Unjoin");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", true).prop("disabled", true);
       } else {
@@ -244,7 +253,7 @@ var Event = (function() {
           this.view.find(".more").addClass("btn-info").removeClass("btn-success");
         }
         // update badge
-        this.view.find("#join").removeClass("progress-bar-danger").text("Join");
+        this.view.find("#join").removeClass("btn-danger").addClass("btn-primary").text("Join");
         // update requirements checkbox
         this.view.find('.requirements input[type="checkbox"]').prop("checked", false);
       }
@@ -344,7 +353,12 @@ var Event = (function() {
         this.view.find(".more").removeClass("btn-pending").removeClass("btn-danger");
         this.view.find('#approve').addClass("hidden");
         this.view.find('#disapprove').addClass("hidden");
-        this.view.find('#join').removeClass("hidden");
+
+        if (this.isPast || (this.isFull && !this.model.hasJoined)) {
+          this.view.find('#join').addClass("hidden");
+        } else {
+          this.view.find('#join').removeClass("hidden");
+        }
 
         // call hasJoined handler to update header and join button style
         modelChangedHandler['hasJoined'].apply(this);

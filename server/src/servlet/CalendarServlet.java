@@ -256,7 +256,7 @@ public class CalendarServlet extends HttpServlet {
       // Remove fields that we don't want to expose
       resp.setJoinEnabled(null);
       resp.setJoinCode(null);
-      DynamicUpdate.sendCalendarUpdate(cid, resp);
+      DynamicUpdate.sendCalendarUpdate(cid, resp, false);
       result = new SuccessResponse("Calendar data was successfully updated.");
     } catch (NumberFormatException e) {
       result = new ErrorResponse("One of the specified dates was invalid.");

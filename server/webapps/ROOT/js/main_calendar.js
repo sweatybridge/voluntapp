@@ -22,7 +22,7 @@ $(function() {
   
   // Bind edit calendar buttons and forms
   $("#b_cancel_calendar").click(function() {
-    $("#d_edit_calendar").addClass("hidden");
+    $("#d_edit_calendar").toggle();
   });
   $("#b_edit_calendar").click(function(e) {
     if (!$(this).closest(".panel-heading").hasClass("collapsed")) {
@@ -116,7 +116,7 @@ $(function() {
   });
 
   // Render calendar from monday
-  app.current_start_date = getMonday();
+  app.current_start_date = ($(window).width() < 768) ? getYesterday() : getMonday();
   updateCalendarDates();
 }); // End of document ready
 
@@ -132,29 +132,39 @@ function renderCalendars() {
   var cal_html =
       '<li role="presentation" data-calid="{{id}}">'+
         '<span class="badge progress-bar-warning notification hidden"></span>'+
-        '<a href="#">{{name}}<span class="label label-primary join-code">{{joinCode}}</span></a>'+
+        '<a href="#">{{name}}'+
+          '<span class="calendar-badges">'+
+            '<span class="label label-warning join-code">{{role}}</span>'+
+            '<span class="label label-primary join-code">{{joinCode}}</span>'+
+          '</span>'+
+        '</a>'+
       '</li>';
 
   var myCalendar = $("#d_user_calendars");
   // Clean current visible data
   myCalendar.html("It seems like you haven't joined to or created any calendars...");
   $("#select_calendar").empty();
-  
+
+  // We got calendars, clear division to repopulate
+  app.events = [];
+  $("#t_calendar_body").children().empty();
+
   // Check if there is any calendars returned
   if (app.calendars.length < 1) {
     $('#nav_create_tabs a:last').tab('show');
+    setCookie("active_calendars", []);
     return;
   }
-  
-  // We got calendars, clear division to repopulate
+
   myCalendar.empty();
-  app.events = [];
+
   // If there is any, create calendar elements
   $.each(app.calendars, function(index, calendar) {
     var code = calendar.joinEnabled ? calendar.joinCode : "private";
     var cal_div = $(cal_html
         .replace("{{id}}", calendar.calendarId)
         .replace("{{name}}", calendar.name)
+        .replace("{{role}}", calendar.role.charAt(0).toUpperCase())
         .replace("{{joinCode}}", code))
         .appendTo(myCalendar);
     if (calendar.role === "admin") {
@@ -191,15 +201,6 @@ function renderCalendars() {
        .append($("<option></option>")
        .attr("value",calendar.calendarId)
        .text(calendar.name));
-      /*
-      cal_div.find("button").click(function() {
-        var calid = $(this).parent().parent().data("calid");
-        $("#d_edit_calendar input[name='name']").val(calendar.name);
-        $("#d_edit_calendar input[type='checkbox']").prop("checked", calendar.joinEnabled);
-        $("#d_user_calendars").toggle();
-        $("#d_edit_calendar").data("calid", calid).toggle();
-      });
-      */
     }
   });
 
@@ -222,13 +223,25 @@ function updateCalendarDates() {
   var startDate = new Date(app.current_start_date);
   $("#pickStartDate").datetimepicker({value: startDate});
 
-  $("#prev_day").next().text(formatDate(startDate));
   var allDays = $("#t_calendar_body").children();
-
   var today = new Date();
+  var current = new Date(startDate);
+  var last = allDays.filter(":visible").length - 1;
   allDays.each(function(k, elem) {
-    var current = new Date(startDate);
-    current.setDate(current.getDate() + k);
+    // check if hide weekend
+    var day = current.getDay();
+    if (app.hide_weekend) {
+      if (day === 0) {
+        current.setDate(current.getDate() + 1);
+      } else if (day === 6) {
+        current.setDate(current.getDate() + 2);
+      }
+    }
+
+    // update first day
+    if (k === 0) {
+      $("#prev_day").next().text(formatDate(current));
+    }
 
     // update data fields
     var date = current.toLocaleDateString();
@@ -237,24 +250,21 @@ function updateCalendarDates() {
     // update heading text
     var heading = $("#t_calendar_heading td:nth-child("+(k+1)+")");
     heading.text(getWeekDay(current) + " - " + formatDate(current));
-    heading.removeClass("bg-primary").removeClass("th_weekend").removeClass("th_weekday");
 
     // highlight heading background
     if (date === today.toLocaleDateString()) {
       heading.addClass("bg-primary");
-    }
-
-    // update heading class
-    var day = current.getDay();
-    if (day === 0 || day === 6) {
-      heading.addClass("th_weekend");
     } else {
-      heading.addClass("th_weekday");
+      heading.removeClass("bg-primary");
     }
-  });
 
-  startDate.setDate(startDate.getDate() + allDays.filter(":visible").length);
-  $("#next_day").prev().text(formatDate(startDate));
+    // update last day
+    if (k === last) {
+      $("#next_day").prev().text(formatDate(current));
+    }
+
+    current.setDate(current.getDate() + 1);
+  });
 }
 
 // Get active_calendar ids

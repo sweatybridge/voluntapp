@@ -2,7 +2,6 @@ package chat;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +18,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import resp.CalendarResponse;
 import resp.RosterResponse;
 import resp.RosterResponse.RosterEntry;
 import resp.SessionResponse;
@@ -26,6 +26,7 @@ import utils.ConcurrentHashSet;
 import utils.DataSourceProvider;
 import db.CalendarIdUserIdMap;
 import db.DBInterface;
+import exception.InconsistentDataException;
 import exception.SessionNotFoundException;
 
 /**
@@ -104,13 +105,15 @@ public class ChatServer {
     }
 
     try {
-      RosterResponse roster = db.getRoster(userId);
+      // Send the user roster
+      sendRoster(userId);
+
       // Signal that the user came online if we have to
       if (userCameOnline) {
+        // Send online update
         Set<Integer> calendarIds = new HashSet<Integer>();
-        for (RosterEntry entry : roster.getRosterEntries()) {
-          calendarIds.addAll(entry.getcids());
-          entry.setIsOnline(connections.get(entry.getuid()) != null);
+        for (CalendarResponse cal : db.getUsersCalendars(userId).getCalendars()) {
+          calendarIds.add(cal.getCalendarId());
         }
         /* Record that a user is subscribed to given calendars. */
         CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
@@ -119,14 +122,7 @@ public class ChatServer {
         }
         DynamicUpdate.sendOnlineUser(calendarIds, userId);
       }
-
-      // Send the actual user roster
-      List<Integer> destinationIds = new ArrayList<Integer>(2);
-      destinationIds.add(userId);
-      ChatMessage rosterMessage = new ChatMessage("roster", destinationIds, -1,
-          false, roster);
-      routeChatMessage(rosterMessage);
-
+      
       // Return any offline messages
       List<ChatMessage> cms = db.getMessages(userId);
       if (cms != null) {
@@ -135,7 +131,7 @@ public class ChatServer {
         }
       }
 
-    } catch (SQLException e) {
+    } catch (SQLException | InconsistentDataException e) {
       e.printStackTrace();
       System.err.println("Failed to get offline message for user: " + userId);
     }
@@ -196,6 +192,31 @@ public class ChatServer {
   public void onError(Throwable t) throws Throwable {
     System.err.println("ChatServer Error: " + t.toString());
     t.printStackTrace();
+  }
+
+  /**
+   * Sends the user its roster, if the userCameOnline then the session mapping
+   * is updated as well, otherwise just the roster is sent.
+   * 
+   * @param userId
+   *          The user to whom the roster should be sent
+   * @throws SQLException
+   *           Thrown when database fails to retrieve roster
+   */
+  public static void sendRoster(Integer userId)
+      throws SQLException {
+    // Get the actual user roster
+    RosterResponse roster = db.getRoster(userId);
+    
+    // Updating online status of people
+    for (RosterEntry entry : roster.getRosterEntries()) {
+      entry.setIsOnline(connections.get(entry.getuid()) != null);
+    }
+
+    // Send the actual user roster
+    ChatMessage rosterMessage = new ChatMessage("roster",
+        Arrays.asList(userId), -1, false, roster);
+    routeChatMessage(rosterMessage);
   }
 
   /**

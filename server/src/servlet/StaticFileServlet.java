@@ -22,13 +22,13 @@ import exception.SessionNotFoundException;
  * 
  */
 @WebServlet
-public class DefaultServlet extends HttpServlet {
+public class StaticFileServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
 
   private final DBInterface db;
 
-  public DefaultServlet(DBInterface db) {
+  public StaticFileServlet(DBInterface db) {
     this.db = db;
   }
 

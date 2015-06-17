@@ -19,11 +19,11 @@ import exception.SessionNotFoundException;
 
 public class DefaultServletTest extends ServletTest {
 
-  private DefaultServlet servlet;
+  private StaticFileServlet servlet;
 
   @Before
   public void setUp() {
-    servlet = new DefaultServlet(db) {
+    servlet = new StaticFileServlet(db) {
       private static final long serialVersionUID = 1L;
 
       @Override

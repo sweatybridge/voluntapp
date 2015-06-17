@@ -1,5 +1,7 @@
 package db;
 
+import java.awt.Event;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -546,7 +548,22 @@ public class DBInterface {
         ereq.getDescription(), ereq.getLocation(), ereq.getStartDateTime(),
         ereq.getEndDateTime(), ereq.getMax(), eventId, ereq.getCalendarId(),
         ereq.getStatus(), userId);
-    return updateRowCheckHelper(er);
+    try {
+      updateEvenHelper(er);
+    } catch (NoSuchMethodException | SecurityException e) {
+      e.printStackTrace();
+      return null;
+    }
+    return er;
+  }
+
+  private void updateEvenHelper(EventResponse er) throws NoSuchMethodException,
+      SecurityException, SQLException {
+    java.lang.reflect.Method getMethod, formatMethod;
+    getMethod = er.getClass().getMethod("getSQLUpdate");
+    formatMethod = er.getClass().getMethod("formatSQLUpdate",
+        PreparedStatement.class);
+    query(er, getMethod, formatMethod);
   }
 
   /**
@@ -597,35 +614,13 @@ public class DBInterface {
   public EventResponse deleteEvent(int eventId) throws EventNotFoundException,
       InconsistentDataException, SQLException {
     EventResponse er = new EventResponse(eventId, EventStatus.DELETED);
-    return updateRowCheckHelper(er);
-  }
-
-  /**
-   * Helper to perform the update for a response /w a row check This should only
-   * be used when you only expect ONE row to be changed by the query.
-   * 
-   * @param r
-   *          Response representing the query to be run.
-   * @return Response corresponding to the given update
-   * @throws EventNotFoundException
-   *           See delete or update event.
-   * @throws InconsistentDataException
-   *           See delete or update event.
-   * @throws SQLException
-   *           See delete or update event.
-   */
-  private EventResponse updateRowCheckHelper(EventResponse r)
-      throws EventNotFoundException, InconsistentDataException, SQLException {
-    int rows = update(r);
-    if (rows == 1) {
-      return r;
+    try {
+      updateEvenHelper(er);
+    } catch (NoSuchMethodException | SecurityException e) {
+      e.printStackTrace();
+      return null;
     }
-    if (rows == 0) {
-      throw new EventNotFoundException(
-          "The event could not be altered, as it doesn't exist");
-    }
-    throw new InconsistentDataException(
-        "Altering event info modified more than 1 row!");
+    return er;
   }
 
   /**
@@ -743,19 +738,34 @@ public class DBInterface {
    * @throws SQLException
    *           Thrown when there is an error with the database interaction.
    */
-  private boolean query(SQLQuery query, String override) throws SQLException {
+  private boolean query(SQLQuery query, java.lang.reflect.Method get,
+      java.lang.reflect.Method format) throws SQLException {
     Connection conn = source.getConnection();
     ResultSet result = null;
     try {
       String q;
-      if (override == null) {
+      if (get == null) {
         q = query.getSQLQuery();
       } else {
-        q = override;
+        try {
+          q = (String) get.invoke(query);
+        } catch (IllegalAccessException | IllegalArgumentException
+            | InvocationTargetException e) {
+          e.printStackTrace();
+          return false;
+        }
       }
       PreparedStatement stmt = conn.prepareStatement(q);
-      if (override == null) {
+      if (format == null) {
         query.formatSQLQuery(stmt);
+      } else {
+        try {
+          format.invoke(query, stmt);
+        } catch (IllegalAccessException | IllegalArgumentException
+            | InvocationTargetException e) {
+          e.printStackTrace();
+          return false;
+        }
       }
       result = stmt.executeQuery();
       query.setResult(result);
@@ -766,7 +776,7 @@ public class DBInterface {
   }
 
   private boolean query(SQLQuery query) throws SQLException {
-    return query(query, null);
+    return query(query, null, null);
   }
 
   /**
@@ -979,11 +989,14 @@ public class DBInterface {
           "Deleteing a user removed more than 1 row!");
     }
   }
-  
-  public EventResponse getEvent(int eventId, AuthLevel level) throws SQLException {
+
+  public EventResponse getEvent(int eventId, AuthLevel level)
+      throws SQLException {
     EventResponse query = new EventResponse(eventId);
-    /* Allow editors and admins to retrieve the data about pending and 
-     * disapproved events. */
+    /*
+     * Allow editors and admins to retrieve the data about pending and
+     * disapproved events.
+     */
     if (level == AuthLevel.ADMIN || level == AuthLevel.EDITOR) {
       query.setPriviledge();
     }

@@ -182,6 +182,9 @@ function joinEvent(elem) {
   var eid = view.data("eventId");
   var controller = getEventControllerById(eid);
   var event = controller.model;
+
+  // disable join to prevent spamming
+  view.find("#join").prop("disabled", true);
   
   // determine wether to join or unjoin
   if (event.hasJoined) {
@@ -189,14 +192,14 @@ function joinEvent(elem) {
     $.ajax("/api/subscription/event/" + eid, {
       method: "DELETE",
       success: function(data) {
-        controller.update({
-          currentCount: event.currentCount - 1,
-          hasJoined: false
-        });
+        // controller.update({
+        //   currentCount: event.currentCount - 1,
+        //   hasJoined: false
+        // });
         toastr.warning("Unjoined event " + event.title);
       },
       error: function(data) {
-        toastr.error("Cannot join event: " + data.responseJSON.message);
+        toastr.error("Cannot unjoin event: " + data.responseJSON.message);
         refreshEvents();
       }
     });
@@ -227,13 +230,13 @@ function joinEvent(elem) {
       method: "POST",
       success: function(data) {
         toastr.success("Joined event " + event.title);
-        controller.update({
-          currentCount: event.currentCount + 1,
-          hasJoined: true
-        });
+        // controller.update({
+        //   currentCount: event.currentCount + 1,
+        //   hasJoined: true
+        // });
       },
       error: function(data) {
-        toastr.error("Cannot unjoin event: " + data.responseJSON.message);
+        toastr.error("Cannot join event: " + data.responseJSON.message);
         refreshEvents();
       }
     });
@@ -281,9 +284,9 @@ function updateEventForm(event) {
 
 // Adds extra fields into event form
 function formatEventForm(formObj) {
-  var start = new Date(formObj["startDate"].replace(" ", "T"));
+  var start = new Date(formObj["startDate"].replace(" ", "T").concat("Z"));
   start = new Date(start.getTime() + start.getTimezoneOffset()*60*1000)
-  var end = new Date(formObj["endDate"].replace(" ", "T"));
+  var end = new Date(formObj["endDate"].replace(" ", "T").concat("Z"));
   end = new Date(end.getTime() + end.getTimezoneOffset()*60*1000)
   formObj["startDateTime"] = start.toJSON().replace(".000", "");
   formObj["endDateTime"] = end.toJSON().replace(".000", "");
