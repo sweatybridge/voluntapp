@@ -152,7 +152,11 @@ function renderCalendars() {
   // Check if there is any calendars returned
   if (app.calendars.length < 1) {
     $('#nav_create_tabs a:last').tab('show');
-    setCookie("active_calendars", []);
+    if (Modernizr.localstorage) {
+      localStorage.removeItem("active_calendars");
+    } else {
+      setCookie("active_calendars", []);
+    }
     return;
   }
 
@@ -191,7 +195,11 @@ function renderCalendars() {
         });
       }
       // update cookie
-      setCookie("active_calendars", getActiveCalendarIds());
+      if (Modernizr.localstorage) {
+        localStorage["active_calendars"] = getActiveCalendarIds();
+      } else {
+        setCookie("active_calendars", getActiveCalendarIds());
+      }
     });
 
     // Check calendar rights
@@ -205,7 +213,7 @@ function renderCalendars() {
   });
 
   // Refresh events for the calendars from cookie
-  var active_calendars = getCookie("active_calendars");
+  var active_calendars = Modernizr.localstorage ? localStorage["active_calendars"] : getCookie("active_calendars");
   if (active_calendars) {
     myCalendar.children().each(function(k, elem) {
       var cal = $(elem);
