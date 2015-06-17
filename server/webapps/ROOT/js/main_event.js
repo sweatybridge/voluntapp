@@ -191,12 +191,11 @@ function joinEvent(elem) {
   var eid = view.data("eventId");
   var controller = getEventControllerById(eid);
   var event = controller.model;
-
-  // disable join to prevent spamming
-  view.find("#join").prop("disabled", true);
   
   // determine wether to join or unjoin
   if (event.hasJoined) {
+    // disable join to prevent spamming
+    view.find("#join").prop("disabled", true);
     // unjoin an event
     $.ajax("/api/subscription/event/" + eid, {
       method: "DELETE",
@@ -233,6 +232,9 @@ function joinEvent(elem) {
       toastr.error("You haven't checked all requirements for " + event.title);
       return;
     }
+    
+    // disable join to prevent spamming
+    view.find("#join").prop("disabled", true);
     
     // Everything is fine, join the party
     $.ajax("/api/subscription/event/" + eid, {
