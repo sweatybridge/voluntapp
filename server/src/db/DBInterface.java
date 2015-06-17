@@ -466,6 +466,11 @@ public class DBInterface {
       SQLException {
     CalendarSubscriptionResponse resp = new CalendarSubscriptionResponse(
         targetUserId, calendarId, role);
+    
+    // Update the internal mapping from calendar IDs to user IDs
+    CalendarIdUserIdMap map = CalendarIdUserIdMap.getInstance();
+    map.put(calendarId, targetUserId, role);
+    
     int rows = update(resp);
     if (rows == 1) {
       return true;

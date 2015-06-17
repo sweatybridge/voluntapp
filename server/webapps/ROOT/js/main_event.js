@@ -15,6 +15,11 @@ $(function() {
     }
   });
   
+  // Bind if edit is directly used
+  $("#event_form input[name='endDate']").datetimepicker({
+    format: "Y-m-d H:i"
+  });
+  
   
   
   // Bind the pick start date input
