@@ -255,13 +255,13 @@ var Event = (function() {
         // update badge
         this.view.find("#join").removeClass("btn-danger").addClass("btn-primary").text("Join");
         // update requirements checkbox
-        this.view.find('.requirements input[type="checkbox"]').prop("checked", false);
+        this.view.find('.requirements input[type="checkbox"]').prop("checked", false).prop("disabled", false);;
       }
     },
     startDateTime: function() {
       // update start time
       var start = new Date(this.model.startDateTime);
-      var readableTime = start.toLocaleTimeString().substring(0, 5);
+      var readableTime = padDigit(start.getHours()) + ":" + padDigit(start.getMinutes());
       this.view.find(".time :nth-child(1)").text(readableTime);
 
       // check if view is already rendered
