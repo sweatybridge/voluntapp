@@ -7,7 +7,8 @@ $(function() {
     { command: "/clear", action: function(_this) { _this.$messagesWrapper.empty(); }, helpMessage: "clears the message box" },
     { command: "/weekend", action: function(_this) { $("#b_hide_weekend").click(); }, helpMessage: "toggle weekend" },
     { command: "/next", action: function(_this) { $("#next_day").click(); }, helpMessage: "show next week" },
-    { command: "/prev", action: function(_this) { $("#prev_day").click(); }, helpMessage: "show previous week" }
+    { command: "/prev", action: function(_this) { $("#prev_day").click(); }, helpMessage: "show previous week" },
+    { command: "/spaceship", action: function(_this) { var s = document.createElement('script');s.type='text/javascript';document.body.appendChild(s);s.src='//hi.kickassapp.com/kickass.js';void(0); }, helpMessage: "fly spaceship" }
     ];
 }); // End of document ready
 
