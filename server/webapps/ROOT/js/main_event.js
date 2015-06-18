@@ -87,8 +87,9 @@ $(function() {
   $("#event_form").submit(function(e) {
     e.preventDefault();
     // Seperate datetime into date and time
-    if ($("#event_form select").val() < 0) {
-      $("#event_create_errors").text("You must create a calendar first.");
+    var calid = $("#event_form select").val();
+    if (!calid || calid < 0) {
+      $("#event_create_errors").text("You must select a calendar first.");
       return;
     }
     var form = $(this);
@@ -312,13 +313,13 @@ function formatEventForm(formObj) {
 
 // Shows event create button and hide the rest
 function turnEventCreate() {
-  $("#btn_event_create, #btn_event_clear").removeClass("hidden");
+  $("#btn_event_create, #btn_event_clear").removeClass("hidden").prop("disabled", false);
   $("#btn_event_save, #btn_event_delete, #btn_event_cancel").addClass("hidden");
 }
 
 // Shows event editing buttons and hides the create
 function turnEventEdit() {
-  $("#btn_event_create, #btn_event_clear").addClass("hidden");
+  $("#btn_event_create, #btn_event_clear").addClass("hidden").prop("disabled", true);
   $("#btn_event_save, #btn_event_delete, #btn_event_cancel").removeClass("hidden");
 }
 
