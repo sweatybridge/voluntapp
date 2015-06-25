@@ -58,6 +58,7 @@
               <div class="form-group"><input type="password" name="confPassword" class="form-control" placeholder="Confirm password" required></div>
               <div class="form-group"><input type="text" name="firstName" class="form-control" placeholder="First name" required></div>
               <div class="form-group"><input type="text" name="lastName" class="form-control" placeholder="Last name (optional)"></div>
+              <div class="form-group"><p>By clicking Register, you agree to and have understood our <a href="#" type="button" data-toggle="modal" data-target="#dataPolicyModal">Data Policy</a>.</p></div>
               <div class="form-group"><input class="btn btn-primary" type="submit" value="Register"></div>
               <p class="form-error" id="register_errors"></p>
             </form>
@@ -66,7 +67,7 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-   <!-- Modal -->
+    <!-- Modal -->
     <div class="modal fade" id="passwordModal">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -81,6 +82,21 @@
               <p class="form-error" id="password_errors"></p>
               <div class="form-group centerbutton"><input class="btn btn-primary" type="submit" value="Reset Password"></div>
             </form>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    
+    <!-- Modal -->
+    <div class="modal fade" id="dataPolicyModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Data Policy</h4>
+          </div>
+          <div class="modal-body">
+            <p>Imperial College London is registered under the 1998 Data Protection Act. Your personal data will be used for the purpose of administering the schemes which use this application and for reporting internally about the work completed by you. The personal information that you provide will be treated confidentially and stored securely in accordance with the Data Protection Act and the College’s own <a href="http://www3.imperial.ac.uk/legalservicesoffice/dataprotection/policy">Data Protection Policy</a>. You may delete your account at any time.  Deletion of your account will result in the permanent erasure of your personal data from the application database.</p>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
