@@ -16,18 +16,16 @@ import listener.Application;
 public class EmailUtils {
 
   public static void sendValidationEmail(String email, String validationCode) {
-    Thread t = new Thread(new EmailRunnable(email, "Voluntapp Validation",
-        "Your validation code is: " + validationCode));
+    Thread t = new Thread(new EmailRunnable(email, "Voluntapp Account Validation",
+        "Your validation code is: " + validationCode + "\n\nVoluntap Team"));
     t.start();
   }
 
   public static void sendTempPassword(String email, String newPassword) {
     Thread t = new Thread(
-        new EmailRunnable(
-            email,
-            "Requested new password",
+        new EmailRunnable(email, "Voluntapp Reset Password",
             "We have given you a new password to log on with, please change this IMMEDIATELY after you log in.\n Your new password is: "
-                + newPassword));
+                + newPassword + "\n\nVoluntapp Team"));
     t.start();
   }
 
