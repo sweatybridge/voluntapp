@@ -16,7 +16,7 @@ import listener.Application;
 public class EmailUtils {
 
   public static void sendValidationEmail(String email, String validationCode) {
-    Thread t = new Thread(new EmailRunnable(email, "Validation",
+    Thread t = new Thread(new EmailRunnable(email, "Voluntapp Validation",
         "Your validation code is: " + validationCode));
     t.start();
   }
@@ -55,14 +55,14 @@ public class EmailUtils {
     Properties props = new Properties();
     props.put("mail.smtp.auth", "true");
     props.put("mail.smtp.starttls.enable", "true");
-    props.put("mail.smtp.host", "smtp.gmail.com");
-    props.put("mail.smtp.port", "587");
+    props.put("mail.smtp.host", ConfigResources.getString("emailHost"));
+    props.put("mail.smtp.port", ConfigResources.getString("emailPort"));
 
     Session session = Session.getInstance(props,
         new javax.mail.Authenticator() {
           protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication("webappsalpha@gmail.com",
-                "webappsalpha34");
+            return new PasswordAuthentication(ConfigResources.getString("emailAccount"),
+                ConfigResources.getString("emailPass"));
           }
         });
 

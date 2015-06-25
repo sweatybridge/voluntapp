@@ -21,9 +21,9 @@ public class DataSourceProvider {
   public static synchronized PGConnectionPoolDataSource getSource() {
     if (source == null) {
       source = new PGConnectionPoolDataSource();
-      source.setUrl(DBParameters.getString("dbUrl")); //$NON-NLS-1$
-      source.setUser(DBParameters.getString("dbUser")); //$NON-NLS-1$
-      source.setPassword(DBParameters.getString("dbPass")); //$NON-NLS-1$
+      source.setUrl(ConfigResources.getString("dbUrl")); //$NON-NLS-1$
+      source.setUser(ConfigResources.getString("dbUser")); //$NON-NLS-1$
+      source.setPassword(ConfigResources.getString("dbPass")); //$NON-NLS-1$
       source.setSsl(true);
       source.setSslfactory("org.postgresql.ssl.NonValidatingFactory"); //$NON-NLS-1$
     }
