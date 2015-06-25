@@ -249,7 +249,7 @@ var NotificationAdapter = (function() {
       // having fields: -type, -destinationIds, -sourceId
       // -date, -storeOffline, -payload
       var msg = JSON.parse(e.data);
-      console.log(msg);
+      //console.log(msg);
       switch (msg.type) {
         case 'ping':
           // Ping back
