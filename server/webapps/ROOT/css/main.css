@@ -317,14 +317,14 @@ Responsive layout for large screens
   }
 }
 
-@media (max-width: 1369px) {
+@media (max-width: 991px) {
   .nav>li>a:hover {
     text-decoration: none;
     background-color: #fff;
   }
 }
 
-@media (min-width: 1370px) {
+@media (min-width: 992px) {
   /* switch to toggle right bar */
   .app {
     left: 0px;
@@ -334,13 +334,26 @@ Responsive layout for large screens
   }
 }
 
-@media (min-width: 1640px) {
+@media (min-width: 1200px) {
   /* switch to toggle left bar */
   .app {
     right: 0px;
   }
   .app.showright {
     transform: translateX(0px);
+  }
+}
+
+.visible-xl {
+  display: none!important;
+}
+
+@media (min-width: 1600px) {
+  td.visible-xl {
+    display: table-cell!important;
+  }
+  .visible-xl {
+    display: block!important;
   }
 }
 
@@ -418,8 +431,3 @@ Nav bar no collapse
   }
 }
 
-@media (min-width: 1600px) {
-  .hidden-xl {
-    display: none!important;
-  }
-}

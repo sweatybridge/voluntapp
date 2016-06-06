@@ -1,6 +1,25 @@
 Personal Tomcat Notes
 =====================
 
+Production FAQ
+-----
+1. How to restart production server
+
+```
+ssh voluntapp.doc.ic.ac.uk
+~/apache-tomcat-8.0.23/bin/catalina.sh stop
+export $CATALINA_BASE=~/work/WebApps34/server
+~/apache-tomcat-8.0.23/bin/catalina.sh start
+
+```
+
+2. How to access production database
+
+```
+psql -h localhost -d voluntapp -U voluntapp -W
+voluntapp=# select * from "USER";
+```
+
 1. Directory Layout:
 
 This personal tomcat directory is laid out as follows:

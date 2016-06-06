@@ -89,7 +89,8 @@ $(function() {
       if (app.hasClass("showright")) {
         app.removeClass("showright");
         $("#b_hide_right").parent().removeClass("active");
-      } else {
+      } else if ($("#b_hide_left").is(":visible")
+          || !$("#b_hide_right").is(":visible")) {
         app.addClass("showleft");
         $("#b_hide_left").parent().addClass("active");
       }
@@ -152,6 +153,12 @@ $(function() {
   $("#prev_day").click(function() {
     // advance date by 1
     var days = $("#t_calendar_heading").children(":visible").length;
+    if (app.hide_weekend) {
+      var startDay = app.current_start_date.getDay();
+      if (startDay - days <= 0) {
+        days += 2;
+      }
+    }
     app.current_start_date.setDate(app.current_start_date.getDate() - days);
     refreshEvents();
   });
@@ -159,6 +166,12 @@ $(function() {
   $("#next_day").click(function() {
     // shift weekday columns right by one
     var days = $("#t_calendar_heading").children(":visible").length;
+    if (app.hide_weekend) {
+      var startDay = app.current_start_date.getDay();
+      if (startDay + days >= 6) {
+        days += 2;
+      }
+    }
     app.current_start_date.setDate(app.current_start_date.getDate() + days);
     refreshEvents();
   });
@@ -248,12 +261,18 @@ function hideLeftBar() {
 
 // Show sidebar by moving it into screen
 function showRightBar() {
+  if (window.innerWidth < 1200) {
+    hideLeftBar();
+  }
   $(".app").addClass("showright");
   // $("#d_right_sidebar").addClass("active");
   $("#b_hide_right").parent().addClass("active");
 }
 
 function showLeftBar() {
+  if (window.innerWidth < 1200) {
+    hideRightBar();
+  }
   $(".app").addClass("showleft");
   // $("#d_left_sidebar").addClass("active");
   $("#b_hide_left").parent().addClass("active");
